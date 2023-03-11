@@ -266,4 +266,29 @@ def my_entries(uid):
                                     accepted=None)
     else:
         return abort(403)
+ 
+
+@users.route('/users/follow', methods=['GET', 'POST'])
+@login_required
+def follow():
+    data = dgraph.query('query{ q(func: eq(unique_name, "st_verlagmbh")){uid}}')
+    # a = str(type(current_user.id))
+    # dgraph.upsert(None, set_nquads=f"""<{current_user.id}> <follows> <{}>""")
+    return str(current_user.user_follow(data['q'][0]['uid']))
+
+
+@users.route('/users/unfollow', methods=['GET', 'POST'])
+@login_required
+def unfollow():
+    data = dgraph.query('query{ q(func: eq(unique_name, "st_verlagmbh")){uid}}')
+    return str(current_user.user_unfollow((data['q'][0]['uid'])))
+
+
+@users.route('/users/noti_test', methods=['GET', 'POST'])
+@login_required
+def test_notification_preparation():
+    data = dgraph.query('query{ q(func: eq(unique_name, "falter_mbh")){uid}}')
+    a = prepare_update_notification_followers(data['q'][0]['uid'])
+    return 'Done'
+
         
