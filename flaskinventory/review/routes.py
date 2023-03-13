@@ -49,6 +49,7 @@ def submit():
             try:
                 accept_entry(uid, current_user)
                 send_acceptance_notification(uid)
+                prepare_update_notification_followers(uid)
                 flash('Entry has been accepted!', category='success')
                 return redirect(url_for('review.overview', **request.args))
             except Exception as e:
