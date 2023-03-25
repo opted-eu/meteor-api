@@ -1,0 +1,3167 @@
+{
+  "set": [
+    {
+      "wikidata_id": "Q14196",
+      "description": "West Germanic language, spoken in South Africa and Namibia",
+      "icu_code": "af",
+      "name@af": "Afrikaans",
+      "name@en": "Afrikaans",
+      "iso_639_2": "afr",
+      "iso_639_3": "afr",
+      "name": "Afrikaans",
+      "alternate_names": [
+        "Afrikaans language",
+        "af",
+        "afr",
+        "African language"
+      ],
+      "_unique_name": "language_afrikaans",
+      "dgraph.type": "Language",
+      "uid": "_:language_afrikaans"
+    },
+    {
+      "wikidata_id": "Q28026",
+      "description": "language of Akan lands in Ghana",
+      "icu_code": "ak",
+      "name@ak": "Akan",
+      "name@en": "Akan",
+      "iso_639_2": "aka",
+      "iso_639_3": "aka",
+      "name": "Akan",
+      "alternate_names": [
+        "Twi language",
+        "Fante language",
+        "Akan language",
+        "ak"
+      ],
+      "_unique_name": "language_akan",
+      "dgraph.type": "Language",
+      "uid": "_:language_akan"
+    },
+    {
+      "wikidata_id": "Q8748",
+      "description": "Indo-European language",
+      "icu_code": "sq",
+      "name@sq": "shqip",
+      "name@en": "Albanian",
+      "iso_639_2": "alb",
+      "iso_639_3": "sqi",
+      "name": "Albanian",
+      "alternate_names": [
+        "Albanian language",
+        "sq",
+        "Shqip"
+      ],
+      "_unique_name": "language_albanian",
+      "dgraph.type": "Language",
+      "uid": "_:language_albanian"
+    },
+    {
+      "wikidata_id": "Q28244",
+      "description": "Semitic language of Ethiopia",
+      "icu_code": "am",
+      "name@am": "\u12a0\u121b\u122d\u129b",
+      "name@en": "Amharic",
+      "iso_639_2": "amh",
+      "iso_639_3": "amh",
+      "name": "Amharic",
+      "alternate_names": [
+        "am"
+      ],
+      "_unique_name": "language_amharic",
+      "dgraph.type": "Language",
+      "uid": "_:language_amharic"
+    },
+    {
+      "wikidata_id": "Q13955",
+      "description": "Semitic language and lingua franca of the Arab world",
+      "icu_code": "ar",
+      "name@ar": "\u0627\u0644\u0639\u0631\u0628\u064a\u064e\u0651\u0629",
+      "name@en": "Arabic",
+      "iso_639_2": "ara",
+      "iso_639_3": "ara",
+      "name": "Arabic",
+      "alternate_names": [
+        "ar",
+        "Arabic language",
+        "Arabian language"
+      ],
+      "_unique_name": "language_arabic",
+      "dgraph.type": "Language",
+      "uid": "_:language_arabic"
+    },
+    {
+      "wikidata_id": "Q8765",
+      "description": "Romance language",
+      "icu_code": "an",
+      "name@an": "Idioma aragon\u00e9s",
+      "name@en": "Aragonese",
+      "iso_639_2": "arg",
+      "iso_639_3": "arg",
+      "name": "Aragonese",
+      "alternate_names": [
+        "Aragonese language",
+        "an",
+        "aragon\u0161tina"
+      ],
+      "_unique_name": "language_aragonese",
+      "dgraph.type": "Language",
+      "uid": "_:language_aragonese"
+    },
+    {
+      "wikidata_id": "Q8785",
+      "description": "Indo-European language",
+      "icu_code": "hy",
+      "name@hy": "\u0570\u0561\u0575\u0565\u0580\u0565\u0576",
+      "name@en": "Armenian",
+      "iso_639_2": "arm",
+      "iso_639_3": "hye",
+      "name": "Armenian",
+      "alternate_names": [
+        "Armenian language",
+        "hy"
+      ],
+      "_unique_name": "language_armenian",
+      "dgraph.type": "Language",
+      "uid": "_:language_armenian"
+    },
+    {
+      "wikidata_id": "Q29401",
+      "description": "Indo-Aryan language spoken in India",
+      "icu_code": "as",
+      "name@as": "\u0985\u09b8\u09ae\u09c0\u09af\u09bc\u09be \u09ad\u09be\u09b7\u09be",
+      "name@en": "Assamese",
+      "iso_639_2": "asm",
+      "iso_639_3": "asm",
+      "name": "Assamese",
+      "alternate_names": [
+        "Asamiya language",
+        "Assamese language",
+        "Asamiya",
+        "as",
+        "Axomiya language",
+        "Axomiya",
+        "Asomiya"
+      ],
+      "_unique_name": "language_assamese",
+      "dgraph.type": "Language",
+      "uid": "_:language_assamese"
+    },
+    {
+      "wikidata_id": "Q29507",
+      "description": "Romance language of the West Iberian group",
+      "icu_code": "ast",
+      "name@ast": "asturianu",
+      "name@en": "Asturian",
+      "iso_639_2": "ast",
+      "iso_639_3": "ast",
+      "name": "Asturian",
+      "alternate_names": [
+        "Asturleonese",
+        "Bable",
+        "Leonese",
+        "Asturian language",
+        "ast"
+      ],
+      "_unique_name": "language_asturian",
+      "dgraph.type": "Language",
+      "uid": "_:language_asturian"
+    },
+    {
+      "wikidata_id": "Q9292",
+      "description": "Oghuz Turkic language of the Azerbaijani people",
+      "icu_code": "az",
+      "name@az": "Az\u0259rbaycan dili",
+      "name@en": "Azerbaijani",
+      "iso_639_2": "aze",
+      "iso_639_3": "aze",
+      "name": "Azerbaijani",
+      "alternate_names": [
+        "Azerbaijani Turkic",
+        "Azerbaijani language",
+        "Azerbaijani Turkic language",
+        "az"
+      ],
+      "_unique_name": "language_azerbaijani",
+      "dgraph.type": "Language",
+      "uid": "_:language_azerbaijani"
+    },
+    {
+      "wikidata_id": "Q4627",
+      "description": "native language in South America",
+      "icu_code": "ay",
+      "name@ay": "Aymar aru",
+      "name@en": "Aymara",
+      "iso_639_2": "aym",
+      "iso_639_3": "aym",
+      "name": "Aymara",
+      "alternate_names": [
+        "Aimara language",
+        "Aymar\u00e1 language",
+        "Caranga language",
+        "Aymara languages",
+        "Aymara language",
+        "ay"
+      ],
+      "_unique_name": "language_aymara",
+      "dgraph.type": "Language",
+      "uid": "_:language_aymara"
+    },
+    {
+      "wikidata_id": "Q33243",
+      "description": "western African language spoken in Mali, with SVO structure and two lexical tones",
+      "icu_code": "bm",
+      "name@bm": "Bamanankan",
+      "name@en": "Bambara",
+      "iso_639_2": "bam",
+      "iso_639_3": "bam",
+      "name": "Bambara",
+      "alternate_names": [
+        "bm",
+        "Bambara language",
+        "Masaba script"
+      ],
+      "_unique_name": "language_bambara",
+      "dgraph.type": "Language",
+      "uid": "_:language_bambara"
+    },
+    {
+      "wikidata_id": "Q13389",
+      "description": "Turkic language in Russia",
+      "icu_code": "ba",
+      "name@ba": "\u0431\u0430\u0448\u04a1\u043e\u0440\u0442 \u0442\u0435\u043b\u0435",
+      "name@en": "Bashkir",
+      "iso_639_2": "bak",
+      "iso_639_3": "bak",
+      "name": "Bashkir",
+      "alternate_names": [
+        "Bashkir language",
+        "ba"
+      ],
+      "_unique_name": "language_bashkir",
+      "dgraph.type": "Language",
+      "uid": "_:language_bashkir"
+    },
+    {
+      "wikidata_id": "Q8752",
+      "description": "language of the Basque people",
+      "icu_code": "eu",
+      "name@eu": "euskara",
+      "name@en": "Basque",
+      "iso_639_2": "baq",
+      "iso_639_3": "eus",
+      "name": "Basque",
+      "alternate_names": [
+        "eu",
+        "Euskara",
+        "Basque languages",
+        "Basque language"
+      ],
+      "_unique_name": "language_basque",
+      "dgraph.type": "Language",
+      "uid": "_:language_basque"
+    },
+    {
+      "wikidata_id": "Q9091",
+      "description": "East Slavic language",
+      "icu_code": "be",
+      "name@be": "\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f \u043c\u043e\u0432\u0430",
+      "name@en": "Belarusian",
+      "iso_639_2": "bel",
+      "iso_639_3": "bel",
+      "name": "Belarusian",
+      "alternate_names": [
+        "Bielorussian",
+        "be",
+        "bel",
+        "Belarusian language",
+        "Belarusan language",
+        "Byelorussian language",
+        "Belarussian language",
+        "White Russian language",
+        "Belarus language",
+        "Belorusian language",
+        "Belorussian language",
+        "Bielorusian",
+        "Bielarusian"
+      ],
+      "_unique_name": "language_belarusian",
+      "dgraph.type": "Language",
+      "uid": "_:language_belarusian"
+    },
+    {
+      "wikidata_id": "Q9610",
+      "description": "Indo-Aryan language mostly spoken in Bangladesh and India",
+      "icu_code": "bn",
+      "name@bn": "\u09ac\u09be\u0982\u09b2\u09be \u09ad\u09be\u09b7\u09be",
+      "name@en": "Bengali",
+      "iso_639_2": "ben",
+      "iso_639_3": "ben",
+      "name": "Bengali",
+      "alternate_names": [
+        "Bengali language",
+        "Bangla",
+        "bn",
+        "ben"
+      ],
+      "_unique_name": "language_bengali",
+      "dgraph.type": "Language",
+      "uid": "_:language_bengali"
+    },
+    {
+      "wikidata_id": "Q12107",
+      "description": "Celtic language spoken in France",
+      "icu_code": "br",
+      "name@br": "brezhoneg",
+      "name@en": "Breton",
+      "iso_639_2": "bre",
+      "iso_639_3": "bre",
+      "name": "Breton",
+      "alternate_names": [
+        "Brezhoneg",
+        "Breton language",
+        "br",
+        "bre"
+      ],
+      "_unique_name": "language_breton",
+      "dgraph.type": "Language",
+      "uid": "_:language_breton"
+    },
+    {
+      "wikidata_id": "Q7918",
+      "description": "South Slavic language",
+      "icu_code": "bg",
+      "name@bg": "\u0431\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438 \u0435\u0437\u0438\u043a",
+      "name@en": "Bulgarian",
+      "iso_639_2": "bul",
+      "iso_639_3": "bul",
+      "name": "Bulgarian",
+      "alternate_names": [
+        "Bulgarian language",
+        "bg"
+      ],
+      "_unique_name": "language_bulgarian",
+      "dgraph.type": "Language",
+      "uid": "_:language_bulgarian"
+    },
+    {
+      "wikidata_id": "Q9228",
+      "description": "Sino-Tibetan language of Myanmar",
+      "icu_code": "my",
+      "name@my": "\u1019\u103c\u1014\u103a\u1019\u102c\u1018\u102c\u101e\u102c\u1005\u1000\u102c\u1038",
+      "name@en": "Burmese",
+      "iso_639_2": "mya",
+      "iso_639_3": "mya",
+      "name": "Burmese",
+      "alternate_names": [
+        "my",
+        "Burmese language",
+        "Myanmar"
+      ],
+      "_unique_name": "language_burmese",
+      "dgraph.type": "Language",
+      "uid": "_:language_burmese"
+    },
+    {
+      "wikidata_id": "Q7026",
+      "description": "Western Romance language",
+      "icu_code": "ca",
+      "name@ca": "catal\u00e0",
+      "name@en": "Catalan",
+      "iso_639_2": "cat",
+      "iso_639_3": "cat",
+      "name": "Catalan",
+      "alternate_names": [
+        "Catalan language",
+        "ca",
+        "Valencian",
+        "Catalan-Valencian-Balearic",
+        "Catal\u00e0",
+        "Valencian language",
+        "Valenci\u00e0"
+      ],
+      "_unique_name": "language_catalan",
+      "dgraph.type": "Language",
+      "uid": "_:language_catalan"
+    },
+    {
+      "wikidata_id": "Q33239",
+      "description": "Austronesian language spoken in the Philippines by Cebuanos and other ethnic groups",
+      "icu_code": "ceb",
+      "name@ceb": "Sinugboanon",
+      "name@en": "Cebuano",
+      "iso_639_2": "ceb",
+      "iso_639_3": "ceb",
+      "name": "Cebuano",
+      "alternate_names": [
+        "ceb",
+        "Cebuano language",
+        "Cebuan language"
+      ],
+      "_unique_name": "language_cebuano",
+      "dgraph.type": "Language",
+      "uid": "_:language_cebuano"
+    },
+    {
+      "wikidata_id": "Q33350",
+      "description": "Northeast Caucasian language spoken mostly in Chechnya and by Chechen people",
+      "icu_code": "ce",
+      "name@ce": "\u043d\u043e\u0445\u0447\u0438\u0439\u043d \u043c\u043e\u0442\u0442",
+      "name@en": "Chechen",
+      "iso_639_2": "che",
+      "iso_639_3": "che",
+      "name": "Chechen",
+      "alternate_names": [
+        "ce",
+        "Chechen language"
+      ],
+      "_unique_name": "language_chechen",
+      "dgraph.type": "Language",
+      "uid": "_:language_chechen"
+    },
+    {
+      "wikidata_id": "Q13414913",
+      "description": "written Chinese language using simplified set of Chinese characters, used in People's Republic of China, Singapore, Malaysia",
+      "icu_code": "zh_Hans",
+      "name@en": "Simplified Chinese",
+      "name": "Simplified Chinese",
+      "alternate_names": [
+        "Chinese (Simplified)",
+        "zh-Hans",
+        "zh_hans"
+      ],
+      "_unique_name": "language_simplified_chinese",
+      "dgraph.type": "Language",
+      "uid": "_:language_simplified_chinese"
+    },
+    {
+      "wikidata_id": "Q18130932",
+      "description": "written Chinese language using traditional set of Chinese characters, used in Taiwan, Hong Kong and Macau",
+      "icu_code": "zh_Hant",
+      "name@en": "Traditional Chinese",
+      "name": "Traditional Chinese",
+      "alternate_names": [
+        "zh-hant",
+        "zh-Hant",
+        "zh_hant",
+        "zh_Hant"
+      ],
+      "_unique_name": "language_traditional_chinese",
+      "dgraph.type": "Language",
+      "uid": "_:language_traditional_chinese"
+    },
+    {
+      "wikidata_id": "Q33348",
+      "description": "Turkic language spoken in central Russia, primarily in the Chuvash Republic and adjacent areas",
+      "icu_code": "cv",
+      "name@cv": "\u0427\u0103\u0432\u0430\u0448 \u0447\u0115\u043b\u0445\u0438",
+      "name@en": "Chuvash",
+      "iso_639_2": "chv",
+      "iso_639_3": "chv",
+      "name": "Chuvash",
+      "alternate_names": [
+        "cv",
+        "Chuvash language",
+        "chv",
+        "\u0427\u04d1\u0432\u0430\u0448\u043b\u0430",
+        "\u00c7\u0103va\u015fla"
+      ],
+      "_unique_name": "language_chuvash",
+      "dgraph.type": "Language",
+      "uid": "_:language_chuvash"
+    },
+    {
+      "wikidata_id": "Q25289",
+      "description": "Brythonic Celtic language in Southwestern Britain",
+      "icu_code": "kw",
+      "name@kw": "Kernowek",
+      "name@en": "Cornish",
+      "iso_639_2": "cor",
+      "iso_639_3": "cor",
+      "name": "Cornish",
+      "alternate_names": [
+        "Kernewek",
+        "Kernuack",
+        "Curnoack",
+        "Kernowak",
+        "Kernowek",
+        "Cornish language",
+        "kw",
+        "cor"
+      ],
+      "_unique_name": "language_cornish",
+      "dgraph.type": "Language",
+      "uid": "_:language_cornish"
+    },
+    {
+      "wikidata_id": "Q33111",
+      "description": "Italo-Dalmatian language",
+      "icu_code": "co",
+      "name@co": "corsu",
+      "name@en": "Corsican",
+      "iso_639_2": "cos",
+      "iso_639_3": "cos",
+      "name": "Corsican",
+      "alternate_names": [
+        "Corsican language",
+        "co"
+      ],
+      "_unique_name": "language_corsican",
+      "dgraph.type": "Language",
+      "uid": "_:language_corsican"
+    },
+    {
+      "wikidata_id": "Q9056",
+      "description": "West Slavic language",
+      "icu_code": "cs",
+      "name@cs": "\u010de\u0161tina",
+      "name@en": "Czech",
+      "iso_639_2": "ces",
+      "iso_639_3": "ces",
+      "name": "Czech",
+      "alternate_names": [
+        "Czech language",
+        "cs"
+      ],
+      "_unique_name": "language_czech",
+      "dgraph.type": "Language",
+      "uid": "_:language_czech"
+    },
+    {
+      "wikidata_id": "Q9035",
+      "description": "North Germanic language",
+      "icu_code": "da",
+      "name@da": "dansk",
+      "name@en": "Danish",
+      "iso_639_2": "dan",
+      "iso_639_3": "dan",
+      "name": "Danish",
+      "alternate_names": [
+        "Danish language",
+        "da",
+        "Dansk",
+        "Dansk sprog",
+        "dan"
+      ],
+      "_unique_name": "language_danish",
+      "dgraph.type": "Language",
+      "uid": "_:language_danish"
+    },
+    {
+      "wikidata_id": "Q32656",
+      "description": "Indo-Aryan national language of the Maldives",
+      "icu_code": "dv",
+      "name@dv": "\u078b\u07a8\u0788\u07ac\u0780\u07a8",
+      "name@en": "Maldivian",
+      "iso_639_2": "div",
+      "iso_639_3": "div",
+      "name": "Maldivian",
+      "alternate_names": [
+        "Divehi",
+        "Dhivehi language",
+        "dv",
+        "Maldivian language"
+      ],
+      "_unique_name": "language_maldivian",
+      "dgraph.type": "Language",
+      "uid": "_:language_maldivian"
+    },
+    {
+      "wikidata_id": "Q7411",
+      "description": "West Germanic language",
+      "icu_code": "nl",
+      "name@nl": "Nederlands",
+      "name@en": "Dutch",
+      "iso_639_2": "dut",
+      "iso_639_3": "nld",
+      "name": "Dutch",
+      "alternate_names": [
+        "nl",
+        "Dutch language",
+        "nld",
+        "ned",
+        "Flemish",
+        "Flemish language",
+        "Netherlandic",
+        "Netherlandic language",
+        "Netherlandish",
+        "Nederlands"
+      ],
+      "_unique_name": "language_dutch",
+      "dgraph.type": "Language",
+      "uid": "_:language_dutch"
+    },
+    {
+      "wikidata_id": "Q33081",
+      "description": "Sino-Tibetan language spoken in Bhutan",
+      "icu_code": "dz",
+      "name@dz": "\u0f62\u0fab\u0f7c\u0f44\u0f0b\u0f41\u0f0b",
+      "name@en": "Dzongkha",
+      "iso_639_2": "dzo",
+      "iso_639_3": "dzo",
+      "name": "Dzongkha",
+      "alternate_names": [
+        "Ngalopkha language",
+        "dz",
+        "Dzongkha language"
+      ],
+      "_unique_name": "language_dzongkha",
+      "dgraph.type": "Language",
+      "uid": "_:language_dzongkha"
+    },
+    {
+      "wikidata_id": "Q1860",
+      "description": "West Germanic language",
+      "icu_code": "en",
+      "name@en": "English",
+      "iso_639_2": "eng",
+      "iso_639_3": "eng",
+      "name": "English",
+      "alternate_names": [
+        "English language",
+        "en",
+        "eng"
+      ],
+      "_unique_name": "language_english",
+      "dgraph.type": "Language",
+      "uid": "_:language_english"
+    },
+    {
+      "wikidata_id": "Q143",
+      "description": "international auxiliary language designed by Ludwik Lejzer Zamenhof",
+      "icu_code": "eo",
+      "name@eo": "Esperanto",
+      "name@en": "Esperanto",
+      "iso_639_2": "epo",
+      "iso_639_3": "epo",
+      "name": "Esperanto",
+      "alternate_names": [
+        "Esperanto language",
+        "eo",
+        "epo"
+      ],
+      "_unique_name": "language_esperanto",
+      "dgraph.type": "Language",
+      "uid": "_:language_esperanto"
+    },
+    {
+      "wikidata_id": "Q9072",
+      "description": "Uralic language",
+      "icu_code": "et",
+      "name@et": "eesti keel",
+      "name@en": "Estonian",
+      "iso_639_2": "est",
+      "iso_639_3": "est",
+      "name": "Estonian",
+      "alternate_names": [
+        "Estonian language",
+        "et"
+      ],
+      "_unique_name": "language_estonian",
+      "dgraph.type": "Language",
+      "uid": "_:language_estonian"
+    },
+    {
+      "wikidata_id": "Q30005",
+      "description": "Niger\u2013Congo language spoken in southeastern Ghana and southern Togo",
+      "icu_code": "ee",
+      "name@ee": "E\u028begbe",
+      "name@en": "Ewe",
+      "iso_639_2": "ewe",
+      "iso_639_3": "ewe",
+      "name": "Ewe",
+      "alternate_names": [
+        "ee",
+        "Ewe language",
+        "E\u028be",
+        "E\u028begbe",
+        "\u00c8\u028begbe\u200e",
+        "\u00c8wegbe"
+      ],
+      "_unique_name": "language_ewe",
+      "dgraph.type": "Language",
+      "uid": "_:language_ewe"
+    },
+    {
+      "wikidata_id": "Q25258",
+      "description": "insular Nordic language spoken as a native language by the people of Faroe Islands",
+      "icu_code": "fo",
+      "name@fo": "F\u00f8royskt m\u00e1l",
+      "name@en": "Faroese",
+      "iso_639_2": "fao",
+      "iso_639_3": "fao",
+      "name": "Faroese",
+      "alternate_names": [
+        "F\u00e6roese language",
+        "Faeroese language",
+        "F\u00f8royskt",
+        "Faeroese",
+        "Modern Faroese",
+        "Faroese language",
+        "fo",
+        "F\u00f8royskt m\u00e1l",
+        "fao"
+      ],
+      "_unique_name": "language_faroese",
+      "dgraph.type": "Language",
+      "uid": "_:language_faroese"
+    },
+    {
+      "wikidata_id": "Q1412",
+      "description": "Finno-Ugric language mostly spoken in Finland",
+      "icu_code": "fi",
+      "name@fi": "suomi",
+      "name@en": "Finnish",
+      "iso_639_2": "fin",
+      "iso_639_3": "fin",
+      "name": "Finnish",
+      "alternate_names": [
+        "Finnish language",
+        "fi",
+        "Suomi",
+        "fin"
+      ],
+      "_unique_name": "language_finnish",
+      "dgraph.type": "Language",
+      "uid": "_:language_finnish"
+    },
+    {
+      "wikidata_id": "Q150",
+      "description": "Romance language",
+      "icu_code": "fr",
+      "name@fr": "fran\u00e7ais",
+      "name@en": "French",
+      "iso_639_2": "fre",
+      "iso_639_3": "fra",
+      "name": "French",
+      "alternate_names": [
+        "French language",
+        "fr",
+        "fra",
+        "(fr)"
+      ],
+      "_unique_name": "language_french",
+      "dgraph.type": "Language",
+      "uid": "_:language_french"
+    },
+    {
+      "wikidata_id": "Q33454",
+      "description": "language of West Africa of the Senegambian branch of the Niger\u2013Congo language family",
+      "icu_code": "ff",
+      "name@ff": "Fulfulde",
+      "name@en": "Fula",
+      "iso_639_2": "ful",
+      "iso_639_3": "ful",
+      "name": "Fula",
+      "alternate_names": [
+        "Fulah",
+        "ff",
+        "Fulani",
+        "Fula language",
+        "Adamawa dialect",
+        "Ful language",
+        "Fulah language",
+        "Fulani language",
+        "Fulbe language adlam",
+        "Fulde language",
+        "Fulfulde language",
+        "Peul language",
+        "Poul language",
+        "Bagirmi dialect",
+        "Borgu dialect",
+        "Maasina dialect",
+        "Western Niger dialect"
+      ],
+      "_unique_name": "language_fula",
+      "dgraph.type": "Language",
+      "uid": "_:language_fula"
+    },
+    {
+      "wikidata_id": "Q9307",
+      "description": "language of the Western Ibero-Romance",
+      "icu_code": "gl",
+      "name@gl": "lingua galega",
+      "name@en": "Galician",
+      "iso_639_2": "glg",
+      "iso_639_3": "glg",
+      "name": "Galician",
+      "alternate_names": [
+        "Galician language",
+        "galego",
+        "gl"
+      ],
+      "_unique_name": "language_galician",
+      "dgraph.type": "Language",
+      "uid": "_:language_galician"
+    },
+    {
+      "wikidata_id": "Q33368",
+      "description": "Bantu language of Uganda",
+      "icu_code": "lg",
+      "name@lg": "Luganda",
+      "name@en": "Luganda",
+      "iso_639_2": "lug",
+      "iso_639_3": "lug",
+      "name": "Luganda",
+      "alternate_names": [
+        "Ganda",
+        "lg",
+        "Oluganda"
+      ],
+      "_unique_name": "language_luganda",
+      "dgraph.type": "Language",
+      "uid": "_:language_luganda"
+    },
+    {
+      "wikidata_id": "Q8108",
+      "description": "official language of Georgia",
+      "icu_code": "ka",
+      "name@ka": "\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8 \u10d4\u10dc\u10d0",
+      "name@en": "Georgian",
+      "iso_639_2": "geo",
+      "iso_639_3": "kat",
+      "name": "Georgian",
+      "alternate_names": [
+        "Georgian language",
+        "ka",
+        "Kartuli",
+        "Kartuli ena",
+        "\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8 \u10d4\u10dc\u10d0",
+        "\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8"
+      ],
+      "_unique_name": "language_georgian",
+      "dgraph.type": "Language",
+      "uid": "_:language_georgian"
+    },
+    {
+      "wikidata_id": "Q188",
+      "description": "West Germanic language spoken mainly in Central Europe",
+      "icu_code": "de",
+      "name@de": "Deutsch",
+      "name@en": "German",
+      "iso_639_2": "deu",
+      "iso_639_3": "deu",
+      "name": "German",
+      "alternate_names": [
+        "German language",
+        "de"
+      ],
+      "_unique_name": "language_german",
+      "dgraph.type": "Language",
+      "uid": "_:language_german"
+    },
+    {
+      "wikidata_id": "Q36510",
+      "description": "dialects and varieties of the Greek language spoken in the modern era",
+      "icu_code": "el",
+      "name@el": "\u03bd\u03ad\u03b1 \u03b5\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ae \u03b3\u03bb\u03ce\u03c3\u03c3\u03b1",
+      "name@en": "Modern Greek",
+      "iso_639_2": "gre",
+      "iso_639_3": "ell",
+      "name": "Modern Greek",
+      "alternate_names": [
+        "Modern Greek language",
+        "el"
+      ],
+      "_unique_name": "language_modern_greek",
+      "dgraph.type": "Language",
+      "uid": "_:language_modern_greek"
+    },
+    {
+      "wikidata_id": "Q35497",
+      "description": "forms of Greek used from around the 9th century BC to the 6th century AD",
+      "icu_code": "grc",
+      "name@grc": "\u1f19\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ae",
+      "name@en": "Ancient Greek",
+      "iso_639_2": "grc",
+      "iso_639_3": "grc",
+      "name": "Ancient Greek",
+      "alternate_names": [
+        "Old Greek",
+        "Old Greek language",
+        "Ancient Greek language",
+        "grc"
+      ],
+      "_unique_name": "language_ancient_greek",
+      "dgraph.type": "Language",
+      "uid": "_:language_ancient_greek"
+    },
+    {
+      "wikidata_id": "Q5137",
+      "description": "Indo-Aryan language that is spoken on the state of Gujarat",
+      "icu_code": "gu",
+      "name@gu": "\u0a97\u0ac1\u0a9c\u0ab0\u0abe\u0aa4\u0ac0 \u0aad\u0abe\u0ab7\u0abe",
+      "name@en": "Gujarati",
+      "iso_639_2": "guj",
+      "iso_639_3": "guj",
+      "name": "Gujarati",
+      "alternate_names": [
+        "gu",
+        "Guzrattee",
+        "Gujarati language"
+      ],
+      "_unique_name": "language_gujarati",
+      "dgraph.type": "Language",
+      "uid": "_:language_gujarati"
+    },
+    {
+      "wikidata_id": "Q56475",
+      "description": "Chadic language spoken by the Hausa people",
+      "icu_code": "ha",
+      "name@ha": "Hausa",
+      "name@en": "Hausa",
+      "iso_639_2": "hau",
+      "iso_639_3": "hau",
+      "name": "Hausa",
+      "alternate_names": [
+        "ha",
+        "Hausa language"
+      ],
+      "_unique_name": "language_hausa",
+      "dgraph.type": "Language",
+      "uid": "_:language_hausa"
+    },
+    {
+      "wikidata_id": "Q33491",
+      "description": "language spoken in Haiti",
+      "icu_code": "ht",
+      "name@ht": "Krey\u00f2l",
+      "name@en": "Haitian Creole",
+      "iso_639_2": "hat",
+      "iso_639_3": "hat",
+      "name": "Haitian Creole",
+      "alternate_names": [
+        "Haitian Creole language",
+        "ht",
+        "Haitian language"
+      ],
+      "_unique_name": "language_haitian_creole",
+      "dgraph.type": "Language",
+      "uid": "_:language_haitian_creole"
+    },
+    {
+      "wikidata_id": "Q9288",
+      "description": "Northwest Semitic language",
+      "icu_code": "he",
+      "name@he": "\u05e2\u05d1\u05e8\u05d9\u05ea",
+      "name@en": "Hebrew",
+      "iso_639_2": "heb",
+      "iso_639_3": "heb",
+      "name": "Hebrew",
+      "alternate_names": [
+        "Hebrew language",
+        "he",
+        "heb",
+        "Ivrit",
+        "Iwrit",
+        "Jewish language"
+      ],
+      "_unique_name": "language_hebrew",
+      "dgraph.type": "Language",
+      "uid": "_:language_hebrew"
+    },
+    {
+      "wikidata_id": "Q1568",
+      "description": "Indo-Aryan language spoken chiefly in North India",
+      "icu_code": "hi",
+      "name@hi": "\u0939\u093f\u0928\u094d\u0926\u0940",
+      "name@en": "Hindi",
+      "iso_639_2": "hin",
+      "iso_639_3": "hin",
+      "name": "Hindi",
+      "alternate_names": [
+        "Hindi language",
+        "Modern Standard Hindi",
+        "hi"
+      ],
+      "_unique_name": "language_hindi",
+      "dgraph.type": "Language",
+      "uid": "_:language_hindi"
+    },
+    {
+      "wikidata_id": "Q9067",
+      "description": "Uralic language",
+      "icu_code": "hu",
+      "name@hu": "magyar",
+      "name@en": "Hungarian",
+      "iso_639_2": "hun",
+      "iso_639_3": "hun",
+      "name": "Hungarian",
+      "alternate_names": [
+        "Hungarian language",
+        "hu"
+      ],
+      "_unique_name": "language_hungarian",
+      "dgraph.type": "Language",
+      "uid": "_:language_hungarian"
+    },
+    {
+      "wikidata_id": "Q294",
+      "description": "North Germanic language mainly spoken in Iceland",
+      "icu_code": "is",
+      "name@is": "\u00edslenska",
+      "name@en": "Icelandic",
+      "iso_639_2": "ice",
+      "iso_639_3": "isl",
+      "name": "Icelandic",
+      "alternate_names": [
+        "Icelandic language",
+        "is",
+        "\u00cdslenska"
+      ],
+      "_unique_name": "language_icelandic",
+      "dgraph.type": "Language",
+      "uid": "_:language_icelandic"
+    },
+    {
+      "wikidata_id": "Q33578",
+      "description": "native language of the Igbo people",
+      "icu_code": "ig",
+      "name@ig": "As\u1ee5\u0300s\u1ee5\u0300 \u00ccgb\u00f2",
+      "name@en": "Igbo",
+      "iso_639_2": "ibo",
+      "iso_639_3": "ibo",
+      "name": "Igbo",
+      "alternate_names": [
+        "ig",
+        "Igbo language"
+      ],
+      "_unique_name": "language_igbo",
+      "dgraph.type": "Language",
+      "uid": "_:language_igbo"
+    },
+    {
+      "wikidata_id": "Q35936",
+      "description": "Austronesian language spoken by the Ilocano people of the Philippines",
+      "icu_code": "ilo",
+      "name@ilo": "Ilokano",
+      "name@en": "Ilocano",
+      "iso_639_2": "ilo",
+      "iso_639_3": "ilo",
+      "name": "Ilocano",
+      "alternate_names": [
+        "Iloko",
+        "ilo",
+        "Ilokano language",
+        "Ilocano language"
+      ],
+      "_unique_name": "language_ilocano",
+      "dgraph.type": "Language",
+      "uid": "_:language_ilocano"
+    },
+    {
+      "wikidata_id": "Q9240",
+      "description": "official language of Indonesia",
+      "icu_code": "id",
+      "name@id": "bahasa Indonesia",
+      "name@en": "Indonesian",
+      "iso_639_2": "ind",
+      "iso_639_3": "ind",
+      "name": "Indonesian",
+      "alternate_names": [
+        "Indonesian language",
+        "ind",
+        "id",
+        "bahasa Indonesia",
+        "Bahasa"
+      ],
+      "_unique_name": "language_indonesian",
+      "dgraph.type": "Language",
+      "uid": "_:language_indonesian"
+    },
+    {
+      "wikidata_id": "Q29921",
+      "description": "name of several Inuit languages spoken in Canada",
+      "icu_code": "iu",
+      "name@iu": "\u1403\u14c4\u1483\u144e\u1450\u1466",
+      "name@en": "Inuktitut",
+      "iso_639_2": "iku",
+      "iso_639_3": "iku",
+      "name": "Inuktitut",
+      "alternate_names": [
+        "iu",
+        "Inuktut"
+      ],
+      "_unique_name": "language_inuktitut",
+      "dgraph.type": "Language",
+      "uid": "_:language_inuktitut"
+    },
+    {
+      "wikidata_id": "Q9142",
+      "description": "language native to Ireland",
+      "icu_code": "ga",
+      "name@ga": "an Ghaeilge",
+      "name@en": "Irish",
+      "iso_639_2": "gle",
+      "iso_639_3": "gle",
+      "name": "Irish",
+      "alternate_names": [
+        "Irish language",
+        "Gaeilge",
+        "ga",
+        "gaelic"
+      ],
+      "_unique_name": "language_irish",
+      "dgraph.type": "Language",
+      "uid": "_:language_irish"
+    },
+    {
+      "wikidata_id": "Q652",
+      "description": "Romance language",
+      "icu_code": "it",
+      "name@it": "italiano",
+      "name@en": "Italian",
+      "iso_639_2": "ita",
+      "iso_639_3": "ita",
+      "name": "Italian",
+      "alternate_names": [
+        "it",
+        "Italiano",
+        "Italian language"
+      ],
+      "_unique_name": "language_italian",
+      "dgraph.type": "Language",
+      "uid": "_:language_italian"
+    },
+    {
+      "wikidata_id": "Q5287",
+      "description": "language spoken in East Asia",
+      "icu_code": "ja",
+      "name@ja": "\u65e5\u672c\u8a9e",
+      "name@en": "Japanese",
+      "iso_639_2": "jpn",
+      "iso_639_3": "jpn",
+      "name": "Japanese",
+      "alternate_names": [
+        "Nihongo",
+        "Japanese language",
+        "ja",
+        "jpn",
+        "jp"
+      ],
+      "_unique_name": "language_japanese",
+      "dgraph.type": "Language",
+      "uid": "_:language_japanese"
+    },
+    {
+      "wikidata_id": "Q33549",
+      "description": "Austronesian language",
+      "icu_code": "jv",
+      "name@jv": "Jawa",
+      "name@en": "Javanese",
+      "iso_639_2": "jav",
+      "iso_639_3": "jav",
+      "name": "Javanese",
+      "alternate_names": [
+        "Javanese language",
+        "jv",
+        "jav",
+        "basa Jawa",
+        "\ua9a7\ua9b1\ua997\ua9ae",
+        "\u0628\u0627\u0633\u0627 \u062c\u0627\u0648\u0627\u200e"
+      ],
+      "_unique_name": "language_javanese",
+      "dgraph.type": "Language",
+      "uid": "_:language_javanese"
+    },
+    {
+      "wikidata_id": "Q25355",
+      "description": "Eskimo-Aleut language spoken in Greenland",
+      "icu_code": "kl",
+      "name@kl": "Kalaallisut",
+      "name@en": "Greenlandic",
+      "iso_639_2": "kal",
+      "iso_639_3": "kal",
+      "name": "Greenlandic",
+      "alternate_names": [
+        "Greenlandic Inuktitut",
+        "Kalaallisut",
+        "Greenlandic Inuit language",
+        "Kalaallisut language",
+        "Greenlandic Inuktitut language",
+        "Greenlandic Eskimo language",
+        "kl",
+        "Greenlandic Eskimo",
+        "kal",
+        "Greenlandic language"
+      ],
+      "_unique_name": "language_greenlandic",
+      "dgraph.type": "Language",
+      "uid": "_:language_greenlandic"
+    },
+    {
+      "wikidata_id": "Q33673",
+      "description": "Dravidian language",
+      "icu_code": "kn",
+      "name@kn": "\u0c95\u0ca8\u0ccd\u0ca8\u0ca1",
+      "name@en": "Kannada",
+      "iso_639_2": "kan",
+      "iso_639_3": "kan",
+      "name": "Kannada",
+      "alternate_names": [
+        "Kannada language",
+        "Kanarese",
+        "kn"
+      ],
+      "_unique_name": "language_kannada",
+      "dgraph.type": "Language",
+      "uid": "_:language_kannada"
+    },
+    {
+      "wikidata_id": "Q33552",
+      "description": "language from the Dardic subgroup of the Indo-Aryan languages",
+      "icu_code": "ks",
+      "name@ks": "\u06a9\u0672\u0634\u0650\u0631 \u0632\u064e\u0628\u0627\u0646",
+      "name@en": "Kashmiri",
+      "iso_639_2": "kas",
+      "iso_639_3": "kas",
+      "name": "Kashmiri",
+      "alternate_names": [
+        "ks",
+        "Koshur",
+        "Kashmiri language"
+      ],
+      "_unique_name": "language_kashmiri",
+      "dgraph.type": "Language",
+      "uid": "_:language_kashmiri"
+    },
+    {
+      "wikidata_id": "Q9252",
+      "description": "Kipchak Turkic language of Central Asia",
+      "icu_code": "kk",
+      "name@kk": "\u049b\u0430\u0437\u0430\u049b \u0442\u0456\u043b\u0456",
+      "name@en": "Kazakh",
+      "iso_639_2": "kaz",
+      "iso_639_3": "kaz",
+      "name": "Kazakh",
+      "alternate_names": [
+        "Kazakh language",
+        "Qazaq",
+        "Qazaq language",
+        "Qazaq\u015fa",
+        "kk"
+      ],
+      "_unique_name": "language_kazakh",
+      "dgraph.type": "Language",
+      "uid": "_:language_kazakh"
+    },
+    {
+      "wikidata_id": "Q9205",
+      "description": "Austroasiatic language of Cambodia",
+      "icu_code": "km",
+      "name@km": "\u1797\u17b6\u179f\u17b6\u1781\u17d2\u1798\u17c2\u179a",
+      "name@en": "Khmer",
+      "iso_639_2": "khm",
+      "iso_639_3": "khm",
+      "name": "Khmer",
+      "alternate_names": [
+        "km",
+        "Khmer language",
+        "Cambodian language",
+        "Central Khmer"
+      ],
+      "_unique_name": "language_khmer",
+      "dgraph.type": "Language",
+      "uid": "_:language_khmer"
+    },
+    {
+      "wikidata_id": "Q33587",
+      "description": "Bantu language in Kenya",
+      "icu_code": "ki",
+      "name@ki": "G\u0129g\u0129k\u0169y\u0169",
+      "name@en": "Gikuyu",
+      "iso_639_2": "kik",
+      "iso_639_3": "kik",
+      "name": "Gikuyu",
+      "alternate_names": [
+        "Kikuyu",
+        "Gikuyu language",
+        "Kikuyu language",
+        "ki"
+      ],
+      "_unique_name": "language_gikuyu",
+      "dgraph.type": "Language",
+      "uid": "_:language_gikuyu"
+    },
+    {
+      "wikidata_id": "Q33573",
+      "description": "Bantu language spoken in Central Africa, official in Rwanda",
+      "icu_code": "rw",
+      "name@rw": "Ikinyarwanda",
+      "name@en": "Kinyarwanda",
+      "iso_639_2": "kin",
+      "iso_639_3": "kin",
+      "name": "Kinyarwanda",
+      "alternate_names": [
+        "Rwanda language",
+        "Rwandan",
+        "Ruanda language",
+        "rw",
+        "Kinyarwanda language"
+      ],
+      "_unique_name": "language_kinyarwanda",
+      "dgraph.type": "Language",
+      "uid": "_:language_kinyarwanda"
+    },
+    {
+      "wikidata_id": "Q36368",
+      "description": "Western Iranian language",
+      "icu_code": "ku",
+      "name@ku": "kurd\u00ee",
+      "name@en": "Kurdish",
+      "iso_639_2": "kur",
+      "iso_639_3": "kur",
+      "name": "Kurdish",
+      "alternate_names": [
+        "ku",
+        "Kurdi",
+        "Kurdish language",
+        "Kurdish dialects",
+        "Kurdish languages"
+      ],
+      "_unique_name": "language_kurdish",
+      "dgraph.type": "Language",
+      "uid": "_:language_kurdish"
+    },
+    {
+      "wikidata_id": "Q9176",
+      "description": "language spoken in Korean Peninsula and some part of North-eastern China",
+      "icu_code": "ko",
+      "name@ko": "\ud55c\uad6d\uc5b4",
+      "name@en": "Korean",
+      "iso_639_2": "kor",
+      "iso_639_3": "kor",
+      "name": "Korean",
+      "alternate_names": [
+        "ko",
+        "Korean language"
+      ],
+      "_unique_name": "language_korean",
+      "dgraph.type": "Language",
+      "uid": "_:language_korean"
+    },
+    {
+      "wikidata_id": "Q9255",
+      "description": "Kipchak Turkic language of Central Asia",
+      "icu_code": "ky",
+      "name@ky": "\u041a\u044b\u0440\u0433\u044b\u0437 \u0442\u0438\u043b\u0438",
+      "name@en": "Kyrgyz",
+      "iso_639_2": "kir",
+      "iso_639_3": "kir",
+      "name": "Kyrgyz",
+      "alternate_names": [
+        "Kirghiz language",
+        "Kirgiz language",
+        "Kirgiz",
+        "Kirghiz",
+        "Kyrgyz language",
+        "ky"
+      ],
+      "_unique_name": "language_kyrgyz",
+      "dgraph.type": "Language",
+      "uid": "_:language_kyrgyz"
+    },
+    {
+      "wikidata_id": "Q397",
+      "description": "Indo-European language of the Italic branch",
+      "icu_code": "la",
+      "name@la": "Latine",
+      "name@en": "Latin",
+      "iso_639_2": "lat",
+      "iso_639_3": "lat",
+      "name": "Latin",
+      "alternate_names": [
+        "Latin language",
+        "la",
+        "lat"
+      ],
+      "_unique_name": "language_latin",
+      "dgraph.type": "Language",
+      "uid": "_:language_latin"
+    },
+    {
+      "wikidata_id": "Q9211",
+      "description": "Kra\u2013Dai language of Southeast Asia",
+      "icu_code": "lo",
+      "name@lo": "\u0e9e\u0eb2\u0eaa\u0eb2\u0ea5\u0eb2\u0ea7",
+      "name@en": "Lao",
+      "iso_639_2": "lao",
+      "iso_639_3": "lao",
+      "name": "Lao",
+      "alternate_names": [
+        "Laotian",
+        "Laotian language",
+        "lo",
+        "Lao language"
+      ],
+      "_unique_name": "language_lao",
+      "dgraph.type": "Language",
+      "uid": "_:language_lao"
+    },
+    {
+      "wikidata_id": "Q9078",
+      "description": "Baltic language, official in Latvia and the European Union",
+      "icu_code": "lv",
+      "name@lv": "latvie\u0161u valoda",
+      "name@en": "Latvian",
+      "iso_639_2": "lav",
+      "iso_639_3": "lvs",
+      "name": "Latvian",
+      "alternate_names": [
+        "Latvian language",
+        "lv",
+        "Lettish",
+        "Lettish language"
+      ],
+      "_unique_name": "language_latvian",
+      "dgraph.type": "Language",
+      "uid": "_:language_latvian"
+    },
+    {
+      "wikidata_id": "Q102172",
+      "description": "Low Franconian group of dialects",
+      "icu_code": "li",
+      "name@li": "Limburgs",
+      "name@en": "Limburgish",
+      "iso_639_2": "lim",
+      "iso_639_3": "lim",
+      "name": "Limburgish",
+      "alternate_names": [
+        "Limburgan",
+        "Limburger",
+        "li",
+        "Limburgs",
+        "Limburgish language",
+        "Limburgian",
+        "L\u00e8mb\u00f6rgs",
+        "Limburgsj",
+        "lim"
+      ],
+      "_unique_name": "language_limburgish",
+      "dgraph.type": "Language",
+      "uid": "_:language_limburgish"
+    },
+    {
+      "wikidata_id": "Q36217",
+      "description": "Bantu language spoken in western Central Africa",
+      "icu_code": "ln",
+      "name@ln": "Ling\u00e1la",
+      "name@en": "Lingala",
+      "iso_639_2": "lin",
+      "iso_639_3": "lin",
+      "name": "Lingala",
+      "alternate_names": [
+        "ln",
+        "Lingala language",
+        "Ling\u00e1la",
+        "Ngala"
+      ],
+      "_unique_name": "language_lingala",
+      "dgraph.type": "Language",
+      "uid": "_:language_lingala"
+    },
+    {
+      "wikidata_id": "Q9083",
+      "description": "Baltic language spoken in Lithuania",
+      "icu_code": "lt",
+      "name@lt": "Lietuvi\u0173 kalba",
+      "name@en": "Lithuanian",
+      "iso_639_2": "lit",
+      "iso_639_3": "lit",
+      "name": "Lithuanian",
+      "alternate_names": [
+        "Lithuanian language",
+        "lt"
+      ],
+      "_unique_name": "language_lithuanian",
+      "dgraph.type": "Language",
+      "uid": "_:language_lithuanian"
+    },
+    {
+      "wikidata_id": "Q36157",
+      "description": "language",
+      "icu_code": "lu",
+      "name@en": "Luba-Katanga",
+      "iso_639_2": "lub",
+      "iso_639_3": "lub",
+      "name": "Luba-Katanga",
+      "alternate_names": [
+        "Luba-Katanga language",
+        "Luba-Shaba",
+        "Kiluba"
+      ],
+      "_unique_name": "language_luba_katanga",
+      "dgraph.type": "Language",
+      "uid": "_:language_luba_katanga"
+    },
+    {
+      "wikidata_id": "Q9051",
+      "description": "Germanic language or language variety spoken in Luxembourg",
+      "icu_code": "lb",
+      "name@lb": "L\u00ebtzebuergesch",
+      "name@en": "Luxembourgish",
+      "iso_639_2": "ltz",
+      "iso_639_3": "ltz",
+      "name": "Luxembourgish",
+      "alternate_names": [
+        "Luxembourgish language",
+        "Letzeburgesch",
+        "L\u00ebtzebuergesch",
+        "lb",
+        "Luxembourg language",
+        "Luxemburgish",
+        "Luxemburgish language"
+      ],
+      "_unique_name": "language_luxembourgish",
+      "dgraph.type": "Language",
+      "uid": "_:language_luxembourgish"
+    },
+    {
+      "wikidata_id": "Q36451",
+      "description": "Polynesian language spoken in New Zealand",
+      "icu_code": "mi",
+      "name@mi": "Reo M\u0101ori",
+      "name@en": "M\u0101ori",
+      "iso_639_2": "mao",
+      "iso_639_3": "mri",
+      "name": "M\u0101ori",
+      "alternate_names": [
+        "Maori language",
+        "mi",
+        "mao",
+        "Maori",
+        "M\u0101ori language"
+      ],
+      "_unique_name": "language_maori",
+      "dgraph.type": "Language",
+      "uid": "_:language_maori"
+    },
+    {
+      "wikidata_id": "Q9296",
+      "description": "South Slavic language mostly spoken in Republic of Macedonia and its neighbouring countries",
+      "icu_code": "mk",
+      "name@mk": "\u043c\u0430\u043a\u0435\u0434\u043e\u043d\u0441\u043a\u0438 \u0458\u0430\u0437\u0438\u043a",
+      "name@en": "Macedonian",
+      "iso_639_2": "mkd",
+      "iso_639_3": "mkd",
+      "name": "Macedonian",
+      "alternate_names": [
+        "Macedonian language",
+        "mk",
+        "Slavic Macedonian"
+      ],
+      "_unique_name": "language_macedonian",
+      "dgraph.type": "Language",
+      "uid": "_:language_macedonian"
+    },
+    {
+      "wikidata_id": "Q7930",
+      "description": "language spoken in Madagascar",
+      "icu_code": "mg",
+      "name@mg": "Fiteny malagasy",
+      "name@en": "Malagasy",
+      "iso_639_2": "mlg",
+      "iso_639_3": "mlg",
+      "name": "Malagasy",
+      "alternate_names": [
+        "Malagasy language",
+        "mg"
+      ],
+      "_unique_name": "language_malagasy",
+      "dgraph.type": "Language",
+      "uid": "_:language_malagasy"
+    },
+    {
+      "wikidata_id": "Q9237",
+      "description": "Austronesian language; language which is the basis for Malaysian Malay and Indonesian and encompasses other dialects; macrolanguage with code ms & msa",
+      "icu_code": "ms",
+      "name@ms": "bahasa Melayu",
+      "name@en": "Malay",
+      "iso_639_2": "msa",
+      "iso_639_3": "msa",
+      "name": "Malay",
+      "alternate_names": [
+        "Malay macrolanguage",
+        "Malay language"
+      ],
+      "_unique_name": "language_malay",
+      "dgraph.type": "Language",
+      "uid": "_:language_malay"
+    },
+    {
+      "wikidata_id": "Q36236",
+      "description": "Dravidian language of India",
+      "icu_code": "ml",
+      "name@ml": "\u0d2e\u0d32\u0d2f\u0d3e\u0d33\u0d02",
+      "name@en": "Malayalam",
+      "iso_639_2": "mal",
+      "iso_639_3": "mal",
+      "name": "Malayalam",
+      "alternate_names": [
+        "ml",
+        "mal",
+        "Malayalam language"
+      ],
+      "_unique_name": "language_malayalam",
+      "dgraph.type": "Language",
+      "uid": "_:language_malayalam"
+    },
+    {
+      "wikidata_id": "Q9166",
+      "description": "Semitic language spoken mostly in Malta",
+      "icu_code": "mt",
+      "name@mt": "Malti",
+      "name@en": "Maltese",
+      "iso_639_2": "mlt",
+      "iso_639_3": "mlt",
+      "name": "Maltese",
+      "alternate_names": [
+        "Il-lingwa Maltija",
+        "lingwa Maltija",
+        "mt",
+        "Maltese language"
+      ],
+      "_unique_name": "language_maltese",
+      "dgraph.type": "Language",
+      "uid": "_:language_maltese"
+    },
+    {
+      "wikidata_id": "Q12175",
+      "description": "Celtic language spoken on the Isle of Man",
+      "icu_code": "gv",
+      "name@gv": "Gaelg",
+      "name@en": "Manx",
+      "iso_639_2": "glv",
+      "iso_639_3": "glv",
+      "name": "Manx",
+      "alternate_names": [
+        "Manx Gaelic",
+        "Manks language",
+        "Gaelg",
+        "Gaelic",
+        "gv",
+        "Manks",
+        "Manx language",
+        "Gailck"
+      ],
+      "_unique_name": "language_manx",
+      "dgraph.type": "Language",
+      "uid": "_:language_manx"
+    },
+    {
+      "wikidata_id": "Q1571",
+      "description": "Indo-Aryan language",
+      "icu_code": "mr",
+      "name@mr": "\u092e\u0930\u093e\u0920\u0940",
+      "name@en": "Marathi",
+      "iso_639_2": "mar",
+      "iso_639_3": "mar",
+      "name": "Marathi",
+      "alternate_names": [
+        "Devanagri",
+        "Marathi language",
+        "mr"
+      ],
+      "_unique_name": "language_marathi",
+      "dgraph.type": "Language",
+      "uid": "_:language_marathi"
+    },
+    {
+      "wikidata_id": "Q9246",
+      "description": "official language of Mongolia",
+      "icu_code": "mn",
+      "name@mn": "\u041c\u043e\u043d\u0433\u043e\u043b \u0445\u044d\u043b",
+      "name@en": "Mongolian",
+      "iso_639_2": "mon",
+      "iso_639_3": "mon",
+      "name": "Mongolian",
+      "alternate_names": [
+        "Mongolian language",
+        "mn",
+        "Mongol",
+        "Khalka"
+      ],
+      "_unique_name": "language_mongolian",
+      "dgraph.type": "Language",
+      "uid": "_:language_mongolian"
+    },
+    {
+      "wikidata_id": "Q33823",
+      "description": "official language of Nepal",
+      "icu_code": "ne",
+      "name@ne": "\u0928\u0947\u092a\u093e\u0932\u0940 \u092d\u093e\u0937\u093e",
+      "name@en": "Nepali",
+      "iso_639_2": "nep",
+      "iso_639_3": "nep",
+      "name": "Nepali",
+      "alternate_names": [
+        "Nepal",
+        "Nepalese",
+        "Nepali language",
+        "ne",
+        "nep"
+      ],
+      "_unique_name": "language_nepali",
+      "dgraph.type": "Language",
+      "uid": "_:language_nepali"
+    },
+    {
+      "wikidata_id": "Q35613",
+      "description": "language belonging to the Nguni group of Bantu languages, one of the official languages of Zimbabwe",
+      "icu_code": "nd",
+      "name@en": "Northern Ndebele",
+      "iso_639_2": "nde",
+      "iso_639_3": "nde",
+      "name": "Northern Ndebele",
+      "alternate_names": [
+        "North Ndebele",
+        "Zimbabwean Ndebele",
+        "Sindebele",
+        "Matabele",
+        "nd",
+        "Ndebele",
+        "isiNdebele",
+        "isiNdebele saseNyakatho",
+        "nde"
+      ],
+      "_unique_name": "language_northern_ndebele",
+      "dgraph.type": "Language",
+      "uid": "_:language_northern_ndebele"
+    },
+    {
+      "wikidata_id": "Q33947",
+      "description": "most widely spoken of all S\u00e1mi languages",
+      "icu_code": "se",
+      "name@se": "davvis\u00e1megiella",
+      "name@en": "Northern Sami",
+      "iso_639_2": "sme",
+      "iso_639_3": "sme",
+      "name": "Northern Sami",
+      "alternate_names": [
+        "North Sami",
+        "Davvis\u00e1megiella",
+        "Davvis\u00e1mi",
+        "Davvisaami",
+        "se",
+        "Davvisamegiella",
+        "Davvisami",
+        "Northern Saami"
+      ],
+      "_unique_name": "language_northern_sami",
+      "dgraph.type": "Language",
+      "uid": "_:language_northern_sami"
+    },
+    {
+      "wikidata_id": "Q9043",
+      "description": "North Germanic language spoken in Norway",
+      "icu_code": "no",
+      "name@en": "Norwegian",
+      "iso_639_2": "nor",
+      "iso_639_3": "nor",
+      "name": "Norwegian",
+      "alternate_names": [
+        "no",
+        "Norwegian language",
+        "Norweigian"
+      ],
+      "_unique_name": "language_norwegian",
+      "dgraph.type": "Language",
+      "uid": "_:language_norwegian"
+    },
+    {
+      "wikidata_id": "Q25167",
+      "description": "one of two official written standards for the Norwegian language",
+      "icu_code": "nb",
+      "name@nb": "bokm\u00e5l",
+      "name@en": "Bokm\u00e5l",
+      "iso_639_2": "nob",
+      "iso_639_3": "nob",
+      "name": "Bokm\u00e5l",
+      "alternate_names": [
+        "Norwegian Bokm\u00e5l",
+        "nb",
+        "bokmal",
+        "bokmaal",
+        "nob",
+        "nb-no"
+      ],
+      "_unique_name": "language_bokmal",
+      "dgraph.type": "Language",
+      "uid": "_:language_bokmal"
+    },
+    {
+      "wikidata_id": "Q25164",
+      "description": "one of two official written standards for the Norwegian language",
+      "icu_code": "nn",
+      "name@nn": "nynorsk",
+      "name@en": "Nynorsk",
+      "iso_639_2": "nno",
+      "iso_639_3": "nno",
+      "name": "Nynorsk",
+      "alternate_names": [
+        "New Norwegian",
+        "Norwegian Nynorsk",
+        "Neo Norwegian",
+        "nn",
+        "nno"
+      ],
+      "_unique_name": "language_nynorsk",
+      "dgraph.type": "Language",
+      "uid": "_:language_nynorsk"
+    },
+    {
+      "wikidata_id": "Q33273",
+      "description": "language of the Bantu language family",
+      "icu_code": "ny",
+      "name@ny": "Chilankhulo cha Chichewa",
+      "name@en": "Chewa",
+      "iso_639_2": "nya",
+      "iso_639_3": "nya",
+      "name": "Chewa",
+      "alternate_names": [
+        "Chichewa",
+        "Nyanja",
+        "ny",
+        "Chinyanja",
+        "Chewa language"
+      ],
+      "_unique_name": "language_chewa",
+      "dgraph.type": "Language",
+      "uid": "_:language_chewa"
+    },
+    {
+      "wikidata_id": "Q14185",
+      "description": "Occitano-Romance language of Western Europe",
+      "icu_code": "oc",
+      "name@oc": "Occitan",
+      "name@en": "Occitan",
+      "iso_639_2": "oci",
+      "iso_639_3": "oci",
+      "name": "Occitan",
+      "alternate_names": [
+        "Proven\u00e7al",
+        "lenga d'\u00f2c",
+        "Langue d'oc",
+        "Occitan (post 1500)",
+        "Occitan language",
+        "oc",
+        "Proven\u00e7al language",
+        "oci"
+      ],
+      "_unique_name": "language_occitan",
+      "dgraph.type": "Language",
+      "uid": "_:language_occitan"
+    },
+    {
+      "wikidata_id": "Q33810",
+      "description": "Indic language",
+      "icu_code": "or",
+      "name@or": "\u0b13\u0b21\u0b3c\u0b3f\u0b06",
+      "name@en": "Odia",
+      "iso_639_2": "ori",
+      "iso_639_3": "ory",
+      "name": "Odia",
+      "alternate_names": [
+        "Oriya",
+        "or",
+        "Odia language",
+        "Oriya language"
+      ],
+      "_unique_name": "language_odia",
+      "dgraph.type": "Language",
+      "uid": "_:language_odia"
+    },
+    {
+      "wikidata_id": "Q33864",
+      "description": "Cushitic language",
+      "icu_code": "om",
+      "name@om": "Afaan Oromoo",
+      "name@en": "Oromo",
+      "iso_639_2": "orm",
+      "iso_639_3": "orm",
+      "name": "Oromo",
+      "alternate_names": [
+        "om",
+        "Afaan Oromoo",
+        "Oromiffa",
+        "Galla",
+        "Oromoo",
+        "Afaan Oromo",
+        "Oromo language"
+      ],
+      "_unique_name": "language_oromo",
+      "dgraph.type": "Language",
+      "uid": "_:language_oromo"
+    },
+    {
+      "wikidata_id": "Q33968",
+      "description": "Eastern Iranian language of Ossetia, in the Caucasus",
+      "icu_code": "os",
+      "name@os": "\u0438\u0440\u043e\u043d \u00e6\u0432\u0437\u0430\u0433",
+      "name@en": "Ossetian",
+      "iso_639_2": "oss",
+      "iso_639_3": "oss",
+      "name": "Ossetian",
+      "alternate_names": [
+        "Ossetic",
+        "os",
+        "Ossetic language",
+        "Ossetian language",
+        "Ossete",
+        "\u0438\u0440\u043e\u043d \u04d5\u0432\u0437\u0430\u0433",
+        "\u0434\u0438\u0433\u043e\u0440\u043e\u043d \u04d5\u0432\u0437\u0430\u0433",
+        "oss"
+      ],
+      "_unique_name": "language_ossetian",
+      "dgraph.type": "Language",
+      "uid": "_:language_ossetian"
+    },
+    {
+      "wikidata_id": "Q58680",
+      "description": "Eastern Iranian language of Afghanistan and Pakistan",
+      "icu_code": "ps",
+      "name@ps": "\u067e\u069a\u062a\u0648",
+      "name@en": "Pashto",
+      "iso_639_2": "pus",
+      "iso_639_3": "pus",
+      "name": "Pashto",
+      "alternate_names": [
+        "Pushto",
+        "ps",
+        "Pushtoo",
+        "Pashto language",
+        "Pushto language"
+      ],
+      "_unique_name": "language_pashto",
+      "dgraph.type": "Language",
+      "uid": "_:language_pashto"
+    },
+    {
+      "wikidata_id": "Q9168",
+      "description": "Western Iranian language",
+      "icu_code": "fa",
+      "name@fa": "\u0641\u0627\u0631\u0633\u06cc",
+      "name@en": "Persian",
+      "iso_639_2": "per",
+      "iso_639_3": "fas",
+      "name": "Persian",
+      "alternate_names": [
+        "Farsi",
+        "Persian language",
+        "Farsi language",
+        "Iranian language",
+        "fa",
+        "Iranian"
+      ],
+      "_unique_name": "language_persian",
+      "dgraph.type": "Language",
+      "uid": "_:language_persian"
+    },
+    {
+      "wikidata_id": "Q809",
+      "description": "West Slavic language",
+      "icu_code": "pl",
+      "name@pl": "j\u0119zyk polski",
+      "name@en": "Polish",
+      "iso_639_2": "pol",
+      "iso_639_3": "pol",
+      "name": "Polish",
+      "alternate_names": [
+        "Polish language",
+        "pl",
+        "Polski"
+      ],
+      "_unique_name": "language_polish",
+      "dgraph.type": "Language",
+      "uid": "_:language_polish"
+    },
+    {
+      "wikidata_id": "Q5146",
+      "description": "Romance language",
+      "icu_code": "pt",
+      "name@pt": "portugu\u00eas",
+      "name@en": "Portuguese",
+      "iso_639_2": "por",
+      "iso_639_3": "por",
+      "name": "Portuguese",
+      "alternate_names": [
+        "pt",
+        "Portuguese language"
+      ],
+      "_unique_name": "language_portuguese",
+      "dgraph.type": "Language",
+      "uid": "_:language_portuguese"
+    },
+    {
+      "wikidata_id": "Q5218",
+      "description": "language family spoken primarily in the Andes region of South America",
+      "icu_code": "qu",
+      "name@qu": "Qichwa",
+      "name@en": "Quechua",
+      "iso_639_2": "que",
+      "iso_639_3": "que",
+      "name": "Quechua",
+      "alternate_names": [
+        "Quichua",
+        "runa simi",
+        "qu",
+        "Quechuan languages"
+      ],
+      "_unique_name": "language_quechua",
+      "dgraph.type": "Language",
+      "uid": "_:language_quechua"
+    },
+    {
+      "wikidata_id": "Q7913",
+      "description": "Eastern Romance language",
+      "icu_code": "ro",
+      "name@ro": "limba rom\u00e2n\u0103",
+      "name@en": "Romanian",
+      "iso_639_2": "rum",
+      "iso_639_3": "ron",
+      "name": "Romanian",
+      "alternate_names": [
+        "Romanian language",
+        "ro",
+        "Rumanian"
+      ],
+      "_unique_name": "language_romanian",
+      "dgraph.type": "Language",
+      "uid": "_:language_romanian"
+    },
+    {
+      "wikidata_id": "Q13199",
+      "description": "Romance language spoken predominantly in the southeastern Swiss canton of Grisons (Graub\u00fcnden)",
+      "icu_code": "rm",
+      "name@rm": "Rumantsch dal Grischun",
+      "name@en": "Romansh",
+      "iso_639_2": "roh",
+      "iso_639_3": "roh",
+      "name": "Romansh",
+      "alternate_names": [
+        "Romansch",
+        "Rumantsch",
+        "Rumantsh",
+        "Romanche",
+        "Romansh language",
+        "Romansch language",
+        "Rumantsch language",
+        "Rumantsh language",
+        "Romanche language",
+        "rm",
+        "Romansh Language"
+      ],
+      "_unique_name": "language_romansh",
+      "dgraph.type": "Language",
+      "uid": "_:language_romansh"
+    },
+    {
+      "wikidata_id": "Q33583",
+      "description": "Bantu language",
+      "icu_code": "rn",
+      "name@rn": "Ikirundi",
+      "name@en": "Kirundi",
+      "iso_639_2": "run",
+      "iso_639_3": "run",
+      "name": "Kirundi",
+      "alternate_names": [
+        "RUndi",
+        "Rundi",
+        "rn",
+        "Ikirundi"
+      ],
+      "_unique_name": "language_kirundi",
+      "dgraph.type": "Language",
+      "uid": "_:language_kirundi"
+    },
+    {
+      "wikidata_id": "Q7737",
+      "description": "East Slavic language",
+      "icu_code": "ru",
+      "name@ru": "\u0440\u0443\u0441\u0441\u043a\u0438\u0439 \u044f\u0437\u044b\u043a",
+      "name@en": "Russian",
+      "iso_639_2": "rus",
+      "iso_639_3": "rus",
+      "name": "Russian",
+      "alternate_names": [
+        "Russian language",
+        "ru",
+        "Russkiy",
+        "Russkiy yazyk"
+      ],
+      "_unique_name": "language_russian",
+      "dgraph.type": "Language",
+      "uid": "_:language_russian"
+    },
+    {
+      "wikidata_id": "Q34011",
+      "description": "language of the Samoan Islands",
+      "icu_code": "sm",
+      "name@sm": "Gagana fa'a S\u0101moa",
+      "name@en": "Samoan",
+      "iso_639_2": "smo",
+      "iso_639_3": "smo",
+      "name": "Samoan",
+      "alternate_names": [
+        "Samoan language",
+        "sm"
+      ],
+      "_unique_name": "language_samoan",
+      "dgraph.type": "Language",
+      "uid": "_:language_samoan"
+    },
+    {
+      "wikidata_id": "Q33954",
+      "description": "Ngbandi-based creole of the Central African Republic",
+      "icu_code": "sg",
+      "name@sg": "S\u00e4ng\u00f6",
+      "name@en": "Sango",
+      "iso_639_2": "sag",
+      "iso_639_3": "sag",
+      "name": "Sango",
+      "alternate_names": [
+        "Sangho",
+        "sg",
+        "sag",
+        "Sango language"
+      ],
+      "_unique_name": "language_sango",
+      "dgraph.type": "Language",
+      "uid": "_:language_sango"
+    },
+    {
+      "wikidata_id": "Q11059",
+      "description": "ancient Indo-Aryan language of South Asia",
+      "icu_code": "sa",
+      "name@sa": "\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d",
+      "name@en": "Sanskrit",
+      "iso_639_2": "san",
+      "iso_639_3": "san",
+      "name": "Sanskrit",
+      "alternate_names": [
+        "sa",
+        "Sunscrit",
+        "skt",
+        "\u0938\u0902\u0938\u094d\u0915\u0943\u0924-",
+        "\u0938\u0902\u0938\u094d\u0915\u0943\u0924\u092e\u094d",
+        "Samskrta",
+        "Samskrtam",
+        "San\u017fcrit",
+        "san",
+        "Sanskrit language"
+      ],
+      "_unique_name": "language_sanskrit",
+      "dgraph.type": "Language",
+      "uid": "_:language_sanskrit"
+    },
+    {
+      "wikidata_id": "Q33965",
+      "description": "Kherwari language of the Austro-Asiatic family spoken by around 6.2 million people in India, Bangladesh, Bhutan and Nepal",
+      "icu_code": "sat",
+      "name@sat": "\u1c65\u1c5f\u1c71\u1c5b\u1c5f\u1c72\u1c64 \u1c6f\u1c5f\u1c79\u1c68\u1c65\u1c64",
+      "name@en": "Santali",
+      "iso_639_2": "sat",
+      "iso_639_3": "sat",
+      "name": "Santali",
+      "alternate_names": [
+        "Santhali",
+        "sat",
+        "Santali language"
+      ],
+      "_unique_name": "language_santali",
+      "dgraph.type": "Language",
+      "uid": "_:language_santali"
+    },
+    {
+      "wikidata_id": "Q33976",
+      "description": "Romance language indigenous to the island of Sardinia",
+      "icu_code": "sc",
+      "name@sc": "Limba sarda",
+      "name@en": "Sardinian",
+      "iso_639_2": "srd",
+      "iso_639_3": "srd",
+      "name": "Sardinian",
+      "alternate_names": [
+        "sc",
+        "Sardinian language",
+        "sardu"
+      ],
+      "_unique_name": "language_sardinian",
+      "dgraph.type": "Language",
+      "uid": "_:language_sardinian"
+    },
+    {
+      "wikidata_id": "Q14549",
+      "description": "Germanic language",
+      "icu_code": "sco",
+      "name@sco": "Scots",
+      "name@en": "Scots",
+      "iso_639_2": "sco",
+      "iso_639_3": "sco",
+      "name": "Scots",
+      "alternate_names": [
+        "Lowland Scots",
+        "Scots Leid",
+        "Lallans",
+        "braid Scots",
+        "Scotch",
+        "Scots language",
+        "sco"
+      ],
+      "_unique_name": "language_scots",
+      "dgraph.type": "Language",
+      "uid": "_:language_scots"
+    },
+    {
+      "wikidata_id": "Q9314",
+      "description": "Goidelic Celtic language of Scotland",
+      "icu_code": "gd",
+      "name@gd": "G\u00e0idhlig",
+      "name@en": "Scottish Gaelic",
+      "iso_639_2": "gla",
+      "iso_639_3": "gla",
+      "name": "Scottish Gaelic",
+      "alternate_names": [
+        "Gaelic",
+        "G\u00e0idhlig",
+        "gd",
+        "Gaidhlig",
+        "Scots Gaelic",
+        "Scottish Gaelic language"
+      ],
+      "_unique_name": "language_scottish_gaelic",
+      "dgraph.type": "Language",
+      "uid": "_:language_scottish_gaelic"
+    },
+    {
+      "wikidata_id": "Q9301",
+      "description": "South Slavic language",
+      "icu_code": "sh",
+      "name@sh": "srpskohrvatski jezik",
+      "name@en": "Serbo-Croatian",
+      "name": "Serbo-Croatian",
+      "alternate_names": [
+        "sh",
+        "BHS",
+        "Serbo-Croat",
+        "Serbo-Croat-Bosnian",
+        "Bosnian-Croatian-Serbian",
+        "Bosnian-Croatian-Montenegrin-Serbian",
+        "Serbo-Croatian language"
+      ],
+      "_unique_name": "language_serbo_croatian",
+      "dgraph.type": "Language",
+      "uid": "_:language_serbo_croatian"
+    },
+    {
+      "wikidata_id": "Q34004",
+      "description": "Bantu language of Zimbabwe and Mozambique",
+      "icu_code": "sn",
+      "name@sn": "ChiShona",
+      "name@en": "Shona",
+      "iso_639_2": "sna",
+      "iso_639_3": "sna",
+      "name": "Shona",
+      "alternate_names": [
+        "Shona language",
+        "sn",
+        "chiShona",
+        "chiSwina",
+        "chiZwina",
+        "chiManyika",
+        "chiUngwe",
+        "chiKaranga",
+        "chiRozwi",
+        "Karanga",
+        "Chino"
+      ],
+      "_unique_name": "language_shona",
+      "dgraph.type": "Language",
+      "uid": "_:language_shona"
+    },
+    {
+      "wikidata_id": "Q34235",
+      "description": "the prestige language of the Yi people",
+      "icu_code": "ii",
+      "name@en": "Nuosu",
+      "iso_639_2": "iii",
+      "iso_639_3": "iii",
+      "name": "Nuosu",
+      "alternate_names": [
+        "Sichuan Yi",
+        "ii",
+        "Nuosu language",
+        "Nosu",
+        "Northern Yi",
+        "Liangshan Yi"
+      ],
+      "_unique_name": "language_nuosu",
+      "dgraph.type": "Language",
+      "uid": "_:language_nuosu"
+    },
+    {
+      "wikidata_id": "Q33973",
+      "description": "Italo-Dalmatian language spoken in Southern Italy",
+      "icu_code": "scn",
+      "name@scn": "sicilianu",
+      "name@en": "Sicilian",
+      "iso_639_2": "scn",
+      "iso_639_3": "scn",
+      "name": "Sicilian",
+      "alternate_names": [
+        "Sicilian language",
+        "scn",
+        "Sicilianu",
+        "Siculo",
+        "Siciliano",
+        "Calabro-Sicilian"
+      ],
+      "_unique_name": "language_sicilian",
+      "dgraph.type": "Language",
+      "uid": "_:language_sicilian"
+    },
+    {
+      "wikidata_id": "Q33997",
+      "description": "Indo-Aryan language spoken in Pakistan and India",
+      "icu_code": "sd",
+      "name@sd": "\u0633\u0646\u068c\u064a",
+      "name@en": "Sindhi",
+      "iso_639_2": "snd",
+      "iso_639_3": "snd",
+      "name": "Sindhi",
+      "alternate_names": [
+        "Sindhi language",
+        "sd"
+      ],
+      "_unique_name": "language_sindhi",
+      "dgraph.type": "Language",
+      "uid": "_:language_sindhi"
+    },
+    {
+      "wikidata_id": "Q13267",
+      "description": "Indo-Aryan language native to Sri Lanka",
+      "icu_code": "si",
+      "name@si": "\u0dc3\u0dd2\u0d82\u0dc4\u0dbd",
+      "name@en": "Sinhala",
+      "iso_639_2": "sin",
+      "iso_639_3": "sin",
+      "name": "Sinhala",
+      "alternate_names": [
+        "Singhalese language",
+        "Helabasa",
+        "Sinhalese language",
+        "Sinhalese",
+        "sin",
+        "si",
+        "Sinhala language"
+      ],
+      "_unique_name": "language_sinhala",
+      "dgraph.type": "Language",
+      "uid": "_:language_sinhala"
+    },
+    {
+      "wikidata_id": "Q9058",
+      "description": "West Slavic language spoken in Slovakia",
+      "icu_code": "sk",
+      "name@sk": "sloven\u010dina",
+      "name@en": "Slovak",
+      "iso_639_2": "slk",
+      "iso_639_3": "slk",
+      "name": "Slovak",
+      "alternate_names": [
+        "Slovak language",
+        "sk"
+      ],
+      "_unique_name": "language_slovak",
+      "dgraph.type": "Language",
+      "uid": "_:language_slovak"
+    },
+    {
+      "wikidata_id": "Q9063",
+      "description": "Slavic language native to Slovenia",
+      "icu_code": "sl",
+      "name@sl": "sloven\u0161\u010dina",
+      "name@en": "Slovene",
+      "iso_639_2": "slv",
+      "iso_639_3": "slv",
+      "name": "Slovene",
+      "alternate_names": [
+        "Slovenian",
+        "Slovenian language",
+        "Slovene language",
+        "sl"
+      ],
+      "_unique_name": "language_slovene",
+      "dgraph.type": "Language",
+      "uid": "_:language_slovene"
+    },
+    {
+      "wikidata_id": "Q13275",
+      "description": "Afroasiatic language belonging to the Cushitic branch",
+      "icu_code": "so",
+      "name@so": "Af-Soomaali",
+      "name@en": "Somali",
+      "iso_639_2": "som",
+      "iso_639_3": "som",
+      "name": "Somali",
+      "alternate_names": [
+        "so",
+        "Af Soomaali, Somali",
+        "Somali language"
+      ],
+      "_unique_name": "language_somali",
+      "dgraph.type": "Language",
+      "uid": "_:language_somali"
+    },
+    {
+      "wikidata_id": "Q34340",
+      "description": "Southern Bantu language",
+      "icu_code": "st",
+      "name@st": "Sesotho",
+      "name@en": "Sesotho",
+      "iso_639_2": "sot",
+      "iso_639_3": "sot",
+      "name": "Sesotho",
+      "alternate_names": [
+        "Southern Sotho",
+        "st",
+        "Sotho",
+        "Sotho language"
+      ],
+      "_unique_name": "language_sesotho",
+      "dgraph.type": "Language",
+      "uid": "_:language_sesotho"
+    },
+    {
+      "wikidata_id": "Q1321",
+      "description": "Romanic language originating in the central part of the Iberian Peninsula",
+      "icu_code": "es",
+      "name@es": "espa\u00f1ol",
+      "name@en": "Spanish",
+      "iso_639_2": "spa",
+      "iso_639_3": "spa",
+      "name": "Spanish",
+      "alternate_names": [
+        "es",
+        "Castilian",
+        "Spanish language",
+        "Castilian language",
+        "Espa\u00f1ol"
+      ],
+      "_unique_name": "language_spanish",
+      "dgraph.type": "Language",
+      "uid": "_:language_spanish"
+    },
+    {
+      "wikidata_id": "Q34002",
+      "description": "language spoken in Indonesia",
+      "icu_code": "su",
+      "name@su": "Sunda",
+      "name@en": "Sundanese",
+      "iso_639_2": "sun",
+      "iso_639_3": "sun",
+      "name": "Sundanese",
+      "alternate_names": [
+        "Sunda",
+        "su",
+        "Sundanese language"
+      ],
+      "_unique_name": "language_sundanese",
+      "dgraph.type": "Language",
+      "uid": "_:language_sundanese"
+    },
+    {
+      "wikidata_id": "Q7838",
+      "description": "Bantu language spoken mainly in East Africa",
+      "icu_code": "sw",
+      "name@sw": "Kiswahili",
+      "name@en": "Swahili",
+      "iso_639_2": "swa",
+      "iso_639_3": "swa",
+      "name": "Swahili",
+      "alternate_names": [
+        "Swahili language",
+        "Swahili (macrolanguage)",
+        "Kiswahili",
+        "sw",
+        "swa"
+      ],
+      "_unique_name": "language_swahili",
+      "dgraph.type": "Language",
+      "uid": "_:language_swahili"
+    },
+    {
+      "wikidata_id": "Q9027",
+      "description": "North Germanic language spoken in Sweden and Finland",
+      "icu_code": "sv",
+      "name@sv": "svenska",
+      "name@en": "Swedish",
+      "iso_639_2": "swe",
+      "iso_639_3": "swe",
+      "name": "Swedish",
+      "alternate_names": [
+        "Swedish language",
+        "sv",
+        "Svenska"
+      ],
+      "_unique_name": "language_swedish",
+      "dgraph.type": "Language",
+      "uid": "_:language_swedish"
+    },
+    {
+      "wikidata_id": "Q34057",
+      "description": "Austronesian language and the national language of the Philippines",
+      "icu_code": "tl",
+      "name@tl": "wikang Tagalog",
+      "name@en": "Tagalog",
+      "iso_639_2": "tgl",
+      "iso_639_3": "tgl",
+      "name": "Tagalog",
+      "alternate_names": [
+        "Tagalog language",
+        "tl",
+        "tgl"
+      ],
+      "_unique_name": "language_tagalog",
+      "dgraph.type": "Language",
+      "uid": "_:language_tagalog"
+    },
+    {
+      "wikidata_id": "Q9260",
+      "description": "language spoken in Tajikistan",
+      "icu_code": "tg",
+      "name@tg": "\u0444\u043e\u0440\u0441\u0438\u0438 \u0442\u043e\u04b7\u0438\u043a\u04e3",
+      "name@en": "Tajik",
+      "iso_639_2": "tgk",
+      "iso_639_3": "tgk",
+      "name": "Tajik",
+      "alternate_names": [
+        "Tajik language",
+        "Tajiki",
+        "Tajiki language",
+        "Tadjik",
+        "Tadjik language",
+        "Tadzhik",
+        "Tadzhik language",
+        "tg"
+      ],
+      "_unique_name": "language_tajik",
+      "dgraph.type": "Language",
+      "uid": "_:language_tajik"
+    },
+    {
+      "wikidata_id": "Q5885",
+      "description": "Dravidian language of Indian subcontinent",
+      "icu_code": "ta",
+      "name@ta": "\u0ba4\u0bae\u0bbf\u0bb4\u0bcd",
+      "name@en": "Tamil",
+      "iso_639_2": "tam",
+      "iso_639_3": "tam",
+      "name": "Tamil",
+      "alternate_names": [
+        "ta",
+        "Tamil language"
+      ],
+      "_unique_name": "language_tamil",
+      "dgraph.type": "Language",
+      "uid": "_:language_tamil"
+    },
+    {
+      "wikidata_id": "Q25285",
+      "description": "Turkic language spoken by Tatars",
+      "icu_code": "tt",
+      "name@tt": "\u0442\u0430\u0442\u0430\u0440 \u0442\u0435\u043b\u0435",
+      "name@en": "Tatar",
+      "iso_639_2": "tat",
+      "iso_639_3": "tat",
+      "name": "Tatar",
+      "alternate_names": [
+        "Kazan Tatar language",
+        "Qazan Tatar language",
+        "Tartarian",
+        "Tatar language",
+        "tt"
+      ],
+      "_unique_name": "language_tatar",
+      "dgraph.type": "Language",
+      "uid": "_:language_tatar"
+    },
+    {
+      "wikidata_id": "Q8097",
+      "description": "Dravidian language",
+      "icu_code": "te",
+      "name@te": "\u0c24\u0c46\u0c32\u0c41\u0c17\u0c41",
+      "name@en": "Telugu",
+      "iso_639_2": "tel",
+      "iso_639_3": "tel",
+      "name": "Telugu",
+      "alternate_names": [
+        "Telugu language",
+        "Telungu",
+        "Andhra bhasha",
+        "Tenugu",
+        "te"
+      ],
+      "_unique_name": "language_telugu",
+      "dgraph.type": "Language",
+      "uid": "_:language_telugu"
+    },
+    {
+      "wikidata_id": "Q9217",
+      "description": "language spoken by Thai people",
+      "icu_code": "th",
+      "name@th": "\u0e20\u0e32\u0e29\u0e32\u0e44\u0e17\u0e22",
+      "name@en": "Thai",
+      "iso_639_2": "tha",
+      "iso_639_3": "tha",
+      "name": "Thai",
+      "alternate_names": [
+        "Central Thai",
+        "Siamese",
+        "Thai language",
+        "th",
+        "tha",
+        "Siamese language"
+      ],
+      "_unique_name": "language_thai",
+      "dgraph.type": "Language",
+      "uid": "_:language_thai"
+    },
+    {
+      "wikidata_id": "Q34271",
+      "description": "Tibeto-Birman language",
+      "icu_code": "bo",
+      "name@bo": "\u0f56\u0f7c\u0f51\u0f0b\u0f66\u0f90\u0f51\u0f0d",
+      "name@en": "Tibetan",
+      "iso_639_2": "bod",
+      "iso_639_3": "bod",
+      "name": "Tibetan",
+      "alternate_names": [
+        "Standard Tibetan",
+        "Lhasa Tibetan",
+        "bo",
+        "Tibetan language"
+      ],
+      "_unique_name": "language_tibetan",
+      "dgraph.type": "Language",
+      "uid": "_:language_tibetan"
+    },
+    {
+      "wikidata_id": "Q34124",
+      "description": "Semitic language spoken in Ethiopia and Eritrea",
+      "icu_code": "ti",
+      "name@ti": "\u124b\u1295\u124b \u1275\u130d\u122d\u129b",
+      "name@en": "Tigrinya",
+      "iso_639_2": "tir",
+      "iso_639_3": "tir",
+      "name": "Tigrinya",
+      "alternate_names": [
+        "Tigrinya language",
+        "ti",
+        "Tigrigna",
+        "Tigrinya alphabet",
+        "Tigrinja"
+      ],
+      "_unique_name": "language_tigrinya",
+      "dgraph.type": "Language",
+      "uid": "_:language_tigrinya"
+    },
+    {
+      "wikidata_id": "Q34094",
+      "description": "Polynesian language",
+      "icu_code": "to",
+      "name@to": "Lea fakatonga",
+      "name@en": "Tongan",
+      "iso_639_2": "ton",
+      "iso_639_3": "ton",
+      "name": "Tongan",
+      "alternate_names": [
+        "Tonga (Tonga Islands)",
+        "to",
+        "Tongan language"
+      ],
+      "_unique_name": "language_tongan",
+      "dgraph.type": "Language",
+      "uid": "_:language_tongan"
+    },
+    {
+      "wikidata_id": "Q256",
+      "description": "Oghuz Turkic language of the Turkish people",
+      "icu_code": "tr",
+      "name@tr": "T\u00fcrk\u00e7e",
+      "name@en": "Turkish",
+      "iso_639_2": "tur",
+      "iso_639_3": "tur",
+      "name": "Turkish",
+      "alternate_names": [
+        "Istanbul Turkish",
+        "Anatolian Turkish",
+        "Turkish language",
+        "tr",
+        "tur",
+        "T\u00fcrk\u00e7e",
+        "Turkish of Turkey"
+      ],
+      "_unique_name": "language_turkish",
+      "dgraph.type": "Language",
+      "uid": "_:language_turkish"
+    },
+    {
+      "wikidata_id": "Q9267",
+      "description": "Oghuz Turkic language of Central Asia",
+      "icu_code": "tk",
+      "name@tk": "T\u00fcrkmen dili",
+      "name@en": "Turkmen",
+      "iso_639_2": "tuk",
+      "iso_639_3": "tuk",
+      "name": "Turkmen",
+      "alternate_names": [
+        "tk",
+        "Turkmen language"
+      ],
+      "_unique_name": "language_turkmen",
+      "dgraph.type": "Language",
+      "uid": "_:language_turkmen"
+    },
+    {
+      "wikidata_id": "Q34137",
+      "description": "One of the widely spoken Bantu languages in Southern Africa, with presence in 4 countries.",
+      "icu_code": "tn",
+      "name@tn": "Setswana",
+      "name@en": "Tswana",
+      "iso_639_2": "tsn",
+      "iso_639_3": "tsn",
+      "name": "Tswana",
+      "alternate_names": [
+        "Setswana",
+        "Sechuana",
+        "Bechuana",
+        "tn",
+        "Tswana language"
+      ],
+      "_unique_name": "language_tswana",
+      "dgraph.type": "Language",
+      "uid": "_:language_tswana"
+    },
+    {
+      "wikidata_id": "Q8798",
+      "description": "East Slavic language",
+      "icu_code": "uk",
+      "name@uk": "\u0443\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430 \u043c\u043e\u0432\u0430",
+      "name@en": "Ukrainian",
+      "iso_639_2": "ukr",
+      "iso_639_3": "ukr",
+      "name": "Ukrainian",
+      "alternate_names": [
+        "Ukrainian language",
+        "uk"
+      ],
+      "_unique_name": "language_ukrainian",
+      "dgraph.type": "Language",
+      "uid": "_:language_ukrainian"
+    },
+    {
+      "wikidata_id": "Q13248",
+      "description": "language spoken by Sorbs in Germany in the historical province of Upper Lusatia",
+      "icu_code": "hsb",
+      "name@hsb": "hornjoserb\u0161\u0107ina",
+      "name@en": "Upper Sorbian",
+      "iso_639_2": "hsb",
+      "iso_639_3": "hsb",
+      "name": "Upper Sorbian",
+      "alternate_names": [
+        "hsb",
+        "Upper Sorbian language"
+      ],
+      "_unique_name": "language_upper_sorbian",
+      "dgraph.type": "Language",
+      "uid": "_:language_upper_sorbian"
+    },
+    {
+      "wikidata_id": "Q1617",
+      "description": "Indo-Aryan language spoken in Pakistan and India",
+      "icu_code": "ur",
+      "name@ur": "\u0627\u0631\u062f\u0648",
+      "name@en": "Urdu",
+      "iso_639_2": "urd",
+      "iso_639_3": "urd",
+      "name": "Urdu",
+      "alternate_names": [
+        "Urdu language",
+        "ur",
+        "Oordoo"
+      ],
+      "_unique_name": "language_urdu",
+      "dgraph.type": "Language",
+      "uid": "_:language_urdu"
+    },
+    {
+      "wikidata_id": "Q13263",
+      "description": "Turkic language spoken by the Uyghur people",
+      "icu_code": "ug",
+      "name@ug": "\u0626\u06c7\u064a\u063a\u06c7\u0631 \u062a\u0649\u0644\u0649",
+      "name@en": "Uyghur",
+      "iso_639_2": "uig",
+      "iso_639_3": "uig",
+      "name": "Uyghur",
+      "alternate_names": [
+        "Uighur",
+        "Eastern Turkish",
+        "Uyghur language",
+        "ug",
+        "Uighur language"
+      ],
+      "_unique_name": "language_uyghur",
+      "dgraph.type": "Language",
+      "uid": "_:language_uyghur"
+    },
+    {
+      "wikidata_id": "Q9264",
+      "description": "Turkic language",
+      "icu_code": "uz",
+      "name@uz": "O\u02bbzbek tili",
+      "name@en": "Uzbek",
+      "iso_639_2": "uzb",
+      "iso_639_3": "uzb",
+      "name": "Uzbek",
+      "alternate_names": [
+        "Uzbek language",
+        "uz"
+      ],
+      "_unique_name": "language_uzbek",
+      "dgraph.type": "Language",
+      "uid": "_:language_uzbek"
+    },
+    {
+      "wikidata_id": "Q32704",
+      "description": "language of the Venda people",
+      "icu_code": "ve",
+      "name@ve": "TshiVen\u1e13a",
+      "name@en": "Venda",
+      "iso_639_2": "ven",
+      "iso_639_3": "ven",
+      "name": "Venda",
+      "alternate_names": [
+        "ve",
+        "Venda language"
+      ],
+      "_unique_name": "language_venda",
+      "dgraph.type": "Language",
+      "uid": "_:language_venda"
+    },
+    {
+      "wikidata_id": "Q9199",
+      "description": "Austroasiatic language originating in Vietnam",
+      "icu_code": "vi",
+      "name@vi": "ti\u1ebfng Vi\u1ec7t",
+      "name@en": "Vietnamese",
+      "iso_639_2": "vie",
+      "iso_639_3": "vie",
+      "name": "Vietnamese",
+      "alternate_names": [
+        "ti\u1ebfng Vi\u1ec7t",
+        "Vietnamese language",
+        "vi",
+        "vie"
+      ],
+      "_unique_name": "language_vietnamese",
+      "dgraph.type": "Language",
+      "uid": "_:language_vietnamese"
+    },
+    {
+      "wikidata_id": "Q34219",
+      "description": "Romance language indigenous to Belgium and France",
+      "icu_code": "wa",
+      "name@wa": "walon",
+      "name@en": "Walloon",
+      "iso_639_2": "wln",
+      "iso_639_3": "wln",
+      "name": "Walloon",
+      "alternate_names": [
+        "wa",
+        "Walloon language"
+      ],
+      "_unique_name": "language_walloon",
+      "dgraph.type": "Language",
+      "uid": "_:language_walloon"
+    },
+    {
+      "wikidata_id": "Q9309",
+      "description": "Brythonic language spoken natively in Wales",
+      "icu_code": "cy",
+      "name@cy": "Cymraeg",
+      "name@en": "Welsh",
+      "iso_639_2": "wel",
+      "iso_639_3": "cym",
+      "name": "Welsh",
+      "alternate_names": [
+        "Welsh language",
+        "Cymric",
+        "cy"
+      ],
+      "_unique_name": "language_welsh",
+      "dgraph.type": "Language",
+      "uid": "_:language_welsh"
+    },
+    {
+      "wikidata_id": "Q27175",
+      "description": "Germanic language native to the Dutch region of Friesland",
+      "icu_code": "fy",
+      "name@fy": "Frysk",
+      "name@en": "West Frisian",
+      "iso_639_2": "fry",
+      "iso_639_3": "fry",
+      "name": "West Frisian",
+      "alternate_names": [
+        "Western Frisian",
+        "fy",
+        "West Lauwers Frisian",
+        "West-Frysk",
+        "West Frisian language",
+        "fry",
+        "Frysk",
+        "Frisian",
+        "Westerlauwersk Frysk",
+        "Westerlauwers Fries"
+      ],
+      "_unique_name": "language_west_frisian",
+      "dgraph.type": "Language",
+      "uid": "_:language_west_frisian"
+    },
+    {
+      "wikidata_id": "Q13218",
+      "description": "Nguni language of southern South Africa",
+      "icu_code": "xh",
+      "name@xh": "IsiXhosa",
+      "name@en": "Xhosa",
+      "iso_639_2": "xho",
+      "iso_639_3": "xho",
+      "name": "Xhosa",
+      "alternate_names": [
+        "xh",
+        "isiXhosa",
+        "Xosa",
+        "Xhosa language",
+        "xho"
+      ],
+      "_unique_name": "language_xhosa",
+      "dgraph.type": "Language",
+      "uid": "_:language_xhosa"
+    },
+    {
+      "wikidata_id": "Q34299",
+      "description": "Turkic language",
+      "icu_code": "sah",
+      "name@sah": "\u0441\u0430\u0445\u0430 \u0442\u044b\u043b\u0430",
+      "name@en": "Yakut",
+      "iso_639_2": "sah",
+      "iso_639_3": "sah",
+      "name": "Yakut",
+      "alternate_names": [
+        "sah",
+        "Yakut language",
+        "Sakha",
+        "Saqa",
+        "Saxa"
+      ],
+      "_unique_name": "language_yakut",
+      "dgraph.type": "Language",
+      "uid": "_:language_yakut"
+    },
+    {
+      "wikidata_id": "Q8641",
+      "description": "High German-derived language used by Ashkenazi Jews",
+      "icu_code": "yi",
+      "name@yi": "\u05d9\u05d9\u05d3\u05d9\u05e9",
+      "name@en": "Yiddish",
+      "iso_639_2": "yid",
+      "iso_639_3": "yid",
+      "name": "Yiddish",
+      "alternate_names": [
+        "yi",
+        "Yidish",
+        "Idish",
+        "Yidish-Taitsh",
+        "Judaeo-German",
+        "Ashkenazish language",
+        "Judeo-German",
+        "Yidish Taytsh",
+        "Yiddish language"
+      ],
+      "_unique_name": "language_yiddish",
+      "dgraph.type": "Language",
+      "uid": "_:language_yiddish"
+    },
+    {
+      "wikidata_id": "Q34311",
+      "description": "Niger\u2013Congo language spoken in West Africa",
+      "icu_code": "yo",
+      "name@yo": "\u00c8d\u00e8 Yor\u00f9b\u00e1",
+      "name@en": "Yoruba",
+      "iso_639_2": "yor",
+      "iso_639_3": "yor",
+      "name": "Yoruba",
+      "alternate_names": [
+        "Yoruba language",
+        "yo"
+      ],
+      "_unique_name": "language_yoruba",
+      "dgraph.type": "Language",
+      "uid": "_:language_yoruba"
+    },
+    {
+      "wikidata_id": "Q10179",
+      "description": "Nguni language of eastern South Africa and neighbouring countries",
+      "icu_code": "zu",
+      "name@zu": "IsiZulu",
+      "name@en": "Zulu",
+      "iso_639_2": "zul",
+      "iso_639_3": "zul",
+      "name": "Zulu",
+      "alternate_names": [
+        "isiZulu",
+        "Zulu language",
+        "zu",
+        "zul"
+      ],
+      "_unique_name": "language_zulu",
+      "dgraph.type": "Language",
+      "uid": "_:language_zulu"
+    },
+    {
+      "description": "South Slavic language",
+      "wikidata_id": "Q9303",
+      "name": "Bosnian",
+      "name@bs": "Bosanski jezik",
+      "name@en": "Bosnian",
+      "icu_code": "bs",
+      "alternate_names": [
+        "Bosnian language",
+        "bs",
+        "language of Bosniak people"
+      ],
+      "iso_639_2": "bos",
+      "iso_639_3": "bos",
+      "_unique_name": "language_bosnian",
+      "dgraph.type": "Language",
+      "uid": "_:language_bosnian"
+    },
+    {
+      "icu_code": "hr",
+      "description": "South Slavic language",
+      "wikidata_id": "Q6654",
+      "name": "Croatian",
+      "name@hr": "Hrvatski jezik",
+      "name@en": "Croatian",
+      "alternate_names": [
+        "Hrvatski",
+        "hr",
+        "Croatian language"
+      ],
+      "iso_639_2": "hrv",
+      "iso_639_3": "hrv",
+      "_unique_name": "language_croatian",
+      "dgraph.type": "Language",
+      "uid": "_:language_croatian"
+    },
+    {
+      "icu_code": "xnz",
+      "description": "language",
+      "wikidata_id": "Q20639851",
+      "name": "Kenzi",
+      "name@en": "Kenzi",
+      "alternate_names": [
+        "Nubian"
+      ],
+      "iso_639_3": "xnz",
+      "_unique_name": "language_kenzi",
+      "dgraph.type": "Language",
+      "uid": "_:language_kenzi"
+    },
+    {
+      "description": "Austronesian language spoken in the Philippines",
+      "wikidata_id": "Q36121",
+      "name": "Kapampangan",
+      "name@en": "Kapampangan",
+      "name@pam": "Kapampangan (amanu)",
+      "icu_code": "pam",
+      "alternate_names": [
+        "Pampangan language",
+        "Pampangan",
+        "Pampango",
+        "Kapampangan language",
+        "pamam\u00e1nung s\u00edsuan"
+      ],
+      "iso_639_3": "pam",
+      "_unique_name": "language_kapampangan",
+      "dgraph.type": "Language",
+      "uid": "_:language_kapampangan"
+    },
+    {
+      "description": "South Asian language originating in the Punjab region of Pakistan and India",
+      "wikidata_id": "Q58635",
+      "name": "Punjabi",
+      "name@en": "Punjabi",
+      "name@pa": "\u0a2a\u0a70\u0a1c\u0a3e\u0a2c\u0a40 \u0a2d\u0a3e\u0a38\u0a3c\u0a3e",
+      "icu_code": "pa",
+      "alternate_names": [
+        "Panjabi"
+      ],
+      "iso_639_2": "pa",
+      "iso_639_3": "pan",
+      "_unique_name": "language_punjabi",
+      "dgraph.type": "Language",
+      "uid": "_:language_punjabi"
+    },
+    {
+      "description": "South-Slavic language, official language in Serbia",
+      "wikidata_id": "Q9299",
+      "name": "Serbian",
+      "name@en": "Serbian",
+      "name@sr": "\u0421\u0440\u043f\u0441\u043a\u0438 \u0458\u0435\u0437\u0438\u043a",
+      "icu_code": "sr",
+      "iso_639_2": "scc",
+      "iso_639_3": "srp",
+      "_unique_name": "language_serbian",
+      "dgraph.type": "Language",
+      "uid": "_:language_serbian"
+    },
+    {
+      "description": "Austronesian language spoken on the island of Timor",
+      "wikidata_id": "Q34125",
+      "name": "Tetum",
+      "name@en": "Tetum",
+      "name@tdt": "Lia-tetun",
+      "icu_code": "tdt",
+      "iso_639_2": "tet",
+      "iso_639_3": "tet",
+      "alternate_names": [
+        "Tetuntet",
+        "Belo",
+        "Fehan",
+        "Teto",
+        "Tetun Belu",
+        "Tetung",
+        "Tettum",
+        "Belu",
+        "Tetum language"
+      ],
+      "_unique_name": "language_tetum",
+      "dgraph.type": "Language",
+      "uid": "_:language_tetum"
+    },
+    {
+      "description": "Visayan language primarily spoken in the islands of Samar and Eastern Leyte",
+      "wikidata_id": "Q34279",
+      "name": "Waray",
+      "name@en": "Waray",
+      "name@war": "Waray (pinulungan)",
+      "iso_639_2": "war",
+      "iso_639_3": "war",
+      "icu_code": "war",
+      "_unique_name": "language_waray",
+      "dgraph.type": "Language",
+      "uid": "_:language_waray"
+    }
+  ]
+}
