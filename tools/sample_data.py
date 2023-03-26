@@ -26,7 +26,10 @@ def main():
     
     with open('./data/countries_nonopted.json', 'r') as f:
         non_optedcountries = json.load(f)
-    
+
+    with open('./data/languages.json', 'r') as f:
+        languages = json.load(f)
+
     client_stub = pydgraph.DgraphClientStub('localhost:9080')
     client = pydgraph.DgraphClient(client_stub)
     
@@ -54,6 +57,16 @@ def main():
         txn.commit()
     finally:
         txn.discard()
+
+    txn = client.txn()
+
+    try:
+        txn.mutate(set_obj=languages)
+        txn.commit()
+    finally:
+        txn.discard()
+
+    txn = client.txn()
 
     # change all object's entry_review_status to "accepted"
     txn = client.txn()
