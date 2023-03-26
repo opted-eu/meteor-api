@@ -1,5 +1,5 @@
 import pandas as pd
-from flaskinventory.auxiliary import icu_codes
+from flaskinventory.auxiliary import icu_codes, programming_languages
 from reconciler import reconcile
 import requests
 import json
@@ -70,4 +70,50 @@ for l in languages:
 mutation = {'set': languages}
 
 with open('data/languages.json', 'w') as f:
+    json.dump(mutation, f, indent=2)
+
+
+""" Programming Languages """
+
+
+programming = [{'short': k, 'programming_language': v} for k, v in programming_languages.items()]
+
+df = pd.DataFrame(programming)
+
+reconciled = reconcile(df["programming_language"], type_id="Q9143")
+
+reconciled.to_json('programming_languages.json', orient='records',indent=1)
+
+df = pd.read_json('programming_languages.json')
+
+programming_languages = []
+
+for index, row in df.iterrows():
+    print(row['name'])
+    wikidataid = row['id']
+    params['ids'] = wikidataid 
+    r = requests.get(api, params=params)
+    wikidata = r.json()
+    result = {'name': row['name'],
+              'wikidata_id': wikidataid,
+              'description': row['description']}
+    result['alternate_names'] = []
+    try:
+        aliases = wikidata['entities'][wikidataid]['aliases']['en']
+    except:
+        aliases = []
+    for alias in aliases:
+        result['alternate_names'].append(alias['value'])
+    programming_languages.append(result)
+
+
+for l in programming_languages:
+    l['_unique_name'] = slugify(f'programming_language_{l["name"]}', separator="_")
+    l['dgraph.type'] = ["ProgrammingLanguage", "Entry"]
+    l['uid'] = "_:" + l['_unique_name']
+
+
+mutation = {'set': programming_languages}
+
+with open('data/programming_languages.json', 'w') as f:
     json.dump(mutation, f, indent=2)
