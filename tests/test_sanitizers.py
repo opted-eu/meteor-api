@@ -22,7 +22,8 @@ if __name__ == "__main__":
     from flaskinventory.errors import InventoryValidationError, InventoryPermissionError
     from flaskinventory import create_app, dgraph
     from flaskinventory.users.constants import USER_ROLES
-    from flaskinventory.users.dgraph import User, get_user_data
+    from flaskinventory.users.dgraph import get_user_data
+    from flaskinventory.main.model import User
     from flask_login import current_user
 
 

@@ -11,7 +11,8 @@ from flaskinventory.users.forms import (InviteUserForm, RegistrationForm, LoginF
 from flaskinventory.users.utils import requires_access_level, make_users_table
 from flaskinventory.users.emails import send_reset_email, send_invite_email, send_verification_email
 from flaskinventory.users.constants import USER_ROLES
-from flaskinventory.users.dgraph import User, get_user_data, user_login, create_user, list_users, list_entries
+from flaskinventory.main.model import User
+from flaskinventory.users.dgraph import get_user_data, user_login, create_user, list_users, list_entries
 from secrets import token_hex
 
 users = Blueprint('users', __name__)
@@ -25,6 +26,15 @@ def register():
     if form.validate_on_submit():
         new_user = {'email': form.email.data,
                     'pw': form.password.data}
+        
+        # Change for ORM syntax
+        # new_uid = dgraph.add(User, email="email", pw="pw")
+
+        # or:
+        # new_user = User(email="email", pw="pw", **kwargs)
+        # new_uid = dgraph.add(new_user)
+
+        # user = dgraph.query(User.uid == new_uid)
         new_uid = create_user(new_user)
         user = User(uid=new_uid)
         send_verification_email(user)
@@ -55,6 +65,8 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         if user_login(form.email.data, form.password.data):
+            # Change for ORM syntax
+            # user = dgraph.query(User.email == "email")
             user = User(email=form.email.data)
             login_user(user, remember=form.remember.data)
             flash(f'You have been logged in', 'success')
@@ -115,6 +127,8 @@ def reset_request():
         return redirect(url_for('main.home'))
     form = RequestResetForm()
     if form.validate_on_submit():
+        # Change for ORM syntax
+        # user = dgraph.query(User.email == "email")
         user = User(email=form.email.data)
         send_reset_email(user)
         flash('An email has been sent with instructions to reset your password', 'info')
@@ -191,6 +205,15 @@ def invite():
     if form.validate_on_submit():
         new_user = {'email': form.email.data,
                     'pw': token_hex(32)}
+        
+        # Change for ORM syntax
+        # new_uid = dgraph.add(User, email="email", pw="pw")
+
+        # or:
+        # new_user = User(email="email", pw="pw", **kwargs)
+        # new_uid = dgraph.add(new_user)
+
+        # user = dgraph.query(User.uid == new_uid)
         new_uid = create_user(new_user, invited_by=current_user.id)
         NewUser = User(uid=new_uid)
         send_invite_email(NewUser)

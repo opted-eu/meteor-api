@@ -8,7 +8,7 @@ from flaskinventory.add.external import (instagram, twitter, get_wikidata, teleg
                                          parse_meta, siterankdata, find_sitemaps, find_feeds,
                                          build_url)
 from flaskinventory.users.constants import USER_ROLES
-from flaskinventory.users.dgraph import User
+from flaskinventory.main.model import User
 from flaskinventory import dgraph
 from flask import current_app
 from werkzeug.datastructures import ImmutableMultiDict

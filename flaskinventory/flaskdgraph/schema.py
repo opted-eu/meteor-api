@@ -1,3 +1,4 @@
+from typing import Any
 from copy import deepcopy
 from datetime import datetime
 from flask_wtf import FlaskForm
@@ -63,7 +64,7 @@ class Schema:
 
         # inherit predicates from parent classes
         for parent in cls.__bases__:
-            if parent.__name__ != Schema.__name__:
+            if parent.__name__ != Schema.__name__ and isinstance(parent, Schema):
                 predicates.update({k: v for k, v in Schema.get_predicates(
                     parent.__name__).items() if k not in predicates})
                 relationship_predicates.update({k: v for k, v in Schema.get_relationships(
@@ -130,6 +131,10 @@ class Schema:
             {key: val for key, val in queryable_predicates.items() if isinstance(val, Facet)})
         Schema.__queryable_predicates_by_type__[cls.__name__].update(
             {val._predicate: val for key, val in reverse_predicates.items() if val.queryable})
+
+        if getattr(cls, "__init__", object.__init__) is object.__init__:
+            # the generic constructor just assigns **kwargs as attributes
+            cls.__init__ = _declarative_constructor
 
     @classmethod
     def get_types(cls) -> list:
@@ -431,3 +436,28 @@ class Schema:
         form = cls.populate_form(form, populate_obj, fields)
 
         return form
+
+
+""" 
+    Taken from SQL Alchemy ORM 
+    Maybe we will keep this for implementing ORM style queries
+"""
+
+def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+    """A simple constructor that allows initialization from kwargs.
+    Sets attributes on the constructed instance using the names and
+    values in ``kwargs``.
+    Only keys that are present as
+    attributes of the instance's class are allowed. These could be,
+    for example, any mapped columns or relationships.
+    """
+    cls_ = type(self)
+    for k in kwargs:
+        if not hasattr(cls_, k):
+            raise TypeError(
+                "%r is an invalid keyword argument for %s" % (k, cls_.__name__)
+            )
+        setattr(self, k, kwargs[k])
+
+
+_declarative_constructor.__name__ = "__init__"

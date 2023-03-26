@@ -1,3 +1,4 @@
+from flaskinventory import login_manager
 from flask import current_app
 from flask_login import UserMixin
 from flaskinventory import dgraph
@@ -5,12 +6,21 @@ import jwt
 from flaskinventory.users.constants import USER_ROLES
 import datetime
 import secrets
+from flaskinventory.flaskdgraph.dgraph_types import _PrimitivePredicate
 
-class User(UserMixin):
-    
+def generate_random_username():
+    return secrets.token_urlsafe(6)
+
+
+class UserLogin(UserMixin):
+
     id = None
-    user_role = 0
 
+    # Need more consistent ORM syntax
+    # Currently load users like:
+    # user = User(email="email")
+    # but would be better to query like:
+    # user = dgraph.query(User.email == "email")
     def __init__(self, **kwargs):
         if 'uid' or 'email' in kwargs.keys():
             self.get_user(**kwargs)
@@ -24,27 +34,36 @@ class User(UserMixin):
                 if '|' in k:
                     k = k.replace('|', '_')
                 setattr(self, k, v)
+            # Overwrite DGraph Predicates
+            # Maye find a more elegant solution later
+            for attr in dir(self):
+                if isinstance(getattr(self, attr), _PrimitivePredicate):
+                    setattr(self, attr, None)
         else:
             return None
 
     def update_profile(self, form_data):
         user_data = {}
         for k, v in form_data.data.items():
-            if k in ['submit', 'csrf_token']: continue
-            else: user_data[k] = v
+            if k in ['submit', 'csrf_token']:
+                continue
+            else:
+                user_data[k] = v
         result = dgraph.update_entry(user_data, uid=self.id)
         if result:
             for k, v in user_data.items():
                 setattr(self, k, v)
             return True
-        else: return False
-    
+        else:
+            return False
+
     def change_password(self, form_data):
         user_data = {'pw': form_data.data.get('new_password')}
         result = dgraph.update_entry(user_data, uid=self.id)
         if result:
             return True
-        else: return False
+        else:
+            return False
 
     def __repr__(self):
         return f'<DGraph User.uid {self.id}>'
@@ -54,7 +73,7 @@ class User(UserMixin):
             {
                 "confirm": self.id,
                 "exp": datetime.datetime.now(tz=datetime.timezone.utc)
-                       + datetime.timedelta(seconds=expires_sec)
+                + datetime.timedelta(seconds=expires_sec)
             },
             current_app.config['SECRET_KEY'],
             algorithm="HS256"
@@ -63,22 +82,22 @@ class User(UserMixin):
         dgraph.update_entry({'pw_reset': reset_token,
                              'pw_reset|used': False}, uid=self.id)
         return reset_token
-    
+
     def get_invite_token(self, expires_days=7):
-        expires_sec = expires_days * 24 * 60 * 60 
+        expires_sec = expires_days * 24 * 60 * 60
         reset_token = jwt.encode(
             {
                 "confirm": self.id,
                 "exp": datetime.datetime.now(tz=datetime.timezone.utc)
-                       + datetime.timedelta(seconds=expires_sec)
+                + datetime.timedelta(seconds=expires_sec)
             },
             current_app.config['SECRET_KEY'],
             algorithm="HS256"
         )
         return reset_token
 
-    @staticmethod
-    def verify_reset_token(token):
+    @classmethod
+    def verify_reset_token(cls, token):
         try:
             data = jwt.decode(
                 token,
@@ -87,11 +106,11 @@ class User(UserMixin):
                 algorithms=["HS256"]
             )
         except:
-            return False 
-        
+            return False
+
         user_id = data.get('confirm')
 
-        user = User(uid=user_id)
+        user = cls(uid=user_id)
         if user.pw_reset_used:
             return False
         elif user.pw_reset != token:
@@ -100,8 +119,8 @@ class User(UserMixin):
             dgraph.update_entry({'pw_reset|used': True}, uid=user_id)
             return user
 
-    @staticmethod
-    def verify_email_token(token):
+    @classmethod
+    def verify_email_token(cls, token):
         try:
             data = jwt.decode(
                 token,
@@ -109,25 +128,15 @@ class User(UserMixin):
                 algorithms=["HS256"]
             )
         except:
-            return False 
-        
+            return False
+
         user_id = data.get('confirm')
-        user = User(uid=user_id)
+        user = cls(uid=user_id)
         if user:
             dgraph.update_entry({'account_status': 'active'}, uid=user_id)
             return user
         else:
             return False
-
-
-from flaskinventory import login_manager
-@login_manager.user_loader
-def load_user(user_id):
-    if not user_id.startswith('0x'): return 
-    if not check_user(user_id):
-        return 
-    return User(uid=user_id)
-
 
 def get_user_data(**kwargs):
 
@@ -149,6 +158,7 @@ def get_user_data(**kwargs):
     data = data['q'][0]
     return data
 
+
 def check_user(uid):
 
     query_string = f'''{{ user(func: uid({uid})) @filter(type("User")) {{ uid }} }}'''
@@ -156,6 +166,7 @@ def check_user(uid):
     if len(data['user']) == 0:
         return None
     return data['user'][0]['uid']
+
 
 def check_user_by_email(email):
     query_string = f'''{{ user(func: eq(email, "{email}")) @filter(type("User")) {{ uid }} }}'''
@@ -192,6 +203,7 @@ def user_verify(uid, pw):
     else:
         return result['login_attempt'][0]['checkpwd(pw)']
 
+
 def create_user(user_data, invited_by=None):
     if type(user_data) is not dict:
         raise TypeError()
@@ -210,9 +222,8 @@ def create_user(user_data, invited_by=None):
 
     if invited_by:
         user_data['invited_by'] = {'uid': invited_by,
-                                    'invited_by|date': datetime.datetime.now(datetime.timezone.utc).isoformat()}
+                                   'invited_by|date': datetime.datetime.now(datetime.timezone.utc).isoformat()}
         user_data['account_status'] = 'invited'
-        
 
     response = dgraph.mutation(user_data)
 
@@ -221,11 +232,13 @@ def create_user(user_data, invited_by=None):
     else:
         return False
 
+
 def list_users():
     data = dgraph.query('{ q(func: type("User")) { uid expand(_all_) } }')
     if len(data['q']) == 0:
         return False
     return data['q']
+
 
 def list_entries(user, onlydrafts=False):
     query_string = f"""{{ q(func: uid({user})) {{

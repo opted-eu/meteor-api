@@ -27,7 +27,8 @@ from flaskinventory.add.external import geocode, reverse_geocode
 from flaskinventory.users.constants import USER_ROLES
 
 from wtforms import (StringField, SelectField, SelectMultipleField,
-                     DateField, BooleanField, TextAreaField, RadioField, IntegerField)
+                     DateField, BooleanField, TextAreaField, RadioField, IntegerField,
+                     PasswordField)
 from wtforms.validators import DataRequired, Optional
 
 
@@ -1032,6 +1033,24 @@ class ListString(String):
         if type(data) == str:
             data = data.split(self.delimiter)
         return [item.strip() for item in data if item.strip() != '']
+
+
+class Password(Predicate):
+
+    dgraph_predicate_type = 'password'
+    is_list_predicate = False
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    @property
+    def wtf_field(self) -> PasswordField:
+        if self.required:
+            validators = [DataRequired()]
+        else:
+            validators = [Optional()]
+        return PasswordField(label=self.label, validators=validators, description=self.form_description)
+
 
 
 class UniqueName(String):

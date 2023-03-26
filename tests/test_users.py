@@ -8,7 +8,8 @@ if __name__ == "__main__":
 
     from flask_login import current_user
     from flaskinventory import create_app, AnonymousUser, dgraph
-    from flaskinventory.users.dgraph import User, create_user
+    from flaskinventory.users.dgraph import create_user
+    from flaskinventory.main.model import User
     from test_setup import BasicTestSetup
 
 
