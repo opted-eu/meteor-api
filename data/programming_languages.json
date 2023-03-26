@@ -1,0 +1,587 @@
+{
+  "set": [
+    {
+      "name": "APL",
+      "wikidata_id": "Q296187",
+      "description": "functional, symbolic programming language for operating on multidimensional arrays",
+      "alternate_names": [
+        "APL language",
+        "A Programming Language",
+        "Array Processing Language",
+        "APL programming language",
+        "APL\\360",
+        "APL (language)",
+        "A programming language",
+        "APL programming language family",
+        "X3J10"
+      ],
+      "_unique_name": "programming_language_apl",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_apl"
+    },
+    {
+      "name": "Assembly",
+      "wikidata_id": "Q165436",
+      "description": "any low-level programming language in which there is a very strong correspondence between the instructions in the language and the architecture's machine code instructions",
+      "alternate_names": [
+        "asm",
+        "assembly",
+        "assembly code",
+        "assembler language"
+      ],
+      "_unique_name": "programming_language_assembly",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_assembly"
+    },
+    {
+      "name": "Bash/Shell",
+      "wikidata_id": "Q189248",
+      "description": "GNU Project implementation of the standard Unix shell",
+      "alternate_names": [
+        "Bourne Again shell",
+        "Bash",
+        "Bourne-Again shell",
+        "BASH"
+      ],
+      "_unique_name": "programming_language_bash_shell",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_bash_shell"
+    },
+    {
+      "name": "C",
+      "wikidata_id": "Q15777",
+      "description": "multi-paradigm (object-oriented) programming language",
+      "alternate_names": [
+        "C programming language"
+      ],
+      "_unique_name": "programming_language_c",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_c"
+    },
+    {
+      "name": "C#",
+      "wikidata_id": "Q2370",
+      "description": "multi-paradigm (object-oriented) programming language",
+      "alternate_names": [
+        "C-Sharp",
+        "CSharp",
+        "C Sharp",
+        "C\u266f",
+        "c#"
+      ],
+      "_unique_name": "programming_language_csharp",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_c_sharp"
+    },
+    {
+      "name": "C++",
+      "wikidata_id": "Q2407",
+      "description": "general-purpose programming language",
+      "alternate_names": [
+        "cpp",
+        "C Plus Plus",
+        "CPP"
+      ],
+      "_unique_name": "programming_language_c_plusplus",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_cplusplus"
+    },
+    {
+      "name": "COBOL",
+      "wikidata_id": "Q131140",
+      "description": "programming language with English-like syntax",
+      "alternate_names": [
+        "Common Business-Oriented Language",
+        "Cobol"
+      ],
+      "_unique_name": "programming_language_cobol",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_cobol"
+    },
+    {
+      "name": "Clojure",
+      "wikidata_id": "Q51798",
+      "description": "dialect of the Lisp programming language",
+      "alternate_names": [],
+      "_unique_name": "programming_language_clojure",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_clojure"
+    },
+    {
+      "name": "Crystal",
+      "wikidata_id": "Q21921428",
+      "description": "programming language",
+      "alternate_names": [],
+      "_unique_name": "programming_language_crystal",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_crystal"
+    },
+    {
+      "name": "Dart",
+      "wikidata_id": "Q406009",
+      "description": "programming language",
+      "alternate_names": [
+        "ECMA-408",
+        "Google Dart"
+      ],
+      "_unique_name": "programming_language_dart",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_dart"
+    },
+    {
+      "name": "Delphi",
+      "wikidata_id": "Q4037189",
+      "description": "programming language (dialect of Object Pascal, used in Embarcadero Delphi)",
+      "alternate_names": [],
+      "_unique_name": "programming_language_delphi",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_delphi"
+    },
+    {
+      "name": "Elixir",
+      "wikidata_id": "Q5362035",
+      "description": "Programming language",
+      "alternate_names": [],
+      "_unique_name": "programming_language_elixir",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_elixir"
+    },
+    {
+      "name": "Erlang",
+      "wikidata_id": "Q334879",
+      "description": "programming language",
+      "alternate_names": [
+        "erlang"
+      ],
+      "_unique_name": "programming_language_erlang",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_erlang"
+    },
+    {
+      "name": "F#",
+      "wikidata_id": "Q648619",
+      "description": "Microsoft programming language",
+      "alternate_names": [
+        "FSharp",
+        "F Sharp",
+        "F\u266f"
+      ],
+      "_unique_name": "programming_language_f_sharp",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_f_sharp"
+    },
+    {
+      "name": "Go",
+      "wikidata_id": "Q37227",
+      "description": "programming language",
+      "alternate_names": [
+        "golang",
+        "Google Go",
+        "Go programming language"
+      ],
+      "_unique_name": "programming_language_golang",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_golang"
+    },
+    {
+      "name": "Groovy",
+      "wikidata_id": "Q504453",
+      "description": "programming language",
+      "alternate_names": [
+        "Apache Groovy"
+      ],
+      "_unique_name": "programming_language_groovy",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_groovy"
+    },
+    {
+      "name": "Haskell",
+      "wikidata_id": "Q34010",
+      "description": "purely functional programming language",
+      "alternate_names": [
+        "Haskell programming language",
+        "hs"
+      ],
+      "_unique_name": "programming_language_haskell",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_haskell"
+    },
+    {
+      "name": "Java",
+      "wikidata_id": "Q251",
+      "description": "object-oriented programming language",
+      "alternate_names": [],
+      "_unique_name": "programming_language_java",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_java"
+    },
+    {
+      "name": "JavaScript",
+      "wikidata_id": "Q2005",
+      "description": "high-level programming language",
+      "alternate_names": [
+        "JS",
+        "Javascript",
+        "javascript"
+      ],
+      "_unique_name": "programming_language_javascript",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_javascript"
+    },
+    {
+      "name": "Julia",
+      "wikidata_id": "Q2613697",
+      "description": "high-performance dynamic programming language",
+      "alternate_names": [
+        "JuliaLang",
+        "The Julia Language",
+        "Julia programming language"
+      ],
+      "_unique_name": "programming_language_julia",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_julia"
+    },
+    {
+      "name": "Kotlin",
+      "wikidata_id": "Q3816639",
+      "description": "programming language",
+      "alternate_names": [
+        "Kotlin (Programming language)"
+      ],
+      "_unique_name": "programming_language_kotlin",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_kotlin"
+    },
+    {
+      "name": "Lisp",
+      "wikidata_id": "Q132874",
+      "description": "functional programming language based on the lambda calculus",
+      "alternate_names": [
+        "LISt Processor",
+        "List Processor",
+        "Lisp (programming language)",
+        "LISP",
+        "ISO/IEC 13816",
+        "JIS X 3012"
+      ],
+      "_unique_name": "programming_language_lisp",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_lisp"
+    },
+    {
+      "name": "MATLAB",
+      "wikidata_id": "Q37805571",
+      "description": "fourth-generation programming language",
+      "alternate_names": [
+        "MATrix  LABoratory"
+      ],
+      "_unique_name": "programming_language_matlab",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_matlab"
+    },
+    {
+      "name": "Node.js",
+      "wikidata_id": "Q756100",
+      "description": "JavaScript runtime environment",
+      "alternate_names": [
+        "Node",
+        "NodeJS"
+      ],
+      "_unique_name": "programming_language_node_js",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_node_js"
+    },
+    {
+      "name": "Objective-C",
+      "wikidata_id": "Q188531",
+      "description": "general-purpose, high-level, object-oriented programming language",
+      "alternate_names": [
+        "Obj-C",
+        "ObjC"
+      ],
+      "_unique_name": "programming_language_objective_c",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_objective_c"
+    },
+    {
+      "name": "PHP",
+      "wikidata_id": "Q59",
+      "description": "scripting language focused on web development",
+      "alternate_names": [
+        "Hypertext Preprocessor",
+        "Personal Home Page",
+        "PHP programming language",
+        "PHP: Hypertext Preprocessor",
+        "PHP Hypertext Preprocessor",
+        "php"
+      ],
+      "_unique_name": "programming_language_php",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_php"
+    },
+    {
+      "name": "Perl",
+      "wikidata_id": "Q42478",
+      "description": "interpreted programming language first released in 1987",
+      "alternate_names": [
+        "Practical Extraction and Reporting Language",
+        "Perl/CGI",
+        "Pearl",
+        "perl"
+      ],
+      "_unique_name": "programming_language_perl",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_perl"
+    },
+    {
+      "name": "PowerShell",
+      "wikidata_id": "Q840410",
+      "description": "cross-platform command-line interface and scripting language for system and network administration",
+      "alternate_names": [
+        "Windows PowerShell",
+        "PowerShell Core",
+        "PS",
+        "Power Shell",
+        "Monad Shell",
+        "Microsoft Shell",
+        "MSH"
+      ],
+      "_unique_name": "programming_language_powershell",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_powershell"
+    },
+    {
+      "name": "Python",
+      "wikidata_id": "Q28865",
+      "description": "general-purpose programming language",
+      "alternate_names": [
+        "py",
+        "python",
+        "Python 3",
+        "Python 2",
+        "Python programming language",
+        "Python language"
+      ],
+      "_unique_name": "programming_language_python",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_python"
+    },
+    {
+      "name": "R",
+      "wikidata_id": "Q206904",
+      "description": "programming language",
+      "alternate_names": [
+        "R language",
+        "GNU R",
+        "GNU S"
+      ],
+      "_unique_name": "programming_language_r",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_r"
+    },
+    {
+      "name": "Ruby",
+      "wikidata_id": "Q161053",
+      "description": "programming language",
+      "alternate_names": [
+        "Ruby language",
+        "Ruby programming language",
+        "rb"
+      ],
+      "_unique_name": "programming_language_ruby",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_ruby"
+    },
+    {
+      "name": "Rust",
+      "wikidata_id": "Q575650",
+      "description": "memory-safe programming language without garbage collection",
+      "alternate_names": [
+        "Rust language",
+        "Rustlang"
+      ],
+      "_unique_name": "programming_language_rust",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_rust"
+    },
+    {
+      "name": "SQL",
+      "wikidata_id": "Q47607",
+      "description": "relational database language that allows to extract from data tables a series of records with selection, sorting and computation criteria, or to update, delete or add new records",
+      "alternate_names": [
+        "Structural Query Language",
+        "Structured Query Language",
+        "sql"
+      ],
+      "_unique_name": "programming_language_sql",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_sql"
+    },
+    {
+      "name": "Scala",
+      "wikidata_id": "Q460584",
+      "description": "programming language",
+      "alternate_names": [
+        "Scala programming language"
+      ],
+      "_unique_name": "programming_language_scala",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_scala"
+    },
+    {
+      "name": "Swift",
+      "wikidata_id": "Q17118377",
+      "description": "general-purpose, multi-paradigm, compiled programming language",
+      "alternate_names": [],
+      "_unique_name": "programming_language_swift",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_swift"
+    },
+    {
+      "name": "Stata Script (Ado)",
+      "wikidata_id": "Q1204300",
+      "description": "statistical software package",
+      "alternate_names": [],
+      "_unique_name": "programming_language_stata",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_stata"
+    },
+    {
+      "name": "TypeScript",
+      "wikidata_id": "Q978185",
+      "description": "programming language, superset of JavaScript that compiles to JavaScript",
+      "alternate_names": [
+        "TS",
+        ".ts"
+      ],
+      "_unique_name": "programming_language_typescript",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_typescript"
+    },
+    {
+      "name": "VBA",
+      "wikidata_id": "Q667566",
+      "description": "programming language",
+      "alternate_names": [
+        "Visual Basic for Applications"
+      ],
+      "_unique_name": "programming_language_vba",
+      "dgraph.type": [
+        "ProgrammingLanguage",
+        "Entry"
+      ],
+      "uid": "_:programming_language_vba"
+    }
+  ]
+}
