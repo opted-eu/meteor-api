@@ -16,7 +16,7 @@
         "African language"
       ],
       "_unique_name": "language_afrikaans",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_afrikaans"
     },
     {
@@ -35,7 +35,7 @@
         "ak"
       ],
       "_unique_name": "language_akan",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_akan"
     },
     {
@@ -53,7 +53,7 @@
         "Shqip"
       ],
       "_unique_name": "language_albanian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_albanian"
     },
     {
@@ -69,7 +69,7 @@
         "am"
       ],
       "_unique_name": "language_amharic",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_amharic"
     },
     {
@@ -87,7 +87,7 @@
         "Arabian language"
       ],
       "_unique_name": "language_arabic",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_arabic"
     },
     {
@@ -105,7 +105,7 @@
         "aragon\u0161tina"
       ],
       "_unique_name": "language_aragonese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_aragonese"
     },
     {
@@ -122,7 +122,7 @@
         "hy"
       ],
       "_unique_name": "language_armenian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_armenian"
     },
     {
@@ -144,7 +144,7 @@
         "Asomiya"
       ],
       "_unique_name": "language_assamese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_assamese"
     },
     {
@@ -164,7 +164,7 @@
         "ast"
       ],
       "_unique_name": "language_asturian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_asturian"
     },
     {
@@ -183,7 +183,7 @@
         "az"
       ],
       "_unique_name": "language_azerbaijani",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_azerbaijani"
     },
     {
@@ -204,7 +204,7 @@
         "ay"
       ],
       "_unique_name": "language_aymara",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_aymara"
     },
     {
@@ -222,7 +222,7 @@
         "Masaba script"
       ],
       "_unique_name": "language_bambara",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_bambara"
     },
     {
@@ -239,7 +239,7 @@
         "ba"
       ],
       "_unique_name": "language_bashkir",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_bashkir"
     },
     {
@@ -258,7 +258,7 @@
         "Basque language"
       ],
       "_unique_name": "language_basque",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_basque"
     },
     {
@@ -286,7 +286,7 @@
         "Bielarusian"
       ],
       "_unique_name": "language_belarusian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_belarusian"
     },
     {
@@ -305,7 +305,7 @@
         "ben"
       ],
       "_unique_name": "language_bengali",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_bengali"
     },
     {
@@ -324,7 +324,7 @@
         "bre"
       ],
       "_unique_name": "language_breton",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_breton"
     },
     {
@@ -341,7 +341,7 @@
         "bg"
       ],
       "_unique_name": "language_bulgarian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_bulgarian"
     },
     {
@@ -359,7 +359,7 @@
         "Myanmar"
       ],
       "_unique_name": "language_burmese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_burmese"
     },
     {
@@ -381,7 +381,7 @@
         "Valenci\u00e0"
       ],
       "_unique_name": "language_catalan",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_catalan"
     },
     {
@@ -399,7 +399,7 @@
         "Cebuan language"
       ],
       "_unique_name": "language_cebuano",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_cebuano"
     },
     {
@@ -416,7 +416,7 @@
         "Chechen language"
       ],
       "_unique_name": "language_chechen",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_chechen"
     },
     {
@@ -431,7 +431,7 @@
         "zh_hans"
       ],
       "_unique_name": "language_simplified_chinese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_simplified_chinese"
     },
     {
@@ -447,7 +447,7 @@
         "zh_Hant"
       ],
       "_unique_name": "language_traditional_chinese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_traditional_chinese"
     },
     {
@@ -467,7 +467,7 @@
         "\u00c7\u0103va\u015fla"
       ],
       "_unique_name": "language_chuvash",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_chuvash"
     },
     {
@@ -490,7 +490,7 @@
         "cor"
       ],
       "_unique_name": "language_cornish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_cornish"
     },
     {
@@ -507,7 +507,7 @@
         "co"
       ],
       "_unique_name": "language_corsican",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_corsican"
     },
     {
@@ -524,7 +524,7 @@
         "cs"
       ],
       "_unique_name": "language_czech",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_czech"
     },
     {
@@ -544,7 +544,7 @@
         "dan"
       ],
       "_unique_name": "language_danish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_danish"
     },
     {
@@ -563,7 +563,7 @@
         "Maldivian language"
       ],
       "_unique_name": "language_maldivian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_maldivian"
     },
     {
@@ -588,7 +588,7 @@
         "Nederlands"
       ],
       "_unique_name": "language_dutch",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_dutch"
     },
     {
@@ -606,7 +606,7 @@
         "Dzongkha language"
       ],
       "_unique_name": "language_dzongkha",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_dzongkha"
     },
     {
@@ -623,7 +623,7 @@
         "eng"
       ],
       "_unique_name": "language_english",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_english"
     },
     {
@@ -641,7 +641,7 @@
         "epo"
       ],
       "_unique_name": "language_esperanto",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_esperanto"
     },
     {
@@ -658,7 +658,7 @@
         "et"
       ],
       "_unique_name": "language_estonian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_estonian"
     },
     {
@@ -679,7 +679,7 @@
         "\u00c8wegbe"
       ],
       "_unique_name": "language_ewe",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_ewe"
     },
     {
@@ -703,7 +703,7 @@
         "fao"
       ],
       "_unique_name": "language_faroese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_faroese"
     },
     {
@@ -722,7 +722,7 @@
         "fin"
       ],
       "_unique_name": "language_finnish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_finnish"
     },
     {
@@ -741,7 +741,7 @@
         "(fr)"
       ],
       "_unique_name": "language_french",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_french"
     },
     {
@@ -773,7 +773,7 @@
         "Western Niger dialect"
       ],
       "_unique_name": "language_fula",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_fula"
     },
     {
@@ -791,7 +791,7 @@
         "gl"
       ],
       "_unique_name": "language_galician",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_galician"
     },
     {
@@ -809,7 +809,7 @@
         "Oluganda"
       ],
       "_unique_name": "language_luganda",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_luganda"
     },
     {
@@ -830,7 +830,7 @@
         "\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8"
       ],
       "_unique_name": "language_georgian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_georgian"
     },
     {
@@ -847,7 +847,7 @@
         "de"
       ],
       "_unique_name": "language_german",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_german"
     },
     {
@@ -864,7 +864,7 @@
         "el"
       ],
       "_unique_name": "language_modern_greek",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_modern_greek"
     },
     {
@@ -883,7 +883,7 @@
         "grc"
       ],
       "_unique_name": "language_ancient_greek",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_ancient_greek"
     },
     {
@@ -901,7 +901,7 @@
         "Gujarati language"
       ],
       "_unique_name": "language_gujarati",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_gujarati"
     },
     {
@@ -918,7 +918,7 @@
         "Hausa language"
       ],
       "_unique_name": "language_hausa",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_hausa"
     },
     {
@@ -936,7 +936,7 @@
         "Haitian language"
       ],
       "_unique_name": "language_haitian_creole",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_haitian_creole"
     },
     {
@@ -957,7 +957,7 @@
         "Jewish language"
       ],
       "_unique_name": "language_hebrew",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_hebrew"
     },
     {
@@ -975,7 +975,7 @@
         "hi"
       ],
       "_unique_name": "language_hindi",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_hindi"
     },
     {
@@ -992,7 +992,7 @@
         "hu"
       ],
       "_unique_name": "language_hungarian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_hungarian"
     },
     {
@@ -1010,7 +1010,7 @@
         "\u00cdslenska"
       ],
       "_unique_name": "language_icelandic",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_icelandic"
     },
     {
@@ -1027,7 +1027,7 @@
         "Igbo language"
       ],
       "_unique_name": "language_igbo",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_igbo"
     },
     {
@@ -1046,7 +1046,7 @@
         "Ilocano language"
       ],
       "_unique_name": "language_ilocano",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_ilocano"
     },
     {
@@ -1066,7 +1066,7 @@
         "Bahasa"
       ],
       "_unique_name": "language_indonesian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_indonesian"
     },
     {
@@ -1083,7 +1083,7 @@
         "Inuktut"
       ],
       "_unique_name": "language_inuktitut",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_inuktitut"
     },
     {
@@ -1102,7 +1102,7 @@
         "gaelic"
       ],
       "_unique_name": "language_irish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_irish"
     },
     {
@@ -1120,7 +1120,7 @@
         "Italian language"
       ],
       "_unique_name": "language_italian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_italian"
     },
     {
@@ -1140,7 +1140,7 @@
         "jp"
       ],
       "_unique_name": "language_japanese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_japanese"
     },
     {
@@ -1161,7 +1161,7 @@
         "\u0628\u0627\u0633\u0627 \u062c\u0627\u0648\u0627\u200e"
       ],
       "_unique_name": "language_javanese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_javanese"
     },
     {
@@ -1186,7 +1186,7 @@
         "Greenlandic language"
       ],
       "_unique_name": "language_greenlandic",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_greenlandic"
     },
     {
@@ -1204,7 +1204,7 @@
         "kn"
       ],
       "_unique_name": "language_kannada",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_kannada"
     },
     {
@@ -1222,7 +1222,7 @@
         "Kashmiri language"
       ],
       "_unique_name": "language_kashmiri",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_kashmiri"
     },
     {
@@ -1242,7 +1242,7 @@
         "kk"
       ],
       "_unique_name": "language_kazakh",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_kazakh"
     },
     {
@@ -1261,7 +1261,7 @@
         "Central Khmer"
       ],
       "_unique_name": "language_khmer",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_khmer"
     },
     {
@@ -1280,7 +1280,7 @@
         "ki"
       ],
       "_unique_name": "language_gikuyu",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_gikuyu"
     },
     {
@@ -1300,7 +1300,7 @@
         "Kinyarwanda language"
       ],
       "_unique_name": "language_kinyarwanda",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_kinyarwanda"
     },
     {
@@ -1320,7 +1320,7 @@
         "Kurdish languages"
       ],
       "_unique_name": "language_kurdish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_kurdish"
     },
     {
@@ -1337,7 +1337,7 @@
         "Korean language"
       ],
       "_unique_name": "language_korean",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_korean"
     },
     {
@@ -1358,7 +1358,7 @@
         "ky"
       ],
       "_unique_name": "language_kyrgyz",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_kyrgyz"
     },
     {
@@ -1376,7 +1376,7 @@
         "lat"
       ],
       "_unique_name": "language_latin",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_latin"
     },
     {
@@ -1395,7 +1395,7 @@
         "Lao language"
       ],
       "_unique_name": "language_lao",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_lao"
     },
     {
@@ -1414,7 +1414,7 @@
         "Lettish language"
       ],
       "_unique_name": "language_latvian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_latvian"
     },
     {
@@ -1438,7 +1438,7 @@
         "lim"
       ],
       "_unique_name": "language_limburgish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_limburgish"
     },
     {
@@ -1457,7 +1457,7 @@
         "Ngala"
       ],
       "_unique_name": "language_lingala",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_lingala"
     },
     {
@@ -1474,7 +1474,7 @@
         "lt"
       ],
       "_unique_name": "language_lithuanian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_lithuanian"
     },
     {
@@ -1491,7 +1491,7 @@
         "Kiluba"
       ],
       "_unique_name": "language_luba_katanga",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_luba_katanga"
     },
     {
@@ -1513,7 +1513,7 @@
         "Luxemburgish language"
       ],
       "_unique_name": "language_luxembourgish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_luxembourgish"
     },
     {
@@ -1533,7 +1533,7 @@
         "M\u0101ori language"
       ],
       "_unique_name": "language_maori",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_maori"
     },
     {
@@ -1551,7 +1551,7 @@
         "Slavic Macedonian"
       ],
       "_unique_name": "language_macedonian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_macedonian"
     },
     {
@@ -1568,7 +1568,7 @@
         "mg"
       ],
       "_unique_name": "language_malagasy",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_malagasy"
     },
     {
@@ -1585,7 +1585,7 @@
         "Malay language"
       ],
       "_unique_name": "language_malay",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_malay"
     },
     {
@@ -1603,7 +1603,7 @@
         "Malayalam language"
       ],
       "_unique_name": "language_malayalam",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_malayalam"
     },
     {
@@ -1622,7 +1622,7 @@
         "Maltese language"
       ],
       "_unique_name": "language_maltese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_maltese"
     },
     {
@@ -1645,7 +1645,7 @@
         "Gailck"
       ],
       "_unique_name": "language_manx",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_manx"
     },
     {
@@ -1663,7 +1663,7 @@
         "mr"
       ],
       "_unique_name": "language_marathi",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_marathi"
     },
     {
@@ -1682,7 +1682,7 @@
         "Khalka"
       ],
       "_unique_name": "language_mongolian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_mongolian"
     },
     {
@@ -1702,7 +1702,7 @@
         "nep"
       ],
       "_unique_name": "language_nepali",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_nepali"
     },
     {
@@ -1725,7 +1725,7 @@
         "nde"
       ],
       "_unique_name": "language_northern_ndebele",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_northern_ndebele"
     },
     {
@@ -1748,7 +1748,7 @@
         "Northern Saami"
       ],
       "_unique_name": "language_northern_sami",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_northern_sami"
     },
     {
@@ -1765,7 +1765,7 @@
         "Norweigian"
       ],
       "_unique_name": "language_norwegian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_norwegian"
     },
     {
@@ -1786,7 +1786,7 @@
         "nb-no"
       ],
       "_unique_name": "language_bokmal",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_bokmal"
     },
     {
@@ -1806,7 +1806,7 @@
         "nno"
       ],
       "_unique_name": "language_nynorsk",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_nynorsk"
     },
     {
@@ -1826,7 +1826,7 @@
         "Chewa language"
       ],
       "_unique_name": "language_chewa",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_chewa"
     },
     {
@@ -1849,7 +1849,7 @@
         "oci"
       ],
       "_unique_name": "language_occitan",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_occitan"
     },
     {
@@ -1868,7 +1868,7 @@
         "Oriya language"
       ],
       "_unique_name": "language_odia",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_odia"
     },
     {
@@ -1890,7 +1890,7 @@
         "Oromo language"
       ],
       "_unique_name": "language_oromo",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_oromo"
     },
     {
@@ -1913,7 +1913,7 @@
         "oss"
       ],
       "_unique_name": "language_ossetian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_ossetian"
     },
     {
@@ -1933,7 +1933,7 @@
         "Pushto language"
       ],
       "_unique_name": "language_pashto",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_pashto"
     },
     {
@@ -1954,7 +1954,7 @@
         "Iranian"
       ],
       "_unique_name": "language_persian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_persian"
     },
     {
@@ -1972,7 +1972,7 @@
         "Polski"
       ],
       "_unique_name": "language_polish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_polish"
     },
     {
@@ -1989,7 +1989,7 @@
         "Portuguese language"
       ],
       "_unique_name": "language_portuguese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_portuguese"
     },
     {
@@ -2008,7 +2008,7 @@
         "Quechuan languages"
       ],
       "_unique_name": "language_quechua",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_quechua"
     },
     {
@@ -2026,7 +2026,7 @@
         "Rumanian"
       ],
       "_unique_name": "language_romanian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_romanian"
     },
     {
@@ -2052,7 +2052,7 @@
         "Romansh Language"
       ],
       "_unique_name": "language_romansh",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_romansh"
     },
     {
@@ -2071,7 +2071,7 @@
         "Ikirundi"
       ],
       "_unique_name": "language_kirundi",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_kirundi"
     },
     {
@@ -2090,7 +2090,7 @@
         "Russkiy yazyk"
       ],
       "_unique_name": "language_russian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_russian"
     },
     {
@@ -2107,7 +2107,7 @@
         "sm"
       ],
       "_unique_name": "language_samoan",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_samoan"
     },
     {
@@ -2126,7 +2126,7 @@
         "Sango language"
       ],
       "_unique_name": "language_sango",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_sango"
     },
     {
@@ -2151,7 +2151,7 @@
         "Sanskrit language"
       ],
       "_unique_name": "language_sanskrit",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_sanskrit"
     },
     {
@@ -2169,7 +2169,7 @@
         "Santali language"
       ],
       "_unique_name": "language_santali",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_santali"
     },
     {
@@ -2187,7 +2187,7 @@
         "sardu"
       ],
       "_unique_name": "language_sardinian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_sardinian"
     },
     {
@@ -2209,7 +2209,7 @@
         "sco"
       ],
       "_unique_name": "language_scots",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_scots"
     },
     {
@@ -2230,7 +2230,7 @@
         "Scottish Gaelic language"
       ],
       "_unique_name": "language_scottish_gaelic",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_scottish_gaelic"
     },
     {
@@ -2250,7 +2250,7 @@
         "Serbo-Croatian language"
       ],
       "_unique_name": "language_serbo_croatian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_serbo_croatian"
     },
     {
@@ -2276,7 +2276,7 @@
         "Chino"
       ],
       "_unique_name": "language_shona",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_shona"
     },
     {
@@ -2296,7 +2296,7 @@
         "Liangshan Yi"
       ],
       "_unique_name": "language_nuosu",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_nuosu"
     },
     {
@@ -2317,7 +2317,7 @@
         "Calabro-Sicilian"
       ],
       "_unique_name": "language_sicilian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_sicilian"
     },
     {
@@ -2334,7 +2334,7 @@
         "sd"
       ],
       "_unique_name": "language_sindhi",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_sindhi"
     },
     {
@@ -2356,7 +2356,7 @@
         "Sinhala language"
       ],
       "_unique_name": "language_sinhala",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_sinhala"
     },
     {
@@ -2373,7 +2373,7 @@
         "sk"
       ],
       "_unique_name": "language_slovak",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_slovak"
     },
     {
@@ -2392,7 +2392,7 @@
         "sl"
       ],
       "_unique_name": "language_slovene",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_slovene"
     },
     {
@@ -2410,7 +2410,7 @@
         "Somali language"
       ],
       "_unique_name": "language_somali",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_somali"
     },
     {
@@ -2429,7 +2429,7 @@
         "Sotho language"
       ],
       "_unique_name": "language_sesotho",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_sesotho"
     },
     {
@@ -2449,7 +2449,7 @@
         "Espa\u00f1ol"
       ],
       "_unique_name": "language_spanish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_spanish"
     },
     {
@@ -2467,7 +2467,7 @@
         "Sundanese language"
       ],
       "_unique_name": "language_sundanese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_sundanese"
     },
     {
@@ -2487,7 +2487,7 @@
         "swa"
       ],
       "_unique_name": "language_swahili",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_swahili"
     },
     {
@@ -2505,7 +2505,7 @@
         "Svenska"
       ],
       "_unique_name": "language_swedish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_swedish"
     },
     {
@@ -2523,7 +2523,7 @@
         "tgl"
       ],
       "_unique_name": "language_tagalog",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_tagalog"
     },
     {
@@ -2546,7 +2546,7 @@
         "tg"
       ],
       "_unique_name": "language_tajik",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_tajik"
     },
     {
@@ -2563,7 +2563,7 @@
         "Tamil language"
       ],
       "_unique_name": "language_tamil",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_tamil"
     },
     {
@@ -2583,7 +2583,7 @@
         "tt"
       ],
       "_unique_name": "language_tatar",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_tatar"
     },
     {
@@ -2603,7 +2603,7 @@
         "te"
       ],
       "_unique_name": "language_telugu",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_telugu"
     },
     {
@@ -2624,7 +2624,7 @@
         "Siamese language"
       ],
       "_unique_name": "language_thai",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_thai"
     },
     {
@@ -2643,7 +2643,7 @@
         "Tibetan language"
       ],
       "_unique_name": "language_tibetan",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_tibetan"
     },
     {
@@ -2663,7 +2663,7 @@
         "Tigrinja"
       ],
       "_unique_name": "language_tigrinya",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_tigrinya"
     },
     {
@@ -2681,7 +2681,7 @@
         "Tongan language"
       ],
       "_unique_name": "language_tongan",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_tongan"
     },
     {
@@ -2703,7 +2703,7 @@
         "Turkish of Turkey"
       ],
       "_unique_name": "language_turkish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_turkish"
     },
     {
@@ -2720,7 +2720,7 @@
         "Turkmen language"
       ],
       "_unique_name": "language_turkmen",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_turkmen"
     },
     {
@@ -2740,7 +2740,7 @@
         "Tswana language"
       ],
       "_unique_name": "language_tswana",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_tswana"
     },
     {
@@ -2757,7 +2757,7 @@
         "uk"
       ],
       "_unique_name": "language_ukrainian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_ukrainian"
     },
     {
@@ -2774,7 +2774,7 @@
         "Upper Sorbian language"
       ],
       "_unique_name": "language_upper_sorbian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_upper_sorbian"
     },
     {
@@ -2792,7 +2792,7 @@
         "Oordoo"
       ],
       "_unique_name": "language_urdu",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_urdu"
     },
     {
@@ -2812,7 +2812,7 @@
         "Uighur language"
       ],
       "_unique_name": "language_uyghur",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_uyghur"
     },
     {
@@ -2829,7 +2829,7 @@
         "uz"
       ],
       "_unique_name": "language_uzbek",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_uzbek"
     },
     {
@@ -2846,7 +2846,7 @@
         "Venda language"
       ],
       "_unique_name": "language_venda",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_venda"
     },
     {
@@ -2865,7 +2865,7 @@
         "vie"
       ],
       "_unique_name": "language_vietnamese",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_vietnamese"
     },
     {
@@ -2882,7 +2882,7 @@
         "Walloon language"
       ],
       "_unique_name": "language_walloon",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_walloon"
     },
     {
@@ -2900,7 +2900,7 @@
         "cy"
       ],
       "_unique_name": "language_welsh",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_welsh"
     },
     {
@@ -2925,7 +2925,7 @@
         "Westerlauwers Fries"
       ],
       "_unique_name": "language_west_frisian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_west_frisian"
     },
     {
@@ -2945,7 +2945,7 @@
         "xho"
       ],
       "_unique_name": "language_xhosa",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_xhosa"
     },
     {
@@ -2965,7 +2965,7 @@
         "Saxa"
       ],
       "_unique_name": "language_yakut",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_yakut"
     },
     {
@@ -2989,7 +2989,7 @@
         "Yiddish language"
       ],
       "_unique_name": "language_yiddish",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_yiddish"
     },
     {
@@ -3006,7 +3006,7 @@
         "yo"
       ],
       "_unique_name": "language_yoruba",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_yoruba"
     },
     {
@@ -3025,7 +3025,7 @@
         "zul"
       ],
       "_unique_name": "language_zulu",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_zulu"
     },
     {
@@ -3043,7 +3043,7 @@
       "iso_639_2": "bos",
       "iso_639_3": "bos",
       "_unique_name": "language_bosnian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_bosnian"
     },
     {
@@ -3061,7 +3061,7 @@
       "iso_639_2": "hrv",
       "iso_639_3": "hrv",
       "_unique_name": "language_croatian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_croatian"
     },
     {
@@ -3075,7 +3075,7 @@
       ],
       "iso_639_3": "xnz",
       "_unique_name": "language_kenzi",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_kenzi"
     },
     {
@@ -3094,7 +3094,7 @@
       ],
       "iso_639_3": "pam",
       "_unique_name": "language_kapampangan",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_kapampangan"
     },
     {
@@ -3110,7 +3110,7 @@
       "iso_639_2": "pa",
       "iso_639_3": "pan",
       "_unique_name": "language_punjabi",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_punjabi"
     },
     {
@@ -3123,7 +3123,7 @@
       "iso_639_2": "scc",
       "iso_639_3": "srp",
       "_unique_name": "language_serbian",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_serbian"
     },
     {
@@ -3147,7 +3147,7 @@
         "Tetum language"
       ],
       "_unique_name": "language_tetum",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_tetum"
     },
     {
@@ -3160,7 +3160,7 @@
       "iso_639_3": "war",
       "icu_code": "war",
       "_unique_name": "language_waray",
-      "dgraph.type": "Language",
+      "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_waray"
     }
   ]
