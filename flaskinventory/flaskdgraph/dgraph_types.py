@@ -462,6 +462,7 @@ class _PrimitivePredicate:
         return id(self)
 
     def __eq__(self, other) -> str:
+        # TODO: supply "other" as query variable for safety
         if self.bound_dgraph_type:
             return f'''{{ {self.bound_dgraph_type.lower()}(func: type({self.bound_dgraph_type})) @filter({self.default_operator}({self.query}, {other})) {{ uid expand(_all_)  }} }}'''
         
@@ -1226,6 +1227,8 @@ class DateTime(Predicate):
 
 class Year(DateTime):
 
+    dgraph_predicate_type = 'datetime'
+
     def validation_hook(self, data):
         if type(data) in [datetime.date, datetime.datetime]:
             return data
@@ -1247,6 +1250,9 @@ class Year(DateTime):
             validators = [Optional(strip_whitespace=True)]
         return IntegerField(label=self.label, description=self.form_description, render_kw=render_kw, validators=validators)
 
+class ListYear(Year):
+
+    dgraph_predicate_type = "[datetime]"
 
 class Boolean(Predicate):
 
