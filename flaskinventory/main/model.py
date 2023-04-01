@@ -49,13 +49,12 @@ class User(Schema, UserLogin):
 
 
 from flaskinventory import login_manager
-from flaskinventory.users.dgraph import check_user
 
 @login_manager.user_loader
 def load_user(user_id):
     if not user_id.startswith('0x'):
         return
-    if not check_user(user_id):
+    if not UserLogin.check_user(user_id):
         return
     return User(uid=user_id)
 
@@ -77,13 +76,15 @@ class Entry(Schema):
     
     name = String(required=True, directives=['@index(term, trigram)', '@lang'])
     
-    other_names = ListString()
+    other_names = ListString(directives=['@index(term)'])
     
     wikidataID = Integer(label='WikiData ID',
                          overwrite=True,
                          new=False)
 
-    description = String(large_textfield=True, overwrite=True)
+    description = String(large_textfield=True, 
+                         overwrite=True,
+                         directives=['@index(term)'])
 
     entry_notes = String(description='Do you have any other notes on the entry that you just coded?',
                          large_textfield=True)
@@ -312,7 +313,7 @@ class Source(Entry):
                                     radio_field=True,
                                     queryable=True)
 
-    audience_size = Year(edit=False,
+    audience_size = ListYear(edit=False,
                          facets=[Facet("unit", queryable=True, choices=['followers', 'subscribers', 'copies sold', 'likes', 'daily visitors']), 
                                 Facet("count", dtype=int, queryable=True, comparison_operators={'gt': 'greater', 'lt': 'less'}), 
                                 Facet("data_from")]
@@ -441,7 +442,8 @@ class Dataset(Entry):
 
     authors = OrderedListString(delimiter=';',
                             render_kw={'placeholder': 'Separate by semicolon ";"'}, tom_select=True,
-                            required=True)
+                            required=True,
+                            directives=['@index(term)'])
                             
     published_date = Year(label='Year of publication', 
                             description="Which year was the dataset published?")
@@ -509,7 +511,8 @@ class Corpus(Entry):
 
     authors = OrderedListString(delimiter=';',
                             render_kw={'placeholder': 'Separate by semicolon ";"'}, tom_select=True,
-                            required=True)
+                            required=True,
+                            directives=['@index(term)'])
                             
     published_date = Year(label='Year of publication', 
                             description="Which year was the corpus published?")
@@ -582,7 +585,8 @@ class Tool(Entry):
 
     authors = OrderedListString(delimiter=';',
                             render_kw={'placeholder': 'Separate by semicolon ";"'}, tom_select=True,
-                            required=True)
+                            required=True,
+                            directives=['@index(term)'])
                             
     published_date = Year(label='Year of publication', 
                             description="Which year was the tool published?",
@@ -713,11 +717,13 @@ class ResearchPaper(Entry):
     name = String(new=False, edit=False, hidden=True)
     other_names = ListString(new=False, edit=False, hidden=True, required=False)
 
-    title = String(description="What is the title of the publication?", required=True)
+    title = String(description="What is the title of the publication?", required=True,
+                   directives=['@index(term)'])
 
     authors = OrderedListString(delimiter=';',
                             render_kw={'placeholder': 'Separate by semicolon ";"'}, tom_select=True,
-                            required=True)
+                            required=True,
+                            directives=['@index(term)'])
                             
     published_date = Year(label='Year of publication', 
                             description="Which year was the publication published?",

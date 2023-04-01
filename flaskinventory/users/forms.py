@@ -6,8 +6,8 @@ from wtforms.validators import (
 from flask_login import current_user
 from flaskinventory import dgraph
 from flaskinventory.users.constants import USER_ROLES
-from flaskinventory.users.dgraph import user_verify
-
+# from flaskinventory.users.dgraph import user_verify
+from flaskinventory.main.model import User
 
 class RegistrationForm(FlaskForm):
     email = StringField('Email',
@@ -76,7 +76,7 @@ class UpdatePasswordForm(FlaskForm):
     submit = SubmitField('Change Password')
 
     def validate_old_password(self, old_password):
-        if not user_verify(current_user.uid, old_password.data):
+        if not User.user_verify(current_user.uid, old_password.data):
             raise ValidationError('Old password is incorrect!')
 
 

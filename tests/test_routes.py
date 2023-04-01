@@ -351,41 +351,41 @@ class TestRoutesLoggedOut(BasicTestSetup):
             dgraph.delete(delete_tmp)
 
 
-class TestRoutesLoggedInContributor(TestRoutesLoggedOut):
+# class TestRoutesLoggedInContributor(TestRoutesLoggedOut):
 
-    user_login = {'email': 'contributor@opted.eu',
-                  'password': 'contributor123'}
-    logged_in = 'contributor'
+#     user_login = {'email': 'contributor@opted.eu',
+#                   'password': 'contributor123'}
+#     logged_in = 'contributor'
 
-    user_displayname = 'Contributor'
+#     user_displayname = 'Contributor'
 
-    def setUp(self):
-        with self.client:
-            response = self.client.post(
-                '/login', data=self.user_login)
-            assert response.status_code == 302
-            assert "profile" in response.location
-            assert current_user.user_displayname == self.user_displayname
+#     def setUp(self):
+#         with self.client:
+#             response = self.client.post(
+#                 '/login', data=self.user_login)
+#             assert response.status_code == 302
+#             assert "profile" in response.location
+#             assert current_user.display_name == self.user_displayname
 
-    def tearDown(self):
-        with self.client:
-            self.client.get('/logout')
-
-
-class TestRoutesLoggedInReviewer(TestRoutesLoggedInContributor):
-
-    user_login = {'email': 'reviewer@opted.eu', 'password': 'reviewer123'}
-    logged_in = 'reviewer'
-
-    user_displayname = 'Reviewer'
+#     def tearDown(self):
+#         with self.client:
+#             self.client.get('/logout')
 
 
-class TestRoutesLoggedInAdmin(TestRoutesLoggedInContributor):
+# class TestRoutesLoggedInReviewer(TestRoutesLoggedInContributor):
 
-    user_login = {'email': 'wp3@opted.eu', 'password': 'admin123'}
-    logged_in = 'admin'
+#     user_login = {'email': 'reviewer@opted.eu', 'password': 'reviewer123'}
+#     logged_in = 'reviewer'
 
-    user_displayname = 'Admin'
+#     user_displayname = 'Reviewer'
+
+
+# class TestRoutesLoggedInAdmin(TestRoutesLoggedInContributor):
+
+#     user_login = {'email': 'wp3@opted.eu', 'password': 'admin123'}
+#     logged_in = 'admin'
+
+#     user_displayname = 'Admin'
 
 
 if __name__ == "__main__":

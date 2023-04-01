@@ -109,7 +109,7 @@ class Sanitizer:
             raise InventoryValidationError(
                 f'Entry can not be edited! UID does not exist: {data["uid"]}')
 
-        if current_user.user_role < USER_ROLES.Reviewer:
+        if current_user._role < USER_ROLES.Reviewer:
             if check.get('entry_added').get('uid') != current_user.id:
                 raise InventoryPermissionError(
                     'You do not have the required permissions to edit this entry!')

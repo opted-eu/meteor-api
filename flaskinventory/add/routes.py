@@ -8,7 +8,7 @@ from flaskinventory.add.forms import NewEntry, AutoFill
 from flaskinventory.add.dgraph import check_draft, get_draft, get_existing
 from flaskinventory.main.sanitizer import Sanitizer
 from flaskinventory.users.utils import requires_access_level
-from flaskinventory.users.dgraph import list_entries
+from flaskinventory.users.dgraph import UserLogin
 from flaskinventory.flaskdgraph.utils import strip_query, validate_uid
 from flaskinventory.misc.utils import IMD2dict
 
@@ -55,7 +55,7 @@ def new_entry():
             else:
                 return redirect(url_for('add.new', dgraph_type=form.entity.data))
 
-    drafts = list_entries(current_user.id, onlydrafts=True)
+    drafts = UserLogin.list_entries(current_user.id, onlydrafts=True)
     if drafts:
         drafts = drafts[0]['drafts']
     return render_template('add/newentry.html', form=form, drafts=drafts)

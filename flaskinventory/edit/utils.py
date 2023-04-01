@@ -29,7 +29,7 @@ def can_delete(entry) -> bool:
     if "entry_review_status" in entry.keys():
         if entry['entry_review_status'] == 'draft':
             if current_user.is_authenticated:
-                if current_user.user_role > USER_ROLES.Reviewer or entry['entry_added']['uid'] == current_user.id:
+                if current_user._role > USER_ROLES.Reviewer or entry['entry_added']['uid'] == current_user.id:
                     return True
                 else: 
                     return False

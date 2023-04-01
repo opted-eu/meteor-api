@@ -97,7 +97,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'contributor@opted.eu', 'password': 'contributor123'})
-            self.assertEqual(current_user.user_displayname, 'Contributor')
+            self.assertEqual(current_user.display_name, 'Contributor')
 
             with self.app.app_context():
                 sanitizer = Sanitizer(self.mock_data1)
@@ -132,7 +132,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'contributor@opted.eu', 'password': 'contributor123'})
-            self.assertEqual(current_user.user_displayname, 'Contributor')
+            self.assertEqual(current_user.display_name, 'Contributor')
 
             with self.app.app_context():
                 sanitizer = Sanitizer(mock_data)
@@ -174,7 +174,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'contributor@opted.eu', 'password': 'contributor123'})
-            self.assertEqual(current_user.user_displayname, 'Contributor')
+            self.assertEqual(current_user.display_name, 'Contributor')
 
             with self.app.app_context():
                 # no UID
@@ -200,7 +200,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
             with self.app.app_context():
                 correct = {'uid': self.derstandard_mbh_uid, **edit_entry}
                 sanitizer = Sanitizer.edit(correct)
@@ -216,7 +216,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'contributor@opted.eu', 'password': 'contributor123'})
-            self.assertEqual(current_user.user_displayname, 'Contributor')
+            self.assertEqual(current_user.display_name, 'Contributor')
 
             with self.app.app_context():
                 sanitizer = Sanitizer(
@@ -267,7 +267,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
                 sanitizer = Sanitizer.edit(
@@ -304,7 +304,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
                 res = dgraph.mutation(new_draft)
@@ -334,7 +334,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'contributor@opted.eu', 'password': 'contributor123'})
-            self.assertEqual(current_user.user_displayname, 'Contributor')
+            self.assertEqual(current_user.display_name, 'Contributor')
 
             with self.app.app_context():
                 with self.assertRaises(InventoryPermissionError):
@@ -346,7 +346,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
 
@@ -361,7 +361,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'wp3@opted.eu', 'password': 'admin123'})
-            self.assertEqual(current_user.user_displayname, 'Admin')
+            self.assertEqual(current_user.display_name, 'Admin')
 
             with self.app.app_context():
                 res = dgraph.delete({'uid': uid})
@@ -414,7 +414,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
                 self.assertEqual
@@ -457,7 +457,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
                 self.assertEqual
@@ -503,7 +503,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
                 self.assertEqual
@@ -550,7 +550,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
                 self.assertEqual
@@ -584,7 +584,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
                 self.assertEqual
@@ -617,7 +617,7 @@ class TestSanitizers(BasicTestSetup):
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
                 self.assertEqual

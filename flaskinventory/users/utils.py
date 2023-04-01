@@ -12,7 +12,7 @@ def requires_access_level(access_level):
     def decorator(func):
         @wraps(func)
         def decorated_view(*args, **kwargs):
-            if current_user.user_role < access_level:
+            if current_user._role < access_level:
                 flash(f'You are not allowed to view this page!', 'warning')
                 # return redirect(url_for('main.home'))
                 return abort(403)

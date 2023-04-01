@@ -36,6 +36,7 @@ class GeoAutoCode(Geo):
 class AddressAutocode(Geo):
 
     autoinput = 'name'
+    dgraph_predicate_type = 'string'
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(overwrite=True, *args, **kwargs)

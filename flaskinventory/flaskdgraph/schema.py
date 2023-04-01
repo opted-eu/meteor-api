@@ -414,7 +414,7 @@ class Schema:
             # Allow to manually filter out some fields / hide them from users
             if k in skip_fields:
                 continue
-            if v.edit and current_user.user_role >= v.permission:
+            if v.edit and current_user._role >= v.permission:
                 if isinstance(v, (SingleRelationship, ReverseRelationship, MutualRelationship)) and k in populate_obj.keys():
                     if not v.autoload_choices:
                         if isinstance(populate_obj[k], list):
@@ -426,7 +426,7 @@ class Schema:
                         v.choices_tuples = choices
                 setattr(F, k, v.wtf_field)
 
-        if current_user.user_role >= USER_ROLES.Reviewer and entry_review_status == 'pending':
+        if current_user._role >= USER_ROLES.Reviewer and entry_review_status == 'pending':
             setattr(F, "accept", SubmitField('Edit and Accept'))
 
         # Instatiate the form from the factory

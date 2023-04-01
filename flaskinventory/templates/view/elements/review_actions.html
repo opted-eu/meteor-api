@@ -1,4 +1,4 @@
-{% if current_user.user_role > 1 %}
+{% if current_user._role > 1 %}
     {% if review_actions %}
         <form method="POST" action="{{ url_for('review.submit', **request.args) }}">
             {{ review_actions.hidden_tag() }}

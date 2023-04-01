@@ -62,7 +62,7 @@ def check_draft(draft, form):
             setattr(getattr(form, key), 'data', value)
         # check permissions
         if current_user.uid != entry_added['uid']:
-            if current_user.user_role >= USER_ROLES.Reviewer:
+            if current_user._role >= USER_ROLES.Reviewer:
                 flash("You are editing another user's draft", category='info')
             else:
                 draft = None
@@ -100,7 +100,7 @@ def get_draft(uid):
         draft = json.dumps(draft, default=str)
         # check permissions
         if current_user.uid != entry_added['uid']:
-            if current_user.user_role >= USER_ROLES.Reviewer:
+            if current_user._role >= USER_ROLES.Reviewer:
                 flash("You are editing another user's draft", category='info')
             else:
                 draft = None

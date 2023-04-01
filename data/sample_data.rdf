@@ -310,33 +310,35 @@
 
         _:admin <dgraph.type> "User" .
         _:admin <email> "wp3@opted.eu" .
-        _:admin <pw> "admin123" .
-        _:admin <user_displayname> "Admin" .
+        _:admin <_pw> "admin123" .
+        _:admin <display_name> "Admin" .
         _:admin <date_joined> "2021-05-20" .
-        _:admin <user_role> "10" .
-        _:admin <account_status> "active" .
+        _:admin <_role> "10" .
+        _:admin <_account_status> "active" .
+
+        _:contributor <dgraph.type> "User" .
+        _:contributor <email> "contributor@opted.eu" .
+        _:contributor <_pw> "contributor123" .
+        _:contributor <display_name> "Contributor" .
+        _:contributor <_date_joined> "2022-03-02" .
+        _:contributor <_role> "1" .
+        _:contributor <_account_status> "active" .
+        _:contributor <preference_emails> "false" .
+
+        _:reviewer <dgraph.type> "User" .
+        _:reviewer <email> "reviewer@opted.eu" .
+        _:reviewer <_pw> "reviewer123" .
+        _:reviewer <display_name> "Reviewer" .
+        _:reviewer <date_joined> "2022-03-02" .
+        _:reviewer <r_role> "2" .
+        _:reviewer <_account_status> "active" .
+
 
         _:derstandardat <entry_added> _:admin (timestamp=2021-05-17T10:00:00, ip="192.168.0.1") .
         _:derstandardprint <entry_added> _:admin (timestamp=2021-06-17T10:00:00, ip="192.168.0.1") .
         _:derstandardtwitter <entry_added> _:admin (timestamp=2021-06-18T10:00:00, ip="192.168.0.1") .
         _:derstandardinstagram <entry_added> _:admin (timestamp=2022-05-17T10:00:00, ip="192.168.0.1") .
         _:derstandardfacebook <entry_added> _:admin (timestamp=2022-05-17T10:00:00, ip="192.168.0.1") .
-
-        _:contributor <dgraph.type> "User" .
-        _:contributor <email> "contributor@opted.eu" .
-        _:contributor <pw> "contributor123" .
-        _:contributor <user_displayname> "Contributor" .
-        _:contributor <date_joined> "2022-03-02" .
-        _:contributor <user_role> "1" .
-        _:contributor <account_status> "active" .
-
-        _:reviewer <dgraph.type> "User" .
-        _:reviewer <email> "reviewer@opted.eu" .
-        _:reviewer <pw> "reviewer123" .
-        _:reviewer <user_displayname> "Reviewer" .
-        _:reviewer <date_joined> "2022-03-02" .
-        _:reviewer <user_role> "2" .
-        _:reviewer <account_status> "active" .
 
         _:globalvoices_website <dgraph.type> "Source" .
         _:globalvoices_website <channel_url> "https://globalvoices.org/" .

@@ -8,7 +8,6 @@ if __name__ == "__main__":
 
     from flask_login import current_user
     from flaskinventory import create_app, AnonymousUser, dgraph
-    from flaskinventory.users.dgraph import create_user
     from flaskinventory.main.model import User
     from test_setup import BasicTestSetup
 
@@ -17,30 +16,33 @@ class TestUsers(BasicTestSetup):
 
     """
         Test cases for handling simple user actions
+        
+        TODO: 
+                - tests for changing password 
+                - tests for reset tokens
     """
 
     def test_login(self):
-        # print('-- test_login() --\n')
 
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'contributor@opted.eu', 'password': 'contributor123'})
             self.assertIsInstance(current_user, User)
-            self.assertEqual(current_user.user_displayname, 'Contributor')
+            self.assertEqual(current_user.display_name, 'Contributor')
             self.client.get('/logout')
 
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
             self.assertIsInstance(current_user, User)
-            self.assertEqual(current_user.user_displayname, 'Reviewer')
+            self.assertEqual(current_user.display_name, 'Reviewer')
             self.client.get('/logout')
 
         with self.client:
             response = self.client.post(
                 '/login', data={'email': 'wp3@opted.eu', 'password': 'admin123'})
             self.assertIsInstance(current_user, User)
-            self.assertEqual(current_user.user_displayname, 'Admin')
+            self.assertEqual(current_user.display_name, 'Admin')
             self.client.get('/logout')
 
         with self.client:
@@ -57,9 +59,9 @@ class TestUsers(BasicTestSetup):
         weird_pw = '!"§$%&/()=?ß`´\}[]{[}*+~#<>|_.-.,;:µ1/o6t8K%70I*"h>c7`].Aw.Hx'
         with self.app.app_context():
             weird_user = {'email': "weird@user.com",
-                          'pw': weird_pw}
-            new_uid = create_user(weird_user)
-            dgraph.update_entry({'account_status': "active"}, uid=new_uid)
+                          '_pw': weird_pw}
+            new_uid = User.create_user(weird_user)
+            dgraph.update_entry({'_account_status': "active"}, uid=new_uid)
 
         with self.client:
             response = self.client.post(

@@ -12,7 +12,6 @@ from flaskinventory.users.utils import requires_access_level, make_users_table
 from flaskinventory.users.emails import send_reset_email, send_invite_email, send_verification_email
 from flaskinventory.users.constants import USER_ROLES
 from flaskinventory.main.model import User
-from flaskinventory.users.dgraph import get_user_data, user_login, create_user, list_users, list_entries
 from secrets import token_hex
 
 users = Blueprint('users', __name__)
@@ -25,7 +24,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         new_user = {'email': form.email.data,
-                    'pw': form.password.data}
+                    '_pw': form.password.data}
         
         # Change for ORM syntax
         # new_uid = dgraph.add(User, email="email", pw="pw")
@@ -35,7 +34,7 @@ def register():
         # new_uid = dgraph.add(new_user)
 
         # user = dgraph.query(User.uid == new_uid)
-        new_uid = create_user(new_user)
+        new_uid = User.create_user(new_user)
         user = User(uid=new_uid)
         send_verification_email(user)
 
@@ -64,10 +63,11 @@ def login():
         return redirect(url_for('main.home'))
     form = LoginForm()
     if form.validate_on_submit():
-        if user_login(form.email.data, form.password.data):
+        user = User.login(form.email.data, form.password.data)
+        if user:
             # Change for ORM syntax
             # user = dgraph.query(User.email == "email")
-            user = User(email=form.email.data)
+            # user = User(email=form.email.data)
             login_user(user, remember=form.remember.data)
             flash(f'You have been logged in', 'success')
             next_page = request.args.get('next')
@@ -87,7 +87,7 @@ def logout():
 @users.route('/users/profile')
 @login_required
 def profile():
-    user_role = USER_ROLES.dict_reverse[current_user.user_role]
+    user_role = USER_ROLES.dict_reverse[current_user._role]
     return render_template('users/profile.html', title='Profile', show_sidebar=True, user_role=user_role)
 
 
@@ -148,7 +148,7 @@ def reset_token(token):
 
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        new_password = {'pw': form.password.data, 'pw_reset': False}
+        new_password = {'_pw': form.password.data, '_pw_reset': False}
         new_uid = dgraph.update_entry(new_password, uid=user.id)
 
         flash(f'Password updated for {user.id}!', 'success')
@@ -158,17 +158,17 @@ def reset_token(token):
 @users.route("/users/delete")
 @login_required
 def delete():
-    if current_user.user_role == USER_ROLES.Admin:
+    if current_user._role == USER_ROLES.Admin:
         flash(f'Cannot delete admin accounts!', 'info')
         return redirect(url_for('users.profile'))
-    mutation = {'account_status': 'deleted', 
-                'account_status|timestamp': datetime.now().isoformat(),
+    mutation = {'_account_status': 'deleted', 
+                '_account_status|timestamp': datetime.now().isoformat(),
                 'display_name': 'Deleted User',
                 'email': secrets.token_urlsafe(8),
-                'pw': secrets.token_urlsafe(8),
-                'user_orcid': '',
-                'user_role': 1,
-                'user_affiliation': '',
+                '_pw': secrets.token_urlsafe(8),
+                'orcid': '',
+                '_role': 1,
+                'affiliation': '',
                 'preference_emails': False}
     dgraph.update_entry(mutation, uid=current_user.id)
     logout_user()
@@ -187,9 +187,9 @@ def accept_invitation(token):
 
     form = AcceptInvitationForm()
     if form.validate_on_submit():
-        new_password = {'pw': form.password.data,
-                        'pw_reset': False,
-                        'date_joined': datetime.now(
+        new_password = {'_pw': form.password.data,
+                        '_pw_reset': False,
+                        '_date_joined': datetime.now(
                             datetime.timezone.utc).isoformat()}
         new_uid = dgraph.update_entry(new_password, uid=user.id)
 
@@ -204,7 +204,7 @@ def invite():
     form = InviteUserForm()
     if form.validate_on_submit():
         new_user = {'email': form.email.data,
-                    'pw': token_hex(32)}
+                    '_pw': token_hex(32)}
         
         # Change for ORM syntax
         # new_uid = dgraph.add(User, email="email", pw="pw")
@@ -214,7 +214,7 @@ def invite():
         # new_uid = dgraph.add(new_user)
 
         # user = dgraph.query(User.uid == new_uid)
-        new_uid = create_user(new_user, invited_by=current_user.id)
+        new_uid = User.create_user(new_user, invited_by=current_user.id)
         NewUser = User(uid=new_uid)
         send_invite_email(NewUser)
         flash(
@@ -227,7 +227,7 @@ def invite():
 @login_required
 @requires_access_level(USER_ROLES.Admin)
 def admin_view():
-    user_list = list_users()
+    user_list = User.list_users()
     if user_list:
         users_table = make_users_table(user_list)
     return render_template('users/admin.html', title='Manage Users', users=users_table)
@@ -237,7 +237,7 @@ def admin_view():
 @login_required
 @requires_access_level(USER_ROLES.Admin)
 def edit_user(uid):
-    editable_user = get_user_data(uid=uid)
+    editable_user = User.get_user_data(uid=uid)
     if editable_user is None:
         return abort(404)
     form = EditUserForm()
@@ -266,8 +266,8 @@ def my_entries(uid):
     uid = validate_uid(uid)
     if not uid:
         return abort(404)
-    if current_user.user_role > USER_ROLES.Contributor or current_user.id == uid:
-        sources = list_entries(uid)
+    if current_user._role > USER_ROLES.Contributor or current_user.id == uid:
+        sources = User.list_entries(uid)
         if current_user.id == uid:
             title = 'My Entries'
         else:

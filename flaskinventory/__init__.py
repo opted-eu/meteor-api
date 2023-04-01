@@ -28,7 +28,7 @@ dgraph = DGraph()
 
 
 class AnonymousUser(AnonymousUserMixin):
-    user_role = 0
+    _role = 0
 
 
 login_manager = LoginManager()

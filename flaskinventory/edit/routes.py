@@ -132,7 +132,7 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
     if not can_edit(check, current_user):
         return abort(403)
 
-    if current_user.user_role < Schema.permissions_edit(dgraph_type):
+    if current_user._role < Schema.permissions_edit(dgraph_type):
         return abort(403)
 
     if not unique_name:
