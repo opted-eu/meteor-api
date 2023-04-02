@@ -81,14 +81,14 @@ def main():
     request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
     txn.do_request(request)    
 
-    # change all entry_added to Admin
+    # change all _added_by to Admin
     txn = client.txn()
 
     query = """{
         q(func: eq(email, "wp3@opted.eu")) { v as uid }
-        s(func: has(dgraph.type)) @filter(NOT type(User) AND NOT type(dgraph.graphql) AND NOT has(entry_added)) { u as uid } }"""
+        s(func: has(dgraph.type)) @filter(NOT type(User) AND NOT type(dgraph.graphql) AND NOT has(_added_by)) { u as uid } }"""
     nquad = """
-        uid(u) <entry_added> uid(v) .
+        uid(u) <_added_by> uid(v) .
         """
     mutation = txn.create_mutation(set_nquads=nquad)
     request = txn.create_request(query=query, mutations=[mutation], commit_now=True)

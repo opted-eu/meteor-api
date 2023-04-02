@@ -22,7 +22,6 @@ if __name__ == "__main__":
     from flaskinventory.errors import InventoryValidationError, InventoryPermissionError
     from flaskinventory import create_app, dgraph
     from flaskinventory.users.constants import USER_ROLES
-    from flaskinventory.users.dgraph import get_user_data
     from flaskinventory.main.model import User
     from flask_login import current_user
 
@@ -32,7 +31,8 @@ class MockUser(User):
     uid = '0x123'
 
     def __init__(self, user_role=USER_ROLES.Contributor):
-        self.user_role = user_role
+        self._role = user_role
+        self.role = user_role
 
 def mock_wikidata(*args):
     return {'wikidataID': 49653, 
@@ -67,10 +67,10 @@ class TestSanitizers(BasicTestSetup):
             'entry_notes': 'Some notes about the entry',
         }
 
-        self.mock1_solution_keys = ['dgraph.type', 'uid', 'entry_added', 'entry_review_status',
+        self.mock1_solution_keys = ['dgraph.type', 'uid', '_added_by', 'entry_review_status',
                                     'creation_date', 'unique_name', 'name', 'other_names', 'entry_notes', 'wikidataID']
 
-        self.mock2_solution_keys = ['dgraph.type', 'uid', 'entry_added', 'entry_review_status',
+        self.mock2_solution_keys = ['dgraph.type', 'uid', '_added_by', 'entry_review_status',
                                     'creation_date', 'unique_name', 'name', 'other_names', 'entry_notes', 'wikidataID']
 
         self.mock_organization = {
@@ -298,7 +298,7 @@ class TestSanitizers(BasicTestSetup):
                       'country': {'uid': self.germany_uid},
                       'languages': 'de',
                       'entry_review_status': 'draft',
-                      'entry_added': {'uid': self.reviewer.uid}}
+                      '_added_by': {'uid': self.reviewer.uid}}
 
         # create a mock draft entry
         with self.client:

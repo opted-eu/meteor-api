@@ -116,7 +116,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             mutation = dgraph.mutation(
                 {'uid': self.derstandard_print,
                  'entry_review_status': 'pending',
-                 'entry_added': {'uid': self.contributor_uid}})
+                 '_added_by': {'uid': self.contributor_uid}})
 
             response = c.get('/view',
                              query_string={'uid': self.derstandard_print},
@@ -137,7 +137,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             mutation = dgraph.mutation(
                 {'uid': self.derstandard_print,
                  'entry_review_status': 'accepted',
-                 'entry_added': {'uid': self.admin_uid}})
+                 '_added_by': {'uid': self.admin_uid}})
 
     def test_view_uid_draft(self):
 
@@ -170,7 +170,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             mutation = dgraph.mutation(
                 {'uid': self.derstandard_print,
                  'entry_review_status': 'draft',
-                 'entry_added': {'uid': self.contributor_uid}})
+                 '_added_by': {'uid': self.contributor_uid}})
 
             response = c.get('/view',
                              query_string={'uid': self.derstandard_print},
@@ -191,7 +191,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             mutation = dgraph.mutation(
                 {'uid': self.derstandard_print,
                  'entry_review_status': 'accepted',
-                 'entry_added': {'uid': self.admin_uid}})
+                 '_added_by': {'uid': self.admin_uid}})
 
     def test_view_rejected(self):
 
@@ -291,9 +291,9 @@ class TestRoutesLoggedOut(BasicTestSetup):
                      'name': 'Temp Entry',
                      'unique_name': 'tmp_entry',
                      'creation_date': '2022-05-17T10:00:00',
-                     'entry_added': {'uid': self.contributor_uid,
-                                     'entry_added|timestamp': '2022-05-17T10:00:00',
-                                     'entry_added|ip': '192.168.0.1'
+                     '_added_by': {'uid': self.contributor_uid,
+                                     '_added_by|timestamp': '2022-05-17T10:00:00',
+                                     '_added_by|ip': '192.168.0.1'
                                      }
                      }
 
@@ -307,7 +307,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                       'dgraph.type': None,
                       'name': None,
                       'unique_name': None,
-                      'entry_added': {'uid': self.contributor_uid},
+                      '_added_by': {'uid': self.contributor_uid},
                       'creation_date': None}
 
         with self.client as c:
