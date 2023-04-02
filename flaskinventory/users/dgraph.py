@@ -9,6 +9,7 @@ import datetime
 import secrets
 from flaskinventory.flaskdgraph.dgraph_types import _PrimitivePredicate
 
+
 def generate_random_username() -> str:
     return secrets.token_urlsafe(6)
 
@@ -27,7 +28,7 @@ class UserLogin(UserMixin):
             self.get_user(**kwargs)
         else:
             raise ValueError
-        
+
     def __repr__(self):
         return f'<DGraph Helper Class UserLogin.uid {self.id}>'
 
@@ -49,9 +50,30 @@ class UserLogin(UserMixin):
             for attr in dir(self):
                 if isinstance(getattr(self, attr), _PrimitivePredicate):
                     setattr(self, attr, None)
+            
+            # Declare User Role as additional private field
+            # `User.role` represents the DGraph Predicate
+            # `User._role` represents the role for internal handling
+            try:
+                self._role = self.role
+            except:
+                raise AttributeError(
+                    'User does not have a role! Please contact your administrator')
         else:
             return None
-     
+
+    def get_user_data(self, email=None, uid=None) -> Union[dict, None]:
+
+        if email:
+            data = dgraph.query(self.email == email)
+        else:
+            data = dgraph.query(self.uid == uid)
+
+        if len(data['q']) == 0:
+            return None
+        data = data['q'][0]
+        return data
+
     """
         Class Methods: 
             Login users
@@ -63,7 +85,8 @@ class UserLogin(UserMixin):
         if not current_app.debug:
             query_string = f"""query login_attempt($email: string)
                             {{login_attempt(func: eq(email, $email)) {{ _account_status }} }}"""
-            userstatus = dgraph.query(query_string, variables={"$email": email})
+            userstatus = dgraph.query(
+                query_string, variables={"$email": email})
             if len(userstatus['login_attempt']) == 0:
                 return False
             if userstatus['login_attempt'][0]['_account_status'] != 'active':
@@ -71,7 +94,8 @@ class UserLogin(UserMixin):
 
         query_string = f"""query login_attempt($email: string, $pw: string)
                         {{login_attempt(func: eq(email, $email)) {{ checkpwd(_pw, $pw) }} }}"""
-        result = dgraph.query(query_string, variables={"$email": email, "$pw": password})
+        result = dgraph.query(query_string, variables={
+                              "$email": email, "$pw": password})
         if len(result['login_attempt']) == 0:
             return False
         else:
@@ -80,9 +104,8 @@ class UserLogin(UserMixin):
             else:
                 return False
 
-
     @classmethod
-    def verify_reset_token(cls, token:str) -> Union[bool, Any]:
+    def verify_reset_token(cls, token: str) -> Union[bool, Any]:
         try:
             data = jwt.decode(
                 token,
@@ -122,7 +145,6 @@ class UserLogin(UserMixin):
             return user
         else:
             return False
-
 
     def update_profile(self, form_data: dict) -> bool:
         user_data = {}
@@ -174,34 +196,13 @@ class UserLogin(UserMixin):
             algorithm="HS256"
         )
         return reset_token
-    
+
     def my_entries(self, onlydrafts=False) -> list:
         return self.list_entries(self.uid, onlydrafts=onlydrafts)
 
     """
         Static Methods
     """
-       
-    @staticmethod
-    def get_user_data(email=None, uid=None) -> Union[dict, None]:
-
-        query_vars = f"""query get_user_data($u: string) """
-        if uid:
-            query_func = f'{{ q(func: uid($u))'
-            u = uid
-        elif email:
-            query_func = f'{{ q(func: eq(email, "$u"))'
-            u = email
-        else:
-            raise ValueError()
-
-        query_fields = f'{{ uid @facets expand(_all_) }} }}'
-        query_string = query_vars + query_func + query_fields
-        data = dgraph.query(query_string, variables={'$u': u})
-        if len(data['q']) == 0:
-            return None
-        data = data['q'][0]
-        return data
 
     @staticmethod
     def user_verify(uid, pw):
@@ -212,7 +213,6 @@ class UserLogin(UserMixin):
             return False
         else:
             return result['login_attempt'][0]['checkpwd(_pw)']
-
 
     @staticmethod
     def check_user(uid: str) -> str:
@@ -238,7 +238,7 @@ class UserLogin(UserMixin):
 
         user_data['uid'] = '_:newuser'
         user_data['dgraph.type'] = 'User'
-        user_data['_role'] = USER_ROLES.Contributor
+        user_data['role'] = USER_ROLES.Contributor
         user_data['display_name'] = secrets.token_urlsafe(6)
         user_data['preference_emails'] = True
         user_data['_date_joined'] = datetime.datetime.now(
@@ -250,7 +250,7 @@ class UserLogin(UserMixin):
 
         if invited_by:
             user_data['_invited_by'] = {'uid': invited_by,
-                                    '_invited_by|date': datetime.datetime.now(datetime.timezone.utc).isoformat()}
+                                        '_invited_by|date': datetime.datetime.now(datetime.timezone.utc).isoformat()}
             user_data['_account_status'] = 'invited'
 
         response = dgraph.mutation(user_data)
@@ -259,11 +259,11 @@ class UserLogin(UserMixin):
             return response.uids['newuser']
         else:
             return False
-            
+
     @staticmethod
     def list_entries(user, onlydrafts=False) -> Union[bool, list]:
         query_string = f"""{{ q(func: uid({user})) {{
-            drafts: ~entry_added @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "draft"))
+            drafts: ~_added_by @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "draft"))
             {{ uid unique_name name dgraph.type entry_review_status channel {{ name }} }} 
             """
 
@@ -271,11 +271,11 @@ class UserLogin(UserMixin):
             query_string += '} }'
         else:
             query_string += f"""
-                pending: ~entry_added @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "pending"))
+                pending: ~_added_by @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "pending"))
                 {{ uid unique_name name dgraph.type entry_review_status channel {{ name }} }} 
-                accepted: ~entry_added @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "accepted"))
+                accepted: ~_added_by @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "accepted"))
                 {{ uid unique_name name dgraph.type entry_review_status channel {{ name }} }}
-                rejected: ~entry_added  @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "rejected")) 
+                rejected: ~_added_by  @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "rejected")) 
                 {{ uid name entry_review_status channel {{ name }} }}
                 }}
                 }}
@@ -302,4 +302,3 @@ class UserLogin(UserMixin):
         if len(data['q']) == 0:
             return False
         return data['q']
-

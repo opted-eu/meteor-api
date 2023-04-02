@@ -4,7 +4,7 @@ def can_edit(entry, user) -> bool:
     if "entry_review_status" in entry.keys():
         if entry.get('entry_review_status') in ['pending', 'accepted']:
             if user.is_authenticated:
-                if user.user_role > USER_ROLES.Contributor or entry.get('entry_added').get('uid') == user.id:
+                if user._role > USER_ROLES.Contributor or entry.get('_added_by').get('uid') == user.id:
                     return True
                 else:
                     return False
@@ -12,7 +12,7 @@ def can_edit(entry, user) -> bool:
                 return False
         elif entry.get('entry_review_status') == 'draft':
             if user.is_authenticated:
-                if user.user_role > USER_ROLES.Reviewer or entry.get('entry_added').get('uid') == user.id:
+                if user._role > USER_ROLES.Reviewer or entry.get('_added_by').get('uid') == user.id:
                     return True
                 else: 
                     return False
@@ -29,7 +29,7 @@ def can_delete(entry) -> bool:
     if "entry_review_status" in entry.keys():
         if entry['entry_review_status'] == 'draft':
             if current_user.is_authenticated:
-                if current_user._role > USER_ROLES.Reviewer or entry['entry_added']['uid'] == current_user.id:
+                if current_user._role > USER_ROLES.Reviewer or entry['_added_by']['uid'] == current_user.id:
                     return True
                 else: 
                     return False

@@ -34,7 +34,7 @@ class User(Schema, UserLogin):
     orcid = String('ORCID')
     _date_joined = DateTime(label="Date joined", description='Date when this account was created',
                             read_only=True, edit=False)
-    _role = SingleChoiceInt(label="User Role", edit=False, read_only=True,
+    role = SingleChoiceInt(label="User Role", edit=False, read_only=True,
                             default=USER_ROLES.Contributor,
                             choices=USER_ROLES.dict_reverse)
 
@@ -88,6 +88,14 @@ class Entry(Schema):
 
     entry_notes = String(description='Do you have any other notes on the entry that you just coded?',
                          large_textfield=True)
+    
+    _added_by = SingleRelationship(label="Added by", 
+                                   relationship_constraint="User",
+                                   allow_new=False,
+                                   new=False,
+                                   edit=False,
+                                   read_only=True,
+                                   hidden=True)
     
     entry_review_status = SingleChoice(choices={'draft': 'Draft',
                                                 'pending': 'Pending',
