@@ -54,7 +54,7 @@ def send_accept_email(entry):
 
     subject = f'Meteor: {name_pretty} now public!'
     msg = Message(subject=subject,
-                  sender=current_app.config['MAIL_USERNAME'], recipients=[entry['entry_added']['email']])
+                  sender=current_app.config['MAIL_USERNAME'], recipients=[entry['_added_by']['email']])
 
     msg.html = render_template('emails/entry_accepted.html', subject=subject, entry=entry)
 

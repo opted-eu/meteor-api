@@ -24,7 +24,7 @@ class EditAudienceSizeSanitizer(Sanitizer):
                 f'Entry can not be edited! UID does not exist: {data["uid"]}')
 
         if current_user._role < USER_ROLES.Reviewer:
-            if check.get('entry_added').get('uid') != current_user.id:
+            if check.get('_added_by').get('uid') != current_user.id:
                 raise InventoryPermissionError(
                     'You do not have the required permissions to edit this entry!')
 

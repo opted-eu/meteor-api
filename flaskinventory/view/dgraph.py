@@ -133,7 +133,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
 def get_rejected(uid):
     query_string = f'''{{ q(func: uid({uid})) @filter(type(Rejected)) 
                         {{ uid name unique_name other_names 
-                            creation_date entry_added {{ uid user_displayname }} 
+                            creation_date _added_by {{ uid user_displayname }} 
                             entry_notes entry_review_status reviewed_by {{ uid user_displayname }}
                         }}
                         }}'''

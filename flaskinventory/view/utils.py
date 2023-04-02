@@ -33,7 +33,7 @@ def can_view(entry, user):
     if "entry_review_status" in entry.keys():
         if entry.get('entry_review_status') in ['pending', 'rejected']:
             if user.is_authenticated:
-                if user.user_role > 1 or entry.get('entry_added').get('uid') == user.id:
+                if user._role > 1 or entry.get('_added_by').get('uid') == user.id:
                     return True
                 else:
                     return False
@@ -41,7 +41,7 @@ def can_view(entry, user):
                 return False
         elif entry.get('entry_review_status') == 'draft':
             if user.is_authenticated:
-                if user.user_role > 2 or entry.get('entry_added').get('uid') == user.id:
+                if user._role > 2 or entry.get('_added_by').get('uid') == user.id:
                     return True
                 else: 
                     return False

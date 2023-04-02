@@ -21,9 +21,9 @@
         <dt class="col-sm-3">Creation Date</dt>
         <dd class="col-sm-9">{{ entry.creation_date.strftime('%d %b %Y, %H:%M') }}</dd>
         {% endif %}
-        {% if entry.entry_added %}
+        {% if entry._added_by %}
         <dt class="col-sm-3">Created By</dt>
-        <dd class="col-sm-9">{{ entry.entry_added.get('user_displayname') }}</dd>
+        <dd class="col-sm-9">{{ entry._added_by.get('user_displayname') }}</dd>
         {% endif %}
         {% if entry.entry_notes %}
         <dt class="col-sm-3">Notes</dt>

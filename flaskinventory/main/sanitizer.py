@@ -52,7 +52,7 @@ class Sanitizer:
             if Schema.get_reverse_predicates(dgraph_type):
                 self.fields.update(Schema.get_reverse_predicates(dgraph_type))
 
-        if self.user.user_role < USER_ROLES.Contributor:
+        if self.user._role < USER_ROLES.Contributor:
             raise InventoryPermissionError
 
         self.data = data
@@ -110,7 +110,7 @@ class Sanitizer:
                 f'Entry can not be edited! UID does not exist: {data["uid"]}')
 
         if current_user._role < USER_ROLES.Reviewer:
-            if check.get('entry_added').get('uid') != current_user.id:
+            if check.get('_added_by').get('uid') != current_user.id:
                 raise InventoryPermissionError(
                     'You do not have the required permissions to edit this entry!')
 
@@ -172,7 +172,7 @@ class Sanitizer:
     def _check_entry(uid):
         query = f'''query check_entry($value: string)
                     {{ q(func: uid($value)) @filter(has(dgraph.type))'''
-        query += "{ unique_name dgraph.type entry_review_status entry_added { uid } } }"
+        query += "{ unique_name dgraph.type entry_review_status _added_by { uid } } }"
         data = dgraph.query(query, variables={'$value': uid})
 
         if len(data['q']) == 0:
@@ -204,7 +204,7 @@ class Sanitizer:
         if not newentry:
             entry['entry_edit_history'] = UID(self.user.uid, facets=facets)
         else:
-            entry['entry_added'] = UID(self.user.uid, facets=facets)
+            entry['_added_by'] = UID(self.user.uid, facets=facets)
             entry['entry_review_status'] = 'pending'
             entry['creation_date'] = datetime.datetime.now(
                 datetime.timezone.utc)
@@ -343,7 +343,7 @@ class Sanitizer:
 
     def parse_entry_review_status(self):
         if self.data.get('accept'):
-            if self.user.user_role < USER_ROLES.Reviewer:
+            if self.user._role < USER_ROLES.Reviewer:
                 raise InventoryPermissionError(
                     'You do not have the required permissions to change the review status!')
             self.entry['entry_review_status'] = 'accepted'
@@ -356,7 +356,7 @@ class Sanitizer:
             elif self.data['entry_review_status'] == 'pending':
                 self.entry_review_status == 'pending'
                 self.entry['entry_review_status'] = 'pending'
-            elif self.user.user_role >= USER_ROLES.Reviewer:
+            elif self.user._role >= USER_ROLES.Reviewer:
                 validated = self.fields.get('entry_review_status').validate(
                     self.data.get('entry_review_status'))
                 self.entry['entry_review_status'] = validated

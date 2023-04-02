@@ -45,7 +45,7 @@ def check_draft(draft, form):
     draft = dgraph.query(query_string, variables={'$draft': draft})
     if len(draft['q']) > 0:
         draft = draft['q'][0]
-        entry_added = draft.pop('entry_added')
+        _added_by = draft.pop('_added_by')
         for key, value in draft['q'][0].items():
             if not hasattr(form, key):
                 continue
@@ -61,7 +61,7 @@ def check_draft(draft, form):
 
             setattr(getattr(form, key), 'data', value)
         # check permissions
-        if current_user.uid != entry_added['uid']:
+        if current_user.uid != _added_by['uid']:
             if current_user._role >= USER_ROLES.Reviewer:
                 flash("You are editing another user's draft", category='info')
             else:
@@ -96,10 +96,10 @@ def get_draft(uid):
     draft = dgraph.query(query_string, variables={'$draft': uid})
     if len(draft['q']) > 0:
         draft = draft['q'][0]
-        entry_added = draft.pop('entry_added')
+        _added_by = draft.pop('_added_by')
         draft = json.dumps(draft, default=str)
         # check permissions
-        if current_user.uid != entry_added['uid']:
+        if current_user.uid != _added_by['uid']:
             if current_user._role >= USER_ROLES.Reviewer:
                 flash("You are editing another user's draft", category='info')
             else:

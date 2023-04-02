@@ -92,7 +92,7 @@ def from_draft(entity=None, uid=None):
         q(func: uid($user)) {{
                 user_displayname
                 uid
-                drafts: ~entry_added @filter(type(Source) and eq(entry_review_status, "draft")) 
+                drafts: ~_added_by @filter(type(Source) and eq(entry_review_status, "draft")) 
                 @facets(orderdesc: timestamp) (first: 1) {{ uid }}
             }} 
         }}"""

@@ -16,7 +16,7 @@ def get_overview(dgraphtype, country=None, user=None):
         query_head = f'''{{ q(func: type({dgraphtype})) @filter(eq(entry_review_status, "pending") '''
 
     query_fields = f''' uid name unique_name dgraph.type 
-                        entry_added @facets(timestamp) {{ uid user_displayname }}
+                        _added_by @facets(timestamp) {{ uid user_displayname }}
                         country {{ uid unique_name name }} 
                         channel {{ uid unique_name name }} '''
 
@@ -27,7 +27,7 @@ def get_overview(dgraphtype, country=None, user=None):
 
     if user:
         if user != 'any':
-            filt_string += f''' AND uid_in(entry_added, {user})'''
+            filt_string += f''' AND uid_in(_added_by, {user})'''
 
     filt_string += ')'
 
@@ -61,7 +61,7 @@ def check_entry(uid=None, unique_name=None):
     else:
         return False
 
-    query_string += "{ uid unique_name dgraph.type entry_review_status entry_added { uid } channel { unique_name } } }"
+    query_string += "{ uid unique_name dgraph.type entry_review_status _added_by { uid } channel { unique_name } } }"
     data = dgraph.query(query_string, variables=variables)
 
     if len(data['q']) == 0:
@@ -77,14 +77,14 @@ def send_acceptance_notification(uid):
                             uid name 
                             dgraph.type
                             channel { name }
-                            entry_added { uid user_displayname email preference_emails } 
+                            _added_by { uid user_displayname email preference_emails } 
                         } 
                     }"""
     
     entry = dgraph.query(query_string=query_string, variables={'$query': uid})
     
     try:
-        if entry['q'][0]['entry_added']['preference_emails']:
+        if entry['q'][0]['_added_by']['preference_emails']:
             send_accept_email(entry['q'][0])
     except KeyError:
         pass
