@@ -64,7 +64,7 @@ class Schema:
 
         # inherit predicates from parent classes
         for parent in cls.__bases__:
-            if parent.__name__ != Schema.__name__ and isinstance(parent, Schema):
+            if parent.__name__ != Schema.__name__ and issubclass(parent, Schema):
                 predicates.update({k: v for k, v in Schema.get_predicates(
                     parent.__name__).items() if k not in predicates})
                 relationship_predicates.update({k: v for k, v in Schema.get_relationships(
