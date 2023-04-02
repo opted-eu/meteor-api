@@ -68,7 +68,7 @@ with open(output, 'w') as f:
 # manual normalization
 for entry in sources:
     try:
-        entry['entry_added'] = entry['entry_added']['uid']
+        entry['_added_by'] = entry['_added_by']['uid']
         entry['channel'] = entry['channel']['unique_name']
         entry['other_names'] = ", ".join(entry.get('other_names', []))
         entry['languages'] = ", ".join(entry.get('languages', []))
@@ -118,7 +118,7 @@ with open(output, 'w') as f:
 # manual normalization
 for entry in organizations:
     try:
-        entry['entry_added'] = entry['entry_added']['uid']
+        entry['_added_by'] = entry['_added_by']['uid']
         entry['other_names'] = ", ".join(entry.get('other_names', []))
         if entry.get('country'):
             for country in entry['country']:

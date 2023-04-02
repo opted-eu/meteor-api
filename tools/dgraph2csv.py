@@ -25,8 +25,8 @@ for entry in raw:
     entry['publication_kind'] = ", ".join(entry.get('publication_kind', []))
     entry['country'] = ", ".join([country['name'] for country in entry.get('country', [])])
     entry['subunit'] = ", ".join([subunit['name'] for subunit in entry.get('geographic_scope_subunit', [])])
-    entry['entry_added_email'] = entry['entry_added']['email']
-    entry['entry_added_username'] = entry['entry_added']['user_displayname']
+    entry['_added_by_email'] = entry['_added_by']['email']
+    entry['_added_by_username'] = entry['_added_by']['user_displayname']
     try:
         entry['published_by'] = ", ".join([org['name'] for org in entry['published_by']])
     except:
@@ -36,6 +36,6 @@ for entry in raw:
             entry['publication_cycle_weekday_' + str(weekday)] = 'yes'
 
 df = pd.DataFrame(raw)
-filt = df.entry_added_username == 'Paul Balluff'
+filt = df._added_by_username == 'Paul Balluff'
 df = df[~filt]
 df.to_csv('tools/relitest.csv')
