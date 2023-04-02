@@ -803,3 +803,88 @@ class TextUnit(Entry):
     
     pass
 
+"""
+    System Types
+"""
+
+class File(Schema):
+
+    __permission_new__ = 99
+    __permission_edit__ = 99
+
+    uid = UIDPredicate()
+
+    _download_url = String(description="location of the resource")
+    _path = String(description="location on local disk")
+    file_format = SingleRelationship(relationship_constraint="FileFormat")
+
+class Notification(Schema):
+
+    __permission_new__ = 99
+    __permission_edit__ = 99
+
+    uid = UIDPredicate()
+
+    _notification_date = DateTime(default=datetime.datetime.now, 
+                                  directives=['@index(hour)'])
+    _read = Boolean(default=False)
+    _notify = SingleRelationship(relationship_constraint="User", 
+                                 required=True)
+    _title = String(default="Notification")
+    _content = String()
+    _email_dispatched = Boolean(default=False)
+
+class Comment(Schema):
+
+    __permission_new__ = USER_ROLES.Contributor
+    __permission_edit__ = USER_ROLES.Contributor
+
+    uid = UIDPredicate()
+
+    _creator = SingleRelationship(relationship_constraint='User',
+                                  required=True)
+    _comment_date = DateTime(default=datetime.datetime.now, 
+                                  directives=['@index(hour)'])
+    _comment_edited = DateTime(default=datetime.datetime.now, 
+                                  directives=['@index(hour)'])
+    _comment_on = SingleRelationship(relationship_constraint="Entry")
+    content = String()
+
+class Rejected(Schema):
+
+    __permission_new__ = 99
+    __permission_edit__ = 99
+
+
+    uid = UIDPredicate()
+    
+    _date_created = DateTime(directives=['@index(hour)'])
+    _date_modified = DateTime(directives=['@index(hour)'])
+        
+    _added_by = SingleRelationship(label="Added by", 
+                                   relationship_constraint="User",
+                                   allow_new=False,
+                                   new=False,
+                                   edit=False,
+                                   read_only=True,
+                                   hidden=True)
+    
+    _reviewed_by = SingleRelationship(label="Reviewed by", 
+                                   relationship_constraint="User",
+                                   allow_new=False,
+                                   new=False,
+                                   edit=False,
+                                   read_only=True,
+                                   hidden=True)
+    _edited_by = SingleRelationship(label="Edited by", 
+                                   relationship_constraint="User",
+                                   allow_new=False,
+                                   new=False,
+                                   edit=False,
+                                   read_only=True,
+                                   hidden=True)
+    
+    _former_types = ListString()
+    
+    entry_review_status = String(default="rejected")
+
