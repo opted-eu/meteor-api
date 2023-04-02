@@ -312,7 +312,7 @@
         _:admin <email> "wp3@opted.eu" .
         _:admin <_pw> "admin123" .
         _:admin <display_name> "Admin" .
-        _:admin <date_joined> "2021-05-20" .
+        _:admin <_date_joined> "2021-05-20" .
         _:admin <role> "10" .
         _:admin <_account_status> "active" .
 
@@ -329,7 +329,7 @@
         _:reviewer <email> "reviewer@opted.eu" .
         _:reviewer <_pw> "reviewer123" .
         _:reviewer <display_name> "Reviewer" .
-        _:reviewer <date_joined> "2022-03-02" .
+        _:reviewer <_date_joined> "2022-03-02" .
         _:reviewer <role> "2" .
         _:reviewer <_account_status> "active" .
 
