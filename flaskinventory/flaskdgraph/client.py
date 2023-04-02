@@ -1,9 +1,10 @@
+from typing import Union
 import json
 from dateutil.parser import isoparse
 from flask import current_app, _app_ctx_stack
 import pydgraph
 import logging
-
+from .dql import DQLQuery
 
 class DGraph(object):
     """
@@ -133,7 +134,14 @@ class DGraph(object):
         Generic Query Methods 
     """
 
-    def query(self, query_string, variables=None):
+    def query(self, query_string: Union[DQLQuery, str], variables: dict=None) -> list:
+        # check if we got a DQLQuery Object
+        try:
+            variables = query_string.get_graphql_variables()
+            query_string = query_string.render()
+        except:
+            pass
+
         self.logger.debug(f"Sending dgraph query: {query_string}")
         if variables is None:
             res = self.connection.txn(read_only=True).query(query_string)

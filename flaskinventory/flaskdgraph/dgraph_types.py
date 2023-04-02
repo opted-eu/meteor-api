@@ -21,7 +21,7 @@ from flaskinventory import dgraph
 from .schema import Schema
 from .customformfields import NullableDateField, TomSelectField, TomSelectMultipleField
 from .utils import validate_uid, strip_query
-
+from .dql import *
 from flaskinventory.errors import InventoryPermissionError, InventoryValidationError
 from flaskinventory.add.external import geocode, reverse_geocode
 from flaskinventory.users.constants import USER_ROLES
@@ -36,7 +36,10 @@ from wtforms.validators import DataRequired, Optional
     Type Hints
 """
 
-AvailableOperators = Literal['eq', 'between', 'gt', 'lt', 'ge', 'le']
+AvailableOperators = Union[eq, gt, lt, ge, le, has, type_, between, regexp]
+operator_conversion = {'eq': eq, 'gt': gt, 'lt': lt, 'ge': ge, 'le': le, 
+                      'has': has, 'type': type_, 'between': between, 'regexp': regexp}
+
 AvailableConnectors = Literal['AND', 'OR', 'NOT']
 
 """
@@ -112,7 +115,7 @@ class Facet:
     """
 
     predicate = None
-    default_operator = "eq"
+    default_operator = eq
     is_list_predicate = False
 
     def __init__(self, key: str,
@@ -166,7 +169,11 @@ class Facet:
             except:
                 return None
 
-    def query_filter(self, vals: Union[str, list], operator: AvailableOperators=None, predicate=None, **kwargs) -> str:
+    def query_filter(self, 
+                     vals: Union[str, list], 
+                     operator: AvailableOperators=None, 
+                     predicate=None, 
+                     **kwargs) -> str:
 
         if vals is None:
             return None
@@ -177,6 +184,12 @@ class Facet:
         if not operator:
             operator = self.default_operator
 
+        if isinstance(operator, str):
+            try:
+                operator = operator_conversion[operator]
+            except:
+                operator = self.default_operator
+
         if not isinstance(vals, list):
             vals = [vals]
 
@@ -185,18 +198,23 @@ class Facet:
 
         vals = [self.corece(val) for val in vals]
         if self.type == datetime.datetime:
-            if operator == 'between':
-                return f'ge({self.key}, "{vals[0].strftime("%Y-%m-%d")}") AND lt({self.key}, "{vals[1].strftime("%Y-%m-%d")}")'
+            if operator == between:
+                left = ge(self.key, vals[0].strftime("%Y-%m-%d"))
+                right = lt(self.key, vals[1].strftime("%Y-%m-%d"))
+                return f'{left} AND {right}'
             else:
                 val1 = vals[0]
                 val2 = val1 + datetime.timedelta(days=1)
-                return f'ge({self.key}, "{val1.strftime("%Y-%m-%d")}") AND lt({self.key}, "{val2.strftime("%Y-%m-%d")}")'
+                left = ge(self.key, val1.strftime("%Y-%m-%d"))
+                right = lt(self.key, val2.strftime("%Y-%m-%d"))
+                return f'{left} AND {right}'
 
-        if operator == 'between':
-            return f'ge({self.key}, "{vals[0]}") AND lt({self.key}, "{vals[1]}")'
+        if operator == between:
+            left = ge(self.key, vals[0])
+            right = lt(self.key, vals[1])
+            return f'{left} AND {right}'
         else:
-            filters = [
-                f'{operator}({self.key}, "{val}")' for val in vals]
+            filters = [str(operator(self.key, val)) for val in vals]
             if len(filters) > 1:
                 filter_string = " OR ".join(filters)
                 return f'({filter_string})'
@@ -256,7 +274,7 @@ class _PrimitivePredicate:
     dgraph_predicate_type = 'string'
     dgraph_directives = None
     is_list_predicate = False
-    default_operator = "eq"
+    default_operator = eq
     default_connector = "OR"
     bound_dgraph_type = None
 
@@ -405,16 +423,27 @@ class _PrimitivePredicate:
         else:
             return data
 
-    def query_filter(self, vals: Union[str, list], predicate=None, operator: AvailableOperators=None, connector: AvailableConnectors=None, **kwargs) -> str:
+    def query_filter(self, 
+                     vals: Union[str, list], 
+                     predicate=None, 
+                     operator: AvailableOperators=None, 
+                     connector: AvailableConnectors=None, 
+                     **kwargs) -> str:
 
         if not predicate:
             predicate = self.predicate
 
         if vals is None:
-            return f'has({predicate})'
+            return f'{has(predicate)}'
 
         if not operator:
             operator = self.default_operator
+
+        if isinstance(operator, str):
+            try:
+                operator = operator_conversion[operator]
+            except:
+                operator = self.default_operator
 
         if not connector:
             connector = self.default_connector
@@ -426,20 +455,17 @@ class _PrimitivePredicate:
             vals = [validate_uid(v) for v in vals if validate_uid(v)]
 
         if len(vals) == 0:
-            return f'has({predicate})'
+            return f'{has(predicate)}'
 
         try:
             if connector == "AND":
-                return " AND ".join([f'{operator}({predicate}, "{strip_query(val)}")' for val in vals])
+                f = [str(operator(predicate, strip_query(val))) for val in vals]
+                return " AND ".join(f)
             else:
-                vals_string = ", ".join(
-                    [f'"{strip_query(val)}"' for val in vals])
-                if len(vals) == 1:
-                    return f'{operator}({predicate}, {vals_string})'
-                else:
-                    return f'{operator}({predicate}, [{vals_string}])'
+                vals = [strip_query(v) for v in vals]
+                return f'{operator(predicate, vals)}'
         except:
-            return f'has({predicate})'
+            return f'{has(predicate)}'
 
     def _prepare_query_field(self):
         # not a very elegant solution...
@@ -461,12 +487,20 @@ class _PrimitivePredicate:
     def __hash__(self):
         return id(self)
 
-    def __eq__(self, other) -> str:
-        # TODO: supply "other" as query variable for safety
+    def __eq__(self, other) -> DQLQuery:
+        var = GraphQLVariable(other=other)
         if self.bound_dgraph_type:
-            return f'''{{ {self.bound_dgraph_type.lower()}(func: type({self.bound_dgraph_type})) @filter({self.default_operator}({self.query}, {other})) {{ uid expand(_all_)  }} }}'''
+            query = DQLQuery(query_name=self.bound_dgraph_type.lower(), 
+                     func=type_(self.bound_dgraph_type),
+                     query_filter=self.default_operator(self.query, var),
+                     fetch=["uid", "expand(_all_)"])
+            return query
         
-        return f'''{{ q(func: has({self.predicate})) @filter({self.default_operator}({self.query}, {other})) {{ uid expand(_all_)  }} }}'''
+        query = DQLQuery(func=has(self.predicate),
+                     query_filter=self.default_operator(self.query, var),
+                     fetch=["uid", "expand(_all_)"])
+        return query
+
 
     def count(self, **kwargs) -> str:
         # TODO: add filters via **kwargs
@@ -646,7 +680,7 @@ class ReverseRelationship(_PrimitivePredicate):
     """
 
     dgraph_predicate_type = 'uid'
-    default_operator = 'uid_in'
+    default_operator = uid_in
 
     def __init__(self,
                  predicate_name,
@@ -826,7 +860,7 @@ class MutualRelationship(_PrimitivePredicate):
     dgraph_predicate_type = 'uid'
     dgraph_directives = ['@reverse']
     is_list_predicate = False
-    default_operator = "uid_in"
+    default_operator = uid_in
 
     def __init__(self,
                  allow_new=False,
@@ -974,7 +1008,7 @@ class UIDPredicate(Predicate):
 
     dgraph_predicate_type = 'uid'
     is_list_predicate = False
-    default_operator = 'uid_in'
+    default_operator = uid_in # maybe needs to be changed
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(read_only=True, hidden=True, new=False,
@@ -986,11 +1020,16 @@ class UIDPredicate(Predicate):
         else:
             return UID(uid)
         
-    def __eq__(self, other):
-        if self.bound_dgraph_type:
-            return f'{{ {self.bound_dgraph_type.lower()}(func: uid({other})) @filter(type({self.bound_dgraph_type})) {{ uid expand(_all_) }} }}'
-        return f'{{ q(func: uid({other})) {{ uid expand(_all_) }} }}'
+    def __eq__(self, other) -> DQLQuery:
+        var = GraphQLVariable(other=other)
 
+        if self.bound_dgraph_type:
+            query = DQLQuery(query_name=self.bound_dgraph_type.lower(), 
+                     func=uid(var),
+                     fetch=["uid", "expand(_all_)"])
+            return query
+        
+        return DQLQuery(func=uid(var), fetch=["uid", "expand(_all_)"])
 
 class Integer(Predicate):
 
@@ -1167,7 +1206,7 @@ class DateTime(Predicate):
 
     dgraph_predicate_type = 'datetime'
     is_list_predicate = False
-    default_operator = 'between'
+    default_operator = between
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -1204,25 +1243,32 @@ class DateTime(Predicate):
             render_kw = {**self.render_kw, **render_kw}
         return IntegerField(label=self.query_label, render_kw=self.render_kw)
 
-    def query_filter(self, vals: Union[str, list, int], operator: Literal['lt', 'gt'] = None, **kwargs) -> str:
+    def query_filter(self, 
+                     vals: Union[str, list, int], 
+                     operator: Union[le, ge] = None, 
+                     **kwargs) -> str:
         if vals is None:
-            return f'has({self.predicate})'
+            return f'{has(self.predicate)}'
 
         try:
             if isinstance(vals, list) and len(vals) > 1:
                 vals = [self.validation_hook(val) for val in vals[:2]]
-                return f'{self.default_operator}({self.predicate}, "{vals[0].year}-01-01", "{vals[1].year}-12-31")'
+                v1 = f'"{vals[0].year}-01-01"'
+                v2 = f'"{vals[1].year}-12-31"'
+                return f'{self.default_operator(self.predicate, v1, v2)}'
 
             else:
                 if isinstance(vals, list):
                     vals = vals[0]
                 date = self.validation_hook(vals)
                 if operator:
-                    return f'{operator}({self.predicate}, "{date.year}")'
+                    return f'{operator(self.predicate, {date.year})}'
                 else:
-                    return f'{self.default_operator}({self.predicate}, "{date.year}-01-01", "{date.year}-12-31")'
+                    v1 = f'"{date.year}-01-01"'
+                    v2 = f'"{date.year}-12-31"'
+                    return f'{self.default_operator(self.predicate, v1, v2)}'
         except:
-            return f'has({self.predicate})'
+            return f'{has(self.predicate)}'
 
 
 class Year(DateTime):
@@ -1278,7 +1324,7 @@ class Boolean(Predicate):
 
     def validation_hook(self, data):
         if isinstance(data, bool):
-            return bool(data)
+            return data
         elif isinstance(data, str):
             return data.lower() in ('yes', 'true', 't', '1', 'y')
         elif isinstance(data, int):
@@ -1293,15 +1339,15 @@ class Boolean(Predicate):
 
         # use DGraph native syntax first
         if vals in ['true', 'false']:
-            return super().query_filter(vals)
+            return f'{eq(self.predicate, vals)}'
 
         else:
             # try to coerce to bool
             vals = self.validation_hook(vals)
             try:
-                return super().query_filter(str(vals).lower())
+                return f'{eq(self.predicate, str(vals).lower())}'
             except:
-                return f'has({self.predicate})'
+                return f'{has(self.predicate)}'
 
     @property
     def wtf_field(self) -> BooleanField:
@@ -1346,7 +1392,7 @@ class SingleRelationship(Predicate):
     dgraph_predicate_type = 'uid'
     dgraph_directives = ['@reverse']
     is_list_predicate = False
-    default_operator = 'uid_in'
+    default_operator = uid_in
 
     def __init__(self,
                  relationship_constraint=None,

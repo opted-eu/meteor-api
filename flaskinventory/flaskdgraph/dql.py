@@ -11,13 +11,21 @@ class GraphQLVariable:
         Represents a GraphQL Query Variable that are declared at the beginning of the query
         and provided separately as json object
 
-        query MyQuery ($name: string = "Indiana Jones") 
+        Construct a new GraphQLVariable with arbitrary keyword parameters:
+        `my_vars = GraphQLVariable(name="Indiana Jones")`
+
+        is equivalent to:
+
+        `query MyQuery ($name: string = "Indiana Jones")`
+
+        You can optionally declare the type of the variable: 
+        `my_vars = GraphQLVariable(year=1998, dtype="int")`
 
         Current Caveat: could accidentally use the same variable name twice
         Solutions: 
             - use meta-classes to manage pool of variable names :/ (e.g. greek letters)
             - use completely random variable names (need to be long, lowercase, and only letters)
-            - let the user of this module be aware of the caveat and take care of it ¯\_(ツ)_/¯
+            - let the user of this module be aware of the caveat and handle it themselves ¯\_(ツ)_/¯
     """
 
     __slots__ = "name", "dtype", "value"
@@ -51,13 +59,24 @@ class eq(_FuncPrimitive):
 
     func = "eq"
 
-    def __init__(self, **kwargs) -> None:
-        assert len(kwargs) == 1, "Too many or not enough parameters!"
-        self.predicate, self.value = kwargs.popitem()
+    def __init__(self, *args, **kwargs) -> None:
+        try:
+            self.predicate, value = args[0], args[1]
+        except:
+            assert len(kwargs) == 1, "Too many or not enough parameters!"
+            self.predicate, value = kwargs.popitem()
+            
+        if isinstance(value, list) and len(value) == 1:
+            value = value[0]
+        self.value = value
+
 
     def __str__(self) -> str:
         if isinstance(self.value, GraphQLVariable):
             return f'{self.func}({self.predicate}, {self.value.name})'
+        if isinstance(self.value, list):
+            values = ", ".join([f'"{v}"' for v in self.value])
+            return f'{self.func}({self.predicate}, [{values}])'
         return f'{self.func}({self.predicate}, "{self.value}")'
 
 
@@ -90,9 +109,12 @@ class between(_FuncPrimitive):
 
     func = "between"
 
-    def __init__(self, **kwargs) -> None:
-        assert len(kwargs) == 1, "Too many or not enough parameters!"
-        self.predicate, v = kwargs.popitem()
+    def __init__(self, *args, **kwargs) -> None:
+        try:
+            self.predicate, v = args[0], args[1:]
+        except:
+            assert len(kwargs) == 1, "Too many or not enough parameters!"
+            self.predicate, v = kwargs.popitem()
         assert isinstance(v, (list, tuple, set))
         self.value = v[0]
         self.value2 = v[1]
@@ -137,9 +159,12 @@ class regexp(eq):
 
     func = "regexp"
 
-    def __init__(self, case_insensitive=False, **kwargs) -> None:
-        assert len(kwargs) == 1, "Too many or not enough parameters!"
-        self.predicate, value = kwargs.popitem()
+    def __init__(self, *args, case_insensitive=False, **kwargs) -> None:
+        try:
+            self.predicate, value = args[0], args[1]
+        except:
+            assert len(kwargs) == 1, "Too many or not enough parameters!"
+            self.predicate, value = kwargs.popitem()
         value = f'/{value}/'
         if case_insensitive:
             value += 'i'
@@ -147,7 +172,7 @@ class regexp(eq):
 
 
 """
-    uid, has
+    uid, has, uid_in
 """
 
 
@@ -173,6 +198,29 @@ class has(_FuncPrimitive):
 
     def __str__(self) -> str:
         return f'{self.func}({self.value})'
+    
+
+class type_(_FuncPrimitive):
+
+    func = "type"
+
+    def __init__(self, val) -> None:
+        self.value = val
+
+    def __str__(self) -> str:
+        return f'{self.func}({self.value})'
+
+
+class uid_in(eq):
+
+    func = "uid_in"
+
+    def __str__(self) -> str:
+        if isinstance(self.value, GraphQLVariable):
+            return f'{self.func}({self.predicate}, {self.value.name})'
+        elif isinstance(self.value, (list, set, tuple)):
+            return f'{self.func}({self.predicate}, [{", ".join(self.value)}])'
+        return f'{self.func}({self.predicate}, {self.value})'
 
 
 class QueryBlock:
@@ -259,96 +307,22 @@ class DQLQuery:
             self.graphql_variable_declarations += q.graphql_variables
 
     def __str__(self) -> str:
-        query_string = f"query {self.query_name} "
+        return self.render()
+
+    
+    def render(self) -> str:
+        query_string = ""
         if len(self.graphql_variable_declarations) > 0:
-            var_declarations = [f'{v.name} : {v.dtype}' for v in self.graphql_variable_declarations]
-            var_declarations = ", ".join(var_declarations)
-            query_string += '(' + var_declarations + ')'
-        
-        # query_string += '{'
+            query_string += f"query {self.query_name} "
+            if len(self.graphql_variable_declarations) > 0:
+                var_declarations = [f'{v.name} : {v.dtype}' for v in self.graphql_variable_declarations]
+                var_declarations = ", ".join(var_declarations)
+                query_string += '(' + var_declarations + ') '
         
         for block in self.query_blocks:
             query_string += str(block)
-        
-        # query_string += '}'
-        
+                
         return query_string
-
-
-
-
-# Simple Case
-func = eq(name="Indiana Jones")
-print(func)
-
-
-func = ge(name="Indiana Jones")
-print(func)
-
-
-func = gt(name="Indiana Jones")
-print(func)
-
-
-func = le(name=GraphQLVariable(n="Indiana Jones"))
-print(func)
-
-
-func = lt(name="Indiana Jones")
-print(func)
-
-func = between(year=[1999, 2005])
-print(func)
-
-
-func = between(year=[GraphQLVariable(i=1995), 2005])
-print(func)
-
-func = between(year=[2005, GraphQLVariable(i=2007)])
-print(func)
-
-func = between(year=[GraphQLVariable(i=1995), GraphQLVariable(j=2007)])
-print(func)
-
-func = regexp(name="^Indiana")
-print(func)
-
-func = uid("0x123")
-print(func)
-
-func = has("name")
-print(func)
-
-# simple case
-
-my_query = QueryBlock(func=allofterms(name="Indiana Jones"), first=2,
-                      fetch=["name", "initial_release_date"])
-
-print(my_query)
-
-
-# with filter
-
-my_query = QueryBlock(func=allofterms(name="Indiana Jones"), first=2,
-                      query_filter=lt(initial_release_date=1998),
-                      fetch=["name", "initial_release_date"])
-
-print(my_query)
-
-
-
-# simple case
-
-my_query = DQLQuery(func=allofterms(name="Indiana Jones"), first=2,
-                      fetch=["name", "initial_release_date"])
-
-print(my_query)
-
-
-# with filter
-
-my_query = DQLQuery(func=allofterms(name="Indiana Jones"), first=2,
-                      query_filter=lt(initial_release_date=GraphQLVariable(y=1998, dtype="int")),
-                      fetch=["name", "initial_release_date"])
-
-print(my_query)
+    
+    def get_graphql_variables(self) -> dict:
+        return {var.name: var.value for var in self.graphql_variable_declarations}
