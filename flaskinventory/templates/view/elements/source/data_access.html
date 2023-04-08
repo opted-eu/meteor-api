@@ -6,7 +6,7 @@
         {% for archive in entry.archives %}
         <dt class="col-sm-3"></dt>
         <dd class="col-sm-9">
-            <a href="{{ url_for('view.view_generic', dgraph_type='Archive', unique_name=archive.unique_name) }}">
+            <a href="{{ url_for('view.view_generic', dgraph_type='Archive', unique_name=archive._unique_name) }}">
                 {{archive.name}}
             </a>
                 {% if archive.get('archives|from') %}

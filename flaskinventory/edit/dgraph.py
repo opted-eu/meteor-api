@@ -8,14 +8,14 @@ from flaskinventory.flaskdgraph.dgraph_types import UID, Variable, Scalar, make_
 def get_entry(unique_name=None, uid=None):
     query_string = 'query get_entry($query: string) {'
     if unique_name:
-        query_string += 'q(func: eq(unique_name, $query))'
+        query_string += 'q(func: eq(_unique_name, $query))'
         variables = {'$query': unique_name}
     elif uid:
         query_string += 'q(func: uid($query))'
         variables = {'$query': uid}
     else:
         return False
-    query_string += '{ uid expand(_all_) { name unique_name uid user_displayname } } }'
+    query_string += '{ uid expand(_all_) { name _unique_name uid display_name } } }'
 
     result = dgraph.query(query_string, variables=variables)
     return result
@@ -24,8 +24,8 @@ def get_audience(uid):
     query_string = '''
     query get_audience($query: string) {
         q(func: uid($query)) { 
-            uid unique_name audience_size @facets 
-            channel { unique_name } 
+            uid _unique_name audience_size @facets 
+            channel { _unique_name } 
             } 
         }'''
     
@@ -47,7 +47,7 @@ def get_audience(uid):
 
         cols = ['date'] + [key.replace('audience_size|', '') for key in keys]
 
-    if data['channel']['unique_name'] == 'print':
+    if data['channel']['_unique_name'] == 'print':
         if 'data_from' not in cols:
             cols.append('data_from')
     
@@ -73,7 +73,7 @@ def draft_delete(uid):
 
     query = "\n".join(query)
 
-    delete_predicates = ['dgraph.type', 'unique_name'] + relationships
+    delete_predicates = ['dgraph.type', '_unique_name'] + relationships
 
     del_nquads = [make_nquad(uid, item, Scalar('*'))
                   for item in delete_predicates]

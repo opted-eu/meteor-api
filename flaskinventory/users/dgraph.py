@@ -141,7 +141,7 @@ class UserLogin(UserMixin):
         user_id = data.get('confirm')
         user = cls(uid=user_id)
         if user:
-            dgraph.update_entry({'account_status': 'active'}, uid=user_id)
+            dgraph.update_entry({'_account_status': 'active'}, uid=user_id)
             return user
         else:
             return False
@@ -264,7 +264,7 @@ class UserLogin(UserMixin):
     def list_entries(user, onlydrafts=False) -> Union[bool, list]:
         query_string = f"""{{ q(func: uid({user})) {{
             drafts: ~_added_by @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "draft"))
-            {{ uid unique_name name dgraph.type entry_review_status channel {{ name }} }} 
+            {{ uid _unique_name name dgraph.type entry_review_status channel {{ name }} }} 
             """
 
         if onlydrafts:
@@ -272,9 +272,9 @@ class UserLogin(UserMixin):
         else:
             query_string += f"""
                 pending: ~_added_by @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "pending"))
-                {{ uid unique_name name dgraph.type entry_review_status channel {{ name }} }} 
+                {{ uid _unique_name name dgraph.type entry_review_status channel {{ name }} }} 
                 accepted: ~_added_by @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "accepted"))
-                {{ uid unique_name name dgraph.type entry_review_status channel {{ name }} }}
+                {{ uid _unique_name name dgraph.type entry_review_status channel {{ name }} }}
                 rejected: ~_added_by  @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "rejected")) 
                 {{ uid name entry_review_status channel {{ name }} }}
                 }}

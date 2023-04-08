@@ -1,106 +1,106 @@
 {
     set {
         _:austria <dgraph.type> "Country" .
-        _:austria <unique_name> "austria" .
+        _:austria <_unique_name> "austria" .
         _:austria <name> "Austria" .
-        _:austria <other_names> "Österreich" .
-        _:austria <wikidataID> "40" .
+        _:austria <alternate_names> "Österreich" .
+        _:austria <wikidata_id> "Q40" .
         _:austria <country_code> "at" .
         _:austria <opted_scope> "true" .
 
         _:germany <dgraph.type> "Country" .
-        _:germany <unique_name> "germany" .
+        _:germany <_unique_name> "germany" .
         _:germany <name> "Germany" .
-        _:germany <other_names> "Deutschland" .
-        _:germany <wikidataID> "183" .
+        _:germany <alternate_names> "Deutschland" .
+        _:germany <wikidata_id> "Q183" .
         _:germany <country_code> "de" .
         _:germany <opted_scope> "true" .
 
         _:denmark <dgraph.type> "Country" .
-        _:denmark <unique_name> "denmark" .
+        _:denmark <_unique_name> "denmark" .
         _:denmark <name> "Denmark" .
-        _:denmark <wikidataID> "35" .
+        _:denmark <wikidata_id> "Q35" .
         _:denmark <country_code> "dk" .
         _:denmark <opted_scope> "true" .
 
         _:switzerland <dgraph.type> "Country" .
-        _:switzerland <unique_name> "switzerland" .
+        _:switzerland <_unique_name> "switzerland" .
         _:switzerland <name> "Switzerland" .
-        _:switzerland <wikidataID> "39" .
+        _:switzerland <wikidata_id> "Q39" .
         _:switzerland <country_code> "ch" .
         _:switzerland <opted_scope> "true" .
 
         _:global <dgraph.type> "Multinational" .
-        _:global <unique_name> "global" .
+        _:global <_unique_name> "global" .
         _:global <name> "Global Scope" .
         _:global <opted_scope> "true" .
 
         _:vienna <dgraph.type> "Subunit" .
-        _:vienna <unique_name> "vienna" .
+        _:vienna <_unique_name> "vienna" .
         _:vienna <name> "Vienna" .
-        _:vienna <other_names> "Wien" . 
-        _:vienna <wikidataID> "1741" .
+        _:vienna <alternate_names> "Wien" . 
+        _:vienna <wikidata_id> "Q1741" .
         _:vienna <country> _:austria . 
 
         _:website <dgraph.type> "Channel" .
-        _:website <unique_name> "website" .
+        _:website <_unique_name> "website" .
         _:website <name> "Self-Hosted Website" .
         _:website <form_name_question> "What is the address of the self-hosted news website?" .
         _:website <form_name_placeholder> "e.g. 'http://www.thedailynews.com'" .
 
         _:print <dgraph.type> "Channel" .
-        _:print <unique_name> "print" .
+        _:print <_unique_name> "print" .
         _:print <name> "Print" .
         _:print <form_name_question> "What is the name of the print news source?" .
         _:print <form_name_placeholder> "e.g. 'The Royal Gazette'" .
 
         _:twitter <dgraph.type> "Channel" .
-        _:twitter <unique_name> "twitter" .
+        _:twitter <_unique_name> "twitter" .
         _:twitter <name> "Twitter" .
         _:twitter <form_name_question> "What is the name of Twitter account?" .
         _:twitter <form_name_placeholder> "account" .
         _:twitter <form_name_addon> "@" .
 
         _:instagram <dgraph.type> "Channel" .
-        _:instagram <unique_name> "instagram" .
+        _:instagram <_unique_name> "instagram" .
         _:instagram <name> "Instagram" .
         _:instagram <form_name_question> "What is the name of Instagram account?" .
         _:instagram <form_name_placeholder> "account" .
         _:instagram <form_name_addon> "@" .
 
         _:facebook <dgraph.type> "Channel" .
-        _:facebook <unique_name> "facebook" .
+        _:facebook <_unique_name> "facebook" .
         _:facebook <name> "Facebook" .
         _:facebook <form_name_question> "What is the name of the Facebook page?" .
         _:facebook <form_name_placeholder> "pagehandle" .
         _:facebook <form_name_addon> "https://www.facebook.com/" .
 
         _:transcript <dgraph.type> "Channel" .
-        _:transcript <unique_name> "transcript" .
+        _:transcript <_unique_name> "transcript" .
         _:transcript <name> "Transcript (TV/Radio/Podcast)" .
         _:transcript <form_name_question> "What is the name of the show that is being transcribed?" .
         _:transcript <form_name_placeholder> "e.g. 'CNN News'" .
 
         _:vkontakte <dgraph.type> "Channel" .
-        _:vkontakte <unique_name> "vkontakte" .
+        _:vkontakte <_unique_name> "vkontakte" .
         _:vkontakte <name> "VK (VKontakte)" .
         _:vkontakte <form_name_question> "What is the name of the VK community?" .
         _:vkontakte <form_name_placeholder> "pagehandle" .
         _:vkontakte <form_name_addon> "https://www.vk.com/" .
 
         _:telegram <dgraph.type> "Channel" .
-        _:telegram <unique_name> "telegram" .
+        _:telegram <_unique_name> "telegram" .
         _:telegram <name> "Telegram" .
         _:telegram <form_name_question> "What is the name of the Telegram username or channel?" .
         _:telegram <form_name_placeholder> "pagehandle" .
         _:telegram <form_name_addon> "https://www.t.me/" .
 
         _:derstandardat <dgraph.type> "Source" .
-        _:derstandardat <unique_name> "www.derstandard.at" .
+        _:derstandardat <_unique_name> "www.derstandard.at" .
         _:derstandardat <name> "www.derstandard.at" .
-        _:derstandardat <other_names> "DerStandard.at" .
-        _:derstandardat <other_names> "Der Standard.at" .
-        _:derstandardat <wikidataID> "1192004" .
+        _:derstandardat <alternate_names> "DerStandard.at" .
+        _:derstandardat <alternate_names> "Der Standard.at" .
+        _:derstandardat <wikidata_id> "Q1192004" .
         _:derstandardat <founded> "1995-02-02" .
         _:derstandardat <channel> _:website .
         _:derstandardat <channel_url> "https://www.derstandard.at/" .
@@ -120,11 +120,11 @@
         _:derstandardat <audience_size> "2021-05-06" (count=884687, unit="daily visitors", data_from="https://siterankdata.com/derstandard.at") .
 
         _:derstandardprint <dgraph.type> "Source" .
-        _:derstandardprint <unique_name> "derstandard_print" .
+        _:derstandardprint <_unique_name> "derstandard_print" .
         _:derstandardprint <name> "Der Standard" .
-        _:derstandardprint <other_names> "DerStandard" .
-        _:derstandardprint <other_names> "DER STANDARD" .
-        _:derstandardprint <wikidataID> "128660" .
+        _:derstandardprint <alternate_names> "DerStandard" .
+        _:derstandardprint <alternate_names> "DER STANDARD" .
+        _:derstandardprint <wikidata_id> "Q128660" .
         _:derstandardprint <founded> "1988-10-19" .
         _:derstandardprint <channel> _:print .
         _:derstandardprint <payment_model> "not free" .
@@ -138,10 +138,10 @@
         _:derstandardprint <audience_size> "2018" (count=57221, unit="copies sold", data_from="https://www.oeak.at/wp-content/uploads/2019/01/KORR_Auflagenliste_H1_2018.pdf") .
 
         _:derstandardinstagram <dgraph.type> "Source" .
-        _:derstandardinstagram <unique_name> "derstandard_instagram" .
+        _:derstandardinstagram <_unique_name> "derstandard_instagram" .
         _:derstandardinstagram <name> "derstandardat" .
-        _:derstandardinstagram <other_names> "DER STANDARD" .
-        _:derstandardinstagram <wikidataID> "128660" .
+        _:derstandardinstagram <alternate_names> "DER STANDARD" .
+        _:derstandardinstagram <wikidata_id> "Q128660" .
         _:derstandardinstagram <founded> "2012-06-22" .
         _:derstandardinstagram <channel> _:instagram .
         _:derstandardinstagram <channel_url> "derstandardat" .
@@ -155,10 +155,10 @@
         _:derstandardinstagram <verified_account> "true" .
 
         _:derstandardtwitter <dgraph.type> "Source" .
-        _:derstandardtwitter <unique_name> "derstandard_twitter" .
+        _:derstandardtwitter <_unique_name> "derstandard_twitter" .
         _:derstandardtwitter <name> "derStandardat" .
-        _:derstandardtwitter <other_names> "DER STANDARD" .
-        _:derstandardtwitter <wikidataID> "128660" .
+        _:derstandardtwitter <alternate_names> "DER STANDARD" .
+        _:derstandardtwitter <wikidata_id> "Q128660" .
         _:derstandardtwitter <founded> "2009-03" .
         _:derstandardtwitter <channel> _:twitter .
         _:derstandardtwitter <channel_url> "derStandardat" .
@@ -172,10 +172,10 @@
         _:derstandardtwitter <verified_account> "true" .
 
         _:derstandardfacebook <dgraph.type> "Source" .
-        _:derstandardfacebook <unique_name> "derstandard_facebook" .
+        _:derstandardfacebook <_unique_name> "derstandard_facebook" .
         _:derstandardfacebook <name> "derStandardat" .
-        _:derstandardfacebook <other_names> "DER STANDARD" .
-        _:derstandardfacebook <wikidataID> "128660" .
+        _:derstandardfacebook <alternate_names> "DER STANDARD" .
+        _:derstandardfacebook <wikidata_id> "Q128660" .
         _:derstandardfacebook <founded> "2010-09-04" .
         _:derstandardfacebook <channel> _:facebook .
         _:derstandardfacebook <channel_url> "derStandardat" .
@@ -214,7 +214,7 @@
         _:derstandardfacebook <related> _:derstandardat .
 
         _:mbhderstandard <dgraph.type> "Organization" .
-        _:mbhderstandard <unique_name> "derstandard_mbh" .
+        _:mbhderstandard <_unique_name> "derstandard_mbh" .
         _:mbhderstandard <name> "STANDARD Verlagsgesellschaft m.b.H." .
         _:mbhderstandard <founded> "1995-04-28" .
         _:mbhderstandard <is_person> "false" .
@@ -229,7 +229,7 @@
         _:mbhderstandard <publishes> _:derstandardfacebook .
 
         _:agderstandard <dgraph.type> "Organization" .
-        _:agderstandard <unique_name> "derstandard_medien_ag" .
+        _:agderstandard <_unique_name> "derstandard_medien_ag" .
         _:agderstandard <name> "STANDARD Medien AG" .
         _:agderstandard <founded> "2000-08-05" .
         _:agderstandard <is_person> "false" .
@@ -240,9 +240,9 @@
         _:agderstandard <owns> _:mbhderstandard .  
 
         _:falterprint <dgraph.type> "Source" .
-        _:falterprint <unique_name> "falter_print" .
+        _:falterprint <_unique_name> "falter_print" .
         _:falterprint <name> "Falter" .
-        _:falterprint <wikidataID> "1394979" .
+        _:falterprint <wikidata_id> "Q1394979" .
         _:falterprint <founded> "1977-05-25" .
         _:falterprint <channel> _:print .
         _:falterprint <payment_model> "not free" .
@@ -257,7 +257,7 @@
         _:falterprint <audience_size> "2020" (count=51000, unit="copies sold", data_from="https://www.falter.at/media/b2b/Mediadaten2021_FALTER.pdf") .
 
         _:falterverlag <dgraph.type> "Organization" .
-        _:falterverlag <unique_name> "falter_mbh" .
+        _:falterverlag <_unique_name> "falter_mbh" .
         _:falterverlag <name> "Falter - Zeitschriften Gesellschaft m.b.H." .
         _:falterverlag <founded> "1987-09-28" .
         _:falterverlag <is_person> "false" .
@@ -268,7 +268,7 @@
         _:falterverlag <publishes> _:falterprint .  
 
         _:stverlag <dgraph.type> "Organization" .
-        _:stverlag <unique_name> "st_verlagmbh" .
+        _:stverlag <_unique_name> "st_verlagmbh" .
         _:stverlag <name> "ST Verlagsbeteiligungsgesellschaft m.b.H." .
         _:stverlag <founded> "1999-11-30" .
         _:stverlag <is_person> "false" .
@@ -279,10 +279,10 @@
         _:stverlag <owns> _:falterverlag .  
 
         _:apa <dgraph.type> "Archive" .
-        _:apa <unique_name> "apa_archive" .
+        _:apa <_unique_name> "apa_archive" .
         _:apa <name> "APA OnlineManager Library" .
-        _:apa <other_names> "AOM" .
-        _:apa <other_names> "APA Defacto CAMPUS" .
+        _:apa <alternate_names> "AOM" .
+        _:apa <alternate_names> "APA Defacto CAMPUS" .
         _:apa <description> "Die Datenbank der APA-OnlineManager Library umfasst die Inhalte österreichischen Tageszeitungen sowie Wochen-, Monatsmagazine und Transkripte von Informationssendungen aus Radio & TV - derzeit aktuell mehr als 350 Medien. Zusätzlich sind auch viele internationale Zeitungen und Magazine verfügbar. Die Medienberichte werden 7 Tage nach Erscheinen in die Datenbank integriert und reichen zurück teilweise bis 1990." . 
         _:apa <access> "restricted" .
         _:apa <url> "https://aomlibrary.apa.at/" .
@@ -294,7 +294,7 @@
         _:paper1 <doi> "10.1080/1461670X.2020.1745667" .
         _:paper1 <name> "Egelhofer et al. (2020): From Novelty to Normalization?" .
         _:paper1 <title> "From Novelty to Normalization? How Journalists Use the Term “Fake News” in their Reporting" .
-        _:paper1 <unique_name> "10.1080/1461670X.2020.1745667" .
+        _:paper1 <_unique_name> "10.1080/1461670X.2020.1745667" .
         _:paper1 <authors> "Jana Laura Egelhofer" (sequence=1) .
         _:paper1 <authors> "Loes Aaldering" (sequence=2) .
         _:paper1 <authors> "Jakob-Moritz Eberl" (sequence=3) .
@@ -348,11 +348,11 @@
         _:globalvoices_website <payment_model> "free" .
         _:globalvoices_website <audience_size> "2022-02-15T00:00:00Z" (data_from="https://siterankdata.com/globalvoices.org", count=24423, unit="daily visitors") .
         _:globalvoices_website <website_allows_comments> "yes" .
-        _:globalvoices_website <creation_date> "2022-02-15T10:55:48.638221Z" .
+        _:globalvoices_website <_date_created> "2022-02-15T10:55:48.638221Z" .
         _:globalvoices_website <website_comments_registration_required> "no" .
-        _:globalvoices_website <unique_name> "globalvoices_org_website" .
-        _:globalvoices_website <other_names> "Global Voices · Citizen media stories from around the world" .
-        _:globalvoices_website <other_names> "https://globalvoices.org" .
+        _:globalvoices_website <_unique_name> "globalvoices_org_website" .
+        _:globalvoices_website <alternate_names> "Global Voices · Citizen media stories from around the world" .
+        _:globalvoices_website <alternate_names> "https://globalvoices.org" .
         _:globalvoices_website <name> "globalvoices.org" .
         _:globalvoices_website <party_affiliated> "no" .
         _:globalvoices_website <publication_kind> "news blog" .
@@ -416,13 +416,13 @@
         _:direkt_print <channel_epaper> "yes" . 
         _:direkt_print <payment_model> "not free" . 
         _:direkt_print <geographic_scope> "multinational" . 
-        _:direkt_print <creation_date> "2022-03-11T12:12:40.393389Z" . 
+        _:direkt_print <_date_created> "2022-03-11T12:12:40.393389Z" . 
         _:direkt_print <contains_ads> "yes" . 
         _:direkt_print <special_interest> "false" . 
         _:direkt_print <publication_cycle> "less than monthly" . 
         _:direkt_print <name> "Direkt" . 
         _:direkt_print <party_affiliated> "yes" . 
-        _:direkt_print <unique_name> "direkt_print" . 
+        _:direkt_print <_unique_name> "direkt_print" . 
         _:direkt_print <country> _:germany . 
         _:direkt_print <country> _:austria . 
         _:direkt_print <country> _:switzerland .
@@ -431,11 +431,11 @@
 
         _:test_rejected <dgraph.type> "Rejected" .
         _:test_rejected <entry_review_status> "rejected" .
-        _:test_rejected <reviewed_by> _:reviewer (timestamp=2022-03-12T12:14:40.393389Z) .
+        _:test_rejected <_reviewed_by> _:reviewer (timestamp=2022-03-12T12:14:40.393389Z) .
         _:test_rejected <_added_by> _:contributor (timestamp=2022-03-11T12:12:40.393389Z) .
-        _:test_rejected <creation_date> "2022-03-11T12:12:40.393389Z" . 
+        _:test_rejected <_date_created> "2022-03-11T12:12:40.393389Z" . 
         _:test_rejected <name> "Unit Test Rejected" .
-        _:test_rejected <unique_name> "rejected12345" .         
+        _:test_rejected <_unique_name> "rejected12345" .         
 
     }
 }

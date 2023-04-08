@@ -14,24 +14,20 @@
     <dl class="row">
         <dt class="col-sm-3 mb-4"><h5>General Information</h5></dt>
         <dd class="col-sm-9 mb-4">{% include "view/elements/entry_status.html" %}</dd>
-        {% if entry.other_names %}
+        {% if entry.alternate_names %}
         <dt class="col-sm-3">Also known as</dt>
-        <dd class="col-sm-9">{{ ", ".join(entry.other_names) }}</dd>{% endif %} 
-        {% if entry.creation_date %}
+        <dd class="col-sm-9">{{ ", ".join(entry.alternate_names) }}</dd>{% endif %} 
+        {% if entry._date_created %}
         <dt class="col-sm-3">Creation Date</dt>
-        <dd class="col-sm-9">{{ entry.creation_date.strftime('%d %b %Y, %H:%M') }}</dd>
+        <dd class="col-sm-9">{{ entry._date_created.strftime('%d %b %Y, %H:%M') }}</dd>
         {% endif %}
         {% if entry._added_by %}
         <dt class="col-sm-3">Created By</dt>
-        <dd class="col-sm-9">{{ entry._added_by.get('user_displayname') }}</dd>
+        <dd class="col-sm-9">{{ entry._added_by.get('display_name') }}</dd>
         {% endif %}
-        {% if entry.entry_notes %}
-        <dt class="col-sm-3">Notes</dt>
-        <dd class="col-sm-9">{{ entry.notes }}</dd>
-        {% endif %}
-        {% if entry.reviewed_by %}
+        {% if entry._reviewed_by %}
         <dt class="col-sm-3">Reviewed By</dt>
-        <dd class="col-sm-9">{{ entry.reviewed_by.get('user_displayname') }}</dd>
+        <dd class="col-sm-9">{{ entry._reviewed_by.get('display_name') }}</dd>
         {% endif %}
         
     </dl>

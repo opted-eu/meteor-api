@@ -40,7 +40,7 @@
             {% if entries %} {% for entry in entries %}
             <tr>
                 <td>
-                    <span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ entry.name }} {% if entry.get('channel') %} ({{ entry.channel.name }}) {% endif %} <{{ entry.unique_name }}>">
+                    <span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ entry.name }} {% if entry.get('channel') %} ({{ entry.channel.name }}) {% endif %} <{{ entry._unique_name }}>">
                     {{ entry.name }}
                     {% if entry.get('channel') %} <small>({{ entry.channel.name }})</small>
                     {% endif %}
@@ -50,7 +50,7 @@
                 <td>{% if entry.get('country') %} {% for country in entry.get('country') %} {{ country.get("name") }} {% endfor %}{% endif %}
                     </th>
                     <td>{% if entry._added_by.get("_added_by|timestamp") %}{{ entry._added_by.get("_added_by|timestamp").strftime('%d-%m-%Y') }}{% endif %}</td>
-                    <td>{{ entry._added_by.get("user_displayname") }}</td>
+                    <td>{{ entry._added_by.get("display_name") }}</td>
                     <td>
                         <div class="btn-group btn-group-sm" role="group"><a class="btn btn-primary" href="{{ url_for('view.view_uid', uid=entry.get('uid'), **request.args)}}">Review</a></div>
                     </td>

@@ -26,8 +26,8 @@
 </div>
 <div class="mb-2">
     <span class="pe-2 text-dark">Type: {{ dgraph_type }}</span>
-    {% if entry.creation_date %}
-    <small class="px-2 text-muted border-start">Created: <span class="font-monospace">{{ entry.creation_date.strftime('%Y-%m-%d') }}</span></small>
+    {% if entry._date_created %}
+    <small class="px-2 text-muted border-start">Created: <span class="font-monospace">{{ entry._date_created.strftime('%Y-%m-%d') }}</span></small>
     {% endif %}
     <small class="px-2 text-muted border-start">UID: <span class="font-monospace">{{ entry.uid }}</span></small>
     <small class="px-2 border-start"><a class="text-secondary" href="#" 

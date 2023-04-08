@@ -10,11 +10,11 @@ import json
 async def generate_fieldoptions():
 
     query_channel = '''channel(func: type("Channel"), orderasc: name) { uid expand(_all_) }'''
-    query_country = '''country(func: type("Country"), orderasc: name) @filter(eq(opted_scope, true)) { uid unique_name name  }'''
-    query_dataset = '''dataset(func: type("Dataset"), orderasc: name) { uid unique_name name  }'''
-    query_archive = '''archive(func: type("Archive"), orderasc: name) { uid unique_name name  }'''
-    query_subunit = '''subunit(func: type("Subunit"), orderasc: name) { uid unique_name name other_names country{ name } }'''
-    query_multinational = '''multinational(func: type("Multinational"), orderasc: name) { uid unique_name name other_names country{ name } }'''
+    query_country = '''country(func: type("Country"), orderasc: name) @filter(eq(opted_scope, true)) { uid _unique_name name  }'''
+    query_dataset = '''dataset(func: type("Dataset"), orderasc: name) { uid _unique_name name  }'''
+    query_archive = '''archive(func: type("Archive"), orderasc: name) { uid _unique_name name  }'''
+    query_subunit = '''subunit(func: type("Subunit"), orderasc: name) { uid _unique_name name alternate_names country{ name } }'''
+    query_multinational = '''multinational(func: type("Multinational"), orderasc: name) { uid _unique_name name alternate_names country{ name } }'''
 
     query_string = '{ ' + query_channel + query_country + \
         query_dataset + query_archive + query_subunit + query_multinational + ' }'
@@ -38,7 +38,7 @@ def check_draft(draft, form):
         query check_draft($draft: string) {{
             q(func: uid($draft))  @filter(eq(entry_review_status, "draft")) {{ 
                 uid expand(_all_) {{ 
-                    name unique_name uid 
+                    name _unique_name uid 
                     }}
                 }} 
             }}"""
@@ -77,19 +77,19 @@ def get_draft(uid):
     query get_draft($draft: string) {{
         q(func: uid($draft)) @filter(eq(entry_review_status, "draft")) {{ 
             uid expand(_all_) {{ 
-                uid unique_name name dgraph.type channel {{ name }}
+                uid _unique_name name dgraph.type channel {{ name }}
                 }}
             publishes_org: ~publishes @filter(eq(is_person, false)) {{
-                uid unique_name name ownership_kind country {{ name }} 
+                uid _unique_name name ownership_kind country {{ name }} 
                 }}
             publishes_person: ~publishes @filter(eq(is_person, true)) {{
-                uid unique_name name ownership_kind country {{ name }} 
+                uid _unique_name name ownership_kind country {{ name }} 
                 }}
             archives: ~sources_included @facets @filter(type("Archive")) {{ 
-                uid unique_name name 
+                uid _unique_name name 
                 }} 
             datasets: ~sources_included @facets @filter(type("Dataset")) {{ 
-                uid unique_name name 
+                uid _unique_name name 
                 }} 
             }} 
         }}"""
@@ -116,27 +116,27 @@ def get_existing(uid):
     query get_existing($existing: string) {{
         q(func: uid($existing)) @filter(type(Source)) {{ 
             uid expand(_all_) {{
-                uid unique_name name dgraph.type channel {{ name }} 
+                uid _unique_name name dgraph.type channel {{ name }} 
                 }}
             publishes_org: ~publishes @filter(eq(is_person, false)) {{
-                uid unique_name name ownership_kind country {{ name }} 
+                uid _unique_name name ownership_kind country {{ name }} 
                 }}
             publishes_person: ~publishes @filter(eq(is_person, true)) {{
-                uid unique_name name ownership_kind country {{ name }} 
+                uid _unique_name name ownership_kind country {{ name }} 
                 }}
             archives: ~sources_included @facets @filter(type("Archive")) {{ 
-                uid unique_name name 
+                uid _unique_name name 
                 }} 
             datasets: ~sources_included @facets @filter(type("Dataset")) {{ 
-                uid unique_name name 
+                uid _unique_name name 
                 }} 
             }} 
         }}"""
     existing = dgraph.query(query_string, variables={'$existing': uid})
     if len(existing['q']) > 0:
         existing = existing['q'][0]
-        related = {'uid': existing.pop('uid'), 'unique_name': existing.pop(
-            'unique_name'), 'channel': existing.pop('channel'), 'name': existing['name']}
+        related = {'uid': existing.pop('uid'), '_unique_name': existing.pop(
+            '_unique_name'), 'channel': existing.pop('channel'), 'name': existing['name']}
         if 'related' not in existing.keys():
             existing['related'] = [related]
         else:

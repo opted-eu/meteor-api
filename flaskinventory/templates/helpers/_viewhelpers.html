@@ -1,8 +1,8 @@
 {% macro render_icon(entry) %}
 {% if 'Source' in entry['dgraph.type'] %}
-    <h2><i class="icon-{{ entry.channel.unique_name }} color-{{ entry.channel.unique_name }}" alt="{{ entry.channel.name }}"></i></h2>
+    <h2><i class="icon-{{ entry.channel._unique_name }} color-{{ entry.channel._unique_name }}" alt="{{ entry.channel.name }}"></i></h2>
 {% elif 'Channel' in entry['dgraph.type'] %}
-    <h2><i class="icon-{{ entry.unique_name }} color-{{ entry.unique_name }}" alt="{{ entry.name }}"></i></h2>
+    <h2><i class="icon-{{ entry._unique_name }} color-{{ entry._unique_name }}" alt="{{ entry.name }}"></i></h2>
 {% elif 'Organization' in entry['dgraph.type'] %}
     <h2>
     {% if entry.ownership_kind == "Political Party" %}
@@ -44,7 +44,7 @@
 {% endmacro %}
 
 {% macro render_publication(publication) %}
-    <a href="{% if publication.get('dgraph.type') %}{{ url_for('view.view_generic', unique_name=publication.unique_name, dgraph_type=publication.get('dgraph.type')[0]) }}{% else %}{{ url_for('view.view_uid', uid=publication.uid) }}{% endif %}" class="me-1">{{ publication.title if publication.title else publication.name }}</a>
+    <a href="{% if publication.get('dgraph.type') %}{{ url_for('view.view_generic', unique_name=publication._unique_name, dgraph_type=publication.get('dgraph.type')[0]) }}{% else %}{{ url_for('view.view_uid', uid=publication.uid) }}{% endif %}" class="me-1">{{ publication.title if publication.title else publication.name }}</a>
     <span>
     {% if publication.authors is string %} 
         {{ publication.authors }}

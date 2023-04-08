@@ -31,7 +31,7 @@ $.typeahead({
             display: ["name", "arxiv", "doi", "title"],
             href: function(item) {
                 if (item.title != null) {
-                    item.unique_name = item.uid
+                    item._unique_name = item.uid
                 }
                 item.type = item.type.filter(function(e) { return e !== 'Entry' })
                 return $SCRIPT_ROOT + "/view/" + item.type.toString().toLowerCase() + '/uid/' + item.uid.toString()

@@ -33,10 +33,10 @@ def make_users_table(table_data):
     TableCls.allow_empty = True
     TableCls.classes = ['table']
 
-    TableCls.add_column('date_joined', DateCol('Joined Date'))
+    TableCls.add_column('_date_joined', DateCol('Joined Date'))
     TableCls.add_column('email', Col('Email'))
     TableCls.add_column('uid', LinkCol('UID', 'users.edit_user', url_kwargs=dict(uid='uid'), attr_list='uid'))
-    TableCls.add_column('user_role', Col('User Level'))
+    TableCls.add_column('_role', Col('User Level'))
     return TableCls(table_data)
 
 

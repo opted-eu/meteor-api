@@ -4,9 +4,9 @@
 <div class="list-group list-group-flush border-bottom scrollarea">
     {% if entry.related %} {% for item in entry.related %} 
     
-    <a href="{{ url_for('view.view_generic', dgraph_type='Source', unique_name=item.unique_name) }}" class="list-group-item list-group-item-action py-3 lh-tight {{ 'collapse multi-collapse-related' if loop.index > 7 else '' }}">
+    <a href="{{ url_for('view.view_generic', dgraph_type='Source', unique_name=item._unique_name) }}" class="list-group-item list-group-item-action py-3 lh-tight {{ 'collapse multi-collapse-related' if loop.index > 7 else '' }}">
         <div class="d-flex w-100 align-items-center justify-content-between">
-            <strong class="mb-1 {{ 'text-muted' if item.entry_review_status == 'pending' else '' }}"><i class="icon-{{ item.channel.unique_name }} color-{{ item.channel.unique_name }} fa-fw mx-1" alt="{{ item.channel.name }}"></i>
+            <strong class="mb-1 {{ 'text-muted' if item.entry_review_status == 'pending' else '' }}"><i class="icon-{{ item.channel._unique_name }} color-{{ item.channel._unique_name }} fa-fw mx-1" alt="{{ item.channel.name }}"></i>
                         {{ item.name }} ({{item.channel.name}})</strong>
             {% if item.entry_review_status == "pending" %}
                 <small class="text-muted">pending</small>

@@ -289,8 +289,8 @@ class TestRoutesLoggedOut(BasicTestSetup):
         tmp_entry = {'uid': '_:tempentry',
                      'dgraph.type': ['Entry', 'Source'],
                      'name': 'Temp Entry',
-                     'unique_name': 'tmp_entry',
-                     'creation_date': '2022-05-17T10:00:00',
+                     '_unique_name': 'tmp_entry',
+                     '_date_created': '2022-05-17T10:00:00',
                      '_added_by': {'uid': self.contributor_uid,
                                      '_added_by|timestamp': '2022-05-17T10:00:00',
                                      '_added_by|ip': '192.168.0.1'
@@ -306,9 +306,9 @@ class TestRoutesLoggedOut(BasicTestSetup):
         delete_tmp = {'uid': tmp_entry_uid,
                       'dgraph.type': None,
                       'name': None,
-                      'unique_name': None,
+                      '_unique_name': None,
                       '_added_by': {'uid': self.contributor_uid},
-                      'creation_date': None}
+                      '_date_created': None}
 
         with self.client as c:
 
@@ -351,41 +351,41 @@ class TestRoutesLoggedOut(BasicTestSetup):
             dgraph.delete(delete_tmp)
 
 
-# class TestRoutesLoggedInContributor(TestRoutesLoggedOut):
+class TestRoutesLoggedInContributor(TestRoutesLoggedOut):
 
-#     user_login = {'email': 'contributor@opted.eu',
-#                   'password': 'contributor123'}
-#     logged_in = 'contributor'
+    user_login = {'email': 'contributor@opted.eu',
+                  'password': 'contributor123'}
+    logged_in = 'contributor'
 
-#     user_displayname = 'Contributor'
+    display_name = 'Contributor'
 
-#     def setUp(self):
-#         with self.client:
-#             response = self.client.post(
-#                 '/login', data=self.user_login)
-#             assert response.status_code == 302
-#             assert "profile" in response.location
-#             assert current_user.display_name == self.user_displayname
+    def setUp(self):
+        with self.client:
+            response = self.client.post(
+                '/login', data=self.user_login)
+            assert response.status_code == 302
+            assert "profile" in response.location
+            assert current_user.display_name == self.display_name
 
-#     def tearDown(self):
-#         with self.client:
-#             self.client.get('/logout')
-
-
-# class TestRoutesLoggedInReviewer(TestRoutesLoggedInContributor):
-
-#     user_login = {'email': 'reviewer@opted.eu', 'password': 'reviewer123'}
-#     logged_in = 'reviewer'
-
-#     user_displayname = 'Reviewer'
+    def tearDown(self):
+        with self.client:
+            self.client.get('/logout')
 
 
-# class TestRoutesLoggedInAdmin(TestRoutesLoggedInContributor):
+class TestRoutesLoggedInReviewer(TestRoutesLoggedInContributor):
 
-#     user_login = {'email': 'wp3@opted.eu', 'password': 'admin123'}
-#     logged_in = 'admin'
+    user_login = {'email': 'reviewer@opted.eu', 'password': 'reviewer123'}
+    logged_in = 'reviewer'
 
-#     user_displayname = 'Admin'
+    display_name = 'Reviewer'
+
+
+class TestRoutesLoggedInAdmin(TestRoutesLoggedInContributor):
+
+    user_login = {'email': 'wp3@opted.eu', 'password': 'admin123'}
+    logged_in = 'admin'
+
+    display_name = 'Admin'
 
 
 if __name__ == "__main__":

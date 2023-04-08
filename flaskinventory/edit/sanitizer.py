@@ -54,7 +54,7 @@ class EditAudienceSizeSanitizer(Sanitizer):
         facets = {'timestamp': datetime.datetime.now(
             datetime.timezone.utc),
             'ip': self.user_ip}
-        entry['entry_edit_history'] = UID(self.user.uid, facets=facets)
+        entry['_edited_by'] = UID(self.user.uid, facets=facets)
 
         return entry
 
@@ -73,10 +73,10 @@ class EditAudienceSizeSanitizer(Sanitizer):
         return " \n ".join(nquads)
 
     def _check_channel(self):
-        query_string = f'{{ q(func: uid({self.entry_uid.query})) {{ channel {{ unique_name }} }} }}'
+        query_string = f'{{ q(func: uid({self.entry_uid.query})) {{ channel {{ _unique_name }} }} }}'
         channel = dgraph.query(query_string)
 
-        self.channel = channel['q'][0]['channel']['unique_name']
+        self.channel = channel['q'][0]['channel']['_unique_name']
 
         if self.channel not in ['print', 'facebook']:
             raise InventoryValidationError('Wrong channel! Only Print and Facebook can be edited.')

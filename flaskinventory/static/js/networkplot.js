@@ -28,7 +28,7 @@ function recurseData(data) {
                         uid: node.uid, 
                         name: node.name, 
                         type: node['dgraph.type'].pop('Entry'), 
-                        channel: node.channel?.unique_name
+                        channel: node.channel?._unique_name
                         })
         }
         for (let key of Object.keys(node)) {

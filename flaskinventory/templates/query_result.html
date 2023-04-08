@@ -18,7 +18,7 @@
         {% if 'authors' in cols %}
             <th scope="col">Authors</th>
         {% endif %}
-        {% if 'other_names' in cols %}
+        {% if 'alternate_names' in cols %}
             <th scope="col">Other names</th>
         {% endif %}
         {% if 'channel' in cols %}
@@ -51,8 +51,8 @@
         {% if 'authors' in cols %}
         <td>{{ ", ".join(entry.authors) }}</a></td>
         {% endif %}
-        {% if 'other_names' in cols %}
-        <td><span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ ', '.join(entry.other_names) }}">{{ ", ".join(entry.get('other_names', [])) }}</span></td>
+        {% if 'alternate_names' in cols %}
+        <td><span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ ', '.join(entry.alternate_names) }}">{{ ", ".join(entry.get('alternate_names', [])) }}</span></td>
         {% endif %}
         {% if 'channel' in cols %}
             <td>{{ entry.channel.get('name')}}</td>

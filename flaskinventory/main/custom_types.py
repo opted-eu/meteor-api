@@ -69,8 +69,8 @@ class SourceCountrySelection(ListRelationship):
 
     def get_choices(self):
 
-        query_country = '''country(func: type("Country"), orderasc: name) @filter(eq(opted_scope, true)) { uid unique_name name  }'''
-        query_multinational = '''multinational(func: type("Multinational"), orderasc: name) { uid unique_name name other_names }'''
+        query_country = '''country(func: type("Country"), orderasc: name) @filter(eq(opted_scope, true)) { uid _unique_name name  }'''
+        query_multinational = '''multinational(func: type("Multinational"), orderasc: name) { uid _unique_name name alternate_names }'''
 
         query_string = '{ ' + query_country + query_multinational + ' }'
 
@@ -137,26 +137,26 @@ class SubunitAutocode(ListRelationship):
                 float(geo_result.get('lon')), float(geo_result.get('lat'))])
 
             name = None
-            other_names = [query]
+            alternate_names = [query]
             if geo_result['namedetails'].get('name'):
-                other_names.append(geo_result['namedetails'].get('name'))
+                alternate_names.append(geo_result['namedetails'].get('name'))
                 name = geo_result['namedetails'].get('name')
 
             if geo_result['namedetails'].get('name:en'):
-                other_names.append(geo_result['namedetails'].get('name:en'))
+                alternate_names.append(geo_result['namedetails'].get('name:en'))
                 name = geo_result['namedetails'].get('name:en')
 
-            other_names = list(set(other_names))
+            alternate_names = list(set(alternate_names))
 
             if not name:
                 name = query
 
-            if name in other_names:
-                other_names.remove(name)
+            if name in alternate_names:
+                alternate_names.remove(name)
 
             new_subunit = {'name': name,
                            'country': UID(country_uid),
-                           'other_names': other_names,
+                           'alternate_names': alternate_names,
                            'location_point': geo_data,
                            'country_code': geo_result['address']['country_code']}
 
@@ -164,7 +164,7 @@ class SubunitAutocode(ListRelationship):
                 if geo_result.get('extratags').get('wikidata'):
                     if geo_result.get('extratags').get('wikidata').lower().startswith('q'):
                         try:
-                            new_subunit['wikidataID'] = int(geo_result.get(
+                            new_subunit['wikidata_id'] = int(geo_result.get(
                                 'extratags').get('wikidata').lower().replace('q', ''))
                         except Exception as e:
                             current_app.logger.debug(
@@ -180,9 +180,9 @@ class SubunitAutocode(ListRelationship):
             current_app.logger.debug(f'parsing result of querying {subunit}: {geo_query}')
             geo_query['dgraph.type'] = ['Subunit']
             # prevent duplicates
-            geo_query['unique_name'] = f"{slugify(subunit, separator='_')}_{geo_query['country_code']}"
+            geo_query['_unique_name'] = f"{slugify(subunit, separator='_')}_{geo_query['country_code']}"
             duplicate_check = dgraph.get_uid(
-                'unique_name', geo_query['unique_name'])
+                '_unique_name', geo_query['_unique_name'])
             if duplicate_check:
                 geo_query = {'uid': UID(duplicate_check)}
             else:

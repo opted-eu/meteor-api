@@ -35,7 +35,7 @@
                     {% if drafts %} {% for entry in drafts %}
                     <tr>
                         <td>
-                            <span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ entry.name }} {% if entry.get('channel') %} ({{ entry.channel.name }}) {% endif %} <{{ entry.unique_name }}>">
+                            <span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ entry.name }} {% if entry.get('channel') %} ({{ entry.channel.name }}) {% endif %} <{{ entry._unique_name }}>">
                                 {{ entry.name }}
                                 {% if entry.get('channel') %} <small>({{ entry.channel.name }})</small>
                                 {% endif %}
@@ -70,7 +70,7 @@
                     {% if pending %} {% for entry in pending %}
                     <tr>
                         <td>
-                            <span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ entry.name }} {% if entry.get('channel') %} ({{ entry.channel.name }}) {% endif %} <{{ entry.unique_name }}>">
+                            <span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ entry.name }} {% if entry.get('channel') %} ({{ entry.channel.name }}) {% endif %} <{{ entry._unique_name }}>">
                                 {{ entry.name }}
                                 {% if entry.get('channel') %} <small>({{ entry.channel.name }})</small>
                                 {% endif %}
@@ -104,7 +104,7 @@
                     {% if accepted %} {% for entry in accepted %}
                     <tr>
                         <td>
-                            <span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ entry.name }} {% if entry.get('channel') %} ({{ entry.channel.name }}) {% endif %} <{{ entry.unique_name }}>">
+                            <span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ entry.name }} {% if entry.get('channel') %} ({{ entry.channel.name }}) {% endif %} <{{ entry._unique_name }}>">
                                 {{ entry.name }}
                                 {% if entry.get('channel') %} <small>({{ entry.channel.name }})</small>
                                 {% endif %}

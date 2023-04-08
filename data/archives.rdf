@@ -1,24 +1,24 @@
 {
     set {
         _:lexisnexis <dgraph.type> "Archive" .
-        _:lexisnexis <unique_name> "lexisnexis" .
+        _:lexisnexis <_unique_name> "lexisnexis" .
         _:lexisnexis <name> "LexisNexis" .
-        _:lexisnexis <other_names> "LexisNexis University" .
-        _:lexisnexis <other_names> "Lexis Nexis" .
+        _:lexisnexis <alternate_names> "LexisNexis University" .
+        _:lexisnexis <alternate_names> "Lexis Nexis" .
         _:lexisnexis <description> "LexisNexis University ermöglicht die Suche nach nationalen und internationalen Wirtschafts-, Presse- und Firmeninformationen. Unter den Pressequellen sind folgende wichtige enthalten: Volltexte von mehr als 1.000 Zeitungen weltweit in englischer, deutscher, französischer, holländischer, spanischer, italienischer und russischer Sprache; Archiv von Publikationen, wie The New York Times (ab 1980), Financial Times (ab 1982), Le Monde (ab 1990) oder taz (ab 1995); Magazine, Journals und Newsletter, inklusive Manager Magazin, Der Spiegel oder Newsweek; Agenturmeldungen mit mehrmals täglichen Updates, inklusive angesehener Namen wie Agence France Presse, Associated Press, Business Wire, dpa-AFX oder PR Newswire; schwer zu findende Transkripte von Rundfunk- und Fernsehsendungen der großen englischsprachigen TV- und Radiosender, inklusive ABC, CBS, CNN, FOX, NBC oder NPR sowie Protokolle von US Congressional Committee Hearings und Presidential News Conference; Web Blogs in englischer Sprache. Ebenfalls enthalten sind Wirtschafts- und Finanznachrichten, internationale Geschäftsberichte sowie Personeninformationen, Länderinformationen und Branchenreports. Ein Branchenverzeichnis verzeichnet Berichte z.B. aus Business Monitor International (BMI) bzw. aus Fachzeitschriften für verschiedene Branchen. Eine Suche nach Länderreports von BBC Monitoring, gtai, IMOE oder Global Insight oder die Suche nach Primär- und Sekundärquellen zu internationalem Recht, komplementieren das Angebot." . 
         _:lexisnexis <access> "restricted" .
         _:lexisnexis <url> "https://advance.lexis.com/" .
         _:lexisnexis <entry_review_status> "accepted" .
 
         _:factiva <dgraph.type> "Archive" .
-        _:factiva <unique_name> "factiva" .
+        _:factiva <_unique_name> "factiva" .
         _:factiva <name> "Factiva" .
         _:factiva <access> "restricted" .
         _:factiva <url> "https://professional.dowjones.com/factiva/" . 
         _:factiva <entry_review_status> "accepted" .
 
         _:autnes2013 <dgraph.type> "Dataset" .
-        _:autnes2013 <unique_name> "autnes_2013" .
+        _:autnes2013 <_unique_name> "autnes_2013" .
         _:autnes2013 <name> "AUTNES Manual Content Analysis of the Media Coverage 2013" .
         _:autnes2013 <doi> "10.4232/1.12565" .
         _:autnes2013 <access> "free" .
@@ -28,9 +28,9 @@
         _:autnes2013 <entry_review_status> "accepted" .
 
         _:ees2009 <dgraph.type> "Dataset" .
-        _:ees2009 <unique_name> "ees_2009" .
+        _:ees2009 <_unique_name> "ees_2009" .
         _:ees2009 <name> "European Parliament Election Study 2009, Media Study" .
-        _:ees2009 <other_names> "EES 2009" .
+        _:ees2009 <alternate_names> "EES 2009" .
         _:ees2009 <doi> "10.4232/1.10203" .
         _:ees2009 <access> "free" .
         _:ees2009 <url> "https://search.gesis.org/research_data/ZA5056" . 
@@ -39,7 +39,7 @@
         _:ees2009 <entry_review_status> "accepted" .
 
         _:reminder <dgraph.type> "Dataset" .
-        _:reminder <unique_name> "reminder_2017" .
+        _:reminder <_unique_name> "reminder_2017" .
         _:reminder <name> "REMINDER: Short Term Media Analysis on Migration 2017-2018 (OA edition)" .
         _:reminder <doi> "doi:10.11587/T86DVG" .
         _:reminder <access> "free" .

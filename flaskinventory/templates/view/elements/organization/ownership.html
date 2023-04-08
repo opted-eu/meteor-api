@@ -3,7 +3,7 @@
         <dt class="col-sm-3 mb-2"><h5>Owns</h5></dt>
         <dd class="col-sm-9">
             {% if entry.owns %} {% for org in entry.owns %}
-            <p class="card-text"><a href="{{ url_for('view.view_generic', dgraph_type='Organization', unique_name=org.unique_name) }}">{{ org.name }}</a></p>
+            <p class="card-text"><a href="{{ url_for('view.view_generic', dgraph_type='Organization', unique_name=org._unique_name) }}">{{ org.name }}</a></p>
             {% endfor %} {% else %}
             <p class="card-text text-muted">None</p>
             {% endif %}
@@ -16,7 +16,7 @@
         <dt class="col-sm-3 mb-2"><h5>Owned by</h5></dt>
         <dd class="col-sm-9">
             {% if entry.owned_by %} {% for org in entry.owned_by %}
-            <p class="card-text"><a href="{{ url_for('view.view_generic', dgraph_type='Organization', unique_name=org.unique_name) }}">{{ org.name }}</a></p>
+            <p class="card-text"><a href="{{ url_for('view.view_generic', dgraph_type='Organization', unique_name=org._unique_name) }}">{{ org.name }}</a></p>
             {% endfor %} {% else %}
             <p class="card-text text-muted">None</p>
             {% endif %}

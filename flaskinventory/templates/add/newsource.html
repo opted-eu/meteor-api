@@ -99,7 +99,7 @@
                 {{ make_tooltip('For example the “Mitteldeutsche Zeitung” is also called “MZ”. This question is not channel specific. Add the English translation of the names if frequently used. Do not enter names of sources that were the forerunner of the source that you enter.') }}
                 {{ make_researchtip('Wikipedia often mentions alternative names') }}
             </label>
-            <input type="text" name="other_names" class="form-control form-control-lg" id="other-names" placeholder="Separate by comma" aria-describedby="other-names-feedback" multiple>
+            <input type="text" name="alternate_names" class="form-control form-control-lg" id="other-names" placeholder="Separate by comma" aria-describedby="other-names-feedback" multiple>
             <div id="other-names-feedback"></div>
         </div>
 
@@ -585,7 +585,7 @@
         <h3 class="mb-4">Other Information</h3>
 
         <!-- Optional Field -->
-        <div id="group-entry-notes" class="mb-5 form-group">
+        <!-- <div id="group-entry-notes" class="mb-5 form-group">
             <label for="entry-notes" class="form-label fw-bold fs-5">Do you have any other notes on the source that you just coded?
                 <span class="text-muted mx-1">(optional)</span>
                 {{ make_tooltip('This is a good place to add Information about associated forerunners (related brands). There are cases where one news brand emerged out of another.')}}
@@ -593,7 +593,7 @@
             <input type="text" name="entry_notes" id="entry-notes" class="form-control form-control-lg" aria-describedby="entry-notes-feedback" placeholder="">
             <small id="entry-notes-helptext"></small>
             <div id="entry-notes-feedback"></div>
-        </div>
+        </div> -->
 
         <div id="group-party_affiliated" class="mb-5 form-group">
             <p class="form-label fw-bold fs-5">Is the news source close to a political party?<span class="text-muted mx-1">(optional)</span>{{ make_tooltip('Central roles in a news source include the main editors, publishers, or producers. Central roles in a political party are here defined as party leaders or party executives (mere party membership is not sufficient). Relevant party leading or executive roles can concern the national, subnational, and supranational level. Former party executive roles are also relevant unless former functionaries have explicitly turned their backs on the party.')}}</p>
@@ -665,7 +665,7 @@
                     Value
                 </h4>
             </div>
-            <div id='summary-other_names' hidden>
+            <div id='summary-alternate_names' hidden>
                 <h6 class="text-muted mb-1">
                     Is the news source known by alternative names?
                 </h6>

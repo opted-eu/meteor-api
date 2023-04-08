@@ -30,7 +30,7 @@
         <td>{{ entry.channel.get('name')}}</td>
         {% endif %}
         <td>{% if entry.get('country') %}{{ entry.country[0].get('name') }}{% endif %}</td>
-        <td>{% if entry.get('other_names') %}<span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ ', '.join(entry.other_names) }}">{{ ", ".join(entry.other_names) }}</span>{% endif %}</td>
+        <td>{% if entry.get('alternate_names') %}<span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ ', '.join(entry.alternate_names) }}">{{ ", ".join(entry.alternate_names) }}</span>{% endif %}</td>
         <td>{{ entry.get('entry_review_status')}}</td>
         <td>
             {% if entry.get('entry_review_status') == 'draft' %}

@@ -93,7 +93,7 @@ class TestQueries(BasicTestSetup):
 
             self.assertEqual(response.json['_total_results'], 0)
 
-            query = {'user_displayname': "Contributor",
+            query = {'display_name': "Contributor",
                      'json': True
                      }
 
@@ -114,7 +114,7 @@ class TestQueries(BasicTestSetup):
                              query_string=query)
 
             self.assertEqual(
-                response.json['result'][0]['unique_name'], "direkt_print")
+                response.json['result'][0]['_unique_name'], "direkt_print")
 
             query = {"publication_kind": "newspaper",
                      "channel": self.channel_website,
@@ -124,7 +124,7 @@ class TestQueries(BasicTestSetup):
             response = c.get('/query',
                              query_string=query)
             self.assertEqual(
-                response.json['result'][0]['unique_name'], "www.derstandard.at")
+                response.json['result'][0]['_unique_name'], "www.derstandard.at")
 
     def test_same_scalar_predicates(self):
         # same Scalar predicates are combined with OR operators
@@ -140,7 +140,7 @@ class TestQueries(BasicTestSetup):
             response = c.get('/query',
                              query_string=query)
             self.assertEqual(
-                response.json['result'][0]['unique_name'], "www.derstandard.at")
+                response.json['result'][0]['_unique_name'], "www.derstandard.at")
 
             # English that is free OR partly for free
             query = {"languages": ["en"],
@@ -151,7 +151,7 @@ class TestQueries(BasicTestSetup):
             response = c.get('/query',
                              query_string=query)
             self.assertEqual(
-                response.json['result'][0]['unique_name'], "globalvoices_org_website")
+                response.json['result'][0]['_unique_name'], "globalvoices_org_website")
 
             # Free or partly for free IN Germany, but in English
             query = {"languages": ["en"],
@@ -198,7 +198,7 @@ class TestQueries(BasicTestSetup):
             response = c.get('/query',
                              query_string=query)
             self.assertEqual(
-                response.json['result'][0]['unique_name'], "globalvoices_org_website")
+                response.json['result'][0]['_unique_name'], "globalvoices_org_website")
 
     def test_date_predicates(self):
 
@@ -263,7 +263,7 @@ class TestQueries(BasicTestSetup):
         #     query = {"publication_cycle_weekday": 3}
 
         #     response = c.get('/query', query_string=query)
-        #     self.assertEqual(response.json['result'][0]['unique_name'], 'falter_print')
+        #     self.assertEqual(response.json['result'][0]['_unique_name'], 'falter_print')
 
     def test_facet_filters(self):
         with self.client as c:
@@ -275,7 +275,7 @@ class TestQueries(BasicTestSetup):
             response = c.get('/query',
                              query_string=query)
             self.assertEqual(
-                response.json['result'][0]['unique_name'], 'derstandard_print')
+                response.json['result'][0]['_unique_name'], 'derstandard_print')
 
     def test_type_filters(self):
 

@@ -13,7 +13,7 @@ if (embeddedJSON) {
     
     {% set field = form.get_field(f) %}
 
-    {% if field.name == 'other_names' %}
+    {% if field.name == 'alternate_names' %}
 
         var TomSelectOtherNamesConfig = {
             plugins: ['remove_button'],
@@ -25,7 +25,7 @@ if (embeddedJSON) {
             }
             }
         };
-        new TomSelect('#other_names', TomSelectOtherNamesConfig)
+        new TomSelect('#alternate_names', TomSelectOtherNamesConfig)
     
     {% elif field.name == 'publishes' %}
 
@@ -51,7 +51,7 @@ if (embeddedJSON) {
                         var channel_icon = ''
                         if (data.channel) {
                             if (data.channel.name) {
-                                channel_icon = `<i class="icon-${data.channel.unique_name} color-${data.channel.unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
+                                channel_icon = `<i class="icon-${data.channel._unique_name} color-${data.channel._unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
                                 channel_label = ' (' + escape(data.channel.name) + ') '
                             }
                         };
@@ -69,7 +69,7 @@ if (embeddedJSON) {
                         var channel_icon = ''
                         if (data.channel) {
                             if (data.channel.name) {
-                                channel_icon = `<i class="icon-${data.channel.unique_name} color-${data.channel.unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
+                                channel_icon = `<i class="icon-${data.channel._unique_name} color-${data.channel._unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
                                 channel_label = ' (' + escape(data.channel.name) + ') '
                             }
                         };
@@ -92,7 +92,7 @@ if (embeddedJSON) {
                     var returnData = {
                         value: input,
                         uid: input,
-                        unique_name: input,
+                        _unique_name: input,
                         text: input,
                         name: input,
                         country: [
@@ -170,7 +170,7 @@ if (embeddedJSON) {
                 var channel_icon = ''
                 if (data.channel) {
                     if (data.channel.name) {
-                        channel_icon = `<i class="icon-${data.channel.unique_name} color-${data.channel.unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
+                        channel_icon = `<i class="icon-${data.channel._unique_name} color-${data.channel._unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
                         channel_label = ' (' + escape(data.channel.name) + ') '
                         }
                 };

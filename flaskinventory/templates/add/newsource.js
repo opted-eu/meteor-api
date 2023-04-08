@@ -20,7 +20,7 @@ function addFieldOptionsData(fieldOptions, key, selector, addother = false) {
     opts.forEach(function(item, i) {
         let opt = document.createElement('option')
         opt.setAttribute('value', item.uid)
-        opt.setAttribute('data-value', item.unique_name)
+        opt.setAttribute('data-value', item._unique_name)
         opt.setAttribute('data-index', i)
         opt.innerText = item.name
         document.querySelector(selector).append(opt);
@@ -41,13 +41,13 @@ function addFieldOptions(fieldOptions, key, selector, addother, othernames = fal
         let opt = document.createElement('option')
         opt.setAttribute('value', item.uid)
         if (datavalue == true) {
-            opt.setAttribute('data-value', item.unique_name)
+            opt.setAttribute('data-value', item._unique_name)
         }
         opt.setAttribute('data-index', i)
         let item_label = item.name
         if (othernames) {
-            if ('other_names' in item) {
-                item_label += ' (' + item.other_names.join(', ') + ')'
+            if ('alternate_names' in item) {
+                item_label += ' (' + item.alternate_names.join(', ') + ')'
             }
         }
         if ('country' in item) {
@@ -445,15 +445,15 @@ function populateForm(jsonData) {
     };
     if ('channel' in jsonData) {
         document.querySelector(`#channel-select option[value='${jsonData["channel"].uid}']`).selected = true
-        document.getElementById("channel-select-hidden").value = jsonData["channel"].unique_name
+        document.getElementById("channel-select-hidden").value = jsonData["channel"]._unique_name
         document.getElementById("channel-select").disabled = true
     };
     if ('name' in jsonData) {
         document.getElementById("heading-name").innerText = ': ' + jsonData["name"]
         document.getElementById("name").value = jsonData['name']
     };
-    if ("other_names" in jsonData) {
-        document.getElementById("other-names").value = jsonData["other_names"].join(",");
+    if ("alternate_names" in jsonData) {
+        document.getElementById("other-names").value = jsonData["alternate_names"].join(",");
     };
     if ("founded" in jsonData) {
         document.getElementById("source-founded").value = jsonData["founded"].split("-")[0]
@@ -536,15 +536,15 @@ function populateForm(jsonData) {
         if ("country" in jsonData) {
             if (jsonData["geographic_scope"] == "multinational") {
                 for (country of jsonData["country"]) {
-                    if (document.querySelector(`#geographic-scope-multiple option[value='${country.unique_name}']`)) {
-                        document.querySelector(`#geographic-scope-multiple option[value='${country.unique_name}']`).selected = true
+                    if (document.querySelector(`#geographic-scope-multiple option[value='${country._unique_name}']`)) {
+                        document.querySelector(`#geographic-scope-multiple option[value='${country._unique_name}']`).selected = true
                         hiddenGeographicScopeCountry.value += country["uid"] + ","
                     }
                 }
                 if ("geographic_scope_subunit" in jsonData) {
                     for (subunit of jsonData["geographic_scope_subunit"]) {
-                        if (document.querySelector(`#geographic-scope-multiple option[value='${subunit.unique_name}']`)) {
-                            document.querySelector(`#geographic-scope-multiple option[value='${subunit.unique_name}']`).selected = true
+                        if (document.querySelector(`#geographic-scope-multiple option[value='${subunit._unique_name}']`)) {
+                            document.querySelector(`#geographic-scope-multiple option[value='${subunit._unique_name}']`).selected = true
                             document.getElementById("geographic-scope-subunits-hidden").value += country["uid"] + ","
                         }
                     }
@@ -593,9 +593,9 @@ function populateForm(jsonData) {
             document.querySelector(`#dataset-sources-included option[value='${dataset.uid}']`).selected = true
         }
     };
-    if ("entry_notes" in jsonData) {
-        document.getElementById("entry-notes").value = jsonData["entry_notes"]
-    };
+    // if ("entry_notes" in jsonData) {
+    //     document.getElementById("entry-notes").value = jsonData["entry_notes"]
+    // };
     if ("related" in jsonData) {
         jsonData["related"].forEach(function(item) {
                 let opt = document.createElement('option')
@@ -658,7 +658,7 @@ ready(() => {
             optgroupMultinational.setAttribute('label', 'Multinational Constructs');
             multinational.forEach(function(item, i) {
                 let opt = document.createElement('option')
-                opt.setAttribute('value', item.unique_name)
+                opt.setAttribute('value', item._unique_name)
                 opt.setAttribute('data-uid', item.uid)
                 opt.setAttribute('data-type', 'country')
                 opt.innerText = item.name
@@ -669,7 +669,7 @@ ready(() => {
             optgroupCountries.setAttribute('label', 'Country');
             countries.forEach(function(item, i) {
                 let opt = document.createElement('option')
-                opt.setAttribute('value', item.unique_name)
+                opt.setAttribute('value', item._unique_name)
                 opt.setAttribute('data-uid', item.uid)
                 opt.setAttribute('data-type', 'country')
                 opt.innerText = item.name
@@ -680,12 +680,12 @@ ready(() => {
             optgroupSubunits.setAttribute('label', 'Subunit');
             subunits.forEach(function(item, i) {
                 let opt = document.createElement('option')
-                opt.setAttribute('value', item.unique_name)
+                opt.setAttribute('value', item._unique_name)
                 opt.setAttribute('data-uid', item.uid)
                 opt.setAttribute('data-type', 'subunit')
                 let item_label = item.name
-                if ('other_names' in item) {
-                    item_label += ' (' + item.other_names.join(', ') + ')'
+                if ('alternate_names' in item) {
+                    item_label += ' (' + item.alternate_names.join(', ') + ')'
                 }
                 if ('country' in item) {
                     item_label += ' [' + item.country[0]['name'] + ']'
@@ -859,7 +859,7 @@ ready(() => {
                     var returnData = {
                         value: input,
                         uid: input,
-                        unique_name: input,
+                        _unique_name: input,
                         text: input,
                         name: input,
                         country: [
@@ -915,7 +915,7 @@ ready(() => {
                     var returnData = {
                         value: input,
                         uid: input,
-                        unique_name: input,
+                        _unique_name: input,
                         text: input,
                         name: input,
                         country: [
@@ -1133,7 +1133,7 @@ ready(() => {
                         var channel_icon = ''
                         if (data.channel) {
                             if (data.channel.name) {
-                                channel_icon = `<i class="icon-${data.channel.unique_name} color-${data.channel.unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
+                                channel_icon = `<i class="icon-${data.channel._unique_name} color-${data.channel._unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
                                 channel_label = ' (' + escape(data.channel.name) + ') '
                             }
                         };
@@ -1152,7 +1152,7 @@ ready(() => {
                         if (data.channel) {
                             if (data.channel.name) {
                                 channel_label = ' (' + escape(data.channel.name) + ') '
-                                channel_icon = `<i class="icon-${data.channel.unique_name} color-${data.channel.unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
+                                channel_icon = `<i class="icon-${data.channel._unique_name} color-${data.channel._unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
                             }
                         };
                         var country_label = ' '

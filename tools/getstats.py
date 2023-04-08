@@ -69,25 +69,25 @@ with open(output, 'w') as f:
 for entry in sources:
     try:
         entry['_added_by'] = entry['_added_by']['uid']
-        entry['channel'] = entry['channel']['unique_name']
-        entry['other_names'] = ", ".join(entry.get('other_names', []))
+        entry['channel'] = entry['channel']['_unique_name']
+        entry['alternate_names'] = ", ".join(entry.get('alternate_names', []))
         entry['languages'] = ", ".join(entry.get('languages', []))
         entry['publication_kind'] = ", ".join(entry.get('publication_kind', []))
-        entry['subunit'] = ", ".join([subunit['unique_name'] for subunit in entry.get('geographic_scope_subunit', [])])
+        entry['subunit'] = ", ".join([subunit['_unique_name'] for subunit in entry.get('geographic_scope_subunit', [])])
         if entry.get('publication_cycle_weekday'):
             for weekday in entry.get('publication_cycle_weekday'):
                 entry['publication_cycle_weekday_' + str(weekday)] = 'yes'
         if entry.get('country'):
             for country in entry['country']:
                 if country.get('opted_scope', False):
-                    if country.get('unique_name'):
-                        entry[country['unique_name']] = 1
+                    if country.get('_unique_name'):
+                        entry[country['_unique_name']] = 1
                     if country.get('country_code'):
                         entry[f"country_{country['country_code']}"] = 1
-            entry['country'] = ", ".join([country['unique_name'] for country in entry['country']])
+            entry['country'] = ", ".join([country['_unique_name'] for country in entry['country']])
 
     except Exception as e:
-        print(entry['unique_name'])
+        print(entry['_unique_name'])
         print(entry.get('uid'), e)
 
 df = pd.DataFrame(sources)
@@ -119,16 +119,16 @@ with open(output, 'w') as f:
 for entry in organizations:
     try:
         entry['_added_by'] = entry['_added_by']['uid']
-        entry['other_names'] = ", ".join(entry.get('other_names', []))
+        entry['alternate_names'] = ", ".join(entry.get('alternate_names', []))
         if entry.get('country'):
             for country in entry['country']:
-                if country.get('unique_name'):
-                    entry[country['unique_name']] = 1
+                if country.get('_unique_name'):
+                    entry[country['_unique_name']] = 1
                 if country.get('country_code'):
                     entry[f"country_{country['country_code']}"] = 1
             entry['country'] = ", ".join([country['country_code'] for country in entry['country']])
     except Exception as e:
-        print(entry['unique_name'])
+        print(entry['_unique_name'])
         print(entry.get('uid'), e)
 
 df = pd.DataFrame(organizations)

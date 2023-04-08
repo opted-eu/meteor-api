@@ -29,36 +29,36 @@
         {% if sidebar_items.meta.get('_added_by') %}
         <div  class="list-group-item list-group-item-action py-1 lh-tight">
             <div class="d-flex w-100 align-items-center justify-content-between">
-                <strong class="mb-1 text-truncate">{{ sidebar_items.meta._added_by.user_displayname }}</strong>
+                <strong class="mb-1 text-truncate">{{ sidebar_items.meta._added_by.display_name }}</strong>
                 <small class="text-muted">(created)</small>
             </div>
-            <div class="col-10 mb-1 small">{% if sidebar_items.meta.get('creation_date') %}
-                {{ sidebar_items.meta.creation_date.strftime('%d&nbsp;%b&nbsp;%Y - %H:%M')|safe }} 
+            <div class="col-10 mb-1 small">{% if sidebar_items.meta.get('_date_created') %}
+                {{ sidebar_items.meta._date_created.strftime('%d&nbsp;%b&nbsp;%Y - %H:%M')|safe }} 
                 {% endif %}
             </div>
         </div>
         {% endif %}
-        {% if sidebar_items.meta.get('reviewed_by') %}
+        {% if sidebar_items.meta.get('_reviewed_by') %}
         <div  class="list-group-item list-group-item-action py-1 lh-tight">
             <div class="d-flex w-100 align-items-center justify-content-between">
-                <strong class="mb-1 text-truncate">{{ sidebar_items.meta.reviewed_by.user_displayname }}</strong>
+                <strong class="mb-1 text-truncate">{{ sidebar_items.meta._reviewed_by.display_name }}</strong>
                 <small class="text-muted">(reviewed)</small>
             </div>
-            <div class="col-10 mb-1 small">{% if sidebar_items.meta.reviewed_by.get('reviewed_by|timestamp') %}
-                {{ sidebar_items.meta.reviewed_by.get('reviewed_by|timestamp').strftime('%d&nbsp;%b&nbsp;%Y - %H:%M')|safe }} 
+            <div class="col-10 mb-1 small">{% if sidebar_items.meta._reviewed_by.get('_reviewed_by|timestamp') %}
+                {{ sidebar_items.meta._reviewed_by.get('_reviewed_by|timestamp').strftime('%d&nbsp;%b&nbsp;%Y - %H:%M')|safe }} 
                 {% endif %}
             </div>
         </div>
         {% endif %}
-        {% if sidebar_items.meta.get('entry_edit_history') %}
-            {% for item in sidebar_items.meta.get('entry_edit_history') %}
+        {% if sidebar_items.meta.get('_edited_by') %}
+            {% for item in sidebar_items.meta.get('_edited_by') %}
             <div class="list-group-item list-group-item-action py-1 lh-tight">
                 <div class="d-flex w-100 align-items-center justify-content-between">
-                    <strong class="mb-1 text-truncate">{{ item.user_displayname }}</strong>
+                    <strong class="mb-1 text-truncate">{{ item.display_name }}</strong>
                     <small class="text-muted">(edited)</small>
                 </div>
-                <div class="col-10 mb-1 small">{% if item.get('entry_edit_history|timestamp') %}
-                    {{ item.get('entry_edit_history|timestamp').strftime('%d&nbsp;%b&nbsp;%Y - %H:%M')|safe }}
+                <div class="col-10 mb-1 small">{% if item.get('_edited_by|timestamp') %}
+                    {{ item.get('_edited_by|timestamp').strftime('%d&nbsp;%b&nbsp;%Y - %H:%M')|safe }}
                     {% endif %}
                 </div>
             </div>

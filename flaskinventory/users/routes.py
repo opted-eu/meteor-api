@@ -255,8 +255,8 @@ def edit_user(uid):
         flash(f'User {uid} has been updated', 'success')
         return redirect(url_for('users.admin_view'))
     elif request.method == 'GET':
-        form.user_displayname.data = editable_user.get("user_displayname")
-        form.user_role.data = editable_user.get("user_role")
+        form.display_name.data = editable_user.get("display_name")
+        form.user_role.data = editable_user.get("_role")
     return render_template('users/update_user.html', title='Manage Users', user=editable_user, form=form)
 
 

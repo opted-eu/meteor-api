@@ -3,7 +3,7 @@
 
 # {
 # 	q(func: type(Source)) @filter(eq(entry_review_status, "pending") OR eq(entry_review_status, "draft")) {
-# 		expand(_all_) { uid unique_name name user_displayname }
+# 		expand(_all_) { uid unique_name name display_name }
 #     published_by: ~publishes { uid unique_name name }
 #   }
 # }
@@ -19,14 +19,14 @@ raw = raw['data']['q']
 # manual normalization
 
 for entry in raw:
-    entry['channel'] = entry['channel']['unique_name']
-    entry['other_names'] = ", ".join(entry.get('other_names', []))
+    entry['channel'] = entry['channel']['_unique_name']
+    entry['alternate_names'] = ", ".join(entry.get('alternate_names', []))
     entry['languages'] = ", ".join(entry.get('languages', []))
     entry['publication_kind'] = ", ".join(entry.get('publication_kind', []))
     entry['country'] = ", ".join([country['name'] for country in entry.get('country', [])])
     entry['subunit'] = ", ".join([subunit['name'] for subunit in entry.get('geographic_scope_subunit', [])])
     entry['_added_by_email'] = entry['_added_by']['email']
-    entry['_added_by_username'] = entry['_added_by']['user_displayname']
+    entry['_added_by_username'] = entry['_added_by']['display_name']
     try:
         entry['published_by'] = ", ".join([org['name'] for org in entry['published_by']])
     except:

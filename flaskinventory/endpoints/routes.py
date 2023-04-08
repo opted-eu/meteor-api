@@ -21,28 +21,28 @@ endpoint = Blueprint('endpoint', __name__)
 @endpoint.route('/endpoint/quicksearch')
 def quicksearch():
     query = request.args.get('q')
-    # query_string = f'{{ data(func: regexp(name, /{query}/i)) @normalize {{ uid unique_name: unique_name name: name type: dgraph.type channel {{ channel: name }}}} }}'
+    # query_string = f'{{ data(func: regexp(name, /{query}/i)) @normalize {{ uid _unique_name: _unique_name name: name type: dgraph.type channel {{ channel: name }}}} }}'
     query_regex = f'/^{strip_query(query)}/i'
     query_string = f'''
             query quicksearch($name: string, $name_regex: string)
             {{
             field1 as a(func: anyofterms(name, $name))
-            field2 as b(func: anyofterms(other_names, $name))
+            field2 as b(func: anyofterms(alternate_names, $name))
             field3 as c(func: anyofterms(title, $name))
             field4 as d(func: eq(doi, $name))
             field5 as e(func: eq(arxiv, $name))
             field6 as g(func: regexp(name, $name_regex))
-            field7 as h(func: regexp(unique_name, $name_regex))
+            field7 as h(func: regexp(_unique_name, $name_regex))
             
             data(func: uid(field1, field2, field3, field4, field5, field6, field7)) 
                 @normalize @filter(eq(entry_review_status, "accepted")) {{
                     uid 
-                    unique_name: unique_name 
+                    _unique_name: _unique_name 
                     name: name 
-                    other_names: other_names
+                    alternate_names: alternate_names
                     type: dgraph.type 
                     title: title
-                    channel {{ channel: unique_name }}
+                    channel {{ channel: _unique_name }}
                     doi: doi
                     arxiv: arxiv
                 }}
@@ -65,21 +65,21 @@ def orglookup():
         person_filter = f'AND eq(is_person, {person})'
     else:
         person_filter = ''
-    # query_string = f'{{ data(func: regexp(name, /{query}/i)) @normalize {{ uid unique_name: unique_name name: name type: dgraph.type channel {{ channel: name }}}} }}'
+    # query_string = f'{{ data(func: regexp(name, /{query}/i)) @normalize {{ uid _unique_name: _unique_name name: name type: dgraph.type channel {{ channel: name }}}} }}'
     query_string = f'''
             query orglookup($query_regex: string, $query_beginning: string)
             {{
                 field1 as var(func: regexp(name, $query_regex)) @filter(type("Organization") {person_filter})
-                field2 as var(func: regexp(other_names, $query_regex)) @filter(type("Organization") {person_filter})
-                field3 as var(func: regexp(unique_name, $query_beginning)) @filter(type("Organization") {person_filter})
+                field2 as var(func: regexp(alternate_names, $query_regex)) @filter(type("Organization") {person_filter})
+                field3 as var(func: regexp(_unique_name, $query_beginning)) @filter(type("Organization") {person_filter})
     
                 data(func: uid(field1, field2, field3)) {{
                     uid
-                    unique_name
+                    _unique_name
                     name
                     dgraph.type
                     is_person
-                    other_names
+                    alternate_names
                     country {{ name }}
                     }}
             }}
@@ -98,15 +98,15 @@ def sourcelookup():
         query source($query_regex: string, $query_beginning: string)
         {{
             field1 as var(func: regexp(name, $query_regex)) @filter(type("Source"))
-            field2 as var(func: regexp(other_names, $query_regex)) @filter(type("Source"))
-            field3 as var(func: regexp(unique_name, $query_beginning)) @filter(type("Source"))
+            field2 as var(func: regexp(alternate_names, $query_regex)) @filter(type("Source"))
+            field3 as var(func: regexp(_unique_name, $query_beginning)) @filter(type("Source"))
   
 	        data(func: uid(field1, field2, field3)) {{
                 uid
-                unique_name
+                _unique_name
                 name
-                channel {{ name unique_name }}
-                country {{ name unique_name }}
+                channel {{ name _unique_name }}
+                country {{ name _unique_name }}
                 }}
             }}
     '''
@@ -209,7 +209,7 @@ def identifier_lookup():
                             eq(entry_review_status, "accepted") or 
                             eq(entry_review_status, "pending")) {{
                         uid 
-                        unique_name 
+                        _unique_name 
                         name 
                         dgraph.type 
                         title
@@ -244,7 +244,7 @@ def ownership():
                                     @filter(eq(entry_review_status, "accepted") AND 
                                         eq(dgraph.type,["Organization", "Source"]))  {
 			                        name uid dgraph.type
-                                    channel { unique_name }
+                                    channel { _unique_name }
                                     publishes @filter(eq(entry_review_status, "accepted")) { uid }
                                     owns @filter(eq(entry_review_status, "accepted")) { uid }
                                 }

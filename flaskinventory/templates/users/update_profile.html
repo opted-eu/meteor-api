@@ -9,12 +9,12 @@
         <fieldset class="form-group mb-3">
             <legend class="border-bottom mb-4">Update Profile</legend>
             <div class="form-floating mb-3">
-                {% if form.user_displayname.errors %} {{ form.user_displayname(class="form-control form-control-lg is-invalid") }}
+                {% if form.display_name.errors %} {{ form.display_name(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.user_displayname.errors %}
+                    {% for error in form.display_name.errors %}
                     <span>{{ error }}</span> {% endfor %}
                 </div>
-                {% else %} {{ form.user_displayname(class="form-control form-control-lg", placeholder="{{ current_user.displayname }}") }} {% endif %} {{ form.user_displayname.label() }}
+                {% else %} {{ form.display_name(class="form-control form-control-lg", placeholder="{{ current_user.displayname }}") }} {% endif %} {{ form.display_name.label() }}
             </div>
             <div class="form-floating mb-3">
                 {% if form.user_affiliation.errors %} {{ form.user_affiliation(class="form-control form-control-lg is-invalid") }}
@@ -25,12 +25,12 @@
                 {% else %} {{ form.user_affiliation(class="form-control form-control-lg", placeholder="{{ current_user.affiliation }}") }} {% endif %} {{ form.user_affiliation.label() }}
             </div>
             <div class="form-floating mb-3">
-                {% if form.user_orcid.errors %} {{ form.user_orcid(class="form-control form-control-lg is-invalid") }}
+                {% if form.orcid.errors %} {{ form.orcid(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.user_orcid.errors %}
+                    {% for error in form.orcid.errors %}
                     <span>{{ error }}</span> {% endfor %}
                 </div>
-                {% else %} {{ form.user_orcid(class="form-control form-control-lg", placeholder="{{ current_user.orcid }}") }} {% endif %} {{ form.user_orcid.label() }}
+                {% else %} {{ form.orcid(class="form-control form-control-lg", placeholder="{{ current_user.orcid }}") }} {% endif %} {{ form.orcid.label() }}
             </div>
 
             <div class="form-check form-switch">

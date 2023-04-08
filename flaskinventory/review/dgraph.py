@@ -15,10 +15,10 @@ def get_overview(dgraphtype, country=None, user=None):
     else:
         query_head = f'''{{ q(func: type({dgraphtype})) @filter(eq(entry_review_status, "pending") '''
 
-    query_fields = f''' uid name unique_name dgraph.type 
-                        _added_by @facets(timestamp) {{ uid user_displayname }}
-                        country {{ uid unique_name name }} 
-                        channel {{ uid unique_name name }} '''
+    query_fields = f''' uid name _unique_name dgraph.type 
+                        _added_by @facets(timestamp) {{ uid display_name }}
+                        country {{ uid _unique_name name }} 
+                        channel {{ uid _unique_name name }} '''
 
     filt_string = ''
     if country:
@@ -56,12 +56,12 @@ def check_entry(uid=None, unique_name=None):
         query_string += 'q(func: uid($query)) @filter(has(dgraph.type))'
         variables = {'$query': uid}
     elif unique_name:
-        query_string += 'q(func: eq(unique_name, $query))'''
+        query_string += 'q(func: eq(_unique_name, $query))'''
         variables = {'$query': unique_name}
     else:
         return False
 
-    query_string += "{ uid unique_name dgraph.type entry_review_status _added_by { uid } channel { unique_name } } }"
+    query_string += "{ uid _unique_name dgraph.type entry_review_status _added_by { uid } channel { _unique_name } } }"
     data = dgraph.query(query_string, variables=variables)
 
     if len(data['q']) == 0:
@@ -77,7 +77,7 @@ def send_acceptance_notification(uid):
                             uid name 
                             dgraph.type
                             channel { name }
-                            _added_by { uid user_displayname email preference_emails } 
+                            _added_by { uid display_name email preference_emails } 
                         } 
                     }"""
     
@@ -92,7 +92,7 @@ def send_acceptance_notification(uid):
 
 def accept_entry(uid, user):
     accepted = {'uid': UID(uid), 'entry_review_status': 'accepted',
-                "reviewed_by": UID(user.id, facets={'timestamp': datetime.now()})}
+                "_reviewed_by": UID(user.id, facets={'timestamp': datetime.now()})}
 
     set_nquads = " \n ".join(dict_to_nquad(accepted))
 
@@ -117,7 +117,7 @@ def reject_entry(uid, user):
 
     query = "\n".join(query)
 
-    delete_predicates = ['dgraph.type', 'unique_name'] + relationships
+    delete_predicates = ['dgraph.type', '_unique_name'] + relationships
 
     del_nquads = [make_nquad(uid, item, Scalar('*'))
                   for item in delete_predicates]
@@ -127,7 +127,7 @@ def reject_entry(uid, user):
     del_nquads = " \n ".join(del_nquads)
 
     rejected = {'uid': uid, 'entry_review_status': 'rejected', 'dgraph.type': 'Rejected',
-                "reviewed_by": UID(user.id, facets={'timestamp': datetime.now()})}
+                "_reviewed_by": UID(user.id, facets={'timestamp': datetime.now()})}
     set_nquads = " \n ".join(dict_to_nquad(rejected))
 
     dgraph.upsert(query, del_nquads=del_nquads)

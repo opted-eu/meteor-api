@@ -10,7 +10,7 @@
                 {{ item.name }} {{ item.title }} {% if item.get('channel') %}({{item.channel.name}}){% endif %}
             </strong>
             <small class="text-muted">
-                {{ item.creation_date.strftime('%d&nbsp;%b')|safe }}
+                {{ item._date_created.strftime('%d&nbsp;%b')|safe }}
             </small>
         </div>
         <div class="col-10 mb-1 small">

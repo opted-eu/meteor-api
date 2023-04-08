@@ -49,7 +49,7 @@
                     if (item.channel != null) {
                         var channel_label = `- ${item.channel}`
                     } else { channel_label = '' }
-                    var target_url = $SCRIPT_ROOT + "/view/" + item.type.toString().toLowerCase() + '/' + item.unique_name.toString();
+                    var target_url = $SCRIPT_ROOT + "/view/" + item.type.toString().toLowerCase() + '/' + item._unique_name.toString();
                     return `<a href="${target_url}"><div>${item.name} ${channel_label}<small> (Type: ${item.type}) <span class="text-muted">(uid: ${item.uid})</span></small></div></a>`
                 },
                 item: function(item, esacpe) {

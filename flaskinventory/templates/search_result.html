@@ -25,7 +25,7 @@
         {% else %}
           <td><a href="{{ url_for('view.view_uid', uid=entry.get('uid'))}}">{{ entry.name }} {{ entry.title }} {% if entry.get('channel') %}({{entry.get('channel')}}){% endif %}</a></td>
         {% endif %}
-          <td><span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ ', '.join(entry.get('other_names', [])) }}">{{ ", ".join(entry.get('other_names', [])) }}</span></td>
+          <td><span class="d-inline-block text-truncate" style="max-width: 250px;" title="{{ ', '.join(entry.get('alternate_names', [])) }}">{{ ", ".join(entry.get('alternate_names', [])) }}</span></td>
           <td>{{ entry.get("type")[0] }}</td>
           <td>{{ entry.get("country") }}</td>
       </tr>

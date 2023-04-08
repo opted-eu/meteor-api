@@ -30,7 +30,7 @@ def new_entry():
                 {{
                     field1 as a(func: regexp(name, /$query/i)) @filter(type("{form.entity.data}"))
                     field2 as b(func: allofterms(name, $query)) @filter(type("{form.entity.data}"))
-                    field3 as c(func: allofterms(other_names, $query)) @filter(type("{form.entity.data}"))
+                    field3 as c(func: allofterms(alternate_names, $query)) @filter(type("{form.entity.data}"))
                     field4 as d(func: match(name, $query, 3)) @filter(type("{form.entity.data}"))
                     field5 as e(func: allofterms(title, $query)) @filter(type("{form.entity.data}"))
                     doi as f(func: eq(doi, $identifier))
@@ -90,7 +90,7 @@ def from_draft(entity=None, uid=None):
     query_string = f"""
     query user_drafts($user: string){{
         q(func: uid($user)) {{
-                user_displayname
+                display_name
                 uid
                 drafts: ~_added_by @filter(type(Source) and eq(entry_review_status, "draft")) 
                 @facets(orderdesc: timestamp) (first: 1) {{ uid }}

@@ -363,7 +363,7 @@ function parsePyPi(package) {
     result['name'] = package.info['name']
     result['pypi'] = package.info['name']
     result['title'] = package.info['name']
-    result['other_names'] = package.info['summary']
+    result['alternate_names'] = package.info['summary']
     result['description'] = package.info['description']
     result['url'] = package.info['home_page']
     result['authors'] = package.info['author']

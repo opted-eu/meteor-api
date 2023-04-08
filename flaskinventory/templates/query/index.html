@@ -24,7 +24,7 @@
         {% if entry.get('dgraph.type')[0] in ["Tool", "Paper", "Dataset"] %}
           <td class="text-truncate">{{ render_publication(entry) }}</td>
         {% else %}
-          <td class="text-truncate"><a href="{{ url_for('view.view_generic', unique_name=entry.get('unique_name'), dgraph_type=entry.get('dgraph.type')[0])}}">{{ entry.name }} {{ entry.title }} {% if entry.get('channel') %}({{entry.channel.name }}){% endif %}</a></td>
+          <td class="text-truncate"><a href="{{ url_for('view.view_generic', unique_name=entry.get('_unique_name'), dgraph_type=entry.get('dgraph.type')[0])}}">{{ entry.name }} {{ entry.title }} {% if entry.get('channel') %}({{entry.channel.name }}){% endif %}</a></td>
         {% endif %}
           <td class="text-truncate" >{{ entry.get("dgraph.type")[0] }}</td>
           <td class="text-truncate" >

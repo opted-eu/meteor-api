@@ -35,8 +35,8 @@ class MockUser(User):
         self.role = user_role
 
 def mock_wikidata(*args):
-    return {'wikidataID': 49653, 
-            'other_names': [], 
+    return {'wikidata_id': "Q49653", 
+            'alternate_names': [], 
             'founded': datetime.datetime(1950, 6, 5, 0, 0), 
             'address_string': 'Stuttgart', 
             'address_geo': {'type': 'Point', 
@@ -57,26 +57,24 @@ class TestSanitizers(BasicTestSetup):
 
         self.mock_data1 = {
             'name': 'Test',
-            'other_names': 'Some, Other Name, ',
-            'entry_notes': 'Some notes about the entry',
+            'alternate_names': 'Some, Other Name, ',
         }
 
         self.mock_data2 = {
             'name': 'Test Somethin',
-            'other_names': ['Some', 'Other Name', ''],
-            'entry_notes': 'Some notes about the entry',
+            'alternate_names': ['Some', 'Other Name', ''],
         }
 
         self.mock1_solution_keys = ['dgraph.type', 'uid', '_added_by', 'entry_review_status',
-                                    'creation_date', 'unique_name', 'name', 'other_names', 'entry_notes', 'wikidataID']
+                                    '_date_created', '_unique_name', 'name', 'alternate_names', 'wikidata_id']
 
         self.mock2_solution_keys = ['dgraph.type', 'uid', '_added_by', 'entry_review_status',
-                                    'creation_date', 'unique_name', 'name', 'other_names', 'entry_notes', 'wikidataID']
+                                    '_date_created', '_unique_name', 'name', 'alternate_names', 'wikidata_id']
 
         self.mock_organization = {
             'name': 'Deutsche Bank',
-            'other_names': 'TC, ',
-            'wikidataID': 66048,
+            'alternate_names': 'TC, ',
+            'wikidata_id': "Q66048",
             'founded': 1956,
             'ownership_kind': 'private ownership',
             'country': self.country_choices[0][0],
@@ -104,14 +102,14 @@ class TestSanitizers(BasicTestSetup):
                 self.assertEqual(sanitizer.is_upsert, False)
                 self.assertCountEqual(
                     list(sanitizer.entry.keys()), self.mock1_solution_keys)
-                self.assertEqual(type(sanitizer.entry['other_names']), list)
+                self.assertEqual(type(sanitizer.entry['alternate_names']), list)
 
                 sanitizer = Sanitizer(self.mock_data2)
                 self.assertEqual(sanitizer.is_upsert, False)
                 self.assertCountEqual(
                     list(sanitizer.entry.keys()), self.mock2_solution_keys)
-                self.assertEqual(type(sanitizer.entry['other_names']), list)
-                self.assertEqual(len(sanitizer.entry['other_names']), 2)
+                self.assertEqual(type(sanitizer.entry['alternate_names']), list)
+                self.assertEqual(len(sanitizer.entry['alternate_names']), 2)
 
                 self.assertRaises(TypeError, Sanitizer, [1, 2, 3])
 
@@ -123,7 +121,7 @@ class TestSanitizers(BasicTestSetup):
     def test_list_facets(self):
         mock_data = {
             'name': 'Test',
-            'other_names': 'Jay Jay,Jules,JB',
+            'alternate_names': 'Jay Jay,Jules,JB',
             'Jay Jay@kind': 'first',
             'Jules@kind': 'official',
             'JB@kind': 'CS-GO'
@@ -137,35 +135,35 @@ class TestSanitizers(BasicTestSetup):
             with self.app.app_context():
                 sanitizer = Sanitizer(mock_data)
                 # get rid of regular str entries
-                sanitizer.entry['other_names'] = [
-                    scalar for scalar in sanitizer.entry['other_names'] if not isinstance(scalar, str)]
+                sanitizer.entry['alternate_names'] = [
+                    scalar for scalar in sanitizer.entry['alternate_names'] if not isinstance(scalar, str)]
 
                 # assert we have all three as scalar with the correct attribute
                 self.assertIsInstance(
-                    sanitizer.entry['other_names'][0], Scalar)
+                    sanitizer.entry['alternate_names'][0], Scalar)
                 self.assertTrue(
-                    hasattr(sanitizer.entry['other_names'][0], "facets"))
-                self.assertEqual(sanitizer.entry['other_names'][0].facets, {
+                    hasattr(sanitizer.entry['alternate_names'][0], "facets"))
+                self.assertEqual(sanitizer.entry['alternate_names'][0].facets, {
                                  'kind': 'first'})
                 self.assertIn(
-                    '<other_names> "Jay Jay" (kind="first")', sanitizer.set_nquads)
+                    '<alternate_names> "Jay Jay" (kind="first")', sanitizer.set_nquads)
 
                 self.assertIsInstance(
-                    sanitizer.entry['other_names'][1], Scalar)
+                    sanitizer.entry['alternate_names'][1], Scalar)
                 self.assertTrue(
-                    hasattr(sanitizer.entry['other_names'][1], "facets"))
-                self.assertEqual(sanitizer.entry['other_names'][1].facets, {
+                    hasattr(sanitizer.entry['alternate_names'][1], "facets"))
+                self.assertEqual(sanitizer.entry['alternate_names'][1].facets, {
                                  'kind': 'official'})
                 self.assertIn(
-                    '<other_names> "Jules" (kind="official")', sanitizer.set_nquads)
+                    '<alternate_names> "Jules" (kind="official")', sanitizer.set_nquads)
 
                 self.assertIsInstance(
-                    sanitizer.entry['other_names'][2], Scalar)
+                    sanitizer.entry['alternate_names'][2], Scalar)
                 self.assertTrue(
-                    hasattr(sanitizer.entry['other_names'][2], "facets"))
-                self.assertEqual(sanitizer.entry['other_names'][2].facets, {
+                    hasattr(sanitizer.entry['alternate_names'][2], "facets"))
+                self.assertEqual(sanitizer.entry['alternate_names'][2].facets, {
                                  'kind': 'CS-GO'})
-                self.assertIn('<other_names> "JB" (kind="CS-GO")',
+                self.assertIn('<alternate_names> "JB" (kind="CS-GO")',
                               sanitizer.set_nquads)
 
     def test_edit_entry(self):
@@ -206,9 +204,9 @@ class TestSanitizers(BasicTestSetup):
                 sanitizer = Sanitizer.edit(correct)
                 self.assertEqual(sanitizer.is_upsert, True)
                 self.assertNotIn('dgraph.type', sanitizer.entry.keys())
-                self.assertIn('entry_edit_history', sanitizer.entry.keys())
+                self.assertIn('_edited_by', sanitizer.entry.keys())
                 self.assertCountEqual(
-                    sanitizer.overwrite[sanitizer.entry_uid], ['other_names'])
+                    sanitizer.overwrite[sanitizer.entry_uid], ['alternate_names'])
 
     def test_new_org(self):
         # print('-- test_new_org() --\n')
@@ -229,7 +227,7 @@ class TestSanitizers(BasicTestSetup):
                 self.assertIsNotNone(sanitizer.set_nquads)
                 self.assertIsNone(sanitizer.delete_nquads)
                 # WikiDataID for Deutsche Bank
-                self.assertEqual(str(sanitizer.entry['wikidataID']), '66048')
+                self.assertEqual(str(sanitizer.entry['wikidata_id']), 'Q66048')
                 self.assertIn('employees', sanitizer.entry.keys())
 
                 mock_org = copy.deepcopy(self.mock_organization)
@@ -255,7 +253,7 @@ class TestSanitizers(BasicTestSetup):
             "entry_review_status": "accepted",
             "founded": "1995-04-28T00:00:00Z",
             "is_person": False,
-            "unique_name": "derstandard_mbh",
+            "_unique_name": "derstandard_mbh",
             "address_string": "Vordere Zollamtsstraße 13, 1030 Wien",
             "ownership_kind": "private ownership",
             "publishes": [self.derstandard_print,
@@ -351,9 +349,9 @@ class TestSanitizers(BasicTestSetup):
             with self.app.app_context():
 
                 sanitizer = Sanitizer.edit(edited_draft, dgraph_type=Source)
-                self.assertIn("<entry_edit_history>", sanitizer.set_nquads)
+                self.assertIn("<_edited_by>", sanitizer.set_nquads)
                 self.assertIn(
-                    '<unique_name> "schwabische_post"', sanitizer.set_nquads)
+                    '<_unique_name> "schwabische_post"', sanitizer.set_nquads)
 
             self.client.get('/logout')
 
@@ -383,7 +381,7 @@ class TestSanitizers(BasicTestSetup):
             "channel_unique_name": "website",
             "channel": self.channel_website,
             "name": "https://www.tagesschau.de/",
-            "other_names": "Tagesschau,Tagesthemen",
+            "alternate_names": "Tagesschau,Tagesthemen",
             "website_allows_comments": "no",
             "founded": "2000",
             "publication_kind": "tv show",
@@ -401,7 +399,6 @@ class TestSanitizers(BasicTestSetup):
                                 self.derstandard_mbh_uid
             ],
             "publishes_person": "Caren Miosga",
-            "entry_notes": "Some notes",
             "party_affiliated": "no",
             "related": [
                                 "https://twitter.com/tagesschau",
@@ -435,7 +432,7 @@ class TestSanitizers(BasicTestSetup):
         new_twitter = {
             "channel": self.channel_twitter,
             "name": "@tagesschau",
-            "other_names": "Tagesschau,Tagesthemen",
+            "alternate_names": "Tagesschau,Tagesthemen",
             "publication_kind": "tv show",
             "special_interest": "yes",
             "topical_focus": "politics",
@@ -450,7 +447,6 @@ class TestSanitizers(BasicTestSetup):
                             self.derstandard_mbh_uid
             ],
             "publishes_person": "Caren Miosga",
-            "entry_notes": "Some notes",
             "party_affiliated": "no",
         }
 
@@ -478,7 +474,7 @@ class TestSanitizers(BasicTestSetup):
         new_instagram = {
             "channel": self.channel_instagram,
             "name": "tagesschau",
-            "other_names": "Tagesschau,Tagesthemen",
+            "alternate_names": "Tagesschau,Tagesthemen",
             "publication_kind": "tv show",
             "special_interest": "yes",
             "topical_focus": "politics",
@@ -493,7 +489,6 @@ class TestSanitizers(BasicTestSetup):
                             self.derstandard_mbh_uid
             ],
             "publishes_person": "Caren Miosga",
-            "entry_notes": "Some notes",
             "party_affiliated": "no",
             "related_sources": [
                 "https://twitter.com/tagesschau",
@@ -525,7 +520,7 @@ class TestSanitizers(BasicTestSetup):
         new_telegram = {
             "channel": self.channel_telegram,
             "name": "ARD_tagesschau_bot",
-            "other_names": "Tagesschau,Tagesthemen",
+            "alternate_names": "Tagesschau,Tagesthemen",
             "publication_kind": "tv show",
             "special_interest": "yes",
             "topical_focus": "politics",
@@ -540,7 +535,6 @@ class TestSanitizers(BasicTestSetup):
                             self.derstandard_mbh_uid
             ],
             "publishes_person": "Caren Miosga",
-            "entry_notes": "Some notes",
             "party_affiliated": "no",
             "related_sources": [
                 "https://twitter.com/tagesschau",
@@ -578,7 +572,6 @@ class TestSanitizers(BasicTestSetup):
             "languages": "de",
             "payment_model": "free",
             "contains_ads": "no",
-            "entry_notes": "Some notes",
         }
 
         with self.client:
@@ -598,7 +591,7 @@ class TestSanitizers(BasicTestSetup):
 
         mock_facebook = {'channel': self.channel_facebook,
                          'name': 'some_source',
-                         'other_names': 'other names',
+                         'alternate_names': 'other names',
                          'founded': '2000',
                          'publication_kind': 'news agency',
                          'special_interest': 'yes',

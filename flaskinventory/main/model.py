@@ -72,22 +72,20 @@ class Entry(Schema):
 
     uid = UIDPredicate()
     
-    unique_name = UniqueName()
-    
-    name = String(required=True, directives=['@index(term, trigram)', '@lang'])
-    
-    other_names = ListString(directives=['@index(term)'])
-    
-    wikidataID = Integer(label='WikiData ID',
-                         overwrite=True,
-                         new=False)
+    _unique_name = UniqueName()
 
-    description = String(large_textfield=True, 
-                         overwrite=True,
-                         directives=['@index(term)'])
-
-    entry_notes = String(description='Do you have any other notes on the entry that you just coded?',
-                         large_textfield=True)
+    _date_created = DateTime(new=False, 
+                             edit=False, 
+                             read_only=True, 
+                             hidden=True, 
+                             default=datetime.datetime.now,
+                             directives = ['@index(day)'])
+    
+    _date_modified = DateTime(new=False, 
+                             edit=False, 
+                             read_only=True, 
+                             hidden=True, 
+                             directives = ['@index(day)'])
     
     _added_by = SingleRelationship(label="Added by", 
                                    relationship_constraint="User",
@@ -95,7 +93,29 @@ class Entry(Schema):
                                    new=False,
                                    edit=False,
                                    read_only=True,
-                                   hidden=True)
+                                   hidden=True,
+                                   facets=[Facet('ip'), 
+                                           Facet('timestamp', dtype=datetime.datetime)])
+    
+    _reviewed_by = SingleRelationship(label="Reviewed by", 
+                                    relationship_constraint="User",
+                                    allow_new=False,
+                                    new=False,
+                                    edit=False,
+                                    read_only=True,
+                                    hidden=True,
+                                    facets=[Facet('ip'), 
+                                            Facet('timestamp', dtype=datetime.datetime)])
+    
+    _edited_by = ListRelationship(label="Edited by", 
+                                    relationship_constraint="User",
+                                    allow_new=False,
+                                    new=False,
+                                    edit=False,
+                                    read_only=True,
+                                    hidden=True,
+                                    facets=[Facet('ip'), 
+                                            Facet('timestamp', dtype=datetime.datetime)])
     
     entry_review_status = SingleChoice(choices={'draft': 'Draft',
                                                 'pending': 'Pending',
@@ -105,6 +125,26 @@ class Entry(Schema):
                                        required=True,
                                        new=False,
                                        permission=USER_ROLES.Reviewer)
+    
+    name = String(required=True, directives=['@index(term, trigram)', '@lang'])
+    
+    alternate_names = ListString(directives=['@index(term)'])
+
+    description = String(large_textfield=True, 
+                         overwrite=True,
+                         directives=['@index(fulltext, trigram, term)'])
+    
+    wikidata_id = String(label='WikiData ID',
+                         description='ID as used by WikiData',
+                         overwrite=True,
+                         new=False,
+                         directives=['@index(hash)'])
+
+    hdl = String(label='HDL',
+                 description='handle.net external identifier',
+                 directives=['@index(hash)'])
+    
+    
 
 
 class Organization(Entry):
@@ -114,7 +154,7 @@ class Organization(Entry):
                   description='What is the legal or official name of the media organisation?',
                   render_kw={'placeholder': 'e.g. The Big Media Corp.'})
     
-    other_names = ListString(description='Does the organisation have any other names or common abbreviations?',
+    alternate_names = ListString(description='Does the organisation have any other names or common abbreviations?',
                              render_kw={'placeholder': 'Separate by comma'})
     
     is_person = Boolean(label='Yes, is a person',
@@ -194,7 +234,7 @@ class Source(Entry):
     
     verified_account = Boolean(new=False, edit=False, queryable=True)
 
-    other_names = ListString(description='Is the news source known by alternative names (e.g. Krone, Die Kronen Zeitung)?',
+    alternate_names = ListString(description='Is the news source known by alternative names (e.g. Krone, Die Kronen Zeitung)?',
                              render_kw={'placeholder': 'Separate by comma'}, 
                              overwrite=True)
     
@@ -421,7 +461,7 @@ class Archive(Entry):
 
     name = String(description="What is the name of the archive?", required=True)
 
-    other_names = ListString(description="Does the archive have other names?",
+    alternate_names = ListString(description="Does the archive have other names?",
                             render_kw={'placeholder': 'Separate by comma ","'},
                             overwrite=True)
 
@@ -444,7 +484,7 @@ class Dataset(Entry):
 
     name = String(description="What is the name of the dataset?", required=True)
 
-    other_names = ListString(description="Does the dataset have other names?",
+    alternate_names = ListString(description="Does the dataset have other names?",
                             render_kw={'placeholder': 'Separate by comma ","'},
                             overwrite=True)
 
@@ -513,7 +553,7 @@ class Corpus(Entry):
 
     name = String(description="What is the name of the corpus?", required=True)
 
-    other_names = ListString(description="Does the corpus have other names?",
+    alternate_names = ListString(description="Does the corpus have other names?",
                             render_kw={'placeholder': 'Separate by comma ","'},
                             overwrite=True)
 
@@ -587,7 +627,7 @@ class Tool(Entry):
 
     name = String(description="What is the name of the tool?", required=True)
 
-    other_names = ListString(description="Does the tool have other names?",
+    alternate_names = ListString(description="Does the tool have other names?",
                             render_kw={'placeholder': 'Separate by comma ","'},
                             overwrite=True)
 
@@ -723,7 +763,7 @@ class Tool(Entry):
 class ResearchPaper(Entry):
 
     name = String(new=False, edit=False, hidden=True)
-    other_names = ListString(new=False, edit=False, hidden=True, required=False)
+    alternate_names = ListString(new=False, edit=False, hidden=True, required=False)
 
     title = String(description="What is the title of the publication?", required=True,
                    directives=['@index(term)'])

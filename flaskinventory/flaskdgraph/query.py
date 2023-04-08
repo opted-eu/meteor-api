@@ -51,7 +51,7 @@ def build_query_string(query: dict, public=True) -> str:
             search_terms = " ".join(search_terms)
         if search_terms.startswith('"') and search_terms.endswith('"'):
             filters.append("""(allofterms(name, $searchTerms) OR
-                                allofterms(other_names, $searchTerms) OR
+                                allofterms(alternate_names, $searchTerms) OR
                                 allofterms(description, $searchTerms) OR
                                 allofterms(title, $searchTerms) OR
                                 allofterms(authors, $searchTerms))""")
@@ -59,7 +59,7 @@ def build_query_string(query: dict, public=True) -> str:
             filters.append("""(anyofterms(name, $searchTerms) OR 
                             regexp(name, /$searchTerms/i) OR
                             anyofterms(description, $searchTerms) OR
-                            anyofterms(other_names, $searchTerms) OR 
+                            anyofterms(alternate_names, $searchTerms) OR 
                             anyofterms(title, $searchTerms) OR 
                             eq(doi, $searchTerms) OR 
                             eq(arxiv, $searchTerms) OR 
@@ -120,8 +120,8 @@ def build_query_string(query: dict, public=True) -> str:
 
     # these are the default predicates that we ALWAYS want to return
     # should be moved outside the function and declared as a setting
-    query_parts = ['uid', 'unique_name', 'name', 'dgraph.type',
-                   'authors @facets', 'other_names', 'published_date']
+    query_parts = ['uid', '_unique_name', 'name', 'dgraph.type',
+                   'authors @facets', 'alternate_names', 'published_date']
 
     query_parts_total = ['count(uid)']
 
@@ -175,7 +175,7 @@ def build_query_string(query: dict, public=True) -> str:
 
         if isinstance(predicate, (SingleRelationship, MutualRelationship)):
             query_parts.append(
-                f'{predicate.query} {facet_filter} {facet_list}  {{ uid name unique_name }}'.strip())
+                f'{predicate.query} {facet_filter} {facet_list}  {{ uid name_unique_name }}'.strip())
         else:
             query_parts.append(
                 f'{predicate.query} {facet_filter} {facet_list}'.strip())
@@ -185,9 +185,9 @@ def build_query_string(query: dict, public=True) -> str:
     # make sure these default predicates are always queried
     # should be moved outside of this function and made as a setting
     if "country" not in _cleaned_query:
-        query_parts.append('country { uid name unique_name }')
+        query_parts.append('country { uid name_unique_name }')
     if "channel" not in _cleaned_query:
-        query_parts.append('channel { uid name unique_name }')
+        query_parts.append('channel { uid name_unique_name }')
 
     # handle facets
     query_parts = list(set(query_parts))

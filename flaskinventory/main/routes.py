@@ -23,14 +23,14 @@ def home():
     form.country.choices = c_choices
 
     query_string = '''{
-                        data(func: has(dgraph.type), orderdesc: creation_date, first: 5) 
-                            @filter(eq(entry_review_status, "accepted") AND has(creation_date)) {
+                        data(func: has(dgraph.type), orderdesc: _date_created, first: 5) 
+                            @filter(eq(entry_review_status, "accepted") AND has(_date_created)) {
                                 uid
-                                unique_name 
+                                _unique_name 
                                 name 
                                 dgraph.type 
                                 title
-                                creation_date
+                                _date_created
                                 channel { name }
                                 country { name }
                             }

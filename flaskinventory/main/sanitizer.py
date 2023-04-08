@@ -172,7 +172,7 @@ class Sanitizer:
     def _check_entry(uid):
         query = f'''query check_entry($value: string)
                     {{ q(func: uid($value)) @filter(has(dgraph.type))'''
-        query += "{ unique_name dgraph.type entry_review_status _added_by { uid } } }"
+        query += "{ _unique_name dgraph.type entry_review_status _added_by { uid } } }"
         data = dgraph.query(query, variables={'$value': uid})
 
         if len(data['q']) == 0:
@@ -195,18 +195,18 @@ class Sanitizer:
             else:
                 entry['dgraph.type'] = ["Entry"]
 
-            entry['unique_name'] = self.generate_unique_name(entry)
+            entry['_unique_name'] = self.generate_unique_name(entry)
 
         facets = {'timestamp': datetime.datetime.now(
             datetime.timezone.utc),
             'ip': self.user_ip}
 
         if not newentry:
-            entry['entry_edit_history'] = UID(self.user.uid, facets=facets)
+            entry['_edited_by'] = UID(self.user.uid, facets=facets)
         else:
             entry['_added_by'] = UID(self.user.uid, facets=facets)
             entry['entry_review_status'] = 'pending'
-            entry['creation_date'] = datetime.datetime.now(
+            entry['_date_created'] = datetime.datetime.now(
                 datetime.timezone.utc)
 
         return entry
@@ -329,7 +329,7 @@ class Sanitizer:
             ) if item.overwrite and k in self.data.keys()]
         else:
             self.entry = self._add_entry_meta(self.entry, newentry=True)
-            self.entry['unique_name'] = self.generate_unique_name(self.entry)
+            self.entry['_unique_name'] = self.generate_unique_name(self.entry)
 
         self._postprocess_list_facets()
 
@@ -347,7 +347,7 @@ class Sanitizer:
                 raise InventoryPermissionError(
                     'You do not have the required permissions to change the review status!')
             self.entry['entry_review_status'] = 'accepted'
-            self.entry['reviewed_by'] = UID(self.user.uid, facets={
+            self.entry['_reviewed_by'] = UID(self.user.uid, facets={
                                             'timestamp': datetime.datetime.now(datetime.timezone.utc)})
             self.skip_keys.append('entry_review_status')
         elif self.data.get('entry_review_status'):
@@ -365,22 +365,22 @@ class Sanitizer:
                     'You do not have the required permissions to change the review status!')
 
     def parse_unique_name(self):
-        if self.data.get('unique_name'):
-            unique_name = self.data['unique_name'].strip().lower()
+        if self.data.get('_unique_name'):
+            unique_name = self.data['_unique_name'].strip().lower()
             if self.is_upsert:
-                check = dgraph.get_uid('unique_name', unique_name)
+                check = dgraph.get_uid('_unique_name', unique_name)
                 if check:
                     if check != str(self.entry_uid):
                         raise InventoryValidationError(
                             'Unique Name already taken!')
-            self.entry['unique_name'] = unique_name
+            self.entry['_unique_name'] = unique_name
         elif not self.is_upsert:
             name = slugify(self.data.get('name'), separator="_")
 
             query_string = f''' query quicksearch($value: string)
                                 {{
-                                data1(func: eq(unique_name, $value)) {{
-                                        unique_name
+                                data1(func: eq(_unique_name, $value)) {{
+                                        _unique_name
                                         uid
                                 }}
                                 
@@ -389,9 +389,9 @@ class Sanitizer:
             result = dgraph.query(query_string, variables={'$value': name})
 
             if len(result['data1']) == 0:
-                self.entry['unique_name'] = name
+                self.entry['_unique_name'] = name
             else:
-                self.entry['unique_name'] = f'{name}_{secrets.token_urlsafe(4)}'
+                self.entry['_unique_name'] = f'{name}_{secrets.token_urlsafe(4)}'
 
     def parse_wikidata(self):
         predicates = Schema.get_predicates(self.dgraph_type)
@@ -405,9 +405,9 @@ class Sanitizer:
                         continue
                     if key not in self.entry.keys():
                         self.entry[key] = val
-                    elif key == 'other_names':
-                        if 'other_names' not in self.entry.keys():
-                            self.entry['other_names'] = []
+                    elif key == 'alternate_names':
+                        if 'alternate_names' not in self.entry.keys():
+                            self.entry['alternate_names'] = []
                         self.entry[key] += val
 
     def generate_unique_name(self, entry: dict):
@@ -419,7 +419,7 @@ class Sanitizer:
             unique_name = slugify(str(entry['uid']), separator="_")
             if hasattr(entry['uid'], 'original_value'):
                 entry['name'] = entry['uid'].original_value
-        if dgraph.get_uid('unique_name', unique_name):
+        if dgraph.get_uid('_unique_name', unique_name):
             unique_name += f'_{secrets.token_urlsafe(4)}'
 
         return unique_name
@@ -443,7 +443,7 @@ class Sanitizer:
 
         self.entry['name'] = f'{author} ({year}): {title}'
 
-        self.entry['unique_name'] = slugify(self.entry['name'], separator="_")
+        self.entry['_unique_name'] = slugify(self.entry['name'], separator="_")
 
     def process_source(self):
         """
@@ -477,7 +477,7 @@ class Sanitizer:
         except TypeError:
             country_uid = self.entry['country']
 
-        self.entry['unique_name'] = self.source_unique_name(
+        self.entry['_unique_name'] = self.source_unique_name(
             self.entry['name'], channel=channel, country_uid=country_uid)
 
         # inherit from main source
@@ -492,7 +492,7 @@ class Sanitizer:
                         raise InventoryValidationError(
                             f'No channel provided for related source {source["name"]}! Please indicate channel')
                     source['entry_review_status'] = 'draft'
-                    source['unique_name'] = secrets.token_urlsafe(8)
+                    source['_unique_name'] = secrets.token_urlsafe(8)
                     source['publication_kind'] = self.entry.get(
                         'publication_kind')
                     source['special_interest'] = self.entry.get(
@@ -513,27 +513,27 @@ class Sanitizer:
         channel = slugify(str(channel), separator="_")
         if country_uid:
             country = dgraph.query(
-                f'''{{ q(func: uid({country_uid.query})) {{ unique_name }} }}''')
-            country = country['q'][0]['unique_name']
+                f'''{{ q(func: uid({country_uid.query})) {{ _unique_name }} }}''')
+            country = country['q'][0]['_unique_name']
 
         country = slugify(country, separator="_")
         query_string = f'''{{
-                            field1 as var(func: eq(unique_name, "{name}"))
-                            field2 as var(func: eq(unique_name, "{name}_{channel}"))
-                            field3 as var(func: eq(unique_name, "{name}_{country}_{channel}"))
+                            field1 as var(func: eq(_unique_name, "{name}"))
+                            field2 as var(func: eq(_unique_name, "{name}_{channel}"))
+                            field3 as var(func: eq(_unique_name, "{name}_{country}_{channel}"))
                         
                             data1(func: uid(field1)) {{
-                                    unique_name
+                                    _unique_name
                                     uid
                             }}
                         
                             data2(func: uid(field2)) {{
-                                unique_name
+                                _unique_name
                                 uid
                             }}
 
                             data3(func: uid(field3)) {{
-                                unique_name
+                                _unique_name
                                 uid
                             }}
                             
@@ -572,24 +572,24 @@ class Sanitizer:
         if entry_name.endswith('/'):
             entry_name = entry_name[:-1]
 
-        # append automatically retrieved names to other_names
+        # append automatically retrieved names to alternate_names
         if len(names) > 0:
-            if 'other_names' not in self.entry.keys():
-                self.entry['other_names'] = []
+            if 'alternate_names' not in self.entry.keys():
+                self.entry['alternate_names'] = []
             for name in names:
                 if name.strip() == '':
                     continue
-                if name not in self.entry['other_names']:
-                    self.entry['other_names'].append(name.strip())
+                if name not in self.entry['alternate_names']:
+                    self.entry['alternate_names'].append(name.strip())
 
         if len(urls) > 0:
-            if 'other_names' not in self.entry.keys():
-                self.entry['other_names'] = []
+            if 'alternate_names' not in self.entry.keys():
+                self.entry['alternate_names'] = []
             for url in urls:
                 if url.strip() == '':
                     continue
-                if url not in self.entry['other_names']:
-                    self.entry['other_names'].append(url.strip())
+                if url not in self.entry['alternate_names']:
+                    self.entry['alternate_names'].append(url.strip())
 
         self.entry['name'] = Scalar(entry_name)
         self.entry['channel_url'] = build_url(
@@ -637,9 +637,9 @@ class Sanitizer:
 
         if profile.get('fullname'):
             try:
-                self.entry['other_names'].append(profile['fullname'])
+                self.entry['alternate_names'].append(profile['fullname'])
             except KeyError:
-                self.entry['other_names'] = [profile['fullname']]
+                self.entry['alternate_names'] = [profile['fullname']]
         if profile.get('followers'):
             facets = {'count': int(
                 profile['followers']),
@@ -661,9 +661,9 @@ class Sanitizer:
 
         if profile.get('fullname'):
             try:
-                self.entry['other_names'].append(profile['fullname'])
+                self.entry['alternate_names'].append(profile['fullname'])
             except KeyError:
-                self.entry['other_names'] = [profile['fullname']]
+                self.entry['alternate_names'] = [profile['fullname']]
         if profile.get('followers'):
             facets = {'count': int(
                 profile['followers']),
@@ -688,9 +688,9 @@ class Sanitizer:
 
         if profile.get('fullname'):
             try:
-                self.entry['other_names'].append(profile['fullname'])
+                self.entry['alternate_names'].append(profile['fullname'])
             except KeyError:
-                self.entry['other_names'] = [profile['fullname']]
+                self.entry['alternate_names'] = [profile['fullname']]
         if profile.get('followers'):
             facets = {'count': int(
                 profile['followers']),
@@ -725,9 +725,9 @@ class Sanitizer:
 
         if profile.get('fullname'):
             try:
-                self.entry['other_names'].append(profile['fullname'])
+                self.entry['alternate_names'].append(profile['fullname'])
             except KeyError:
-                self.entry['other_names'] = [profile['fullname']]
+                self.entry['alternate_names'] = [profile['fullname']]
         if profile.get('followers'):
             facets = {'count': int(
                 profile['followers']),

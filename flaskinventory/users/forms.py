@@ -50,11 +50,11 @@ class LoginForm(FlaskForm):
 
 
 class UpdateProfileForm(FlaskForm):
-    user_displayname = StringField('Display Name',
+    display_name = StringField('Display Name',
                                    validators=[Length(min=2, max=40)])
     user_affiliation = StringField('Affiliation',
                                    validators=[Length(max=(60))])
-    user_orcid = StringField('ORCID',
+    orcid = StringField('ORCID',
                              validators=[Length(max=20)])
 
     preference_emails = BooleanField("Send me notification emails", render_kw={"role": "switch"})
@@ -110,7 +110,7 @@ class AcceptInvitationForm(FlaskForm):
 
 
 class EditUserForm(FlaskForm):
-    user_displayname = StringField('Display Name',
+    display_name = StringField('Display Name',
                                    validators=[Length(min=2, max=40)])
 
     user_role = SelectField(

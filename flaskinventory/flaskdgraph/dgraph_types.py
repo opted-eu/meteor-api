@@ -750,7 +750,7 @@ class ReverseRelationship(_PrimitivePredicate):
         query_string = '{ '
 
         for dgraph_type in self.relationship_constraint:
-            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name unique_name }} '''
+            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name_unique_name }} '''
 
         query_string += '}'
 
@@ -827,7 +827,7 @@ class ReverseListRelationship(ReverseRelationship):
         query_string = '{ '
 
         for dgraph_type in self.relationship_constraint:
-            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name unique_name }} '''
+            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name _unique_name }} '''
 
         query_string += '}'
 
@@ -924,7 +924,7 @@ class MutualRelationship(_PrimitivePredicate):
         query_string = '{ '
 
         for dgraph_type in self.relationship_constraint:
-            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name unique_name }} '''
+            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name_unique_name }} '''
 
         query_string += '}'
 
@@ -1440,17 +1440,17 @@ class SingleRelationship(Predicate):
         query_string = '{ '
 
         for dgraph_type in self.relationship_constraint:
-            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name unique_name }} '''
+            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name_unique_name }} '''
 
         query_string += '}'
 
         choices = dgraph.query(query_string=query_string)
 
         if len(self.relationship_constraint) == 1:
-            self.choices = {c['uid']: c.get('name') or c.get('unique_name')
+            self.choices = {c['uid']: c.get('name') or c.get('_unique_name')
                             for c in choices[self.relationship_constraint[0].lower()]}
             self.choices_tuples = [
-                (c['uid'], c.get('name') or c.get('unique_name')) for c in choices[self.relationship_constraint[0].lower()]]
+                (c['uid'], c.get('name') or c.get('_unique_name')) for c in choices[self.relationship_constraint[0].lower()]]
             self.choices_tuples.insert(0, ('', ''))
 
         else:
@@ -1458,8 +1458,8 @@ class SingleRelationship(Predicate):
             self.choices_tuples = {}
             for dgraph_type in self.relationship_constraint:
                 self.choices_tuples[dgraph_type] = [
-                    (c['uid'], c.get('name') or c.get('unique_name')) for c in choices[dgraph_type.lower()]]
-                self.choices.update({c['uid']: c.get('name') or c.get('unique_name')
+                    (c['uid'], c.get('name') or c.get('_unique_name')) for c in choices[dgraph_type.lower()]]
+                self.choices.update({c['uid']: c.get('name') or c.get('_unique_name')
                                      for c in choices[dgraph_type.lower()]})
 
     @property

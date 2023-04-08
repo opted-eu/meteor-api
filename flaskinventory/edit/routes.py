@@ -26,7 +26,7 @@ def edit_uid(uid):
     query_string = '''
         query edit_uid($query: string) { 
             q(func: uid($query)) {
-            uid unique_name entry_review_status dgraph.type 
+            uid _unique_name entry_review_status dgraph.type 
             } 
         }'''
 
@@ -44,7 +44,7 @@ def edit_uid(uid):
         result['q'][0]['dgraph.type'].remove('Resource')
 
     if result['q'][0]['dgraph.type'][0] in Schema.get_types():
-        return redirect(url_for('edit.entry', dgraph_type=result['q'][0]['dgraph.type'][0], unique_name=result['q'][0]['unique_name'], **request.args))
+        return redirect(url_for('edit.entry', dgraph_type=result['q'][0]['dgraph.type'][0], unique_name=result['q'][0]['_unique_name'], **request.args))
     else:
         return abort(404)
 
@@ -73,17 +73,17 @@ def refresh_wikidata():
 
     query_string = '''
         query get_wikidata($query: string ) {
-            q(func: uid($query)) { wikidataID } 
+            q(func: uid($query)) { wikidata_id } 
         }'''
 
     entry = dgraph.query(query_string, variables={'$query': uid})
     try:
-        wikidataid = entry['q'][0]['wikidataID']
+        wikidataid = entry['q'][0]['wikidata_id']
     except:
         flash(f"Entry {uid} does not have a wikidata ID", 'danger')
         return redirect(url_for('view.view_uid', uid=uid, **request.args))
 
-    result = fetch_wikidata(f"Q{wikidataid}")
+    result = fetch_wikidata(wikidataid)
 
     if result:
         result['uid'] = uid
@@ -136,7 +136,7 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
         return abort(403)
 
     if not unique_name:
-        unique_name = check.get('unique_name')
+        unique_name = check.get('_unique_name')
     if not uid:
         uid = check.get('uid')
 
@@ -151,7 +151,7 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
     skip_fields = []
     # manually filter out fields depending on channel
     if dgraph_type == 'Source':
-        skip_fields = channel_filter(entry['q'][0]['channel']['unique_name'])
+        skip_fields = channel_filter(entry['q'][0]['channel']['_unique_name'])
 
     if request.method == 'GET':
         form = Schema.generate_edit_entry_form(
@@ -197,7 +197,7 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
         wikidata_form.uid.data = uid
         sidebar_items.update({'actions': {'wikidata': wikidata_form}})
     if dgraph_type == 'Source':
-        # if entry['q'][0]['channel']['unique_name'] in ['print', 'facebook']:
+        # if entry['q'][0]['channel']['_unique_name'] in ['print', 'facebook']:
         sidebar_items['actions'] = {'audience_size': url_for(
             'edit.source_audience', uid=entry['q'][0]['uid'], **request.args)}
 
@@ -221,7 +221,7 @@ def source_audience(uid):
     if not can_edit(check, current_user):
         return abort(403)
 
-    # if check['channel']['unique_name'] not in ['print', 'facebook']:
+    # if check['channel']['_unique_name'] not in ['print', 'facebook']:
     #     flash('You can only edit the audience size for print and Facebook news sources', 'info')
     #     return redirect(url_for('edit.source', uid=uid, **request.args))
 

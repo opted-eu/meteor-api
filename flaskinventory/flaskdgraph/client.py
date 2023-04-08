@@ -176,11 +176,11 @@ class DGraph(object):
     def get_unique_name(self, uid):
 
         query_string = f''' query get_unique_name($value: string)
-                            {{ q(func: uid($value)) @filter(has(dgraph.type)) {{ uid unique_name }} }}'''
+                            {{ q(func: uid($value)) @filter(has(dgraph.type)) {{ uid _unique_name }} }}'''
         data = self.query(query_string, variables={'$value': uid})
         if len(data['q']) == 0:
             return None
-        return data['q'][0]['unique_name']
+        return data['q'][0]['_unique_name']
 
     def get_dgraphtype(self, uid: str, clean: list = ['Entry', 'Resource']):
         query_string = f'''query get_dgraphtype($value: string)

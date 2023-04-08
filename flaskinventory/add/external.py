@@ -415,7 +415,7 @@ def lookup_wikidata_id(query):
 def fetch_wikidata(wikidataid, query=None):
     from flaskinventory.flaskdgraph.dgraph_types import UID, GeoScalar
     api = 'https://www.wikidata.org/w/api.php'
-    result = {'wikidataID': int(wikidataid.replace('Q', ''))}
+    result = {'wikidata_id': wikidataid}
     try:
         params = {'action': 'wbgetentities', 'languages': 'en',
                   'ids': wikidataid, 'format': 'json'}
@@ -424,11 +424,11 @@ def fetch_wikidata(wikidataid, query=None):
     except:
         return result
 
-    result['other_names'] = []
+    result['alternate_names'] = []
     try:
         aliases = wikidata['entities'][wikidataid]['aliases']['en']
         for alias in aliases:
-            result['other_names'].append(alias['value'])
+            result['alternate_names'].append(alias['value'])
     except Exception as e:
         current_app.logger.debug(
             f"Could not get other names: {e}. Query: {query}. Wikidata ID: {wikidataid}")
@@ -450,7 +450,7 @@ def fetch_wikidata(wikidataid, query=None):
     try:
         country = wikidata['entities'][wikidataid]['claims']['P17'][0]['mainsnak']['datavalue']['value']['id'].replace(
             'Q', '')
-        query_string = f'''{{q(func: eq(wikidataID, {country})) {{ name uid }} }}'''
+        query_string = f'''{{q(func: eq(wikidata_id, {country})) {{ name uid }} }}'''
         country_uid = dgraph.query(query_string)
 
         country_uid = country_uid['q'][0]['uid']
@@ -712,7 +712,7 @@ def cran(pkg) -> Union[dict, bool]:
         result['description'] = data['Description']
 
     if 'Title' in data.keys():
-        result['other_names'] = data['Title']
+        result['alternate_names'] = data['Title']
 
     if 'URL' in data.keys():
         url = data['URL']
