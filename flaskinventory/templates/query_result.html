@@ -24,7 +24,7 @@
         {% if 'channel' in cols %}
             <th scope="col">Channel</th>
         {% endif %}
-        {% if 'founded' in cols %}
+        {% if 'date_founded' in cols %}
             <th scope="col">Founded</th>
         {% endif %}
         {% if 'country' in cols %}
@@ -57,8 +57,8 @@
         {% if 'channel' in cols %}
             <td>{{ entry.channel.get('name')}}</td>
         {% endif %}
-        {% if 'founded' in cols %}
-            <td>{% if entry.get('founded') %} {{ entry.founded.strftime('%Y')}} {% endif %}</td>
+        {% if 'date_founded' in cols %}
+            <td>{% if entry.get('date_founded') %} {{ entry.date_founded.strftime('%Y')}} {% endif %}</td>
         {% endif %}
         {% if 'country' in cols %}
         <td>{% if entry.get('country') %} {% for c in entry.get('country') %} {{c.get('name')}} {{ ', ' if not loop.last else '' }} {% endfor %}{% endif %}</td>

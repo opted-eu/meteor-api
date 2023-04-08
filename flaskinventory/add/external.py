@@ -440,9 +440,9 @@ def fetch_wikidata(wikidataid, query=None):
             '+', '')
         if re.match(r'\d{4}-00-00', inception):
             year = re.match(r'\d{4}-00-00', inception)[0].replace('-00-00', '')
-            result['founded'] = datetime(year=int(year), month=1, day=1)
+            result['date_founded'] = datetime(year=int(year), month=1, day=1)
         else:
-            result['founded'] = isoparse(inception)
+            result['date_founded'] = isoparse(inception)
     except Exception as e:
         current_app.logger.debug(
             f"Could not get inception date: {e}. Query: {query}. Wikidata ID: {wikidataid}")
@@ -473,12 +473,15 @@ def fetch_wikidata(wikidataid, query=None):
         r = requests.get(api, params=params)
         wikidata = r.json()
         address = wikidata['entities'][headquarters]['labels']['en']['value']
+
+        # TODO: Remove geocoding :/
+
         geo_result = geocode(address)
         address_geo = GeoScalar('Point', [
             float(geo_result.get('lon')), float(geo_result.get('lat'))])
 
-        result['address_string'] = address
-        result['address_geo'] = address_geo
+        result['address'] = address
+        # result['address_geo'] = address_geo
     except Exception as e:
         current_app.logger.debug(
             f"Could not get address: {e}. Query: {query}. Wikidata ID: {wikidataid}")

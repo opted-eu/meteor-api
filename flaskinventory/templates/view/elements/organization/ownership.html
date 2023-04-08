@@ -10,7 +10,6 @@
         </dd>
     </dl>
 </div>
-{% if not entry.is_person %}
 <div class="border rounded p-3">
     <dl class="row">
         <dt class="col-sm-3 mb-2"><h5>Owned by</h5></dt>
@@ -38,4 +37,3 @@
         <dd class="col-sm-9">{{ entry.party_affiliated }}</dd>
         {% endif %}
 </div>
-{% endif %}

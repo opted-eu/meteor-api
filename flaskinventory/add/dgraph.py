@@ -13,7 +13,7 @@ async def generate_fieldoptions():
     query_country = '''country(func: type("Country"), orderasc: name) @filter(eq(opted_scope, true)) { uid _unique_name name  }'''
     query_dataset = '''dataset(func: type("Dataset"), orderasc: name) { uid _unique_name name  }'''
     query_archive = '''archive(func: type("Archive"), orderasc: name) { uid _unique_name name  }'''
-    query_subunit = '''subunit(func: type("Subunit"), orderasc: name) { uid _unique_name name alternate_names country{ name } }'''
+    query_subunit = '''subunit(func: type("Subnational"), orderasc: name) { uid _unique_name name alternate_names country{ name } }'''
     query_multinational = '''multinational(func: type("Multinational"), orderasc: name) { uid _unique_name name alternate_names country{ name } }'''
 
     query_string = '{ ' + query_channel + query_country + \
@@ -79,10 +79,7 @@ def get_draft(uid):
             uid expand(_all_) {{ 
                 uid _unique_name name dgraph.type channel {{ name }}
                 }}
-            publishes_org: ~publishes @filter(eq(is_person, false)) {{
-                uid _unique_name name ownership_kind country {{ name }} 
-                }}
-            publishes_person: ~publishes @filter(eq(is_person, true)) {{
+            publishes_org: ~publishes {{
                 uid _unique_name name ownership_kind country {{ name }} 
                 }}
             archives: ~sources_included @facets @filter(type("Archive")) {{ 
@@ -118,10 +115,7 @@ def get_existing(uid):
             uid expand(_all_) {{
                 uid _unique_name name dgraph.type channel {{ name }} 
                 }}
-            publishes_org: ~publishes @filter(eq(is_person, false)) {{
-                uid _unique_name name ownership_kind country {{ name }} 
-                }}
-            publishes_person: ~publishes @filter(eq(is_person, true)) {{
+            publishes_org: ~publishes {{
                 uid _unique_name name ownership_kind country {{ name }} 
                 }}
             archives: ~sources_included @facets @filter(type("Archive")) {{ 
@@ -143,7 +137,7 @@ def get_existing(uid):
             existing['related'].append(related)
         existing.pop('publication_cycle', None)
         existing.pop('publication_cycle_weekday', None)
-        existing.pop('founded', None)
+        existing.pop('date_founded', None)
         existing.pop('channel_epaper', None)
         existing.pop('payment_model', None)
         existing = json.dumps(existing, default=str)

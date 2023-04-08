@@ -9,7 +9,7 @@ class ReviewFilter(FlaskForm):
                              ('all', 'All'),
                              ('Source', 'News Source'),
                              ('Organization', 'Media Organization'),
-                             ('Subunit', 'Subunit'),
+                             ('Subnational', 'Subnational'),
                              ('Archive', 'Data Archive'),
                              ('Dataset', 'Dataset'),
                              ('Tool', 'Tool'),
@@ -17,9 +17,9 @@ class ReviewFilter(FlaskForm):
                              ('ResearchPaper', 'Research Paper'),
                              ('Operation', 'Operation'),
                              ('FileFormat', 'File Format'),
-                             ('MetaVar', 'Meta Variable'),
-                             ('ConceptVar', 'Concept Variables'),
-                             ('TextUnit', 'Text Unit')], validators=[DataRequired()]
+                             ('MetaVariable', 'Meta Variable'),
+                             ('ConceptVariable', 'Concept Variables'),
+                             ('UnitOfAnalysis', 'Text Unit')], validators=[DataRequired()]
                          )
 
     country = SelectField('Filter by Country')

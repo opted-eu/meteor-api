@@ -57,6 +57,9 @@ def quicksearch():
 
 @endpoint.route('/endpoint/orglookup')
 def orglookup():
+    
+    # TODO: change entire query logic here
+
     query = strip_query(request.args.get('q'))
     query_regex = f"/{query}/i"
     query_beginning = f'/^{query}/i'
@@ -78,7 +81,6 @@ def orglookup():
                     _unique_name
                     name
                     dgraph.type
-                    is_person
                     alternate_names
                     country {{ name }}
                     }}

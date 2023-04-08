@@ -153,14 +153,14 @@
             </div>
         </div>
 
-        <div id="group-source-founded" class="mb-5 form-group">
-            <label for="source-founded" class="form-label fw-bold fs-5"><span id="source-founded-question">What year was the news source founded?</span>
+        <div id="group-source-date_founded" class="mb-5 form-group">
+            <label for="source-date_founded" class="form-label fw-bold fs-5"><span id="source-date_founded-question">What year was the news source date_founded?</span>
                 <span class="text-muted mx-1">(optional)</span>
                 {{ make_tooltip('If you can not find the ‘founding’ year, you may also put the year of the first edition (for print), the first post (social media) or the website launch (for websites). Use the founding year of the current brand not the founding year of its forerunners. Information about associated forerunners (related brands) can be added as comments (the last question).') }}
                 {{ make_researchtip('Please double check the information that you find on Wikipedia. For example, by checking the ‘about me’/ ‘corporate history’ pages of the news source.') }}
             </label>
-            <input name="founded" type="number" step="1" min="1700" max="2100" class="form-control form-control-lg" id="source-founded" placeholder="Format: YYYY" aria-describedby="founded-feedback">
-            <div id="founded-feedback"></div>
+            <input name="date_founded" type="number" step="1" min="1700" max="2100" class="form-control form-control-lg" id="source-date_founded" placeholder="Format: YYYY" aria-describedby="date_founded-feedback">
+            <div id="date_founded-feedback"></div>
         </div>
 
         <input type="button" class="btn btn-primary next" value="Next Step">
@@ -689,9 +689,9 @@
                     Value
                 </h4>
             </div>
-            <div id='summary-founded' hidden>
+            <div id='summary-date_founded' hidden>
                 <h6 class="text-muted mb-1">
-                    What year was the news source founded?
+                    What year was the news source date_founded?
                 </h6>
                 <h4 class="mb-4">
                     Value

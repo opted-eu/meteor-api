@@ -1,6 +1,7 @@
 import datetime
 from typing import Union
 from flask import current_app
+from flask_login import current_user
 from flaskinventory import dgraph
 from flaskinventory.errors import InventoryValidationError
 from flaskinventory.flaskdgraph.dgraph_types import (String, SingleChoice, 
@@ -24,7 +25,7 @@ import secrets
 
 class GeoAutoCode(Geo):
 
-    autoinput = 'address_string'
+    autoinput = 'address'
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -34,6 +35,8 @@ class GeoAutoCode(Geo):
 
 
 class AddressAutocode(Geo):
+
+    # TODO: Remove this entierly
 
     autoinput = 'name'
     dgraph_predicate_type = 'string'
@@ -51,7 +54,7 @@ class AddressAutocode(Geo):
             geo_result = {'address_geo': query_result}
             address_lookup = reverse_geocode(
                 query_result.lat, query_result.lon)
-            geo_result['address_string'] = address_lookup.get('display_name')
+            geo_result['address'] = address_lookup.get('display_name')
         return geo_result
 
 
@@ -92,7 +95,7 @@ class SubunitAutocode(ListRelationship):
 
     def __init__(self, *args, **kwargs) -> None:
 
-        super().__init__(relationship_constraint = ['Subunit'], 
+        super().__init__(relationship_constraint = ['Subnational'], 
                             allow_new=True, autoload_choices=True, 
                             overwrite=True, *args, **kwargs)
         
@@ -101,7 +104,7 @@ class SubunitAutocode(ListRelationship):
         query_string = '''{
                             q(func: type(Country)) {
                             name
-                                subunit: ~country @filter(type(Subunit)) {
+                                subunit: ~country @filter(type(Subnational)) {
                                         name uid
                                 }
                             }
@@ -178,7 +181,7 @@ class SubunitAutocode(ListRelationship):
         geo_query = self._geo_query_subunit(subunit)
         if geo_query:
             current_app.logger.debug(f'parsing result of querying {subunit}: {geo_query}')
-            geo_query['dgraph.type'] = ['Subunit']
+            geo_query['dgraph.type'] = ['Subnational']
             # prevent duplicates
             geo_query['_unique_name'] = f"{slugify(subunit, separator='_')}_{geo_query['country_code']}"
             duplicate_check = dgraph.get_uid(
@@ -266,6 +269,8 @@ class OrganizationAutocode(ReverseListRelationship):
 
     def _resolve_org(self, org):
 
+        # TODO: Revamp / Remove this
+
         geo_result = geocode(org['name'])
         if geo_result:
             try:
@@ -276,7 +281,7 @@ class OrganizationAutocode(ReverseListRelationship):
             try:
                 address_lookup = reverse_geocode(
                     geo_result.get('lat'), geo_result.get('lon'))
-                org['address_string'] = address_lookup['display_name']
+                org['address'] = address_lookup['display_name']
             except:
                 pass
 
@@ -362,3 +367,14 @@ class GitHubAuto(String):
                 data = data[1:]
         
         return data
+    
+
+"""
+    Utilities
+"""
+
+def get_current_user_uid():
+    if current_user.is_authenticated:
+        return current_user.uid
+    else:
+        raise InventoryValidationError('Cannot determine current user. User not logged in?')

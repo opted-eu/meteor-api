@@ -11,9 +11,9 @@
             {% endfor %}
         </dd>
         {% endif %}
-        {% if entry.address_string %}
+        {% if entry.address %}
         <dt class="col-sm-3">Primary Address</dt>
-        <dd class="col-sm-9"><a href="https://www.openstreetmap.org/search?query={{ entry.address_string }}" target="_blank">{{ entry.address_string }}</a>
+        <dd class="col-sm-9"><a href="https://www.openstreetmap.org/search?query={{ entry.address }}" target="_blank">{{ entry.address }}</a>
         </dd>{% endif %}
     </dl>
 </div>

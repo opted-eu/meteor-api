@@ -37,10 +37,8 @@ class MockUser(User):
 def mock_wikidata(*args):
     return {'wikidata_id': "Q49653", 
             'alternate_names': [], 
-            'founded': datetime.datetime(1950, 6, 5, 0, 0), 
-            'address_string': 'Stuttgart', 
-            'address_geo': {'type': 'Point', 
-                            'coordinates': [9.1800132, 48.7784485]}}
+            'date_founded': datetime.datetime(1950, 6, 5, 0, 0), 
+            'address': 'Stuttgart'}
 
 @patch('flaskinventory.main.sanitizer.get_wikidata', mock_wikidata) 
 class TestSanitizers(BasicTestSetup):
@@ -75,10 +73,10 @@ class TestSanitizers(BasicTestSetup):
             'name': 'Deutsche Bank',
             'alternate_names': 'TC, ',
             'wikidata_id': "Q66048",
-            'founded': 1956,
+            'date_founded': 1956,
             'ownership_kind': 'private ownership',
             'country': self.country_choices[0][0],
-            'address_string': 'Schwanheimer Str. 149A, 60528 Frankfurt am Main, Deutschland',
+            'address': 'Schwanheimer Str. 149A, 60528 Frankfurt am Main, Deutschland',
             'employees': '5000',
             'publishes': [self.falter_print_uid, self.derstandard_print],
             'owns': self.derstandard_mbh_uid,
@@ -231,7 +229,7 @@ class TestSanitizers(BasicTestSetup):
                 self.assertIn('employees', sanitizer.entry.keys())
 
                 mock_org = copy.deepcopy(self.mock_organization)
-                mock_org.pop('address_string')
+                mock_org.pop('address')
                 sanitizer = Sanitizer(
                     self.mock_organization, dgraph_type=Organization)
                 self.assertEqual(sanitizer.is_upsert, False)
@@ -244,17 +242,16 @@ class TestSanitizers(BasicTestSetup):
 
     def test_edit_org(self):
         overwrite_keys = ['country', 'publishes',
-                          'is_person', 'founded', 'address_string']
+                          'date_founded', 'address']
 
         mock_org_edit = {
             "uid": self.derstandard_mbh_uid,
             "name": "STANDARD Verlagsgesellschaft m.b.H.",
             "country": self.austria_uid,
             "entry_review_status": "accepted",
-            "founded": "1995-04-28T00:00:00Z",
-            "is_person": False,
+            "date_founded": "1995-04-28T00:00:00Z",
             "_unique_name": "derstandard_mbh",
-            "address_string": "Vordere Zollamtsstraße 13, 1030 Wien",
+            "address": "Vordere Zollamtsstraße 13, 1030 Wien",
             "ownership_kind": "private ownership",
             "publishes": [self.derstandard_print,
                           self.derstandard_facebook,
@@ -278,11 +275,11 @@ class TestSanitizers(BasicTestSetup):
                 mock_org_edit['publishes'] = " ,".join(
                     [self.derstandard_print, self.derstandard_facebook, self.derstandard_instagram, self.derstandard_twitter])
                 mock_org_edit['country'] = self.germany_uid
-                mock_org_edit['founded'] = '2010'
+                mock_org_edit['date_founded'] = '2010'
                 sanitizer = Sanitizer.edit(
                     mock_org_edit, dgraph_type=Organization)
                 self.assertEqual(len(sanitizer.entry['publishes']), 4)
-                # self.assertEqual(type(sanitizer.entry['founded']), datetime)
+                # self.assertEqual(type(sanitizer.entry['date_founded']), datetime)
 
     def test_draft_source(self):
 
@@ -315,7 +312,7 @@ class TestSanitizers(BasicTestSetup):
                       'channel': self.channel_print,
                       'channel_unique_name': 'print',
                       'name': 'Schwäbische Post',
-                      'founded': '2000',
+                      'date_founded': '2000',
                       'publication_kind': 'newspaper',
                       'special_interest': 'no',
                       'publication_cycle': 'continuous',
@@ -383,7 +380,7 @@ class TestSanitizers(BasicTestSetup):
             "name": "https://www.tagesschau.de/",
             "alternate_names": "Tagesschau,Tagesthemen",
             "website_allows_comments": "no",
-            "founded": "2000",
+            "date_founded": "2000",
             "publication_kind": "tv show",
             "special_interest": "yes",
             "topical_focus": "politics",
@@ -592,7 +589,7 @@ class TestSanitizers(BasicTestSetup):
         mock_facebook = {'channel': self.channel_facebook,
                          'name': 'some_source',
                          'alternate_names': 'other names',
-                         'founded': '2000',
+                         'date_founded': '2000',
                          'publication_kind': 'news agency',
                          'special_interest': 'yes',
                          'topical_focus': 'society',

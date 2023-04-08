@@ -62,14 +62,14 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
                         } }
                         '''
 
-    elif dgraph_type == 'MetaVar':
+    elif dgraph_type == 'MetaVariable':
         query_fields += '''
                         datasets: ~meta_vars @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date }
                         corpus: ~meta_vars @filter(type("Corpus"))  (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date }
                         } }
                         '''
     
-    elif dgraph_type == 'ConceptVar':
+    elif dgraph_type == 'ConceptVariable':
         query_fields += '''
                         datasets: ~concept_vars @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date }
                         corpus: ~concept_vars @filter(type("Corpus"))  { uid name _unique_name entry_review_status authors @facets published_date }
@@ -77,7 +77,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
                         } }
                         '''
 
-    elif dgraph_type == 'TextUnit':
+    elif dgraph_type == 'UnitOfAnalysis':
         query_fields += '''
                         corpus: ~text_units @filter(type("Corpus")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date }
                         } }
@@ -122,7 +122,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
         num_sources = dgraph.query(Source.country.count(uid, _reverse=True, entry_review_status="accepted"))
         data['num_sources'] = num_sources['country'][0]['count']
 
-    elif dgraph_type == 'Subunit':
+    elif dgraph_type == 'Subnational':
         num_sources = dgraph.query(Source.geographic_scope_subunit.count(uid, _reverse=True, entry_review_status="accepted"))
         data['num_sources'] = num_sources['geographic_scope_subunit'][0]['count']
 
@@ -177,11 +177,11 @@ def list_by_type(typename, filt=None, fields=None, normalize=False):
     else:
         normalize = True
         if typename == 'Source':
-            query_fields = ''' uid _unique_name name founded alternate_names
+            query_fields = ''' uid _unique_name name date_founded alternate_names
                                 channel { name }
                                 '''
         if typename == 'Organization':
-            query_fields = ''' uid _unique_name name founded alternate_names
+            query_fields = ''' uid _unique_name name date_founded alternate_names
                                 publishes: count(publishes)
                                 owns: count(owns)
                                 '''
@@ -194,7 +194,7 @@ def list_by_type(typename, filt=None, fields=None, normalize=False):
             query_fields = ''' uid title authors @facets published_date journal
                                 sources_included: count(sources_included)
                                 '''
-        if typename == 'Subunit':
+        if typename == 'Subnational':
             normalize = False
             query_fields = ''' uid name _unique_name alternate_names '''
         

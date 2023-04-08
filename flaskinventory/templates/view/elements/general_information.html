@@ -55,10 +55,6 @@
             </div>
         </dd>
         {% endif %} 
-        {% if entry.is_person %}
-        <dt class="col-sm-3">Is a person</dt>
-        <dd class="col-sm-9">{{ entry.is_person }}
-        </dd>{% endif %}
         {% if entry.channel %}
         <dt class="col-sm-3">Channel</dt>
         <dd class="col-sm-9"><a href="{{ url_for('view.view_generic', dgraph_type='Channel', unique_name=entry.channel._unique_name) }}">{{entry.channel.name}}</a> </dd>
@@ -92,18 +88,18 @@
         <dt class="col-sm-3">Verified Account</dt>
         <dd class="col-sm-9">{% if entry.verified_account %}Yes{% else %}No{% endif %}</dd>
         {% endif %}
-        {% if 'Subunit' in entry['dgraph.type'] %}
-        <dt class="col-sm-3 mb-4">Subunit of</dt>
+        {% if 'Subnational' in entry['dgraph.type'] %}
+        <dt class="col-sm-3 mb-4">Subnational of</dt>
         <dd class="col-sm-9 mb-4"><a href="{{ url_for('view.view_generic', dgraph_type='Country', unique_name=entry.country[0]._unique_name) }}">{{ entry.country[0].name }}</a></dd>
         {% endif %}
         {% if entry.wikidata_id %}
         <dt class="col-sm-3">Wikidata</dt>
-        <dd class="col-sm-9"><a href="https://www.wikidata.org/wiki/Q{{ entry.wikidata_id }}" target="_blank" class="external-link">Q{{ entry.wikidata_id }}</a>
+        <dd class="col-sm-9"><a href="https://www.wikidata.org/wiki/{{ entry.wikidata_id }}" target="_blank" class="external-link">{{ entry.wikidata_id }}</a>
         </dd>
         {% endif %}
-        {% if entry.founded %}
+        {% if entry.date_founded %}
         <dt class="col-sm-3">Founded</dt>
-        <dd class="col-sm-9">{{ entry.founded.strftime('%Y') }}
+        <dd class="col-sm-9">{{ entry.date_founded.strftime('%Y') }}
         </dd>
         {% endif %} 
         {% if entry.transcript_kind %}

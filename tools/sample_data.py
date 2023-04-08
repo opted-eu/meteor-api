@@ -30,6 +30,9 @@ def main():
     with open('./data/languages.json', 'r') as f:
         languages = json.load(f)
 
+    with open('./data/programming_languages.json', 'r') as f:
+        programming_languages = json.load(f)
+
     client_stub = pydgraph.DgraphClientStub('localhost:9080')
     client = pydgraph.DgraphClient(client_stub)
     
@@ -67,6 +70,11 @@ def main():
         txn.discard()
 
     txn = client.txn()
+    try:
+        txn.mutate(set_obj=programming_languages)
+        txn.commit()
+    finally:
+        txn.discard()
 
     # change all object's entry_review_status to "accepted"
     txn = client.txn()

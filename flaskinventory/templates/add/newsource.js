@@ -171,8 +171,8 @@ function channelVisibility(fieldOptions, allNames, el) {
             elem.setAttribute('required', true);
         })
         document.querySelector("#group-audience-size").hidden = false;
-        document.querySelector("#group-source-founded").hidden = false;
-        document.querySelector('#source-founded-question').innerHTML = `What year was the print news source founded?`
+        document.querySelector("#group-source-date_founded").hidden = false;
+        document.querySelector('#source-date_founded-question').innerHTML = `What year was the print news source date_founded?`
         document.querySelector("#group-payment-model").hidden = false;
         document.querySelectorAll('input[name="payment_model"').forEach((elem) => {
             elem.setAttribute('required', true);
@@ -185,8 +185,8 @@ function channelVisibility(fieldOptions, allNames, el) {
         document.querySelectorAll('input[name="transcript_kind"').forEach((elem) => {
             elem.setAttribute('required', true);
         });
-        document.querySelector("#group-source-founded").hidden = false;
-        document.querySelector('#source-founded-question').innerHTML = `What year was the radio/TV show or podcast founded?`
+        document.querySelector("#group-source-date_founded").hidden = false;
+        document.querySelector('#source-date_founded-question').innerHTML = `What year was the radio/TV show or podcast date_founded?`
 
         document.querySelector("#group-payment-model").hidden = false;
         document.querySelectorAll('input[name="payment_model"').forEach((elem) => {
@@ -202,8 +202,8 @@ function channelVisibility(fieldOptions, allNames, el) {
         document.querySelectorAll('input[name="website_allows_comments"]').forEach((elem) => {
             elem.required = true
         });
-        document.querySelector("#group-source-founded").hidden = false;
-        document.querySelector('#source-founded-question').innerHTML = `What year was the website founded?`
+        document.querySelector("#group-source-date_founded").hidden = false;
+        document.querySelector('#source-date_founded-question').innerHTML = `What year was the website date_founded?`
         document.querySelector("#group-payment-model").hidden = false;
         document.querySelectorAll('input[name="payment_model"').forEach((elem) => {
             elem.setAttribute('required', true);
@@ -212,8 +212,8 @@ function channelVisibility(fieldOptions, allNames, el) {
         document.querySelector("#group-archive-sources-included").hidden = false
     } else if (value == 'facebook') {
         document.getElementById('name-facebook-tooltip').hidden = false;
-        document.querySelector('#group-source-founded').hidden = false
-        document.querySelector('#source-founded-question').innerHTML = `What year was the facebook page created?`
+        document.querySelector('#group-source-date_founded').hidden = false
+        document.querySelector('#source-date_founded-question').innerHTML = `What year was the facebook page created?`
         document.querySelector('#group-audience-size-likes').hidden = false
 
         document.querySelector('label[for="contains_ads1"]').innerHTML = 'Yes'
@@ -347,8 +347,8 @@ if (document.querySelector('input[name="geographic_scope"]')) {
                 try {
                     let geographicScopeSingle = document.getElementById('geographic-scope-single');
                     geographicScopeSingle.tomselect.clear();
-                    let geographicScopeSubunit = document.getElementById('geographic-scope-subunit');
-                    geographicScopeSubunit.tomselect.clear();
+                    let geographicScopeSubnational = document.getElementById('geographic-scope-subunit');
+                    geographicScopeSubnational.tomselect.clear();
                 } catch (ex) {
                     console.warn(ex.message);
                 }
@@ -373,8 +373,8 @@ if (document.querySelector('input[name="geographic_scope"]')) {
                     try {
                         let geographicScopeMultiple = document.getElementById('geographic-scope-multiple');
                         geographicScopeMultiple.tomselect.clear();
-                        let geographicScopeSubunit = document.getElementById('geographic-scope-subunit');
-                        geographicScopeSubunit.tomselect.clear();
+                        let geographicScopeSubnational = document.getElementById('geographic-scope-subunit');
+                        geographicScopeSubnational.tomselect.clear();
                     } catch (ex) {
                         console.warn(ex.message);
                     }
@@ -425,8 +425,8 @@ if (document.querySelector('input[name="geographic_scope"]')) {
                 try {
                     let geographicScopeMultiple = document.getElementById('geographic-scope-multiple');
                     geographicScopeMultiple.tomselect.clear();
-                    let geographicScopeSubunit = document.getElementById('geographic-scope-subunit');
-                    geographicScopeSubunit.tomselect.clear();
+                    let geographicScopeSubnational = document.getElementById('geographic-scope-subunit');
+                    geographicScopeSubnational.tomselect.clear();
                     let geographicScopeSingle = document.getElementById('geographic-scope-single');
                     geographicScopeSingle.tomselect.clear();
                 } catch (ex) {
@@ -455,8 +455,8 @@ function populateForm(jsonData) {
     if ("alternate_names" in jsonData) {
         document.getElementById("other-names").value = jsonData["alternate_names"].join(",");
     };
-    if ("founded" in jsonData) {
-        document.getElementById("source-founded").value = jsonData["founded"].split("-")[0]
+    if ("date_founded" in jsonData) {
+        document.getElementById("source-date_founded").value = jsonData["date_founded"].split("-")[0]
     };
     if ("payment_model" in jsonData) {
         document.querySelector(`input[name=payment_model][value='${jsonData["payment_model"]}']`).checked = true
@@ -644,7 +644,7 @@ ready(() => {
             addFieldOptions(data, 'archive', '#archive-sources-included', false, false, false);
             addFieldOptions(data, 'dataset', '#dataset-sources-included', false, false, false);
 
-            // Add field options for Country & Subunit Selection (Multiple Choice)
+            // Add field options for Country & Subnational Selection (Multiple Choice)
             var countries = data.country;
             var subunits = data.subunit;
             var multinational = data.multinational
@@ -676,8 +676,8 @@ ready(() => {
                 optgroupCountries.append(opt)
             });
 
-            var optgroupSubunits = document.createElement('optgroup');
-            optgroupSubunits.setAttribute('label', 'Subunit');
+            var optgroupSubnational = document.createElement('optgroup');
+            optgroupSubnational.setAttribute('label', 'Subnational');
             subunits.forEach(function(item, i) {
                 let opt = document.createElement('option')
                 opt.setAttribute('value', item._unique_name)
@@ -691,30 +691,30 @@ ready(() => {
                     item_label += ' [' + item.country[0]['name'] + ']'
                 }
                 opt.innerText = item_label
-                optgroupSubunits.append(opt)
+                optgroupSubnational.append(opt)
             });
 
             inputGeographicScopeMultiple.append(optgroupMultinational)
             inputGeographicScopeMultiple.append(optgroupCountries)
-            inputGeographicScopeMultiple.append(optgroupSubunits)
+            inputGeographicScopeMultiple.append(optgroupSubnational)
 
             inputGeographicScopeMultiple.addEventListener('change', function() {
                 var hiddenGeographicScopeCountry = document.getElementById('geographic-scope-countries-hidden')
-                var hiddenGeographicScopeSubunits = document.getElementById('geographic-scope-subunits-hidden')
+                var hiddenGeographicScopeSubnational = document.getElementById('geographic-scope-subunits-hidden')
                 var selectedCountries = new Array;
-                var selectedSubunits = new Array;
+                var selectedSubnational = new Array;
                 for (opt of this.selectedOptions) {
                     if (opt.getAttribute('data-type') == 'country') {
                         selectedCountries.push(opt.getAttribute('data-uid'));
                     } else {
                         if (opt.getAttribute('data-uid') === null) {
-                            selectedSubunits.push(opt.value);
+                            selectedSubnational.push(opt.value);
                         }
-                        selectedSubunits.push(opt.getAttribute('data-uid'));
+                        selectedSubnational.push(opt.getAttribute('data-uid'));
                     }
                 }
                 hiddenGeographicScopeCountry.value = selectedCountries.join()
-                hiddenGeographicScopeSubunits.value = selectedSubunits.join()
+                hiddenGeographicScopeSubnational.value = selectedSubnational.join()
             });
 
             var inputGeographicScopeSingle = document.getElementById('geographic-scope-single')
@@ -738,7 +738,7 @@ ready(() => {
 
 
             // handle field visibility / dependency logic
-            const channelVisibilityFields = document.querySelectorAll('#group-name, #group-epaper, #group-website_allows_comments, #group-website_comments_registration_required, #group-transcript-kind, #group-audience-size, #group-source-founded, #group-payment-model');
+            const channelVisibilityFields = document.querySelectorAll('#group-name, #group-epaper, #group-website_allows_comments, #group-website_comments_registration_required, #group-transcript-kind, #group-audience-size, #group-source-date_founded, #group-payment-model');
             channelVisibilityFields.forEach((elem) => elem.hidden = true);
             document.getElementById('channel-select').addEventListener('change', (element) => {
                     channelVisibility(data, channelVisibilityFields, element);
@@ -790,7 +790,7 @@ ready(() => {
                 }
             };
 
-            var TomSelectSubunitConfig = {
+            var TomSelectSubnationalConfig = {
                 selectOnTab: true,
                 create: true,
                 onInitialize: function() { // hacky way of forcing the field to be not-validated on load
@@ -813,7 +813,7 @@ ready(() => {
 
             geographicScopeSingle = new TomSelect('#geographic-scope-single', TomSelectCountryConfig);
             geographicScopeMultiple = new TomSelect('#geographic-scope-multiple', TomSelectCountriesConfig);
-            geographicScopeSubunit = new TomSelect('#geographic-scope-subunit', TomSelectSubunitConfig);
+            geographicScopeSubnational = new TomSelect('#geographic-scope-subunit', TomSelectSubnationalConfig);
 
 
             var TomSelectLanguagesConfig = {

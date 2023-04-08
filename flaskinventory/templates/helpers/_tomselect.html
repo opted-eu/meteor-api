@@ -202,7 +202,7 @@ if (embeddedJSON) {
 
     {% elif field.name == 'geographic_scope_subunit' %}
     
-    var TomSelectSubunitConfig = {
+    var TomSelectSubnationalConfig = {
         plugins: ['remove_button'],
         selectOnTab: true,
         create: true,
@@ -219,7 +219,7 @@ if (embeddedJSON) {
         }
     };
     
-    new TomSelect('#geographic_scope_subunit', TomSelectSubunitConfig);
+    new TomSelect('#geographic_scope_subunit', TomSelectSubnationalConfig);
 
     {% elif field.name == 'authors' %}
     

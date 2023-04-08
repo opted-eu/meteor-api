@@ -81,7 +81,7 @@
 {% endif %}
 
 
-{% if 'Subunit' in entry['dgraph.type'] %}
+{% if 'Subnational' in entry['dgraph.type'] %}
 
     {% include "view/elements/subunit/summary.html" %}
 
@@ -137,22 +137,22 @@
 {% endif %}
 
 
-{% if 'MetaVar' in entry['dgraph.type'] %}
+{% if 'MetaVariable' in entry['dgraph.type'] %}
 
     {% include "view/elements/metavar/reverse.html" %}
 
 {% endif %}
 
-{% if 'ConceptVar' in entry['dgraph.type'] %}
+{% if 'ConceptVariable' in entry['dgraph.type'] %}
 
     {% include "view/elements/conceptvar/reverse.html" %}
 
 {% endif %}
 
 
-{% if 'TextUnit' in entry['dgraph.type'] %}
+{% if 'UnitOfAnalysis' in entry['dgraph.type'] %}
 
-    {% include "view/elements/textunit/reverse.html" %}
+    {% include "view/elements/unitofanalysis/reverse.html" %}
 
 {% endif %}
 

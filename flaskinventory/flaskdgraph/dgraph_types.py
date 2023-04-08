@@ -1396,7 +1396,7 @@ class SingleRelationship(Predicate):
 
     def __init__(self,
                  relationship_constraint=None,
-                 allow_new=True,
+                 allow_new=False,
                  autoload_choices=False,
                  *args, **kwargs) -> None:
 
@@ -1515,7 +1515,7 @@ class ListRelationship(SingleRelationship):
     is_list_predicate = True
     default_connector = "AND"
 
-    def __init__(self, overwrite=True, relationship_constraint=None, allow_new=True, autoload_choices=False, *args, **kwargs) -> None:
+    def __init__(self, overwrite=True, relationship_constraint=None, allow_new=False, autoload_choices=False, *args, **kwargs) -> None:
         super().__init__(relationship_constraint=relationship_constraint, allow_new=allow_new,
                          autoload_choices=autoload_choices, overwrite=overwrite, *args, **kwargs)
 

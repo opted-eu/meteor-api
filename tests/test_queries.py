@@ -204,7 +204,7 @@ class TestQueries(BasicTestSetup):
 
         with self.client as c:
             # Founded by exact year
-            query = {"founded": ["1995"],
+            query = {"date_founded": ["1995"],
                      "json": True}
 
             response = c.get('/query',
@@ -212,7 +212,7 @@ class TestQueries(BasicTestSetup):
             self.assertEqual(len(response.json['result']), 2)
 
             # Founded in range
-            query = {"founded": ["1990", "2000"],
+            query = {"date_founded": ["1990", "2000"],
                      "json": True}
 
             response = c.get('/query',
@@ -220,8 +220,8 @@ class TestQueries(BasicTestSetup):
             self.assertEqual(len(response.json['result']), 4)
 
             # Founded before year
-            query = {"founded": ["2000"],
-                     "founded*operator": 'lt',
+            query = {"date_founded": ["2000"],
+                     "date_founded*operator": 'lt',
                      "json": True}
 
             response = c.get('/query',
@@ -229,8 +229,8 @@ class TestQueries(BasicTestSetup):
             self.assertEqual(len(response.json['result']), 6)
 
             # Founded after year
-            query = {"founded": ["2000"],
-                     "founded*operator": 'gt',
+            query = {"date_founded": ["2000"],
+                     "date_founded*operator": 'gt',
                      "json": True}
 
             response = c.get('/query',

@@ -65,5 +65,5 @@ def channel_filter(channel: str) -> list:
                 'website_comments_registration_required',
                 'channel_epaper',
                 'payment_model',
-                'founded']
+                'date_founded']
     else: return []

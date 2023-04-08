@@ -671,7 +671,7 @@ class Sanitizer:
             self.entry['audience_size'] = Scalar(
                 str(datetime.date.today()), facets=facets)
         if profile.get('joined'):
-            self.entry['founded'] = profile.get('joined').isoformat()
+            self.entry['date_founded'] = profile.get('joined').isoformat()
         self.entry['verified_account'] = profile.get('verified')
 
     def fetch_vk(self):
@@ -738,7 +738,7 @@ class Sanitizer:
         if profile.get('telegram_id'):
             self.entry['channel_url'] = profile.get('telegram_id')
         if profile.get('joined'):
-            self.entry['founded'] = profile.get('joined')
+            self.entry['date_founded'] = profile.get('joined')
 
 
 class OrganizationSanitizer(Sanitizer):

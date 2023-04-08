@@ -237,7 +237,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                                  follow_redirects=True)
                 self.assertEqual(response.status_code, 200)
 
-            response = c.get('/view/MetaVar/uid/' + self.derstandard_facebook)
+            response = c.get('/view/MetaVariable/uid/' + self.derstandard_facebook)
             self.assertEqual(response.status_code, 302)
 
             response = c.get('/view/Tool/uid/0xffffffffffffff',
