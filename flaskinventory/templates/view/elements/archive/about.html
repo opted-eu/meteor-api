@@ -3,10 +3,10 @@
     <dl class="row">
         <dt class="col-sm-3 mb-4"><h5>About</h5></dt>
         <dd class="col-sm-9 mb-4"><small class="text-muted"></small></dd>
-        {% if entry.access %}
+        {% if entry.conditions_of_access %}
         <dt class="col-sm-3">Access</dt>
         <dd class="col-sm-9">
-            {{entry.access}}
+            {{entry.conditions_of_access}}
         {% endif %}
         {% if entry.country %}
         <dt class="col-sm-3">Countries covered in dataset</dt>
@@ -20,7 +20,7 @@
         <dt class="col-sm-3 my-4"><h5>Sources included</h5></dt>
         <dd class="col-sm-9 my-4"><small class="text-muted">Shows how many of the sources listed in this inventory are available in the archive.</small></dd>
         <dt class="col-sm-3">Total</dt>
-        <dd class="col-sm-9"><a href="{{ url_for('view.query') }}?dgraph.type=Source&~sources_included={{ entry.uid }}">{{ entry.num_sources }}</a>
+        <dd class="col-sm-9"><a href="{{ url_for('view.query') }}?dgraph.type=NewsSource&~sources_included={{ entry.uid }}">{{ entry.num_sources }}</a>
         </dd>
         {% if entry.text_units %}
         <dt class="col-sm-3">Text Units</dt>

@@ -30,14 +30,14 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
     else:
         query_func += f'@filter(has(dgraph.type))'
 
-    query_fields = '''{ uid dgraph.type expand(_all_) { uid _unique_name name entry_review_status display_name authors @facets title channel { name _unique_name } }'''
+    query_fields = '''{ uid dgraph.type expand(_all_) { uid _unique_name name entry_review_status display_name authors @facets { uid _unique_name name } title channel { name _unique_name } }'''
 
-    if dgraph_type == 'Source':
+    if dgraph_type == 'NewsSource':
         query_fields += '''published_by: ~publishes @facets @filter(type("Organization")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
                             archives: ~sources_included @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
-                            datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status authors @facets }
-                            corpora: ~sources_included @facets @filter(type("Corpus")) (orderasc: _unique_name) { name _unique_name uid entry_review_status authors @facets }
-                            papers: ~sources_included @facets @filter(type("ResearchPaper")) (orderasc: published_date) { uid name title published_date entry_review_status authors @facets } 
+                            datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status authors @facets { uid _unique_name name } }
+                            corpora: ~sources_included @facets @filter(type("Corpus")) (orderasc: _unique_name) { name _unique_name uid entry_review_status authors @facets { uid _unique_name name } }
+                            papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status authors @facets { uid _unique_name name } } 
                         } }'''
 
     elif dgraph_type == 'Organization':
@@ -45,41 +45,41 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
 
     elif dgraph_type == 'Corpus':
         query_fields += '''
-                        papers: ~corpus_used @facets @filter(type("ResearchPaper")) (orderasc: name) { uid title published_date name entry_review_status authors @facets } 
+                        papers: ~corpus_used @facets @filter(type("ScientificPublication")) (orderasc: name) { uid title date_published name entry_review_status authors @facets { uid _unique_name name } } 
                         } }
                         '''
 
     elif dgraph_type == 'Operation':
         query_fields += '''
-                        tools: ~used_for @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date programming_languages platform } } }
+                        tools: ~used_for @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } date_published programming_languages platform } } }
                         '''
 
     elif dgraph_type == 'FileFormat':
         query_fields += '''
-                        tools_input: ~input_file_format @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date programming_languages platform } 
-                        tools_output: ~output_file_format @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date programming_languages platform }
-                        datasets: ~file_format @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date }
+                        tools_input: ~input_file_format @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } date_published programming_languages platform } 
+                        tools_output: ~output_file_format @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } date_published programming_languages platform }
+                        datasets: ~file_formats @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } date_published }
                         } }
                         '''
 
     elif dgraph_type == 'MetaVariable':
         query_fields += '''
-                        datasets: ~meta_vars @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date }
-                        corpus: ~meta_vars @filter(type("Corpus"))  (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date }
+                        datasets: ~meta_variables @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } date_published }
+                        corpus: ~meta_variables @filter(type("Corpus"))  (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } date_published }
                         } }
                         '''
     
     elif dgraph_type == 'ConceptVariable':
         query_fields += '''
-                        datasets: ~concept_vars @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date }
-                        corpus: ~concept_vars @filter(type("Corpus"))  { uid name _unique_name entry_review_status authors @facets published_date }
-                        tools: ~concept_vars @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date programming_languages platform }
+                        datasets: ~concept_variables @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } date_published }
+                        corpus: ~concept_variables @filter(type("Corpus"))  { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } date_published }
+                        tools: ~concept_variables @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } date_published programming_languages platform }
                         } }
                         '''
 
     elif dgraph_type == 'UnitOfAnalysis':
         query_fields += '''
-                        corpus: ~text_units @filter(type("Corpus")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets published_date }
+                        corpus: ~text_units @filter(type("Corpus")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } date_published }
                         } }
                         '''
     else:
@@ -97,7 +97,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
     restore_sequence(data)
 
     if dgraph_type == 'Channel':
-        num_sources = dgraph.query(Source.channel.count(uid, _reverse=True, entry_review_status="accepted"))
+        num_sources = dgraph.query(NewsSource.channel.count(uid, _reverse=True, entry_review_status="accepted"))
         data['num_sources'] = num_sources['channel'][0]['count']
 
     elif dgraph_type == 'Archive':
@@ -113,17 +113,17 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
         data['num_sources'] = num_sources['sources_included'][0]['count(sources_included)']
 
     elif dgraph_type == 'Country':
-        num_sources = dgraph.query(Source.country.count(uid, _reverse=True, entry_review_status="accepted"))
-        data['num_sources'] = num_sources['country'][0]['count']
+        num_sources = dgraph.query(NewsSource.countries.count(uid, _reverse=True, entry_review_status="accepted"))
+        data['num_sources'] = num_sources['countries'][0]['count']
         num_orgs = dgraph.query(Organization.country.count(uid, _reverse=True, entry_review_status="accepted"))
         data['num_orgs'] = num_orgs['country'][0]['count']
     
     elif dgraph_type == 'Multinational':
-        num_sources = dgraph.query(Source.country.count(uid, _reverse=True, entry_review_status="accepted"))
+        num_sources = dgraph.query(NewsSource.country.count(uid, _reverse=True, entry_review_status="accepted"))
         data['num_sources'] = num_sources['country'][0]['count']
 
     elif dgraph_type == 'Subnational':
-        num_sources = dgraph.query(Source.geographic_scope_subunit.count(uid, _reverse=True, entry_review_status="accepted"))
+        num_sources = dgraph.query(NewsSource.geographic_scope_subunit.count(uid, _reverse=True, entry_review_status="accepted"))
         data['num_sources'] = num_sources['geographic_scope_subunit'][0]['count']
 
     return data
@@ -148,7 +148,7 @@ def get_rejected(uid):
 
 def get_orphan(query):
     q_string = '''{
-                source(func: eq(dgraph.type, "Source")) 
+                source(func: eq(dgraph.type, "NewsSource")) 
                 @filter(not(has(~publishes))) {
                     uid
                     name
@@ -176,7 +176,7 @@ def list_by_type(typename, filt=None, fields=None, normalize=False):
         query_fields = " ".join(fields)
     else:
         normalize = True
-        if typename == 'Source':
+        if typename == 'NewsSource':
             query_fields = ''' uid _unique_name name date_founded alternate_names
                                 channel { name }
                                 '''
@@ -186,12 +186,12 @@ def list_by_type(typename, filt=None, fields=None, normalize=False):
                                 owns: count(owns)
                                 '''
         if typename in ['Archive', 'Dataset', 'Corpus']:
-            query_fields = ''' uid _unique_name name access alternate_names
+            query_fields = ''' uid _unique_name name conditions_of_access alternate_names
                                 sources_included: count(sources_included)
                                 ''' 
-        if typename == 'ResearchPaper':
+        if typename == 'ScientificPublication':
             normalize = False   
-            query_fields = ''' uid title authors @facets published_date journal
+            query_fields = ''' uid title authors @facets { uid _unique_name name } date_published venue
                                 sources_included: count(sources_included)
                                 '''
         if typename == 'Subnational':
@@ -200,7 +200,7 @@ def list_by_type(typename, filt=None, fields=None, normalize=False):
         
         if typename == 'Tool':
             normalize = False
-            query_fields = ''' uid name authors @facets published_date journal
+            query_fields = ''' uid name authors @facets { uid _unique_name name } date_published venue
                                 '''
 
     query_fields += ''' country { name } '''
@@ -217,7 +217,7 @@ def list_by_type(typename, filt=None, fields=None, normalize=False):
         return False
 
     data = data['q']
-    if typename in ['ResearchPaper', 'Tool', 'Corpus', 'Dataset']:
+    if typename in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']:
         for paper in data:
             restore_sequence(paper)
 

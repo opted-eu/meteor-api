@@ -95,7 +95,16 @@
         _:telegram <form_name_placeholder> "pagehandle" .
         _:telegram <form_name_addon> "https://www.t.me/" .
 
-        _:derstandardat <dgraph.type> "Source" .
+        _:derstandardbrand <dgraph.type> "JournalisticBrand" .
+        _:derstandardbrand <name> "Der Standard" .
+        _:derstandardbrand <_unique_name> "journalisticbrand_derstandard" .
+        _:derstandardbrand <news_sources_included> _:derstandardat .
+        _:derstandardbrand <news_sources_included> _:derstandartwitter .
+        _:derstandardbrand <news_sources_included> _:derstandarinstagram .
+        _:derstandardbrand <news_sources_included> _:derstandarfacebook .
+        _:derstandardbrand <news_sources_included> _:derstandardprint .
+
+        _:derstandardat <dgraph.type> "NewsSource" .
         _:derstandardat <_unique_name> "www.derstandard.at" .
         _:derstandardat <name> "www.derstandard.at" .
         _:derstandardat <alternate_names> "DerStandard.at" .
@@ -103,7 +112,7 @@
         _:derstandardat <wikidata_id> "Q1192004" .
         _:derstandardat <date_founded> "1995-02-02" .
         _:derstandardat <channel> _:website .
-        _:derstandardat <channel_url> "https://www.derstandard.at/" .
+        _:derstandardat <identifier> "https://www.derstandard.at/" .
         _:derstandardat <website_allows_comments> "yes" .
         _:derstandardat <website_comments_registration_required> "yes" .
         _:derstandardat <channel_feeds> "https://www.derstandard.at/sitemaps/news.xml" (kind="sitemap") .
@@ -116,10 +125,9 @@
         _:derstandardat <publication_cycle> "continuous" .
         _:derstandardat <geographic_scope> "national" .
         _:derstandardat <country> _:austria .
-        _:derstandardat <languages> "de" .
         _:derstandardat <audience_size> "2021-05-06" (count=884687, unit="daily visitors", data_from="https://siterankdata.com/derstandard.at") .
 
-        _:derstandardprint <dgraph.type> "Source" .
+        _:derstandardprint <dgraph.type> "NewsSource" .
         _:derstandardprint <_unique_name> "derstandard_print" .
         _:derstandardprint <name> "Der Standard" .
         _:derstandardprint <alternate_names> "DerStandard" .
@@ -134,84 +142,80 @@
         _:derstandardprint <publication_cycle> "daily" .
         _:derstandardprint <geographic_scope> "national" .
         _:derstandardprint <country> _:austria .
-        _:derstandardprint <languages> "de" .
         _:derstandardprint <audience_size> "2018" (count=57221, unit="copies sold", data_from="https://www.oeak.at/wp-content/uploads/2019/01/KORR_Auflagenliste_H1_2018.pdf") .
 
-        _:derstandardinstagram <dgraph.type> "Source" .
+        _:derstandardinstagram <dgraph.type> "NewsSource" .
         _:derstandardinstagram <_unique_name> "derstandard_instagram" .
         _:derstandardinstagram <name> "derstandardat" .
         _:derstandardinstagram <alternate_names> "DER STANDARD" .
         _:derstandardinstagram <wikidata_id> "Q128660" .
         _:derstandardinstagram <date_founded> "2012-06-22" .
         _:derstandardinstagram <channel> _:instagram .
-        _:derstandardinstagram <channel_url> "derstandardat" .
+        _:derstandardinstagram <identifier> "derstandardat" .
         _:derstandardinstagram <publication_kind> "newspaper" .
         _:derstandardinstagram <special_interest> "false" .
         _:derstandardinstagram <publication_cycle> "continuous" .
         _:derstandardinstagram <geographic_scope> "national" .
         _:derstandardinstagram <country> _:austria .
-        _:derstandardinstagram <languages> "de" .
         _:derstandardinstagram <audience_size> "2021-05-06" (count=292000, unit="followers") .
         _:derstandardinstagram <verified_account> "true" .
 
-        _:derstandardtwitter <dgraph.type> "Source" .
+        _:derstandardtwitter <dgraph.type> "NewsSource" .
         _:derstandardtwitter <_unique_name> "derstandard_twitter" .
         _:derstandardtwitter <name> "derStandardat" .
         _:derstandardtwitter <alternate_names> "DER STANDARD" .
         _:derstandardtwitter <wikidata_id> "Q128660" .
         _:derstandardtwitter <date_founded> "2009-03" .
         _:derstandardtwitter <channel> _:twitter .
-        _:derstandardtwitter <channel_url> "derStandardat" .
+        _:derstandardtwitter <identifier> "derStandardat" .
         _:derstandardtwitter <publication_kind> "newspaper" .
         _:derstandardtwitter <special_interest> "false" .
         _:derstandardtwitter <publication_cycle> "continuous" .
         _:derstandardtwitter <geographic_scope> "national" .
         _:derstandardtwitter <country> _:austria .
-        _:derstandardtwitter <languages> "de" .
         _:derstandardtwitter <audience_size> "2021-05-06" (count=333700, unit="followers") .
         _:derstandardtwitter <verified_account> "true" .
 
-        _:derstandardfacebook <dgraph.type> "Source" .
+        _:derstandardfacebook <dgraph.type> "NewsSource" .
         _:derstandardfacebook <_unique_name> "derstandard_facebook" .
         _:derstandardfacebook <name> "derStandardat" .
         _:derstandardfacebook <alternate_names> "DER STANDARD" .
         _:derstandardfacebook <wikidata_id> "Q128660" .
         _:derstandardfacebook <date_founded> "2010-09-04" .
         _:derstandardfacebook <channel> _:facebook .
-        _:derstandardfacebook <channel_url> "derStandardat" .
+        _:derstandardfacebook <identifier> "derStandardat" .
         _:derstandardfacebook <publication_kind> "newspaper" .
         _:derstandardfacebook <special_interest> "false" .
         _:derstandardfacebook <publication_cycle> "continuous" .
         _:derstandardfacebook <geographic_scope> "national" .
         _:derstandardfacebook <country> _:austria .
-        _:derstandardfacebook <languages> "de" .
         _:derstandardfacebook <audience_size> "2021-05-06" (count=347671, unit="followers") .
         _:derstandardfacebook <verified_account> "true" .
 
-        _:derstandardat <related> _:derstandardprint .
-        _:derstandardat <related> _:derstandardinstagram .
-        _:derstandardat <related> _:derstandardtwitter .
-        _:derstandardat <related> _:derstandardfacebook .
+        _:derstandardat <related_news_sources> _:derstandardprint .
+        _:derstandardat <related_news_sources> _:derstandardinstagram .
+        _:derstandardat <related_news_sources> _:derstandardtwitter .
+        _:derstandardat <related_news_sources> _:derstandardfacebook .
 
-        _:derstandardprint <related> _:derstandardat .
-        _:derstandardprint <related> _:derstandardinstagram .
-        _:derstandardprint <related> _:derstandardtwitter .
-        _:derstandardprint <related> _:derstandardfacebook .
+        _:derstandardprint <related_news_sources> _:derstandardat .
+        _:derstandardprint <related_news_sources> _:derstandardinstagram .
+        _:derstandardprint <related_news_sources> _:derstandardtwitter .
+        _:derstandardprint <related_news_sources> _:derstandardfacebook .
 
-        _:derstandardinstagram <related> _:derstandardat .
-        _:derstandardinstagram <related> _:derstandardprint .
-        _:derstandardinstagram <related> _:derstandardtwitter .
-        _:derstandardinstagram <related> _:derstandardfacebook .
+        _:derstandardinstagram <related_news_sources> _:derstandardat .
+        _:derstandardinstagram <related_news_sources> _:derstandardprint .
+        _:derstandardinstagram <related_news_sources> _:derstandardtwitter .
+        _:derstandardinstagram <related_news_sources> _:derstandardfacebook .
 
-        _:derstandardtwitter <related> _:derstandardat .
-        _:derstandardtwitter <related> _:derstandardprint .
-        _:derstandardtwitter <related> _:derstandardinstagram .
-        _:derstandardtwitter <related> _:derstandardfacebook .
+        _:derstandardtwitter <related_news_sources> _:derstandardat .
+        _:derstandardtwitter <related_news_sources> _:derstandardprint .
+        _:derstandardtwitter <related_news_sources> _:derstandardinstagram .
+        _:derstandardtwitter <related_news_sources> _:derstandardfacebook .
 
-        _:derstandardfacebook <related> _:derstandardprint .
-        _:derstandardfacebook <related> _:derstandardinstagram .
-        _:derstandardfacebook <related> _:derstandardtwitter .
-        _:derstandardfacebook <related> _:derstandardat .
+        _:derstandardfacebook <related_news_sources> _:derstandardprint .
+        _:derstandardfacebook <related_news_sources> _:derstandardinstagram .
+        _:derstandardfacebook <related_news_sources> _:derstandardtwitter .
+        _:derstandardfacebook <related_news_sources> _:derstandardat .
 
         _:mbhderstandard <dgraph.type> "Organization" .
         _:mbhderstandard <_unique_name> "derstandard_mbh" .
@@ -235,7 +239,7 @@
         _:agderstandard <address> "Vordere Zollamtsstraße 13, 1030 Wien" .
         _:agderstandard <owns> _:mbhderstandard .  
 
-        _:falterprint <dgraph.type> "Source" .
+        _:falterprint <dgraph.type> "NewsSource" .
         _:falterprint <_unique_name> "falter_print" .
         _:falterprint <name> "Falter" .
         _:falterprint <wikidata_id> "Q1394979" .
@@ -249,7 +253,6 @@
         _:falterprint <publication_cycle_weekday> "3" .
         _:falterprint <geographic_scope> "national" .
         _:falterprint <country> _:austria .
-        _:falterprint <languages> "de" .
         _:falterprint <audience_size> "2020" (count=51000, unit="copies sold", data_from="https://www.falter.at/media/b2b/Mediadaten2021_FALTER.pdf") .
 
         _:falterverlag <dgraph.type> "Organization" .
@@ -276,29 +279,69 @@
         _:apa <alternate_names> "AOM" .
         _:apa <alternate_names> "APA Defacto CAMPUS" .
         _:apa <description> "Die Datenbank der APA-OnlineManager Library umfasst die Inhalte österreichischen Tageszeitungen sowie Wochen-, Monatsmagazine und Transkripte von Informationssendungen aus Radio & TV - derzeit aktuell mehr als 350 Medien. Zusätzlich sind auch viele internationale Zeitungen und Magazine verfügbar. Die Medienberichte werden 7 Tage nach Erscheinen in die Datenbank integriert und reichen zurück teilweise bis 1990." . 
-        _:apa <access> "restricted" .
+        _:apa <conditions_of_access> "restricted" .
         _:apa <url> "https://aomlibrary.apa.at/" .
         _:apa <sources_included> _:derstandardat (from=2009) .
         _:apa <sources_included> _:derstandardprint (from=1995) .
         _:apa <sources_included> _:falterprint (from=1998) .
 
-        _:paper1 <dgraph.type> "ResearchPaper" .
-        _:paper1 <doi> "10.1080/1461670X.2020.1745667" .
+        _:paper1 <dgraph.type> "ScientificPublication" .
+        _:paper1 <dgraph.type> "Entry" .
         _:paper1 <name> "Egelhofer et al. (2020): From Novelty to Normalization?" .
         _:paper1 <title> "From Novelty to Normalization? How Journalists Use the Term “Fake News” in their Reporting" .
-        _:paper1 <_unique_name> "10.1080/1461670X.2020.1745667" .
-        _:paper1 <authors> "Jana Laura Egelhofer" (sequence=1) .
-        _:paper1 <authors> "Loes Aaldering" (sequence=2) .
-        _:paper1 <authors> "Jakob-Moritz Eberl" (sequence=3) .
-        _:paper1 <authors> "Sebastian Galyga" (sequence=4) .
-        _:paper1 <authors> "Sophie Lecheler" (sequence=5) .  
-        _:paper1 <published_date> "2020-03-20" .
-        _:paper1 <description> "During recent years, worries about fake news have been a salient aspect of mediated debates..." .
-        _:paper1 <paper_kind> "Journal Article" .
+        _:paper1 <_unique_name> "10.1080_1461670X.2020.1745667" .
+        _:paper1 <authors> _:author1 (sequence=0) .
+        _:paper1 <authors> _:author2 (sequence=1) .
+        _:paper1 <authors> _:author3 (sequence=2) .
+        _:paper1 <authors> _:author4 (sequence=3) .
+        _:paper1 <authors> _:author5 (sequence=4) .  
+        _:paper1 <date_published> "2020-03-20" .
+        _:paper1 <paper_kind> "journal-article" .
+        _:paper1 <venue> "Journalism Studies" .
         _:paper1 <url> "https://www.tandfonline.com/doi/full/10.1080/1461670X.2020.1745667" .
+        _:paper1 <doi> "10.1080/1461670X.2020.1745667" .
+        _:paper1 <openalex> "W3014090490" .
+        _:paper1 <description> "During recent years, worries about fake news have been a salient aspect of mediated debates..." .
         _:paper1 <sources_included> _:derstandardprint (from="2015-01-01", to="2018-05-01") .
-        _:paper1 <journal> "Journalism Studies" .
-        _:paper1 <country> _:austria .
+        _:paper1 <countries> _:austria .
+        _:paper1 <geographic_scope> "national" .
+        _:paper1 <tools_used> _:amcat .
+        _:paper1 <methodologies> _:manual_content_analysis .
+        _:paper1 <text_units> _:paragraph .
+        _:paper1 <text_units> _:headline .
+
+        _:author1 <dgraph.type> "Author" .
+        _:author1 <dgraph.type> "Entry" .
+        _:author1 <name> "Jana Laura Egelhofer" .
+        _:author1 <_unique_name> "author_jana_laura_egelhofer" .
+        _:author1 <openalex> "A2936517841" .
+        _:author1 <orcid> "0000-0002-7090-8319" .
+
+        _:author2 <dgraph.type> "Author" .
+        _:author2 <dgraph.type> "Entry" .
+        _:author2 <_unique_name> "author_loes_aaldering" .
+        _:author2 <name> "Loes Aaldering" .
+        _:author2 <openalex> "A4354635850" .
+
+        _:author3 <dgraph.type> "Author" .
+        _:author3 <dgraph.type> "Entry" .
+        _:author3 <_unique_name> "author_jakob_moritz_eberl" .
+        _:author3 <name> "Jakob-Moritz Eberl" .
+        _:author3 <openalex> "A2526638104" .
+        _:author3 <orcid> "0000-0002-5613-760X" .
+
+        _:author4 <dgraph.type> "Author" .
+        _:author4 <dgraph.type> "Entry" .
+        _:author4 <name> "Sebastian Galyga" .
+        _:author4 <_unique_name> "author_sebastian_galyga" .
+        _:author4 <openalex> "A3010139401" .
+
+        _:author5 <dgraph.type> "Author" .
+        _:author5 <dgraph.type> "Entry" .
+        _:author5 <name> "Sophie Lecheler" .
+        _:author5 <_unique_name> "author_sophie_lecheler" .
+        _:author5 <openalex> "A4358508079" .
+        _:author5 <orcid> "0000-0003-2642-0815" .
 
         _:admin <dgraph.type> "User" .
         _:admin <email> "wp3@opted.eu" .
@@ -332,8 +375,8 @@
         _:derstandardinstagram <_added_by> _:admin (timestamp=2022-05-17T10:00:00, ip="192.168.0.1") .
         _:derstandardfacebook <_added_by> _:admin (timestamp=2022-05-17T10:00:00, ip="192.168.0.1") .
 
-        _:globalvoices_website <dgraph.type> "Source" .
-        _:globalvoices_website <channel_url> "https://globalvoices.org/" .
+        _:globalvoices_website <dgraph.type> "NewsSource" .
+        _:globalvoices_website <identifier> "https://globalvoices.org/" .
         _:globalvoices_website <contains_ads> "no" .
         _:globalvoices_website <publication_cycle> "continuous" .
         _:globalvoices_website <geographic_scope> "multinational" .
@@ -349,62 +392,12 @@
         _:globalvoices_website <party_affiliated> "no" .
         _:globalvoices_website <publication_kind> "news blog" .
         _:globalvoices_website <special_interest> "false" .
-        _:globalvoices_website <languages> "ne" .
-        _:globalvoices_website <languages> "yo" .
-        _:globalvoices_website <languages> "ig" .
-        _:globalvoices_website <languages> "pa" .
-        _:globalvoices_website <languages> "tl" .
-        _:globalvoices_website <languages> "en" .
-        _:globalvoices_website <languages> "hu" .
-        _:globalvoices_website <languages> "da" .
-        _:globalvoices_website <languages> "am" .
-        _:globalvoices_website <languages> "ca" .
-        _:globalvoices_website <languages> "ps" .
-        _:globalvoices_website <languages> "sq" .
-        _:globalvoices_website <languages> "sw" .
-        _:globalvoices_website <languages> "my" .
-        _:globalvoices_website <languages> "ko" .
-        _:globalvoices_website <languages> "pt" .
-        _:globalvoices_website <languages> "sat" .
-        _:globalvoices_website <languages> "xnz" .
-        _:globalvoices_website <languages> "cs" .
-        _:globalvoices_website <languages> "tr" .
-        _:globalvoices_website <languages> "eo" .
-        _:globalvoices_website <languages> "es" .
-        _:globalvoices_website <languages> "hi" .
-        _:globalvoices_website <languages> "nl" .
-        _:globalvoices_website <languages> "ur" .
-        _:globalvoices_website <languages> "it" .
-        _:globalvoices_website <languages> "fa" .
-        _:globalvoices_website <languages> "ru" .
-        _:globalvoices_website <languages> "fr" .
-        _:globalvoices_website <languages> "tdt" .
-        _:globalvoices_website <languages> "ja" .
-        _:globalvoices_website <languages> "ro" .
-        _:globalvoices_website <languages> "uk" .
-        _:globalvoices_website <languages> "id" .
-        _:globalvoices_website <languages> "mg" .
-        _:globalvoices_website <languages> "km" .
-        _:globalvoices_website <languages> "mk" .
-        _:globalvoices_website <languages> "or" .
-        _:globalvoices_website <languages> "sr" .
-        _:globalvoices_website <languages> "bn" .
-        _:globalvoices_website <languages> "kk" .
-        _:globalvoices_website <languages> "el" .
-        _:globalvoices_website <languages> "uz" .
-        _:globalvoices_website <languages> "he" .
-        _:globalvoices_website <languages> "ku" .
-        _:globalvoices_website <languages> "sv" .
-        _:globalvoices_website <languages> "pl" .
-        _:globalvoices_website <languages> "ar" .
-        _:globalvoices_website <languages> "bg" .
         _:globalvoices_website <date_founded> "2005-01-01T00:00:00Z" .
         _:globalvoices_website <channel> _:website .
         _:globalvoices_website <country> _:global .
 
-        _:direkt_print <dgraph.type> "Source" .
+        _:direkt_print <dgraph.type> "NewsSource" .
         _:direkt_print <publication_kind> "alternative media" . 
-        _:direkt_print <languages> "de" . 
         _:direkt_print <channel_epaper> "yes" . 
         _:direkt_print <payment_model> "not free" . 
         _:direkt_print <geographic_scope> "multinational" . 
@@ -427,7 +420,120 @@
         _:test_rejected <_added_by> _:contributor (timestamp=2022-03-11T12:12:40.393389Z) .
         _:test_rejected <_date_created> "2022-03-11T12:12:40.393389Z" . 
         _:test_rejected <name> "Unit Test Rejected" .
-        _:test_rejected <_unique_name> "rejected12345" .         
+        _:test_rejected <_unique_name> "rejected12345" .  
+
+        _:amcat <name> "AmCAT" . 
+        _:amcat <dgraph.type> "Tool" . 
+        _:amcat <dgraph.type> "Entry" .
+        _:amcat <_unique_name> "tool_amcat" .
+        _:amcat <alternate_names> "Amsterdam Content Analysis Tool" .
+        _:amcat <alternate_names> "amcat4" .
+        _:amcat <alternate_names> "Amsterdam Content Analysis Toolkit" .
+        _:amcat <alternate_names> "amcat3" .
+        _:amcat <alternate_names> "(J)AmCAT" .
+        _:amcat <alternate_names> "jamcat" .
+        _:amcat <authors> _:wouter (sequence=0) .
+        _:amcat <authors> _:farzam (sequence=1) .
+        _:amcat <authors> _:kasper (sequence=2) .
+        _:amcat <description> "The Amsterdam Content Analysis Toolkit (AmCAT) is an open source infrastructure that makes it easy to do large-scale automatic and manual content analysis (text analysis) for the social sciences and humanities." . 
+        _:amcat <url> "https://github.com/ccs-amsterdam/amcat4" .
+        _:amcat <used_for> _:document_search .
+        _:amcat <used_for> _:manual_content_analysis .
+        _:amcat <used_for> _:crowd_coding .
+        _:amcat <language_independent> "true" .
+        _:amcat <input_file_format> _:csv .
+        _:amcat <input_file_format> _:rdata .
+        _:amcat <input_file_format> _:xlsx .
+        _:amcat <output_file_format> _:csv .
+        _:amcat <output_file_format> _:rdata .
+        _:amcat <license> "GNU Affero General Public License v3.0" .
+        _:amcat <references> _:amcatpaper .
+        _:amcat <github> "ccs-amsterdam/amcat4" .
+        _:amcat <last_activity> "2023-04-05" .
+        _:amcat <version> "4" .
+        _:amcat <open_source> "yes" .
+        _:amcat <conditions_of_access> "free" .
+        _:amcat <platorm> "windows" .
+        _:amcat <platorm> "macos" .
+        _:amcat <platorm> "linux" .
+        _:amcat <graphical_user_interface> "true" .
+        
+        _:wouter <name> "Wouter van Atteveldt" .
+        _:wouter <_unique_name> "author_wouter_van_atteveldt" .
+        _:wouter <dgraph.type> "Author" .
+        _:wouter <dgraph.type> "Entry" .
+        _:wouter <openalex> "A59743775" .
+        _:wouter <orcid> "0000-0003-1237-538X" .
+
+        _:farzam <name> "Farzam Fanitabasi" .
+        _:farzam <_unique_name> "author_farzam_fanitabasi" .
+        _:farzam <dgraph.type> "Author" .
+        _:farzam <dgraph.type> "Entry" .
+        _:farzam <openalex> "A2955772425" .
+        _:farzam <orcid> "0000-0001-8850-5545" .
+
+        _:kasper <name> "Kasper Welbers" .
+        _:kasper <_unique_name> "author_kasper_welbers" .
+        _:kasper <dgraph.type> "Author" .
+        _:kasper <dgraph.type> "Entry" .
+        _:kasper <orcid> "0000-0003-2929-3815" . 
+        _:kasper <openalex> "A2619343721" .
+
+        _:document_search <name> "Document Search" .
+        _:document_search <_unique_name> "operation_document_search" .
+        _:document_search <dgraph.type> "Operation" .
+        _:document_search <dgraph.type> "Entry" .
+
+        _:manual_content_analysis <name> "Manual Content Analysis" .
+        _:manual_content_analysis <_unique_name> "operation_manual_content_analysis" .
+        _:manual_content_analysis <dgraph.type> "Operation" .
+        _:manual_content_analysis <dgraph.type> "Entry" .
+        
+        _:crowd_coding <name> "Crowd Coding" .
+        _:crowd_coding <_unique_name> "operation_crowd_coding" .
+        _:crowd_coding <dgraph.type> "Operation" .
+        _:crowd_coding <dgraph.type> "Entry" .
+
+        _:csv <name> "CSV" .
+        _:csv <_unique_name> "fileformat_csv" .
+        _:csv <alternate_names> "comma-separated values" .
+        _:csv <description> "delimited text file that uses a comma to separate values" .
+        _:csv <dgraph.type> "Entry" .
+        _:csv <dgraph.type> "FileFormat" .
+        _:csv <wikidata_id> "Q935809" .
+
+        _:rdata <name> "R Data" .
+        _:rdata <_unique_name> "fileformat_rdata" .
+        _:rdata <description> "Stores a complete R workspace or selected \"objects\" from a workspace in a form that can be loaded back by R. The save function in R has options that result in significantly different variants of the format." .
+        _:rdata <dgraph.type> "FileFormat" .
+        _:rdata <dgraph.type> "Entry" .
+        _:rdata <wikidata_id> "Q40672098" .
+
+        _:xlsx <name> "XLSX" .
+        _:xlsx <_unique_name> "fileformat_xlsx" .
+        _:xlsx <dgraph.type> "FileFormat" .
+        _:xlsx <dgraph.type> "Entry" .
+        _:xlsx <wikidata_id> "Q3570403" .
+
+        _:amcatpaper <title> "Semantic Network Analysis: Techniques for Extracting, Representing, and Querying Media Content" .
+        _:amcatpaper <_unique_name> "isbn_1439211361" .
+        _:amcatpaper <name> "van Atteveldt, W. H. (2008). Semantic Network Analysis: Techniques for Extracting, Representing, and Querying Media Content." .
+        _:amcatpaper <dgraph.type> "ScientificPublication" .
+        _:amcatpaper <dgraph.type> "Entry" .
+        _:amcatpaper <date_published> "2008-11-14" .
+        _:amcatpaper <paper_kind> "dissertation" .
+        _:amcatpaper <authors> _:wouter (sequence=0) .
+        
+        _:paragraph <name> "Paragraph" .
+        _:paragraph <dgraph.type> "UnitOfAnalysis" .
+        _:paragraph <dgraph.type> "Entry" .
+        _:paragraph <_unique_name> "unitofanalysis_paragraph" .
+
+        _:headline <name> "Headline" .
+        _:headline <dgraph.type> "UnitOfAnalysis" .
+        _:headline <dgraph.type> "Entry" .
+        _:headline <_unique_name> "unitofanalysis_headline" .
+
 
     }
 }

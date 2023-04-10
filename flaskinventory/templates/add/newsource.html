@@ -14,7 +14,7 @@
             <div class="btn-group" role="group" aria-label="loading controls"></div>
                 <a href="#" class="btn btn-light" id="btn-fail-goback" hidden>Go back and edit</a>
                 <a href="#" class="btn btn-outline-info" id="btn-viewentry" hidden>View new entry</a>
-                <a href="{{ url_for('add.from_draft') }}" class="btn btn-success" id="btn-add-another" data-bs-toggle="tooltip" data-bs-placement="bottom" title="If you added related sources, we will take you there." hidden>Add another</a>
+                <a href="{{ url_for('add.from_draft') }}" class="btn btn-success" id="btn-add-another" data-bs-toggle="tooltip" data-bs-placement="bottom" title="If you added related_news_sources sources, we will take you there." hidden>Add another</a>
             </div>
         </div>
     </div>
@@ -55,11 +55,11 @@
         </div>
             <div id="group-transcript-kind" class="form-group">
                 <div class="form-group mb-4">
-                    <label for="channel_url" class="form-label fw-bold fs-5">What is the url of the website that provides tv, radio, or podcast scripts?</label>
-                    <p class="my-0"><small id="channel_url-helptext">Please specify the archive name or the direct URL (e.g., https://www.deutschlandfunk.de/die-nachrichten-nachlesen.1794.de.html; https://www.ndr.de/nachrichten/info/index.html)</small></p>
-                    <input name="channel_url" type="text" class="form-control form-control-lg" id="channel_url" placeholder="e.g., 'https://www.deutschlandfunk.de/die-nachrichten-nachlesen.1794.de.html'" aria-describedby="channel_url-feedback" autocomplete="off">
+                    <label for="identifier" class="form-label fw-bold fs-5">What is the url of the website that provides tv, radio, or podcast scripts?</label>
+                    <p class="my-0"><small id="identifier-helptext">Please specify the archive name or the direct URL (e.g., https://www.deutschlandfunk.de/die-nachrichten-nachlesen.1794.de.html; https://www.ndr.de/nachrichten/info/index.html)</small></p>
+                    <input name="identifier" type="text" class="form-control form-control-lg" id="identifier" placeholder="e.g., 'https://www.deutschlandfunk.de/die-nachrichten-nachlesen.1794.de.html'" aria-describedby="identifier-feedback" autocomplete="off">
                 </div>
-                <div id="channel_url-feedback"></div>
+                <div id="identifier-feedback"></div>
 
                 <div id="group-transcript-kind-radiobuttons" class="mb-4 fs-5">
                 <p class="form-label fw-bold fs-5">What kind of show is transcribed?</p>
@@ -156,7 +156,7 @@
         <div id="group-source-date_founded" class="mb-5 form-group">
             <label for="source-date_founded" class="form-label fw-bold fs-5"><span id="source-date_founded-question">What year was the news source date_founded?</span>
                 <span class="text-muted mx-1">(optional)</span>
-                {{ make_tooltip('If you can not find the ‘founding’ year, you may also put the year of the first edition (for print), the first post (social media) or the website launch (for websites). Use the founding year of the current brand not the founding year of its forerunners. Information about associated forerunners (related brands) can be added as comments (the last question).') }}
+                {{ make_tooltip('If you can not find the ‘founding’ year, you may also put the year of the first edition (for print), the first post (social media) or the website launch (for websites). Use the founding year of the current brand not the founding year of its forerunners. Information about associated forerunners (related_news_sources brands) can be added as comments (the last question).') }}
                 {{ make_researchtip('Please double check the information that you find on Wikipedia. For example, by checking the ‘about me’/ ‘corporate history’ pages of the news source.') }}
             </label>
             <input name="date_founded" type="number" step="1" min="1700" max="2100" class="form-control form-control-lg" id="source-date_founded" placeholder="Format: YYYY" aria-describedby="date_founded-feedback">
@@ -173,7 +173,7 @@
 
         <div id="group-publication-kind" class="mb-5 form-group">
             <label for="publication-kind" class="form-label fw-bold fs-5">What label or labels describe the main source?
-                {{ make_tooltip('This variable points to the main product. For example, if you enter a website for an online newspaper, select newspaper. For example, if you enter a social media account that is related to a TV show, select TV show.') }}
+                {{ make_tooltip('This variable points to the main product. For example, if you enter a website for an online newspaper, select newspaper. For example, if you enter a social media account that is related_news_sources to a TV show, select TV show.') }}
                 {{ make_researchtip('Check the ‘about me/imprint’ pages.
                 The membership of a news source in larger well-established organisations (like: www.ivw.eu) may include hints on appropriate labels.') }}
             </label>
@@ -197,7 +197,7 @@
 
         <div id="group-special-interest" class="mb-5 form-group fs-5">
             <p class="form-label fw-bold fs-5">Does the news source have one main topical focus?
-                {{ make_tooltip('A general news source is understood as one that covers topics like politics, economics, culture, sports, etc. not necessarily with equal attention but reports about all of them regularly. A specialized news source has a clear main focus e.g. ‘Ziarul Financiar’, a Romanian newspaper has a clear focus on finance related topics.')}}
+                {{ make_tooltip('A general news source is understood as one that covers topics like politics, economics, culture, sports, etc. not necessarily with equal attention but reports about all of them regularly. A specialized news source has a clear main focus e.g. ‘Ziarul Financiar’, a Romanian newspaper has a clear focus on finance related_news_sources topics.')}}
             </p>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="special_interest" id="special_interest1" value="no" aria-describedby="special-interest-feedback" checked>
@@ -293,7 +293,7 @@
         <div id="group-geographic-scope" class="my-5 form-group fs-5">
             <div>
                 <p class="form-label fw-bold fs-5">What is the geographic scope of the news source?
-                    {{ make_tooltip('The geographic scope is related to the content of the news source. At which geographical location do most of the reported news stories happen? From what geographical perspective is the news looked at? The geographic scope of the source is often but does not have to be in line with the residency of the main audience of a source. The geographic scope can but does not have to be in line with the related media company’s headquarter location. Examples for multinational news sources are EuroNews or Reuters. Select ‘national’ for news sources that have a large international news section and also international audience, but the majority of the news is still related to one country (e.g. Jerusalem Post).') }}
+                    {{ make_tooltip('The geographic scope is related_news_sources to the content of the news source. At which geographical location do most of the reported news stories happen? From what geographical perspective is the news looked at? The geographic scope of the source is often but does not have to be in line with the residency of the main audience of a source. The geographic scope can but does not have to be in line with the related_news_sources media company’s headquarter location. Examples for multinational news sources are EuroNews or Reuters. Select ‘national’ for news sources that have a large international news section and also international audience, but the majority of the news is still related_news_sources to one country (e.g. Jerusalem Post).') }}
                     {{ make_researchtip('Browse through the articles/posts/sections of the news source.') }}
                 </p>
                 <p class="my-0"><small id="geographic-scope-helptext">This information can be inferred from the content (e.g., actors, topics, events).</small></p>
@@ -588,7 +588,7 @@
         <!-- <div id="group-entry-notes" class="mb-5 form-group">
             <label for="entry-notes" class="form-label fw-bold fs-5">Do you have any other notes on the source that you just coded?
                 <span class="text-muted mx-1">(optional)</span>
-                {{ make_tooltip('This is a good place to add Information about associated forerunners (related brands). There are cases where one news brand emerged out of another.')}}
+                {{ make_tooltip('This is a good place to add Information about associated forerunners (related_news_sources brands). There are cases where one news brand emerged out of another.')}}
             </label>
             <input type="text" name="entry_notes" id="entry-notes" class="form-control form-control-lg" aria-describedby="entry-notes-feedback" placeholder="">
             <small id="entry-notes-helptext"></small>
@@ -597,7 +597,7 @@
 
         <div id="group-party_affiliated" class="mb-5 form-group">
             <p class="form-label fw-bold fs-5">Is the news source close to a political party?<span class="text-muted mx-1">(optional)</span>{{ make_tooltip('Central roles in a news source include the main editors, publishers, or producers. Central roles in a political party are here defined as party leaders or party executives (mere party membership is not sufficient). Relevant party leading or executive roles can concern the national, subnational, and supranational level. Former party executive roles are also relevant unless former functionaries have explicitly turned their backs on the party.')}}</p>
-            <p class="form-label">Close means that a political party or a party-related association or company owns at least 50% of the news source OR that persons who have a central role in the news source (or the affiliated associations) have or had also a central role in a political party.</p>
+            <p class="form-label">Close means that a political party or a party-related_news_sources association or company owns at least 50% of the news source OR that persons who have a central role in the news source (or the affiliated associations) have or had also a central role in a political party.</p>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="party_affiliated" id="party_affiliated1" value="yes" aria-describedby="party_affiliated-feedback">
                 <label class="form-check-label" for="party_affiliated1">
@@ -620,11 +620,11 @@
         </div>
 
         <!-- Optional Field -->
-        <div id="group-related-sources" class="mb-5 form-group">
-            <label for="related-sources" class="form-label fw-bold fs-5">For the source that you just coded, does it have other closely related sources? Please type their names below and start a new entry<span class="text-muted mx-1">(optional)</span></label>
-            <select name="related" id="related-sources" class="form-select form-select-lg" aria-describedby="related-sources-feedback" placeholder="Select multiple or add new ones..." multiple></select>
-            <small id="related-sources-helptext"></small>
-            <div id="related-sources-feedback"></div>
+        <div id="group-related_news_sources-sources" class="mb-5 form-group">
+            <label for="related_news_sources-sources" class="form-label fw-bold fs-5">For the source that you just coded, does it have other closely related_news_sources sources? Please type their names below and start a new entry<span class="text-muted mx-1">(optional)</span></label>
+            <select name="related_news_sources" id="related_news_sources-sources" class="form-select form-select-lg" aria-describedby="related_news_sources-sources-feedback" placeholder="Select multiple or add new ones..." multiple></select>
+            <small id="related_news_sources-sources-helptext"></small>
+            <div id="related_news_sources-sources-feedback"></div>
 
         </div>
 
@@ -657,7 +657,7 @@
                     Value
                 </h4>
             </div>
-            <div id='summary-channel_url' hidden>
+            <div id='summary-identifier' hidden>
                 <h6 class="text-muted mb-1">
                     What is the url of the website that provides tv, radio, or podcast scripts?
                 </h6>
@@ -936,7 +936,7 @@
             </div>
             <div id='summary-related_sources' hidden>
                 <h6 class="text-muted mb-1">
-                    For the source that you just coded, does it have other closely related sources?
+                    For the source that you just coded, does it have other closely related_news_sources sources?
                 </h6>
                 <h4 class="mb-4">
                     Value

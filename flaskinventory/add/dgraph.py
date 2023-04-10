@@ -111,7 +111,7 @@ def get_draft(uid):
 def get_existing(uid):
     query_string = f"""
     query get_existing($existing: string) {{
-        q(func: uid($existing)) @filter(type(Source)) {{ 
+        q(func: uid($existing)) @filter(type(NewsSource)) {{ 
             uid expand(_all_) {{
                 uid _unique_name name dgraph.type channel {{ name }} 
                 }}
@@ -129,12 +129,12 @@ def get_existing(uid):
     existing = dgraph.query(query_string, variables={'$existing': uid})
     if len(existing['q']) > 0:
         existing = existing['q'][0]
-        related = {'uid': existing.pop('uid'), '_unique_name': existing.pop(
+        related_news_sources = {'uid': existing.pop('uid'), '_unique_name': existing.pop(
             '_unique_name'), 'channel': existing.pop('channel'), 'name': existing['name']}
-        if 'related' not in existing.keys():
-            existing['related'] = [related]
+        if 'related_news_sources' not in existing.keys():
+            existing['related_news_sources'] = [related_news_sources]
         else:
-            existing['related'].append(related)
+            existing['related_news_sources'].append(related_news_sources)
         existing.pop('publication_cycle', None)
         existing.pop('publication_cycle_weekday', None)
         existing.pop('date_founded', None)

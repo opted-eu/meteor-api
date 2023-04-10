@@ -30,7 +30,7 @@
         {% if 'country' in cols %}
             <th scope="col">Country</th>
         {% endif %}
-        {% if 'access' in cols %}
+        {% if 'conditions_of_access' in cols %}
             <th scope="col">Access</th>
         {% endif %}
         {% if 'sources_included' in cols %}
@@ -63,8 +63,8 @@
         {% if 'country' in cols %}
         <td>{% if entry.get('country') %} {% for c in entry.get('country') %} {{c.get('name')}} {{ ', ' if not loop.last else '' }} {% endfor %}{% endif %}</td>
         {% endif %}
-        {% if 'access' in cols %}
-            <td>{{ entry.get('access')}}</td>
+        {% if 'conditions_of_access' in cols %}
+            <td>{{ entry.get('conditions_of_access')}}</td>
         {% endif %}
         {% if 'sources_included' in cols %}
             <td>{{ entry.get('sources_included')}}</td>

@@ -50,7 +50,7 @@ def new_entry():
         if len(result['check']) > 0:
             return render_template('add/database_check.html', query=form.name.data, result=result['check'], entity=form.entity.data)
         else:
-            if form.entity.data == 'Source':
+            if form.entity.data == 'NewsSource':
                 return redirect(url_for('add.new_source', entry_name=form.name.data))
             else:
                 return redirect(url_for('add.new', dgraph_type=form.entity.data))
@@ -82,7 +82,7 @@ def new_source():
 @add.route("/add/draft/")
 def from_draft(entity=None, uid=None):
     if entity and uid:
-        if entity == 'Source':
+        if entity == 'NewsSource':
             return redirect(url_for('add.new_source', draft=uid))
         else:
             return render_template("not_implemented.html")
@@ -92,7 +92,7 @@ def from_draft(entity=None, uid=None):
         q(func: uid($user)) {{
                 display_name
                 uid
-                drafts: ~_added_by @filter(type(Source) and eq(entry_review_status, "draft")) 
+                drafts: ~_added_by @filter(type(NewsSource) and eq(entry_review_status, "draft")) 
                 @facets(orderdesc: timestamp) (first: 1) {{ uid }}
             }} 
         }}"""
@@ -178,7 +178,7 @@ def new(dgraph_type=None, draft=None, populate_form: dict = None):
     fields.remove('submit')
     fields.remove('csrf_token')
 
-    if dgraph_type in ['Tool', 'ResearchPaper', 'Dataset', 'Corpus']:
+    if dgraph_type in ['Tool', 'ScientificPublication', 'Dataset', 'Corpus']:
         show_sidebar = True
         sidebar_items = {'autofill': AutoFill()}
     else:

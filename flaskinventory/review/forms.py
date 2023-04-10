@@ -7,19 +7,18 @@ class ReviewFilter(FlaskForm):
     entity = SelectField('Filter by Entity Type',
                          choices=[
                              ('all', 'All'),
-                             ('Source', 'News Source'),
-                             ('Organization', 'Media Organization'),
+                             ('NewsSource', 'News Source'),
+                             ('Organization', 'Organization'),
                              ('Subnational', 'Subnational'),
                              ('Archive', 'Data Archive'),
                              ('Dataset', 'Dataset'),
                              ('Tool', 'Tool'),
-                             ('Corpus', 'Corpus'),
-                             ('ResearchPaper', 'Research Paper'),
+                             ('ScientificPublication', 'Scientific Publication'),
                              ('Operation', 'Operation'),
                              ('FileFormat', 'File Format'),
                              ('MetaVariable', 'Meta Variable'),
                              ('ConceptVariable', 'Concept Variables'),
-                             ('UnitOfAnalysis', 'Text Unit')], validators=[DataRequired()]
+                             ('UnitOfAnalysis', 'Unit of Analysis')], validators=[DataRequired()]
                          )
 
     country = SelectField('Filter by Country')

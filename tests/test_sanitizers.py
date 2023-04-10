@@ -17,7 +17,7 @@ if __name__ == "__main__":
     import datetime
     from flaskinventory.flaskdgraph import Schema
     from flaskinventory.flaskdgraph.dgraph_types import UID, Scalar
-    from flaskinventory.main.model import Entry, Organization, Source
+    from flaskinventory.main.model import Entry, Organization, NewsSource
     from flaskinventory.main.sanitizer import Sanitizer, make_sanitizer
     from flaskinventory.errors import InventoryValidationError, InventoryPermissionError
     from flaskinventory import create_app, dgraph
@@ -284,7 +284,7 @@ class TestSanitizers(BasicTestSetup):
     def test_draft_source(self):
 
         new_draft = {'uid': '_:newdraft',
-                      'dgraph.type': 'Source',
+                      'dgraph.type': 'NewsSource',
                       'channel': {'uid': self.channel_print},
                       'channel_unique_name': 'print',
                       'name': 'Schwäbische Post',
@@ -322,7 +322,7 @@ class TestSanitizers(BasicTestSetup):
                       'payment_model': 'partly free',
                       'contains_ads': 'non subscribers',
                       'publishes_org': self.derstandard_mbh_uid,
-                      'related': [self.falter_print_uid],
+                      'related_news_sources': [self.falter_print_uid],
                       'entry_review_status': 'pending'}
 
         # test if user
@@ -333,7 +333,7 @@ class TestSanitizers(BasicTestSetup):
 
             with self.app.app_context():
                 with self.assertRaises(InventoryPermissionError):
-                    sanitizer = Sanitizer.edit(edited_draft, dgraph_type=Source)
+                    sanitizer = Sanitizer.edit(edited_draft, dgraph_type=NewsSource)
                 
             self.client.get('/logout')
 
@@ -345,7 +345,7 @@ class TestSanitizers(BasicTestSetup):
 
             with self.app.app_context():
 
-                sanitizer = Sanitizer.edit(edited_draft, dgraph_type=Source)
+                sanitizer = Sanitizer.edit(edited_draft, dgraph_type=NewsSource)
                 self.assertIn("<_edited_by>", sanitizer.set_nquads)
                 self.assertIn(
                     '<_unique_name> "schwabische_post"', sanitizer.set_nquads)
@@ -397,7 +397,7 @@ class TestSanitizers(BasicTestSetup):
             ],
             "publishes_person": "Caren Miosga",
             "party_affiliated": "no",
-            "related": [
+            "related_news_sources": [
                                 "https://twitter.com/tagesschau",
                                 "https://instagram.com/tagesschau",
             ],
@@ -413,7 +413,7 @@ class TestSanitizers(BasicTestSetup):
             with self.app.app_context():
                 self.assertEqual
 
-                sanitizer = Sanitizer(new_website, dgraph_type=Source)
+                sanitizer = Sanitizer(new_website, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
 
             self.client.get('/logout')
@@ -455,7 +455,7 @@ class TestSanitizers(BasicTestSetup):
             with self.app.app_context():
                 self.assertEqual
 
-                sanitizer = Sanitizer(new_twitter, dgraph_type=Source)
+                sanitizer = Sanitizer(new_twitter, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
                 mock_twitter.assert_called_with('tagesschau')
 
@@ -500,7 +500,7 @@ class TestSanitizers(BasicTestSetup):
             with self.app.app_context():
                 self.assertEqual
 
-                sanitizer = Sanitizer(new_instagram, dgraph_type=Source)
+                sanitizer = Sanitizer(new_instagram, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
 
             self.client.get('/logout')
@@ -546,7 +546,7 @@ class TestSanitizers(BasicTestSetup):
             with self.app.app_context():
                 self.assertEqual
 
-                sanitizer = Sanitizer(new_telegram, dgraph_type=Source)
+                sanitizer = Sanitizer(new_telegram, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
 
             self.client.get('/logout')
@@ -579,7 +579,7 @@ class TestSanitizers(BasicTestSetup):
             with self.app.app_context():
                 self.assertEqual
 
-                sanitizer = Sanitizer(new_vk, dgraph_type=Source)
+                sanitizer = Sanitizer(new_vk, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
 
             self.client.get('/logout')
@@ -612,10 +612,10 @@ class TestSanitizers(BasicTestSetup):
             with self.app.app_context():
                 self.assertEqual
 
-                sanitizer = Sanitizer(mock_facebook, dgraph_type=Source)
+                sanitizer = Sanitizer(mock_facebook, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
                 mock_facebook['geographic_scope'] = 'NA'
-                self.assertRaises(InventoryValidationError, Sanitizer, mock_facebook, dgraph_type=Source)
+                self.assertRaises(InventoryValidationError, Sanitizer, mock_facebook, dgraph_type=NewsSource)
 
             self.client.get('/logout')
 

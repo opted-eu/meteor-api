@@ -77,7 +77,7 @@ class TestSanitizers(unittest.TestCase):
         with self.app.app_context():
             package = external.cran(cran)
             self.assertNotEqual(package, False)
-            self.assertCountEqual(list(package.keys()), ['programming_languages', 'platform', 'user_access',
+            self.assertCountEqual(list(package.keys()), ['programming_languages', 'platform', 'conditions_of_access',
                                   'open_source', 'name', 'cran', 'description', 'alternate_names', 'github', 'url', 'license', 'authors'])
             self.assertEqual(package['programming_languages'], ['r'])
 

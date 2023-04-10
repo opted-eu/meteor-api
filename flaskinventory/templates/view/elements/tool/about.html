@@ -18,12 +18,12 @@
             {% endfor %}
         {% endif %}
         {% if entry.open_source %}
-            <dt class="col-sm-3">Open Source</dt>
+            <dt class="col-sm-3">Open NewsSource</dt>
             <dd class="col-sm-9">{{ entry.open_source }}</dd>
         {% endif %}
-        {% if entry.user_access %}
+        {% if entry.conditions_of_access %}
             <dt class="col-sm-3">User Access</dt>
-            <dd class="col-sm-9">{{ entry.user_access }}</dd>
+            <dd class="col-sm-9">{{ entry.conditions_of_access }}</dd>
         {% endif %}
         {% if entry.used_for %}
         <dt class="col-sm-3">Used For</dt>
@@ -31,10 +31,10 @@
             {{ render_tags(entry.used_for) }}
         </dd>
         {% endif %}
-        {% if entry.concept_vars %}
+        {% if entry.concept_variables %}
         <dt class="col-sm-3">Concepts measured</dt>
         <dd class="col-sm-9">
-            {{ render_tags(entry.concept_vars) }}
+            {{ render_tags(entry.concept_variables) }}
         </dd>
         {% endif %}
         <dt class="col-sm-3">Graphical User Interface</dt>

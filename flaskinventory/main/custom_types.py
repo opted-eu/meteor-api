@@ -1,14 +1,10 @@
 import datetime
-from typing import Union
+from typing import Union, Iterable, Any
 from flask import current_app
 from flask_login import current_user
 from flaskinventory import dgraph
 from flaskinventory.errors import InventoryValidationError
-from flaskinventory.flaskdgraph.dgraph_types import (String, SingleChoice, 
-                                                     MultipleChoice, GeoScalar,
-                                                     ListString, ListRelationship,                                                      Geo, UniqueName,
-                                                     ReverseListRelationship, 
-                                                     NewID, UID, Scalar)
+from flaskinventory.flaskdgraph.dgraph_types import *
 
 from flaskinventory.add.external import geocode, reverse_geocode, get_wikidata
 from flaskinventory.flaskdgraph.utils import validate_uid
@@ -325,6 +321,71 @@ class OrderedListString(ListString):
         else:
             raise InventoryValidationError(
                 f'Error in <{self.predicate}>! Do not know how to handle {type(data)}. Value: {data}')
+
+
+
+class OrderedListRelationship(SingleRelationship):
+
+    # TODO: get this thing to work
+
+    dgraph_predicate_type = '[uid]'
+    dgraph_directives = ['@reverse']
+    is_list_predicate = True
+    default_connector = "AND"
+
+    def __init__(self, overwrite=True, relationship_constraint=None, allow_new=False, autoload_choices=False, *args, **kwargs) -> None:
+        super().__init__(relationship_constraint=relationship_constraint, allow_new=allow_new,
+                         autoload_choices=autoload_choices, overwrite=overwrite, *args, **kwargs)
+
+    def validate(self, data: Union[str, list, UID], facets: dict=None, **kwargs) -> list:
+        data = self.validation_hook(data)
+        if isinstance(data, str):
+            data = data.split(',')
+        ordered_uids = []
+        if not facets:
+            facets = {"sequence": 0}
+        if isinstance(data, (list, set, tuple)):
+            for i, item in enumerate(data):
+                f = facets.copy()
+                f.update(sequence=i)
+                if not hasattr(item, 'facets'):
+                    validated_item = validate_uid(item)
+                    if not validated_item and self.allow_new:
+                        ordered_uids.append(NewID(item, facets=f))
+                    elif validated_item:
+                        ordered_uids.append(UID(validated_item, facets=f))
+                    else:
+                        # skip over invalid data
+                        continue
+                else:
+                    item.update_facets(f)
+                    ordered_uids.append(item)
+            if len(ordered_uids) == 0:
+                raise InventoryValidationError(
+                        f'Error in <{self.predicate}>! Could not validate data of type {type(data)}. Value: {data}')
+            return ordered_uids
+        elif hasattr(data, "facets"):
+            data.update_facets(facets)
+            return [data]
+        else:
+            raise InventoryValidationError(
+                        f'Error in <{self.predicate}>! Do not know how to handle {type(data)}. Value: {data}')
+
+
+    @property
+    def wtf_field(self) -> TomSelectMultipleField:
+        if self.autoload_choices and self.relationship_constraint:
+            self.get_choices()
+        if self.required:
+            validators = [DataRequired()]
+        else:
+            validators = [Optional()]
+        return TomSelectMultipleField(label=self.label,
+                                       validators=validators,
+                                       description=self.form_description,
+                                       choices=self.choices_tuples,
+                                       render_kw=self.render_kw)
+
 
 
 class SingleChoiceInt(SingleChoice):

@@ -178,7 +178,7 @@ function drawChart({
 
     // render channel-icon
     // one day group according to channel: https://bl.ocks.org/GerHobbelt/3104394
-    node.selectAll(".Source")
+    node.selectAll(".NewsSource")
         .each(function(d) {
             this.classList.add("color-" + d.channel);
         });
@@ -188,7 +188,7 @@ function drawChart({
         // })
         // .attr("class", d => `color-${d.channel}`)
 
-    svg.selectAll(".node-type-Source")
+    svg.selectAll(".node-type-NewsSource")
         .append("text")
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'central')

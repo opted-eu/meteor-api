@@ -9,7 +9,7 @@ import math
 
 query_total_entries = """
 {
-	sources(func: type("Source")) @filter(eq(entry_review_status, "accepted") or eq(entry_review_status, "pending")) {
+	sources(func: type("NewsSource")) @filter(eq(entry_review_status, "accepted") or eq(entry_review_status, "pending")) {
         total: count(uid)
     }
 
@@ -21,7 +21,7 @@ query_total_entries = """
 query_sources = """
 query get_sources($maximum: int, $offset: int)
 {
-	sources(func: type("Source"), first: $maximum, offset: $offset) @filter(eq(entry_review_status, "accepted") or eq(entry_review_status, "pending")) {
+	sources(func: type("NewsSource"), first: $maximum, offset: $offset) @filter(eq(entry_review_status, "accepted") or eq(entry_review_status, "pending")) {
         uid expand(_all_) { uid unique_name country_code opted_scope }
     }
 } """

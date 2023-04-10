@@ -10,7 +10,7 @@ from flask import (current_app, Blueprint, request, jsonify, url_for, abort)
 from flask_login import current_user, login_required
 from flaskinventory import dgraph
 from flaskinventory.flaskdgraph.utils import strip_query, validate_uid
-from flaskinventory.main.model import Source
+from flaskinventory.main.model import NewsSource
 from flaskinventory.main.sanitizer import Sanitizer
 from flaskinventory.add.dgraph import generate_fieldoptions
 
@@ -99,9 +99,9 @@ def sourcelookup():
     query_string = f'''
         query source($query_regex: string, $query_beginning: string)
         {{
-            field1 as var(func: regexp(name, $query_regex)) @filter(type("Source"))
-            field2 as var(func: regexp(alternate_names, $query_regex)) @filter(type("Source"))
-            field3 as var(func: regexp(_unique_name, $query_beginning)) @filter(type("Source"))
+            field1 as var(func: regexp(name, $query_regex)) @filter(type("NewsSource"))
+            field2 as var(func: regexp(alternate_names, $query_regex)) @filter(type("NewsSource"))
+            field3 as var(func: regexp(_unique_name, $query_beginning)) @filter(type("NewsSource"))
   
 	        data(func: uid(field1, field2, field3)) {{
                 uid
@@ -131,9 +131,9 @@ def submit():
     current_app.logger.debug(f'Received JSON: \n{request.json}')
     try:
         if 'uid' in request.json.keys():
-            sanitizer = Sanitizer.edit(request.json, dgraph_type=Source)
+            sanitizer = Sanitizer.edit(request.json, dgraph_type=NewsSource)
         else:
-            sanitizer = Sanitizer(request.json, dgraph_type=Source)
+            sanitizer = Sanitizer(request.json, dgraph_type=NewsSource)
         current_app.logger.debug(f'Processed Entry: \n{sanitizer.entry}\n{sanitizer.related_entries}')
         current_app.logger.debug(f'Set Nquads: {sanitizer.set_nquads}')
         current_app.logger.debug(f'Delete Nquads: {sanitizer.delete_nquads}')
@@ -165,7 +165,7 @@ def submit():
         else:
             newuids = dict(result.uids)
             uid = newuids[str(sanitizer.entry_uid).replace('_:', '')]
-        response = {'redirect': url_for('view.view_generic', dgraph_type='Source', uid=uid)}
+        response = {'redirect': url_for('view.view_generic', dgraph_type='NewsSource', uid=uid)}
 
         return jsonify(response)
     else:
@@ -244,7 +244,7 @@ def ownership():
                                 }
                                 q(func: uid(uid(u))) 
                                     @filter(eq(entry_review_status, "accepted") AND 
-                                        eq(dgraph.type,["Organization", "Source"]))  {
+                                        eq(dgraph.type,["Organization", "NewsSource"]))  {
 			                        name uid dgraph.type
                                     channel { _unique_name }
                                     publishes @filter(eq(entry_review_status, "accepted")) { uid }

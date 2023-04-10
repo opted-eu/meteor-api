@@ -2,7 +2,7 @@
 # Query for getting all pending news sources:
 
 # {
-# 	q(func: type(Source)) @filter(eq(entry_review_status, "pending") OR eq(entry_review_status, "draft")) {
+# 	q(func: type(NewsSource)) @filter(eq(entry_review_status, "pending") OR eq(entry_review_status, "draft")) {
 # 		expand(_all_) { uid unique_name name display_name }
 #     published_by: ~publishes { uid unique_name name }
 #   }

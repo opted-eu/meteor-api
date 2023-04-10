@@ -290,7 +290,7 @@ svg .Organization {
     fill: #a370f7;
 }
 
-svg .Source {
+svg .NewsSource {
     /* green-300 */
     /* fill: #75b798; */
 }
@@ -324,7 +324,7 @@ svg .node-group:hover .Organization {
     fill: var(--bs-indigo);
 }
 
-svg .node-group:hover .Source {
+svg .node-group:hover .NewsSource {
     /* fill: var(--bs-green); */
 }
 

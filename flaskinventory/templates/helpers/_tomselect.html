@@ -141,7 +141,7 @@ if (embeddedJSON) {
             };
         new TomSelect('#owns', TomSelectOrganisationConfig);
         
-    {% elif field.name in ['related', 'sources_included'] %}    
+    {% elif field.name in ['related_news_sources', 'sources_included'] %}    
     
     var TomSelectRelatedSourcesConfig = {
         plugins: ['remove_button'],

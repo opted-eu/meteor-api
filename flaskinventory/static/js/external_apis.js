@@ -245,9 +245,9 @@ function resolveDOI(text) {
     result['doi'] = json['DOI']
     if (Object.keys(json).includes('container-title')) {
         if (typeof json['container-title'] === 'object') {
-            result['journal'] = json['container-title'][0]
+            result['venue'] = json['container-title'][0]
         } else {
-            result['journal'] = json['container-title']
+            result['venue'] = json['container-title']
         }
     }
 
@@ -263,15 +263,15 @@ function resolveDOI(text) {
 
     if (Object.keys(json).includes('created')) {
         if (Object.keys(json.created).includes('date-time')) {
-            result['published_date'] = json.created['date-time'].split('-')[0]
+            result['date_published'] = json.created['date-time'].split('-')[0]
         } else {
-            result['published_date'] = json.created['date-parts'][0][0]
+            result['date_published'] = json.created['date-parts'][0][0]
         }
     } else if (Object.keys(json).includes('issued')) {
         if (Object.keys(json.issued).includes('date-time')) {
-            result['published_date'] = json.issued['date-time'].split('-')[0]
+            result['date_published'] = json.issued['date-time'].split('-')[0]
         } else {
-            result['published_date'] = json.issued['date-parts'][0][0]
+            result['date_published'] = json.issued['date-parts'][0][0]
         }
     }
 
@@ -347,7 +347,7 @@ function parseArXiv(xml) {
     }
     result['authors'] = authors.join(';')
 
-    result['published_date'] = publication.getElementsByTagName('published')[0].innerHTML.split('-')[0]
+    result['date_published'] = publication.getElementsByTagName('published')[0].innerHTML.split('-')[0]
 
     result['description'] = publication.getElementsByTagName('summary')[0].innerHTML.trim()
 
@@ -385,7 +385,7 @@ function parsePyPi(package) {
     result['programming_languages'] = ['python']
     result['platform'] = ['windows', 'linux', 'macos']
     result['open_source'] = ['yes']
-    result['user_access'] = ['free']
+    result['conditions_of_access'] = ['free']
     return result
 }
 
@@ -408,7 +408,7 @@ function parseGithub(package) {
     if ('created_at' in package) {
         let year = package.created_at.split('-')[0]
         if (parseInt(year)) {
-            result['published_date'] = year
+            result['date_published'] = year
         }
     }
 
@@ -416,6 +416,6 @@ function parseGithub(package) {
         result['programming_languages'] = [package.language.toLowerCase()]
     }
     result['open_source'] = ['yes']
-    result['user_access'] = ['free']
+    result['conditions_of_access'] = ['free']
     return result
 }

@@ -9,7 +9,7 @@ from flaskinventory.main.custom_types import *
 from flaskinventory.users.constants import USER_ROLES
 from flaskinventory.users.dgraph import UserLogin, generate_random_username
 from flaskinventory.flaskdgraph import Schema
-from flaskinventory.auxiliary import icu_codes, programming_languages
+from flaskinventory.auxiliary import icu_codes
 
 from slugify import slugify
 import secrets
@@ -94,7 +94,8 @@ class Entry(Schema):
                                    read_only=True,
                                    hidden=True,
                                    facets=[Facet('ip'),
-                                           Facet('timestamp', dtype=datetime.datetime)])
+                                           Facet('timestamp',
+                                                 dtype=datetime.datetime)])
 
     _reviewed_by = SingleRelationship(label="Reviewed by",
                                       relationship_constraint="User",
@@ -141,23 +142,24 @@ class Entry(Schema):
                  description='handle.net external identifier',
                  directives=['@index(hash)'],
                  hidden=True)
-    
+
+
 class PoliticalParty(Entry):
 
     __description__ = "political parties as legally registered"
 
-    name_abbrev = String(label="Abbreviated Name", 
+    name_abbrev = String(label="Abbreviated Name",
                          description="Abbreviation/Acronym of the party name.",
                          directives=["@index(term, trigram)", "@lang"],
                          queryable=True)
-    
-    parlgov_id = String(label="ParlGov ID", 
+
+    parlgov_id = String(label="ParlGov ID",
                         description="ID of party in ParlGov Dataset",
                         directives=["@index(hash)"])
-    
-    party_facts_id = String(label="Party Facts ID", 
-                        description="ID of party in Party Facts Dataset",
-                        directives=["@index(hash)"])
+
+    party_facts_id = String(label="Party Facts ID",
+                            description="ID of party in Party Facts Dataset",
+                            directives=["@index(hash)"])
 
     country = SingleRelationship(relationship_constraint=['Country', 'Multinational'],
                                  autoload_choices=True,
@@ -197,7 +199,7 @@ class Organization(Entry):
                                  queryable=True,
                                  predicate_alias="countries")
 
-    publishes = ListRelationship(relationship_constraint='Source',
+    publishes = ListRelationship(relationship_constraint='NewsSource',
                                  overwrite=True,
                                  description='Which news sources publishes the organisation (or person)?',
                                  render_kw={'placeholder': 'Type to search existing news sources and add multiple...'})
@@ -218,7 +220,7 @@ class Organization(Entry):
         queryable=True)
 
     address = AddressAutocode(new=False,
-                                     render_kw={'placeholder': 'Main address of the organization.'})
+                              render_kw={'placeholder': 'Main address of the organization.'})
 
     employees = String(description='How many employees does the news organization have?',
                        render_kw={
@@ -228,7 +230,16 @@ class Organization(Entry):
     date_founded = DateTime(new=False, overwrite=True, queryable=True)
 
 
-class Source(Entry):
+class JournalisticBrand(Entry):
+
+    __description__ = "A journalistic brand that encompasses different projects for distributing news"
+
+    news_sources_included = ListRelationship(description="Journalistic News Sources distributed under this brand",
+                                             relationship_constraint="NewsSource")
+
+class NewsSource(Entry):
+
+    __description__ = "a single journalistic project; a social media channel of a political party / person / government institution, etc"
 
     channel = SingleRelationship(description='Through which channel is the news source distributed?',
                                  edit=False,
@@ -243,9 +254,12 @@ class Source(Entry):
                   required=True,
                   description='What is the name of the news source?',
                   render_kw={'placeholder': "e.g. 'The Royal Gazette'"})
+    
+    journalistic_brand = ReverseRelationship('news_sources_included', relationship_constraint="JournalisticBrand")
 
-    channel_url = String(label='URL of Channel',
-                         description="What is the url or social media handle of the news source?")
+    identifier = String(label='URL of Channel',
+                         description="What is the url or social media handle of the news source?",
+                         facets=[Facet("kind")])
 
     verified_account = Boolean(new=False, edit=False, queryable=True)
 
@@ -274,8 +288,8 @@ class Source(Entry):
                                                                    'NA': "Don't know / NA"})
 
     date_founded = Year(description="What year was the news source date_founded?",
-                   overwrite=True,
-                   queryable=True)
+                        overwrite=True,
+                        queryable=True)
 
     publication_kind = MultipleChoice(description='What label or labels describe the main source?',
                                       choices={'newspaper': 'Newspaper',
@@ -343,19 +357,19 @@ class Source(Entry):
                                     radio_field=True,
                                     queryable=True)
 
-    country = SourceCountrySelection(label='Countries',
+    countries = SourceCountrySelection(label='Countries',
                                      description='Which countries are in the geographic scope?',
                                      required=True,
-                                     queryable=True)
+                                     queryable=True,
+                                     predicate_alias="country")
 
     geographic_scope_subunit = SubunitAutocode(label='Subunits',
                                                description='What is the subnational scope?',
                                                tom_select=True,
                                                queryable=True)
 
-    languages = MultipleChoice(description="In which language(s) does the news source publish its news texts?",
+    languages = ListRelationship(description="In which language(s) does the news source publish its news texts?",
                                required=True,
-                               choices=icu_codes,
                                tom_select=True,
                                queryable=True)
 
@@ -383,13 +397,15 @@ class Source(Entry):
                                            'gt': 'greater', 'lt': 'less'}),
                                      Facet("data_from")]
                              )
+    
+    audience_size_recent = Integer(facets=[Facet("unit", queryable=True, choices=['followers', 'subscribers', 'copies sold', 'likes', 'daily visitors']),
+                                     Facet("data_from"),
+                                     Facet("timestamp", dtype=datetime.datetime)])
 
-    publishes_org = OrganizationAutocode('publishes',
-                                         label='Published by')
-
-    publishes_person = OrganizationAutocode('publishes',
-                                            label='Published by person')
-
+    published_by = ReverseListRelationship('publishes',
+                                         label='Published by',
+                                         relationship_constraint=["Organization", "Political Party", "Person", "Government", "Parliament"])
+    
     channel_epaper = SingleChoice(description='Does the print news source have an e-paper version?',
                                   choices={'yes': 'Yes',
                                            'no': 'No',
@@ -399,7 +415,7 @@ class Source(Entry):
 
     sources_included = ReverseListRelationship('sources_included',
                                                relationship_constraint=[
-                                                   'Archive', 'Dataset', 'Corpus', 'ResearchPaper'],
+                                                   'Archive', 'Dataset', 'Corpus', 'ScientificPublication'],
                                                query_label='News source included in these resources',
                                                queryable=True,
                                                new=False,
@@ -430,8 +446,9 @@ class Source(Entry):
     defunct = Boolean(description="Is the news source defunct or out of business?",
                       queryable=True)
 
-    related = MutualListRelationship(
-        allow_new=True, autoload_choices=False, relationship_constraint='Source')
+    related_news_sources = MutualListRelationship(
+        allow_new=True, autoload_choices=False, relationship_constraint='NewsSource')
+
 
 class Government(Entry):
 
@@ -439,12 +456,13 @@ class Government(Entry):
 
     country = SingleRelationship(relationship_constraint=["Country", "Multinational"],
                                  queryable=True,
-                                 required=True)
-    
+                                 required=True,
+                                 predicate_alias="countries")
+
     languages = ListRelationship(relationship_constraint=["Language"],
                                  queryable=True,
                                  autoload_choices=True)
-    
+
     geographic_scope = SingleChoice(description="What is the geographic scope of this government?",
                                     choices={'multinational': 'Multinational',
                                              'national': 'National',
@@ -453,10 +471,11 @@ class Government(Entry):
                                     required=True,
                                     radio_field=True,
                                     queryable=True)
-    
+
     subnational = SingleRelationship()
-    
+
     url = String(label="URL", description="Official website of the government")
+
 
 class Parliament(Entry):
 
@@ -464,12 +483,13 @@ class Parliament(Entry):
 
     country = SingleRelationship(relationship_constraint=["Country", "Multinational"],
                                  queryable=True,
-                                 required=True)
-    
+                                 required=True,
+                                 predicate_alias="country")
+
     languages = ListRelationship(relationship_constraint=["Language"],
                                  queryable=True,
                                  autoload_choices=True)
-    
+
     geographic_scope = SingleChoice(description="What is the geographic scope of this parliament?",
                                     choices={'multinational': 'Multinational',
                                              'national': 'National',
@@ -478,18 +498,21 @@ class Parliament(Entry):
                                     required=True,
                                     radio_field=True,
                                     queryable=True)
-    
+
     url = String(label="URL", description="Official website of the parliament")
+
 
 class Person(Entry):
 
     is_politician = Boolean(label="Politician", description="Is the person a politician?",
                             queryable=True)
-    
-    country = SingleRelationship(relationship_constraint=["Country"], 
-                                 queryable=True)
-    
-    url = String(label="URL", description="Website related to the person")
+
+    country = SingleRelationship(relationship_constraint=["Country"],
+                                 queryable=True,
+                                 predicate_alias="country")
+
+    url = String(label="URL", description="Website related_news_sources to the person")
+
 
 class Channel(Entry):
 
@@ -502,8 +525,10 @@ class Country(Entry):
     __permission_new__ = USER_ROLES.Admin
     __permission_edit__ = USER_ROLES.Admin
 
-    iso_3166_1_2 = String(permission=USER_ROLES.Admin, directives=["@index(exact)"])
-    iso_3166_1_3 = String(permission=USER_ROLES.Admin, directives=["@index(exact)"])
+    iso_3166_1_2 = String(permission=USER_ROLES.Admin,
+                          directives=["@index(exact)"])
+    iso_3166_1_3 = String(permission=USER_ROLES.Admin,
+                          directives=["@index(exact)"])
     opted_scope = Boolean(description="Is country in the scope of OPTED?",
                           label='Yes, in scope of OPTED')
 
@@ -546,19 +571,47 @@ class Archive(Entry):
 
     url = String()
 
-    access = SingleChoice(choices={'free': 'Free',
-                                   'restricted': 'Restricted'})
+    conditions_of_access = SingleChoice(description="How can the user access the archive?",
+                               choices={'NA': 'NA / Unknown',
+                                        'free': 'Free',
+                                        'registration': 'Registration',
+                                        'request': 'Upon Request',
+                                        'purchase': 'Purchase'},
+                               queryable=True)
+    
     sources_included = ListRelationship(
-        relationship_constraint='Source')
+        relationship_constraint=['NewsSource', 'Organization', 'PoliticalParty', 'Government', 'Parliament'])
+    
     fulltext = Boolean(description='Archive contains fulltext')
-    country = ListRelationship(relationship_constraint=[
-                               'Country', 'Multinational'], autoload_choices=True)
+    countries = ListRelationship(relationship_constraint=[
+                               'Country', 'Multinational'], autoload_choices=True,
+                               predicate_alias="country")
     text_units = ListRelationship(description="List of text units available in the data archive (e.g., sentences, paragraphs, tweets, news articles, summaries, headlines)",
                                   relationship_constraint="UnitOfAnalysis",
                                   render_kw={
                                       'placeholder': 'Select multiple...'},
                                   autoload_choices=True,
                                   allow_new=True)
+    
+    languages = ListRelationship(description="Which languages are covered in the archive?",
+                               tom_select=True,
+                               render_kw={'placeholder': 'Select multiple...'})
+    
+    date_modified = DateField()
+
+    meta_variables = ListRelationship(description="List of meta data included in the archive (e.g., date, language, source, medium)",
+                                 relationship_constraint="MetaVariable",
+                                 render_kw={
+                                     'placeholder': 'Select multiple...'},
+                                 autoload_choices=True)
+
+    concept_variables = ListRelationship(description="List of variables based on concepts (e.g. sentiment, frames, etc)",
+                                    relationship_constraint="ConceptVariable",
+                                    render_kw={
+                                        'placeholder': 'Select multiple...'},
+                                    autoload_choices=True
+                                    )
+
 
 
 class Dataset(Entry):
@@ -571,15 +624,15 @@ class Dataset(Entry):
                                      'placeholder': 'Separate by comma ","'},
                                  overwrite=True)
 
-    authors = OrderedListString(delimiter=';',
-                                render_kw={'placeholder': 'Separate by semicolon ";"'}, tom_select=True,
-                                required=True,
-                                directives=['@index(term)'])
+    authors = OrderedListRelationship(allow_new=True,
+                                      relationship_constraint="Author",
+                                      tom_select=True,
+                                      required=True)
 
-    published_date = Year(label='Year of publication',
+    date_published = Year(label='Year of publication',
                           description="Which year was the dataset published?")
 
-    last_updated = DateTime(
+    date_modified = DateTime(
         description="When was the dataset last updated?", new=False)
 
     url = String(label="URL", description="Link to the dataset", required=True)
@@ -589,33 +642,35 @@ class Dataset(Entry):
     description = String(
         large_textfield=True, description="Please provide a short description for the tool")
 
-    access = SingleChoice(choices={'free': 'Free',
+    conditions_of_access = SingleChoice(choices={'free': 'Free',
                                    'restricted': 'Restricted'})
+    
+    fulltext_available = Boolean(description="does the dataset contain fulltext?")
 
-    country = ListRelationship(description="Does the dataset have a specific geographic coverage?",
+    countries = ListRelationship(description="Does the dataset have a specific geographic coverage?",
                                relationship_constraint=[
-                                   'Country', 'Multinational'],
+                                   'Country', 'Multinational', 'Subnational'],
                                autoload_choices=True,
-                               render_kw={'placeholder': 'Select multiple countries...'})
+                               render_kw={'placeholder': 'Select multiple countries...'},
+                               predicate_alias="country")
 
-    languages = MultipleChoice(description="Which languages are covered in the dataset?",
-                               choices=icu_codes,
+    languages = ListRelationship(description="Which languages are covered in the dataset?",
                                tom_select=True,
                                render_kw={'placeholder': 'Select multiple...'})
 
-    start_date = DateTime(description="Start date of the dataset")
+    temporal_coverage_start = DateTime(description="Start date of the dataset")
 
-    end_date = DateTime(description="End date of the dataset")
+    temporal_coverage_end = DateTime(description="End date of the dataset")
 
-    file_format = ListRelationship(description="In which file format(s) is the dataset stored?",
+    file_formats = ListRelationship(description="In which file format(s) is the dataset stored?",
                                    autoload_choices=True,
                                    relationship_constraint="FileFormat",
                                    render_kw={'placeholder': 'Select multiple...'})
 
-    sources_included = ListRelationship(relationship_constraint='Source',
+    sources_included = ListRelationship(relationship_constraint=['NewsSource', 'Organization', 'PoliticalParty', 'Government', 'Parliament'],
                                         render_kw={'placeholder': 'Select multiple...'})
 
-    materials = ListString(description="Are there additional materials for the dataset? (e.g., codebook, documentation, etc)",
+    materials = ListRelationship(description="Are there additional materials for the dataset? (e.g., codebook, documentation, etc)",
                            tom_select=True, render_kw={'placeholder': 'please paste the URLs to the materials here!'})
 
     initial_source = ListRelationship(description="If the dataset is derived from another corpus or dataset, the original source can be linked here",
@@ -623,18 +678,23 @@ class Dataset(Entry):
                                           'Dataset', 'Corpus'],
                                       render_kw={'placeholder': 'Select multiple...'})
 
-    meta_vars = ListRelationship(description="List of meta data included in the dataset (e.g., date, language, source, medium)",
+    meta_variables = ListRelationship(description="List of meta data included in the dataset (e.g., date, language, source, medium)",
                                  relationship_constraint="MetaVariable",
                                  render_kw={
                                      'placeholder': 'Select multiple...'},
                                  autoload_choices=True)
 
-    concept_vars = ListRelationship(description="List of variables based on concepts (e.g. sentiment, frames, etc)",
+    concept_variables = ListRelationship(description="List of variables based on concepts (e.g. sentiment, frames, etc)",
                                     relationship_constraint="ConceptVariable",
                                     render_kw={
                                         'placeholder': 'Select multiple...'},
                                     autoload_choices=True
                                     )
+    
+    text_units = ListRelationship(description="text segmentation in the resource, what level of text units are available",
+                                  relationship_constraint="UnitOfAnalysis")
+    
+    related_publications = ListRelationship(relationship_constraint="ScientificPublication")
 
 
 class Corpus(Entry):
@@ -646,15 +706,15 @@ class Corpus(Entry):
                                      'placeholder': 'Separate by comma ","'},
                                  overwrite=True)
 
-    authors = OrderedListString(delimiter=';',
-                                render_kw={'placeholder': 'Separate by semicolon ";"'}, tom_select=True,
-                                required=True,
-                                directives=['@index(term)'])
+    authors = OrderedListRelationship(allow_new=True,
+                                      relationship_constraint="Author",
+                                      tom_select=True,
+                                      required=True)
 
-    published_date = Year(label='Year of publication',
+    date_published = Year(label='Year of publication',
                           description="Which year was the corpus published?")
 
-    last_updated = DateTime(
+    date_modified = DateTime(
         description="When was the corpus last updated?", new=False)
 
     url = String(label="URL", description="Link to the corpus", required=True)
@@ -664,7 +724,7 @@ class Corpus(Entry):
     description = String(
         large_textfield=True, description="Please provide a short description for the corpus")
 
-    access = SingleChoice(choices={'free': 'Free',
+    conditions_of_access = SingleChoice(choices={'free': 'Free',
                                    'restricted': 'Restricted'})
 
     country = ListRelationship(description="Does the corpus have a specific geographic coverage?",
@@ -673,24 +733,23 @@ class Corpus(Entry):
                                autoload_choices=True,
                                render_kw={'placeholder': 'Select multiple countries...'})
 
-    languages = MultipleChoice(description="Which languages are covered in the corpus?",
-                               choices=icu_codes,
+    languages = ListRelationship(description="Which languages are covered in the corpus?",
                                tom_select=True,
                                render_kw={'placeholder': 'Select multiple...'})
 
-    start_date = DateTime(description="Start date of the corpus")
+    temporal_coverage_start = DateTime(description="Start date of the corpus")
 
-    end_date = DateTime(description="End date of the corpus")
+    temporal_coverage_end = DateTime(description="End date of the corpus")
 
-    file_format = ListRelationship(description="In which file format(s) is the corpus stored?",
+    file_formats = ListRelationship(description="In which file format(s) is the corpus stored?",
                                    autoload_choices=True,
                                    relationship_constraint="FileFormat",
                                    render_kw={'placeholder': 'Select multiple...'})
 
-    materials = ListString(description="Are there additional materials for the corpus? (e.g., codebook, documentation, etc)",
+    materials = ListRelationship(description="Are there additional materials for the corpus? (e.g., codebook, documentation, etc)",
                            tom_select=True, render_kw={'placeholder': 'please paste the URLs to the materials here!'})
 
-    sources_included = ListRelationship(relationship_constraint='Source',
+    sources_included = ListRelationship(relationship_constraint='NewsSource',
                                         render_kw={'placeholder': 'Select multiple...'})
 
     text_units = ListRelationship(description="List of text units included in the corpus (e.g., sentences, paragraphs, tweets, news articles, summaries, headlines)",
@@ -700,13 +759,13 @@ class Corpus(Entry):
                                   autoload_choices=True,
                                   allow_new=True)
 
-    meta_vars = ListRelationship(description="List of meta data included in the corpus (e.g., date, language, source, medium)",
+    meta_variables = ListRelationship(description="List of meta data included in the corpus (e.g., date, language, source, medium)",
                                  relationship_constraint="MetaVariable",
                                  render_kw={
                                      'placeholder': 'Select multiple...'},
                                  autoload_choices=True)
 
-    concept_vars = ListRelationship(description="List of annotations included in the corpus (e.g., sentiment, topic, named entities)",
+    concept_variables = ListRelationship(description="List of annotations included in the corpus (e.g., sentiment, topic, named entities)",
                                     relationship_constraint="ConceptVariable",
                                     render_kw={
                                         'placeholder': 'Select multiple...'},
@@ -727,17 +786,17 @@ class Tool(Entry):
                                      'placeholder': 'Separate by comma ","'},
                                  overwrite=True)
 
-    authors = OrderedListString(delimiter=';',
-                                render_kw={'placeholder': 'Separate by semicolon ";"'}, tom_select=True,
-                                required=True,
-                                directives=['@index(term)'])
+    authors = OrderedListRelationship(allow_new=True,
+                                      relationship_constraint="Author",
+                                      tom_select=True,
+                                      required=True)
 
-    published_date = Year(label='Year of publication',
+    date_published = Year(label='Year of publication',
                           description="Which year was the tool published?",
                           queryable=True,
                           comparison_operators={'ge': 'after', 'le': 'before', 'eq': 'exact'})
 
-    last_updated = DateTime(
+    date_modified = DateTime(
         description="When was the tool last updated?", new=False)
 
     url = String(label="URL", description="Link to the tool", required=True)
@@ -771,10 +830,9 @@ class Tool(Entry):
                               tom_select=True,
                               queryable=True)
 
-    programming_languages = MultipleChoice(label="Programming Languages",
+    programming_languages = ListRelationship(label="Programming Languages",
                                            description="Which programming languages are used for the tool? \
                                             Please also include language that can directly interface with this tool.",
-                                           choices=programming_languages,
                                            required=False,
                                            tom_select=True,
                                            queryable=True)
@@ -787,7 +845,7 @@ class Tool(Entry):
 
     license = String(description="What kind of license attached to the tool?")
 
-    user_access = SingleChoice(description="How can the user access the tool?",
+    conditions_of_access = SingleChoice(description="How can the user access the tool?",
                                choices={'NA': 'NA / Unknown',
                                         'free': 'Free',
                                         'registration': 'Registration',
@@ -801,7 +859,7 @@ class Tool(Entry):
                                 required=True,
                                 queryable=True)
 
-    concept_vars = ListRelationship(description="Which concepts can the tool measure (e.g. sentiment, frames, etc)",
+    concept_variables = ListRelationship(description="Which concepts can the tool measure (e.g. sentiment, frames, etc)",
                                     relationship_constraint="ConceptVariable",
                                     autoload_choices=True,
                                     queryable=True,
@@ -820,8 +878,7 @@ class Tool(Entry):
                                    label="Yes",
                                    queryable=True)
 
-    languages = MultipleChoice(description="Which languages does the tool support?",
-                               choices=icu_codes,
+    languages = ListRelationship(description="Which languages does the tool support?",
                                tom_select=True,
                                queryable=True)
 
@@ -846,19 +903,19 @@ class Tool(Entry):
                                          relationship_constraint="Corpus",
                                          queryable=True)
 
-    materials = ListString(description="Are there additional materials for the tool? (e.g., FAQ, Tutorials, Website, etc)",
+    materials = ListRelationship(description="Are there additional materials for the tool? (e.g., FAQ, Tutorials, Website, etc)",
                            tom_select=True, render_kw={'placeholder': 'please paste the URLs to the materials here!'})
 
     related_publications = ReverseListRelationship('tools_used',
                                                    description="Which research publications are using this tool?",
                                                    autoload_choices=True,
                                                    new=False,
-                                                   relationship_constraint="ResearchPaper")
+                                                   relationship_constraint="ScientificPublication")
 
     defunct = Boolean(description="Is the tool defunct?", queryable=True)
 
 
-class ResearchPaper(Entry):
+class ScientificPublication(Entry):
 
     name = String(new=False, edit=False, hidden=True)
     alternate_names = ListString(
@@ -867,24 +924,56 @@ class ResearchPaper(Entry):
     title = String(description="What is the title of the publication?", required=True,
                    directives=['@index(term)'])
 
-    authors = OrderedListString(delimiter=';',
-                                render_kw={'placeholder': 'Separate by semicolon ";"'}, tom_select=True,
-                                required=True,
-                                directives=['@index(term)'])
+    authors = OrderedListRelationship(allow_new=True,
+                                      relationship_constraint="Author",
+                                      tom_select=True,
+                                      required=True)
 
-    published_date = Year(label='Year of publication',
+    date_published = Year(label='Year of publication',
                           description="Which year was the publication published?",
                           required=True)
 
-    paper_kind = String(
-        description="What kind of publcation is this? (e.g., Journal article, book section)")
+    paper_kind = SingleChoice(
+        description="What kind of publication is this?",
+        choices={'journal-article': 'Journal Article',
+                 'book': 'Book',
+                 'dataset': 'Dataset',
+                 'book-chapter': 'Book Chapter',
+                 'book-part': 'Part',
+                 'book-section': 'Book Section',
+                 'book-series': 'Book Series',
+                 'book-set': 'Book Set',
+                 'book-track': 'Book Track',
+                 'component': 'Component',
+                 'database': 'Database',
+                 'dissertation': 'Dissertation',
+                 'edited-book': 'Edited Book',
+                 'grant': 'Grant',
+                 'journal': 'Journal',
+                 'journal-issue': 'Journal Issue',
+                 'journal-volume': 'Journal Volume',
+                 'monograph': 'Monograph',
+                 'peer-review': 'Peer Review',
+                 'posted-content': 'Posted Content',
+                 'proceedings': 'Proceedings',
+                 'proceedings-article': 'Proceedings Article',
+                 'proceedings-series': 'Proceedings Series',
+                 'reference-book': 'Reference Book',
+                 'reference-entry': 'Reference Entry',
+                 'report': 'Report',
+                 'report-component': 'Report Component',
+                 'report-series': 'Report Series',
+                 'standard': 'Standard',
+                 'other': 'Other'})
 
-    journal = String(description="In which journal was it published?")
+    venue = String(description="In which journal/proceedings was it published?",
+                   directives=["@index(term, trigram)"])
 
     url = String(
         label="URL", description="Link to the publication", required=True)
-    doi = String(label='DOI')
-    arxiv = String(label='arXiv')
+    doi = String(label='DOI', directives=["@index(hash)"])
+    openalex = String(label='OpenAlex ID', directives=["@index(hash)"])
+    arxiv = String(label='arXiv', directives=["@index(hash)"])
 
     description = String(
         large_textfield=True, description="Abstract or a short description of the publication")
@@ -892,10 +981,23 @@ class ResearchPaper(Entry):
     tools_used = ListRelationship(description="Which research tool(s) where used in the publication?",
                                   autoload_choices=True,
                                   relationship_constraint="Tool")
-
-    sources_included = ListRelationship(description="Which news sources are investigated in this publication?",
+    
+    methodologies = ListRelationship(description="Methodologies / Operations used in the publication",
+                                     relationship_constraint="Operation",
+                                     allow_new=True)
+    
+    concept_variables = ListRelationship(description="concepts investigated in this publication",
+                                     relationship_constraint="ConceptVariable",
+                                     allow_new=True)
+    
+    sources_included = ListRelationship(description="Which entities are covered in the publication",
                                         autoload_choices=False,
-                                        relationship_constraint="Source")
+                                        relationship_constraint=["NewsSource",
+                                                                 "Organization",
+                                                                 "PoliticalParty",
+                                                                 "Person",
+                                                                 "Government",
+                                                                 "Parliament"])
 
     text_units = ListRelationship(description="List of text units analysed in the publication (e.g., sentences, paragraphs, tweets, news articles, summaries, headlines)",
                                   relationship_constraint="UnitOfAnalysis",
@@ -903,27 +1005,39 @@ class ResearchPaper(Entry):
                                       'placeholder': 'Select multiple...'},
                                   autoload_choices=True,
                                   allow_new=True)
+    
 
     datasets_used = ListRelationship(description="Which dataset(s) where used in the publication?",
                                      autoload_choices=True,
                                      relationship_constraint="Dataset")
 
-    corpus_used = ListRelationship(description="Which corpora where used in the publication?",
-                                   autoload_choices=True,
-                                   relationship_constraint="Corpus")
-
-    country = ListRelationship(description="Does the publication have some sort of country that it focuses on?",
+    countries = ListRelationship(description="Does the publication has some sort of countries that it focuses on?",
                                autoload_choices=True,
-                               relationship_constraint="Country")
+                               relationship_constraint=["Country", "Multinational"])
+    
+    geographic_scope = SingleChoice(description="What is the geographic scope of the news source?",
+                                    choices={'multinational': 'Multinational',
+                                             'national': 'National',
+                                             'subnational': 'Subnational'},
+                                    required=True,
+                                    radio_field=True,
+                                    queryable=True)
+
+    languages = ListRelationship(autoload_choices=True, queryable=True,
+                                 relationship_constraint="Language")
+
 
 """
     Authors
 """
 
+
 class Author(Entry):
     orcid = String(label="ORCID", directives=["@index(hash)"])
     url = String(label="URL", description="Website of author")
-    openalex = ListString(label="OpenAlex ID", description="ID(s) of the author on OpenAlex")
+    openalex = ListString(label="OpenAlex ID",
+                          description="ID(s) of the author on OpenAlex")
+
 
 """
     Meta Predicates / Tag Like Types
@@ -996,24 +1110,24 @@ class Collection(Entry):
                                                                  "Person",
                                                                  "PoliticalParty",
                                                                  "Organization"])
-    
-    languages = ListRelationship(description="Which languages are related to this collection?",
+
+    languages = ListRelationship(description="Which languages are related_news_sources to this collection?",
                                  relationship_constraint=["Language"])
-    
-    countries = ListRelationship(description="Which countries, multinational constructs, or subunits are related to this collection?",
+
+    countries = ListRelationship(description="Which countries, multinational constructs, or subunits are related_news_sources to this collection?",
                                  relationship_constraint=["Country", "Multinational", "Subnational"])
-    
-    tools = ListRelationship(description="Which tools are related to this collection?",
-                                 relationship_constraint=["Tool"])
-    
-    references = ListRelationship(description="Is the collection is directly related to a paper, or derived from a series of papers / publications?",
-                                 relationship_constraint=["ScientificPublication"])
-    
-    materials = ListRelationship(description="Are there any learning materials related to this collection?",
+
+    tools = ListRelationship(description="Which tools are related_news_sources to this collection?",
+                             relationship_constraint=["Tool"])
+
+    references = ListRelationship(description="Is the collection is directly related_news_sources to a paper, or derived from a series of papers / publications?",
+                                  relationship_constraint=["ScientificPublication"])
+
+    materials = ListRelationship(description="Are there any learning materials related_news_sources to this collection?",
                                  relationship_constraint=["LearningMaterial"])
-    
-    concept_variables = ListRelationship(description="Is this collection about concepts or related to theoretical constructs?",
-                                 relationship_constraint=["ConceptVariable"])
+
+    concept_variables = ListRelationship(description="Is this collection about concepts or related_news_sources to theoretical constructs?",
+                                         relationship_constraint=["ConceptVariable"])
 
 
 """
@@ -1030,7 +1144,7 @@ class File(Schema):
 
     _download_url = String(description="location of the resource")
     _path = String(description="location on local disk")
-    file_format = SingleRelationship(relationship_constraint="FileFormat")
+    file_formats = SingleRelationship(relationship_constraint="FileFormat")
 
 
 class Notification(Schema):
@@ -1045,7 +1159,7 @@ class Notification(Schema):
     _read = Boolean(default=False)
     _notify = SingleRelationship(relationship_constraint="User",
                                  required=True)
-    
+
     _title = String(default="Notification")
     _content = String()
     _email_dispatched = Boolean(default=False)
@@ -1060,13 +1174,13 @@ class Comment(Schema):
 
     _creator = SingleRelationship(relationship_constraint='User',
                                   required=True)
-    
+
     _comment_date = DateTime(default=datetime.datetime.now,
                              directives=['@index(hour)'])
-    
+
     _comment_edited = DateTime(default=datetime.datetime.now,
                                directives=['@index(hour)'])
-    
+
     _comment_on = SingleRelationship(relationship_constraint="Entry")
     content = String()
 

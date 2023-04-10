@@ -593,9 +593,9 @@ def doi(doi: str) -> Union[dict, bool]:
 
     result = {'doi': doi}
 
-    result['journal'] = publication.get('container-title')
-    if isinstance(result['journal'], list):
-        result['journal'] = result['journal'][0]
+    result['venue'] = publication.get('container-title')
+    if isinstance(result['venue'], list):
+        result['venue'] = result['venue'][0]
     result['title'] = publication.get('title')
 
     if isinstance(result['title'], list):
@@ -604,7 +604,7 @@ def doi(doi: str) -> Union[dict, bool]:
     result['paper_kind'] = publication.get('type')
 
     if publication.get('created'):
-        result['published_date'] = dateparser.parse(publication['created']['date-time'])
+        result['date_published'] = dateparser.parse(publication['created']['date-time'])
 
     if publication.get('link'):
         result['url'] = publication['link'][0]['URL']
@@ -674,7 +674,7 @@ def arxiv(arxiv: str) -> Union[dict, bool]:
     result['authors'] = authors
 
     try:
-        result['published_date'] = dateparser.parse(soup.entry.published.text)
+        result['date_published'] = dateparser.parse(soup.entry.published.text)
     except Exception as e:
         current_app.logger.warning(f'Could not parse publication date in ArXiv: {arxiv}')
 
@@ -704,7 +704,7 @@ def cran(pkg) -> Union[dict, bool]:
 
     result = {'programming_languages': ['r'],
                 'platform': ['windows','linux','macos'],
-                'user_access': 'free',
+                'conditions_of_access': 'free',
                 'open_source': 'yes'}
 
     if 'Package' in data.keys():

@@ -102,6 +102,21 @@ def main():
     request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
     txn.do_request(request)    
 
+    # fine tune some entries
+    txn = client.txn()
+
+    query = """{
+        amcat(func: eq(_unique_name, "tool_amcat")) { am as uid }
+        python(func: eq(_unique_name, "programming_language_python")) { py as uid }
+        paper1(func: eq(_unique_name, "10.1080_1461670X.2020.1745667")) { paper as uid }
+        german(func: eq(_unique_name, "language_german")) { ger as uid } }"""
+    nquad = """
+        uid(am) <programming_languages> uid(py) .
+        uid(paper) <languages> uid(ger) .
+        """
+    mutation = txn.create_mutation(set_nquads=nquad)
+    request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
+    txn.do_request(request)    
 
     print(Fore.GREEN + 'DONE!' + Style.RESET_ALL)
     deinit()

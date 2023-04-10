@@ -1,5 +1,5 @@
 {% macro render_icon(entry) %}
-{% if 'Source' in entry['dgraph.type'] %}
+{% if 'NewsSource' in entry['dgraph.type'] %}
     <h2><i class="icon-{{ entry.channel._unique_name }} color-{{ entry.channel._unique_name }}" alt="{{ entry.channel.name }}"></i></h2>
 {% elif 'Channel' in entry['dgraph.type'] %}
     <h2><i class="icon-{{ entry._unique_name }} color-{{ entry._unique_name }}" alt="{{ entry.name }}"></i></h2>
@@ -19,7 +19,7 @@
     <h2><i class="fas fa-city" alt="Subnational"></i></h2>
 {% elif 'Country' in entry['dgraph.type'] %}
     <h2><i class="fas fa-globe-europe" alt="Country"></i></h2>
-{% elif 'ResearchPaper' in entry['dgraph.type'] %}
+{% elif 'ScientificPublication' in entry['dgraph.type'] %}
     <h2><i class="fas fa-graduation-cap" alt="Paper"></i></h2>
 {% elif 'Tool' in entry['dgraph.type'] %}
     <h2><i class="fas fa-toolbox" alt="Tool"></i></h2>
@@ -49,10 +49,10 @@
     {% if publication.authors is string %} 
         {{ publication.authors }}
     {% else %}
-        {{ publication.authors[0] }} {{ 'et al.' if publication.authors|length > 1 else '' }}
+        {{ publication.authors[0].name }} {{ 'et al.' if publication.authors|length > 1 else '' }}
     {% endif %}
-    {% if publication.published_date %}
-        <span>({{ publication.published_date.strftime('%Y') }})</span>
+    {% if publication.date_published %}
+        <span>({{ publication.date_published.strftime('%Y') }})</span>
     {% endif %}
     {% for key in publication.keys() %}
         {% if '|from' in key %}

@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, send_from_directory, current_app, 
 from flaskinventory import dgraph
 from flaskinventory.misc.forms import get_country_choices
 from flaskinventory.view.forms import SimpleQuery
-from flaskinventory.main.model import Tool, Source
+from flaskinventory.main.model import Tool, NewsSource
 
 from datetime import datetime
 

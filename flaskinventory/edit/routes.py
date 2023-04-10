@@ -150,7 +150,7 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
 
     skip_fields = []
     # manually filter out fields depending on channel
-    if dgraph_type == 'Source':
+    if dgraph_type == 'NewsSource':
         skip_fields = channel_filter(entry['q'][0]['channel']['_unique_name'])
 
     if request.method == 'GET':
@@ -196,7 +196,7 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
         wikidata_form = RefreshWikidataForm()
         wikidata_form.uid.data = uid
         sidebar_items.update({'actions': {'wikidata': wikidata_form}})
-    if dgraph_type == 'Source':
+    if dgraph_type == 'NewsSource':
         # if entry['q'][0]['channel']['_unique_name'] in ['print', 'facebook']:
         sidebar_items['actions'] = {'audience_size': url_for(
             'edit.source_audience', uid=entry['q'][0]['uid'], **request.args)}
@@ -215,7 +215,7 @@ def source_audience(uid):
     if not check:
         return abort(404)
 
-    if 'Source' not in check['dgraph.type']:
+    if 'NewsSource' not in check['dgraph.type']:
         return abort(404)
 
     if not can_edit(check, current_user):
@@ -248,14 +248,14 @@ def source_audience(uid):
 
         flash('Audience size updated!', 'success')
 
-        return jsonify({'status': 'success', 'redirect': url_for('view.view_generic', dgraph_type='Source', uid=uid, **request.args)})
+        return jsonify({'status': 'success', 'redirect': url_for('view.view_generic', dgraph_type='NewsSource', uid=uid, **request.args)})
 
     audience_size = get_audience(uid=uid)
     entry = get_entry(uid=uid)
     entry = entry['q'][0]
     sidebar_items = {'meta': entry}
 
-    return render_template('edit/audience.html', title='Edit Source', entry=entry, data=audience_size, show_sidebar=True, sidebar_items=sidebar_items)
+    return render_template('edit/audience.html', title='Edit NewsSource', entry=entry, data=audience_size, show_sidebar=True, sidebar_items=sidebar_items)
 
 
 @edit.route('/draft/delete/<string:uid>')

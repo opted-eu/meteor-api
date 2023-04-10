@@ -49,6 +49,9 @@ def view_uid(uid=None):
         return redirect(url_for('view.view_rejected', uid=uid))
     if dgraphtype:
         unique_name = dgraph.get_unique_name(uid)
+        if not unique_name:
+            return redirect(url_for('view.view_generic', dgraph_type=dgraphtype, uid=uid, **request_args))
+            
         return redirect(url_for('view.view_generic', dgraph_type=dgraphtype, unique_name=unique_name, **request_args))
     else:
         return abort(404)
@@ -91,7 +94,8 @@ def view_generic(dgraph_type=None, uid=None, unique_name=None):
             unique_name = dgraph.get_unique_name(uid)
             return redirect(url_for('view.view_generic', dgraph_type=dgraph_type, unique_name=unique_name))
         except:
-            return abort(404)
+            flash(f'The requested entry with UID {uid} <{dgraph_type}> is missing a unique name!', "danger")
+            return abort(500)
 
     data = get_entry(uid=uid, unique_name=unique_name, dgraph_type=dgraph_type)
 
@@ -108,7 +112,7 @@ def view_generic(dgraph_type=None, uid=None, unique_name=None):
             return redirect(url_for('users.login'))
         
 
-    if any(x in data['dgraph.type'] for x in ['Source', 'Organization']):
+    if any(x in data['dgraph.type'] for x in ['NewsSource', 'Organization']):
         show_sidebar = True
     else:
         show_sidebar = False
@@ -192,7 +196,7 @@ def query():
                 for item in result:
                     if 'Entry' in item['dgraph.type']:
                         item['dgraph.type'].remove('Entry')
-                    if any(t in item['dgraph.type'] for t in ['ResearchPaper', 'Tool', 'Corpus', 'Dataset']):
+                    if any(t in item['dgraph.type'] for t in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']):
                         restore_sequence(item)
 
     r_args = {k: v for k, v in request.args.to_dict(
@@ -202,7 +206,7 @@ def query():
     except:
         current_page = 1
 
-    form = generate_query_forms(dgraph_types=['Source', 'Organization', 'Tool', 'Archive', 'Dataset', 'Corpus'],
+    form = generate_query_forms(dgraph_types=['NewsSource', 'Organization', 'Tool', 'Archive', 'Dataset', 'Corpus'],
                                 populate_obj=request.args)
 
     if json_output:

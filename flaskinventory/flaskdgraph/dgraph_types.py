@@ -1415,7 +1415,9 @@ class SingleRelationship(Predicate):
         # hook for Tom-Select to decide whether new entries should be allowed
         self.render_kw.update({'data-ts-create': allow_new})
 
-    def validate(self, data, facets=None) -> Union[UID, NewID, dict]:
+    def validate(self, data, facets=None) -> Union[dict, None]:
+        # TODO: Check if this makes sense. Maybe not a good idea to return None
+        # Might be better to raise a ValidationError
         if data == '':
             return None
         uid = validate_uid(data)

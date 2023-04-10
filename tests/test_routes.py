@@ -39,7 +39,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(request.path, url_for('view.view_generic',
                                                    unique_name='derstandard_facebook',
-                                                   dgraph_type='Source'))
+                                                   dgraph_type='NewsSource'))
 
     def test_view_uid(self):
 
@@ -58,7 +58,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                              follow_redirects=True)
             self.assertEqual(request.path, url_for('view.view_generic',
                                                    unique_name='derstandard_instagram',
-                                                   dgraph_type='Source'))
+                                                   dgraph_type='NewsSource'))
             self.assertEqual(response.status_code, 200)
 
             response = c.get('/view/uid/' + self.derstandard_mbh_uid,
@@ -110,7 +110,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             else:
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(request.path, url_for(
-                    'view.view_generic', unique_name="derstandard_print", dgraph_type='Source'))
+                    'view.view_generic', unique_name="derstandard_print", dgraph_type='NewsSource'))
 
             # view one's own entry
             mutation = dgraph.mutation(
@@ -132,7 +132,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             else:
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(request.path, url_for(
-                    'view.view_generic', unique_name="derstandard_print", dgraph_type='Source'))
+                    'view.view_generic', unique_name="derstandard_print", dgraph_type='NewsSource'))
 
             mutation = dgraph.mutation(
                 {'uid': self.derstandard_print,
@@ -164,7 +164,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             else:
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(request.path, url_for(
-                    'view.view_generic', unique_name="derstandard_print", dgraph_type='Source'))
+                    'view.view_generic', unique_name="derstandard_print", dgraph_type='NewsSource'))
 
             # view one's own entry
             mutation = dgraph.mutation(
@@ -186,7 +186,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             else:
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(request.path, url_for(
-                    'view.view_generic', unique_name="derstandard_print", dgraph_type='Source'))
+                    'view.view_generic', unique_name="derstandard_print", dgraph_type='NewsSource'))
 
             mutation = dgraph.mutation(
                 {'uid': self.derstandard_print,
@@ -223,7 +223,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                 self.assertEqual(response.status_code, 200)
 
             for source in self.sources:
-                response = c.get('/view/Source/uid/' + source,
+                response = c.get('/view/NewsSource/uid/' + source,
                                  follow_redirects=True)
                 self.assertEqual(response.status_code, 200)
 
@@ -287,7 +287,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
 
         # prepare a temp entry
         tmp_entry = {'uid': '_:tempentry',
-                     'dgraph.type': ['Entry', 'Source'],
+                     'dgraph.type': ['Entry', 'NewsSource'],
                      'name': 'Temp Entry',
                      '_unique_name': 'tmp_entry',
                      '_date_created': '2022-05-17T10:00:00',

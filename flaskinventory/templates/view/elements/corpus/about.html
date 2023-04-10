@@ -3,10 +3,10 @@
     <dl class="row">
         <dt class="col-sm-3 mb-4"><h5>About</h5></dt>
         <dd class="col-sm-9 mb-4"><small class="text-muted"></small></dd>
-        {% if entry.access %}
+        {% if entry.conditions_of_access %}
         <dt class="col-sm-3">Access</dt>
         <dd class="col-sm-9">
-            {{entry.access}}
+            {{entry.conditions_of_access}}
         {% endif %}
         {% if entry.languages %}
         <dt class="col-sm-3">Language(s) in corpus</dt>
@@ -24,20 +24,20 @@
             {% endfor %}
         </dd>
         {% endif %}
-        {% if entry.start_date %}
+        {% if entry.temporal_coverage_start %}
         <dt class="col-sm-3">Start Date of coverage</dt>
         <dd class="col-sm-9">
-            {{entry.start_date.strftime('%Y-%m-%d') }}
+            {{entry.temporal_coverage_start.strftime('%Y-%m-%d') }}
         {% endif %}
-        {% if entry.end_date %}
+        {% if entry.temporal_coverage_end %}
         <dt class="col-sm-3">End Date of coverage</dt>
         <dd class="col-sm-9">
-            {{entry.end_date.strftime('%Y-%m-%d')}}
+            {{entry.temporal_coverage_end.strftime('%Y-%m-%d')}}
         {% endif %}
-        {% if entry.file_format %}
+        {% if entry.file_formats %}
         <dt class="col-sm-3">Corpus File Format</dt>
         <dd class="col-sm-9">
-             {{ render_tags(entry.file_format) }}
+             {{ render_tags(entry.file_formats) }}
         </dd>
         {% endif %}
         {% if entry.initial_source %}
@@ -54,16 +54,16 @@
             {{ render_tags(entry.text_units) }}
         </dd>
         {% endif %}
-        {% if entry.meta_vars %}
+        {% if entry.meta_variables %}
         <dt class="col-sm-3">Included Meta Variables</dt>
         <dd class="col-sm-9">
-            {{ render_tags(entry.meta_vars) }}
+            {{ render_tags(entry.meta_variables) }}
         </dd>
         {% endif %}
-        {% if entry.concept_vars %}
+        {% if entry.concept_variables %}
         <dt class="col-sm-3">Included Annotations</dt>
         <dd class="col-sm-9">
-            {{ render_tags(entry.concept_vars) }}
+            {{ render_tags(entry.concept_variables) }}
         </dd>
         {% endif %}
         </dd>

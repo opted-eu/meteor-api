@@ -13,7 +13,7 @@ from flaskinventory import dgraph
 from flask import current_app
 from werkzeug.datastructures import ImmutableMultiDict
 
-from flaskinventory.main.model import Entry, Organization, Source
+from flaskinventory.main.model import Entry, Organization, NewsSource
 from flaskinventory.misc import get_ip
 from flaskinventory.misc.utils import IMD2dict
 from flask_login import current_user
@@ -76,12 +76,12 @@ class Sanitizer:
             self.entry['dgraph.type'] = Schema.resolve_inheritance(dgraph_type)
         self._parse()
         self.process_related()
-        if self.dgraph_type == 'Source':
+        if self.dgraph_type == 'NewsSource':
             if not self.is_upsert or self.entry_review_status == 'draft':
                 self.process_source()
 
-        if self.dgraph_type == 'ResearchPaper':
-            self.process_researchpaper()
+        if self.dgraph_type == 'ScientificPublication':
+            self.process_scientificpublication()
 
         self._delete_nquads()
         self._set_nquads()
@@ -132,8 +132,8 @@ class Sanitizer:
 
     def _set_nquads(self):
         nquads = dict_to_nquad(self.entry)
-        for related in self.related_entries:
-            nquads += dict_to_nquad(related)
+        for related_news_sources in self.related_entries:
+            nquads += dict_to_nquad(related_news_sources)
         self.set_nquads = " \n".join(nquads)
 
     def _delete_nquads(self):
@@ -334,11 +334,11 @@ class Sanitizer:
         self._postprocess_list_facets()
 
     def process_related(self):
-        for related in self.related_entries:
-            related = self._add_entry_meta(
-                related, newentry=isinstance(related['uid'], NewID))
-            if isinstance(related['uid'], NewID) and 'name' not in related.keys():
-                related['name'] = str(related['uid']).replace(
+        for related_news_sources in self.related_entries:
+            related_news_sources = self._add_entry_meta(
+                related_news_sources, newentry=isinstance(related_news_sources['uid'], NewID))
+            if isinstance(related_news_sources['uid'], NewID) and 'name' not in related_news_sources.keys():
+                related_news_sources['name'] = str(related_news_sources['uid']).replace(
                     '_:', '').replace('_', ' ').title()
 
     def parse_entry_review_status(self):
@@ -424,7 +424,10 @@ class Sanitizer:
 
         return unique_name
 
-    def process_researchpaper(self):
+    def process_scientificpublication(self):
+
+        # TODO: completely rework this
+
         """
             Special steps for papers
             Generate a name based on author and title
@@ -439,7 +442,7 @@ class Sanitizer:
         title = re.match(r".*?[\?:\.!]", str(self.entry['title']))[0]
         title = title.replace(':', '')
 
-        year = self.entry['published_date'].year
+        year = self.entry['date_published'].year
 
         self.entry['name'] = f'{author} ({year}): {title}'
 
@@ -449,7 +452,7 @@ class Sanitizer:
         """
             Special processing step for new Sources
             We grab some additional data from various APIs
-            And also make sure that _new_ related sources inherit fields
+            And also make sure that _new_ related_news_sources sources inherit fields
         """
 
         try:
@@ -470,7 +473,7 @@ class Sanitizer:
         elif channel == 'telegram':
             self.fetch_telegram()
         elif channel == 'facebook':
-            self.entry['channel_url'] = self.entry['name']
+            self.entry['identifier'] = self.entry['name']
 
         try:
             country_uid = self.entry['country'][0]
@@ -483,14 +486,14 @@ class Sanitizer:
         # inherit from main source
         for source in self.related_entries:
             if isinstance(source['uid'], NewID):
-                if 'Source' in source['dgraph.type']:
+                if 'NewsSource' in source['dgraph.type']:
                     rel_channel = self.data.get('newsource_' + source['name'])
                     if rel_channel:
                         if dgraph.get_dgraphtype(rel_channel) == 'Channel':
                             source['channel'] = UID(rel_channel)
                     else:
                         raise InventoryValidationError(
-                            f'No channel provided for related source {source["name"]}! Please indicate channel')
+                            f'No channel provided for related_news_sources source {source["name"]}! Please indicate channel')
                     source['entry_review_status'] = 'draft'
                     source['_unique_name'] = secrets.token_urlsafe(8)
                     source['publication_kind'] = self.entry.get(
@@ -592,7 +595,7 @@ class Sanitizer:
                     self.entry['alternate_names'].append(url.strip())
 
         self.entry['name'] = Scalar(entry_name)
-        self.entry['channel_url'] = build_url(
+        self.entry['identifier'] = build_url(
             self.data['name'])
 
     def fetch_siterankdata(self):
@@ -629,7 +632,7 @@ class Sanitizer:
         if profile:
             self.entry['name'] = self.data[
                 'name'].lower().replace('@', '')
-            self.entry['channel_url'] = self.data[
+            self.entry['identifier'] = self.data[
                 'name'].lower().replace('@', '')
         else:
             raise InventoryValidationError(
@@ -649,7 +652,7 @@ class Sanitizer:
         self.entry['verified_account'] = profile['verified']
 
     def fetch_twitter(self):
-        self.entry['channel_url'] = self.data['name'].replace('@', '')
+        self.entry['identifier'] = self.data['name'].replace('@', '')
         try:
             profile = twitter(self.data['name'].replace('@', ''))
         except Exception as e:
@@ -675,7 +678,7 @@ class Sanitizer:
         self.entry['verified_account'] = profile.get('verified')
 
     def fetch_vk(self):
-        self.entry['channel_url'] = self.data[
+        self.entry['identifier'] = self.data[
             'name'].replace('@', '')
         try:
             profile = vkontakte(self.data['name'].replace('@', ''))
@@ -702,7 +705,7 @@ class Sanitizer:
             self.entry['description'] = profile.get('description')
 
     def fetch_telegram(self):
-        self.entry['channel_url'] = self.data[
+        self.entry['identifier'] = self.data[
             'name'].replace('@', '')
         try:
             profile = telegram(self.data['name'].replace('@', ''))
@@ -736,7 +739,7 @@ class Sanitizer:
                 str(datetime.date.today()), facets=facets)
         self.entry['verified_account'] = profile.get('verified', False)
         if profile.get('telegram_id'):
-            self.entry['channel_url'] = profile.get('telegram_id')
+            self.entry['identifier'] = profile.get('telegram_id')
         if profile.get('joined'):
             self.entry['date_founded'] = profile.get('joined')
 

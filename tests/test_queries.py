@@ -48,16 +48,16 @@ class TestQueries(BasicTestSetup):
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 1)
 
-        query = {'dgraph.type': ['ResearchPaper'],
-                 'published_date': [2010],
-                 'published_date*operator': ['gt']
+        query = {'dgraph.type': ['ScientificPublication'],
+                 'date_published': [2010],
+                 'date_published*operator': ['gt']
                  }
 
         query_string = build_query_string(query)
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 1)
 
-        query = {'dgraph.type': ['Source'],
+        query = {'dgraph.type': ['NewsSource'],
                  'audience_size|count': [300000],
                  'audience_size|count*operator': ['lt']
                  }
@@ -280,7 +280,7 @@ class TestQueries(BasicTestSetup):
     def test_type_filters(self):
 
         with self.client as c:
-            query = {"dgraph.type": "Source",
+            query = {"dgraph.type": "NewsSource",
                      "country": self.germany_uid,
                      "json": True}
 
@@ -288,7 +288,7 @@ class TestQueries(BasicTestSetup):
                              query_string=query)
             self.assertEqual(len(response.json['result']), 1)
 
-            query = {"dgraph.type": ["Source", "Organization"],
+            query = {"dgraph.type": ["NewsSource", "Organization"],
                      "country": self.austria_uid,
                      "json": True}
 

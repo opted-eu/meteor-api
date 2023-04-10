@@ -10,6 +10,10 @@ from flaskinventory.users.constants import USER_ROLES
 
 class Schema:
 
+    # TODO: run consititency check. Currently one predicate declaration 
+    # can overwrite other predicate declarations with the same name
+    # it should be consistent with dgraph that the type of predicate is the same
+
     # registry of all types and which predicates they have
     # Key = Dgraph Type (string), val = dict of predicates
     __types__ = {}
@@ -164,7 +168,7 @@ class Schema:
         """
             Get all predicates of a DGraph Type
             Returns a deepcopy dict of `{'predicate_name': <DGraph Predicate>}`
-            `Schema.get_predicates('Source')` -> {'name': <DGraph Predicate "name"> ...}
+            `Schema.get_predicates('NewsSource')` -> {'name': <DGraph Predicate "name"> ...}
         """
         if not isinstance(_cls, str):
             _cls = _cls.__name__
@@ -175,7 +179,7 @@ class Schema:
         """
             Get all Relationships from the DGraph Type to other DGraph Types.
             Returns a dict of `{'predicate_name': <DGraph Predicate>}`
-            `Schema.get_relationships('Source')` -> {'channel': <DGraph Predicate "channel"> ...}
+            `Schema.get_relationships('NewsSource')` -> {'channel': <DGraph Predicate "channel"> ...}
         """
         from .dgraph_types import SingleRelationship, MutualRelationship
         if not isinstance(_cls, str):
@@ -189,7 +193,7 @@ class Schema:
         """
             Get all explicit reverse relationships from other DGraph Types to this DGraph Type.
             Returns a dict of `{'alias_reverse_predicate': <DGraph Predicate>}`
-            `Schema.get_reverse_predicates('Source')` -> {'publishes_org': <DGraph Reverse Relationship "~publishes"> ...}
+            `Schema.get_reverse_predicates('NewsSource')` -> {'publishes_org': <DGraph Reverse Relationship "~publishes"> ...}
         """
         if not isinstance(_cls, str):
             _cls = _cls.__name__

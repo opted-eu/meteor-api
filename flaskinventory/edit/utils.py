@@ -42,7 +42,7 @@ def can_delete(entry) -> bool:
 
 def channel_filter(channel: str) -> list:
     if channel == 'print':
-        return ['channel_url', 
+        return ['identifier', 
                 'transcript_kind',
                 'website_allows_comments', 
                 'website_comments_registration_required']

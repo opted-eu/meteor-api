@@ -40,7 +40,7 @@
 </div>
 {% include "view/elements/general_information.html" %}
 
-{% if 'Source' in entry['dgraph.type'] %}
+{% if 'NewsSource' in entry['dgraph.type'] %}
 
     {% include "view/elements/source/journalistic_routines.html" %}
     {% include "view/elements/source/audience.html" %}
@@ -88,9 +88,10 @@
 {% endif %}
 
 
-{% if 'ResearchPaper' in entry['dgraph.type'] %}
+{% if 'ScientificPublication' in entry['dgraph.type'] %}
 
-    {% include "view/elements/researchpaper/sources_included.html" %}
+    {% include "view/elements/scientificpublication/tools_used.html" %}
+    {% include "view/elements/scientificpublication/sources_included.html" %}
 
 {% endif %}
 
@@ -163,7 +164,7 @@
 
 {% block sidebar %} 
 
-{% if 'Source' in entry['dgraph.type'] %}
+{% if 'NewsSource' in entry['dgraph.type'] %}
     {% include "view/elements/source/sidebar.html" %} 
 {% endif %}
 

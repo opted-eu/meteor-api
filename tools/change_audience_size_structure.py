@@ -23,7 +23,7 @@ def main():
         c(func: eq(unique_name, "website")) {
             u as uid
         }
-        q(func: type("Source")) 
+        q(func: type("NewsSource")) 
             @filter(has(audience_size) AND uid_in(channel, uid(u))) @cascade {
                 uid
                 audience_size @facets(gt(daily_visitors, 0)) @facets
@@ -59,7 +59,7 @@ def main():
         c(func: type(Channel)) @filter(eq(unique_name, ["twitter", "telegram", "instagram", "vkontakte"])) {
             u as uid
         }
-        q(func: type("Source")) 
+        q(func: type("NewsSource")) 
             @filter(has(audience_size) AND uid_in(channel, uid(u))) @cascade {
                 uid
                 audience_size @facets(gt(followers, 0)) @facets
@@ -95,7 +95,7 @@ def main():
         c(func: eq(unique_name, "facebook")) {
             u as uid
         }
-        q(func: type("Source")) 
+        q(func: type("NewsSource")) 
             @filter(has(audience_size) AND uid_in(channel, uid(u))) @cascade {
                 uid
                 audience_size @facets(gt(likes, 0)) @facets
@@ -133,7 +133,7 @@ def main():
         c(func: type(Channel)) @filter(eq(unique_name, "print")) {
             u as uid
         }
-        q(func: type("Source")) 
+        q(func: type("NewsSource")) 
             @filter(has(audience_size) AND uid_in(channel, uid(u))) @cascade {
                 uid
                 audience_size @facets(gt(subscribers, 0)) @facets
@@ -170,7 +170,7 @@ def main():
         c(func: type(Channel)) @filter(eq(unique_name, "print")) {
             u as uid
         }
-        q(func: type("Source")) 
+        q(func: type("NewsSource")) 
             @filter(has(audience_size) AND uid_in(channel, uid(u))) @cascade {
                 uid
                 audience_size @facets(gt(copies_sold, 0)) @facets
@@ -206,7 +206,7 @@ def main():
         c(func: type(Channel)) @filter(eq(unique_name, "print")) {
             u as uid
         }
-        q(func: type("Source")) 
+        q(func: type("NewsSource")) 
             @filter(has(audience_size) AND uid_in(channel, uid(u))) @cascade {
                 uid
                 audience_size @facets(gt(papers_sold, 0)) @facets

@@ -596,15 +596,15 @@ function populateForm(jsonData) {
     // if ("entry_notes" in jsonData) {
     //     document.getElementById("entry-notes").value = jsonData["entry_notes"]
     // };
-    if ("related" in jsonData) {
-        jsonData["related"].forEach(function(item) {
+    if ("related_news_sources" in jsonData) {
+        jsonData["related_news_sources"].forEach(function(item) {
                 let opt = document.createElement('option')
                 opt.setAttribute('value', item.uid)
                 opt.innerText = item.name + ' (' + item.channel.name + ')'
                 opt.selected = true
-                document.getElementById("related-sources").append(opt);
+                document.getElementById("related_news_sources-sources").append(opt);
             })
-            // add self to related
+            // add self to related_news_sources
     };
 };
 
@@ -1043,7 +1043,7 @@ ready(() => {
                 }
             };
 
-            // autocomplete related sources
+            // autocomplete related_news_sources sources
 
             function createNewSourceField(container, sourceName) {
                 var row = document.createElement('div')
@@ -1163,7 +1163,7 @@ ready(() => {
                     }
                 }
             };
-            new TomSelect('#related-sources', TomSelectRelatedSourcesConfig);
+            new TomSelect('#related_news_sources-sources', TomSelectRelatedSourcesConfig);
 
             // Hide loading spinner and show form
             document.getElementById('loading-form').hidden = true

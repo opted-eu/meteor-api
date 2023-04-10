@@ -53,8 +53,7 @@ def build_query_string(query: dict, public=True) -> str:
             filters.append("""(allofterms(name, $searchTerms) OR
                                 allofterms(alternate_names, $searchTerms) OR
                                 allofterms(description, $searchTerms) OR
-                                allofterms(title, $searchTerms) OR
-                                allofterms(authors, $searchTerms))""")
+                                allofterms(title, $searchTerms))""")
         else:
             filters.append("""(anyofterms(name, $searchTerms) OR 
                             regexp(name, /$searchTerms/i) OR
@@ -62,8 +61,7 @@ def build_query_string(query: dict, public=True) -> str:
                             anyofterms(alternate_names, $searchTerms) OR 
                             anyofterms(title, $searchTerms) OR 
                             eq(doi, $searchTerms) OR 
-                            eq(arxiv, $searchTerms) OR 
-                            anyofterms(authors, $searchTerms))""")
+                            eq(arxiv, $searchTerms))""")
 
         variables = {'$searchTerms': search_terms}
 
@@ -121,7 +119,7 @@ def build_query_string(query: dict, public=True) -> str:
     # these are the default predicates that we ALWAYS want to return
     # should be moved outside the function and declared as a setting
     query_parts = ['uid', '_unique_name', 'name', 'dgraph.type',
-                   'authors @facets', 'alternate_names', 'published_date']
+                   'authors @facets', 'alternate_names', 'date_published']
 
     query_parts_total = ['count(uid)']
 

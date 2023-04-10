@@ -6,7 +6,7 @@
         <dd class="col-sm-9">
             {% for source in entry.sources_included %}
             <p class="card-text">
-                <a href="{{ url_for('view.view_generic', dgraph_type='Source', unique_name=source._unique_name) }}">
+                <a href="{{ url_for('view.view_generic', dgraph_type='NewsSource', unique_name=source._unique_name) }}">
                 {{source.name}} ({{source.channel.name}})</a> {% if source.get('sources_included|from') %}
                 <span class="text-muted ms-2">
                             from: {{ source.get('sources_included|from').strftime('%Y-%m-%d') }}
