@@ -269,6 +269,7 @@
             "opted_scope": true,
             "name": "EU Scope",
             "alternate_names": ["European Union Scope"],
+            "wikidata_id": "Q458",
             "description": "For news sources with an EU-wide scope. Providing content targeting citizens of the EU."
         }
     ]
