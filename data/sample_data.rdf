@@ -375,6 +375,7 @@
         _:derstandardinstagram <_added_by> _:admin (timestamp=2022-05-17T10:00:00, ip="192.168.0.1") .
         _:derstandardfacebook <_added_by> _:admin (timestamp=2022-05-17T10:00:00, ip="192.168.0.1") .
 
+        _:globalvoices_website <_unique_name> "globalvoices_org_website" .
         _:globalvoices_website <dgraph.type> "NewsSource" .
         _:globalvoices_website <identifier> "https://globalvoices.org/" .
         _:globalvoices_website <contains_ads> "no" .
@@ -385,7 +386,6 @@
         _:globalvoices_website <website_allows_comments> "yes" .
         _:globalvoices_website <_date_created> "2022-02-15T10:55:48.638221Z" .
         _:globalvoices_website <website_comments_registration_required> "no" .
-        _:globalvoices_website <_unique_name> "globalvoices_org_website" .
         _:globalvoices_website <alternate_names> "Global Voices · Citizen media stories from around the world" .
         _:globalvoices_website <alternate_names> "https://globalvoices.org" .
         _:globalvoices_website <name> "globalvoices.org" .

@@ -109,10 +109,16 @@ def main():
         amcat(func: eq(_unique_name, "tool_amcat")) { am as uid }
         python(func: eq(_unique_name, "programming_language_python")) { py as uid }
         paper1(func: eq(_unique_name, "10.1080_1461670X.2020.1745667")) { paper as uid }
-        german(func: eq(_unique_name, "language_german")) { ger as uid } }"""
+        news(func: type(NewsSource)) { news as uid }
+        globalvoices(func: eq(_unique_name, "globalvoices_org_website")) { gvoices as uid }
+        german(func: eq(_unique_name, "language_german")) { ger as uid }
+        english(func: eq(_unique_name, "language_english")) {eng as uid }
+        }"""
     nquad = """
         uid(am) <programming_languages> uid(py) .
         uid(paper) <languages> uid(ger) .
+        uid(news) <languages> uid(ger) .
+        uid(gvoices) <languages> uid(eng) .
         """
     mutation = txn.create_mutation(set_nquads=nquad)
     request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
