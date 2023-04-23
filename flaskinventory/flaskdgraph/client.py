@@ -4,9 +4,10 @@ from dateutil.parser import isoparse
 from flask import current_app, _app_ctx_stack
 import pydgraph
 import logging
-from .dql import DQLQuery
+from . import dql
 
 class DGraph(object):
+
     """
         Class for dgraph database connection
     """
@@ -134,7 +135,7 @@ class DGraph(object):
         Generic Query Methods 
     """
 
-    def query(self, query_string: Union[DQLQuery, str], variables: dict=None) -> list:
+    def query(self, query_string: Union[dql.DQLQuery, str], variables: dict=None) -> list:
         # check if we got a DQLQuery Object
         try:
             variables = query_string.get_graphql_variables()
@@ -174,10 +175,13 @@ class DGraph(object):
         return [entry['uid'] for entry in data['q']]
 
     def get_unique_name(self, uid):
+        uid = str(uid)
 
-        query_string = f''' query get_unique_name($value: string)
-                            {{ q(func: uid($value)) @filter(has(dgraph.type)) {{ uid _unique_name }} }}'''
-        data = self.query(query_string, variables={'$value': uid})
+        query = dql.DQLQuery(func=dql.uid(dql.GraphQLVariable(value=uid)),
+                             query_filter=dql.has('dgraph.type'),
+                             fetch=['uid', '_unique_name'])
+
+        data = self.query(query)
         if len(data['q']) == 0:
             return None
         return data['q'][0]['_unique_name']

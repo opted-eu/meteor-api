@@ -280,7 +280,7 @@ class _PrimitivePredicate:
 
     def __init__(self,
                  label: str = None,
-                 default: str = None,
+                 default: Any = None,
                  required=False,
                  overwrite=False,
                  facets=None,
@@ -1095,6 +1095,12 @@ class Password(Predicate):
 
 class UniqueName(String):
 
+    """
+        Included here for Data Modelling
+        Actual assignment for new _unique_name happens in the data sanitation
+        DGraph does not support a true "unique" constraint yet.
+    """
+
     dgraph_directives = ['@index(hash, trigram)', '@upsert']
 
     def __init__(self, *args, **kwargs) -> None:
@@ -1121,7 +1127,7 @@ class SingleChoice(String):
 
     def __init__(self, choices: dict = None, default='NA', radio_field=False, *args, **kwargs) -> None:
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, default=default, **kwargs)
 
         self.choices = choices or {'NA': 'NA'}
         self.choices_tuples = [(k, v) for k, v in self.choices.items()]
@@ -1424,7 +1430,7 @@ class SingleRelationship(Predicate):
         if not uid:
             if not self.allow_new:
                 raise InventoryValidationError(
-                    f'Error in <{self.predicate}>! provided value is not a UID: {data}')
+                    f'Error in <{self.predicate}>! provided value is not a UID: `{data}`')
             d = {'uid': NewID(data, facets=facets)}
             if self.relationship_constraint:
                 d.update({'dgraph.type': self.relationship_constraint})
