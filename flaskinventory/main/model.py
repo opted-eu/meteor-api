@@ -169,6 +169,16 @@ class PoliticalParty(Entry):
                                      'placeholder': 'Select a country...'},
                                  queryable=True,
                                  predicate_alias="countries")
+    
+    url = String(label='URL', description='Official website of party')
+
+    color_hex = String()
+
+    publishes = ListRelationship(relationship_constraint='NewsSource',
+                                overwrite=True,
+                                description='Which news sources publishes the political party?',
+                                render_kw={'placeholder': 'Type to search existing news sources and add multiple...'})
+
 
 
 class Organization(Entry):
@@ -301,7 +311,9 @@ class NewsSource(Entry):
                                                'radio show': 'Radio Show / Radio Channel',
                                                'podcast': 'Podcast',
                                                'news blog': 'News Blog',
-                                               'alternative media': 'Alternative Media'},
+                                               'alternative media': 'Alternative Media',
+                                               'organizational communication': 'Organizational Communication'
+                                               },
                                       tom_select=True,
                                       required=True,
                                       queryable=True)
