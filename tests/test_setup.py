@@ -113,6 +113,9 @@ class BasicTestSetup(unittest.TestCase):
             cls.reviewer_uid = dgraph.get_uid('email', 'reviewer@opted.eu')
             cls.admin_uid = dgraph.get_uid('email', 'wp3@opted.eu')
 
+            cls.lang_german = dgraph.get_uid('_unique_name', 'language_german')
+            cls.lang_english = dgraph.get_uid('_unique_name', 'language_english')
+
     @classmethod
     def tearDownClass(cls) -> None:
         return super().tearDownClass()
