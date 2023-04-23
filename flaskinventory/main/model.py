@@ -197,7 +197,8 @@ class Organization(Entry):
                                  render_kw={
                                      'placeholder': 'Select a country...'},
                                  queryable=True,
-                                 predicate_alias="countries")
+                                 predicate_alias="countries",
+                                 overwrite=True)
 
     publishes = ListRelationship(relationship_constraint='NewsSource',
                                  overwrite=True,
