@@ -1,48 +1,61 @@
 {% macro render_icon(entry) %}
-{% if 'NewsSource' in entry['dgraph.type'] %}
-    <h2><i class="icon-{{ entry.channel._unique_name }} color-{{ entry.channel._unique_name }}" alt="{{ entry.channel.name }}"></i></h2>
-{% elif 'Channel' in entry['dgraph.type'] %}
-    <h2><i class="icon-{{ entry._unique_name }} color-{{ entry._unique_name }}" alt="{{ entry.name }}"></i></h2>
-{% elif 'Organization' in entry['dgraph.type'] %}
-    <h2>
-    {% if entry.ownership_kind == "Political Party" %}
-        <i class="fas fa-flag" alt="Political Party"></i>
-        {% else %}
-        <i class="fas fa-building" alt="Organisation"></i>
-        {% endif %}
-    </h2>
-{% elif 'PoliticalParty' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-flag" alt="Political Party"></i></h2>
-{% elif 'Archive' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-database" alt="Archive"></i></h2>
-{% elif 'Multinational' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-globe" alt="Multinational"></i></h2>
-{% elif 'Subnational' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-city" alt="Subnational"></i></h2>
-{% elif 'Country' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-globe-europe" alt="Country"></i></h2>
-{% elif 'ScientificPublication' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-graduation-cap" alt="Paper"></i></h2>
-{% elif 'Tool' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-toolbox" alt="Tool"></i></h2>
-{% elif 'Dataset' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-table" alt="Dataset"></i></h2>
-{% elif 'Corpus' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-database" alt="Corpus"></i></h2>
-{% elif 'FileFormat' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-file-alt" alt="FileFormat"></i></h2>
-{% elif 'Operation' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-screwdriver" alt="Operation"></i></h2>
-{% elif 'MetaVariable' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-cubes" alt="MetaVariable"></i></h2>
-{% elif 'ConceptVariable' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-layer-group" alt="ConceptVariable"></i></h2>
-{% elif 'UnitOfAnalysis' in entry['dgraph.type'] %}
-    <h2><i class="fas fa-paragraph" alt="UnitOfAnalysis"></i></h2>
-{% else %}
-    <h2><i class="fas fa-question" alt="Unknown"></i></h2>
-{% endif %}
-
+    {% if 'NewsSource' in entry['dgraph.type'] %}
+        <h2><i class="icon-{{ entry.channel._unique_name }} color-{{ entry.channel._unique_name }}" alt="{{ entry.channel.name }}"></i></h2>
+    {% elif 'Channel' in entry['dgraph.type'] %}
+        <h2><i class="icon-{{ entry._unique_name }} color-{{ entry._unique_name }}" alt="{{ entry.name }}"></i></h2>
+    {% elif 'Organization' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-building" alt="Organisation"></i></h2>
+    {% elif 'PoliticalParty' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-flag" alt="Political Party"></i></h2>
+    {% elif 'Archive' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-database" alt="Archive"></i></h2>
+    {% elif 'Multinational' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-globe" alt="Multinational"></i></h2>
+    {% elif 'Subnational' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-city" alt="Subnational"></i></h2>
+    {% elif 'Country' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-globe-europe" alt="Country"></i></h2>
+    {% elif 'ScientificPublication' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-graduation-cap" alt="Paper"></i></h2>
+    {% elif 'Tool' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-toolbox" alt="Tool"></i></h2>
+    {% elif 'Dataset' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-table" alt="Dataset"></i></h2>
+    {% elif 'Corpus' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-database" alt="Corpus"></i></h2>
+    {% elif 'FileFormat' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-file-alt" alt="FileFormat"></i></h2>
+    {% elif 'Operation' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-screwdriver" alt="Operation"></i></h2>
+    {% elif 'MetaVariable' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-cubes" alt="MetaVariable"></i></h2>
+    {% elif 'ConceptVariable' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-layer-group" alt="ConceptVariable"></i></h2>
+    {% elif 'UnitOfAnalysis' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-paragraph" alt="UnitOfAnalysis"></i></h2>
+    {% elif 'User' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-user" alt="User"></i></h2>
+    {% elif 'Language' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-language" alt="Language"></i></h2>
+    {% elif 'ProgrammingLanguage' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-code" alt="ProgrammingLanguage"></i></h2>
+    {% elif 'Author' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-user-graduate" alt="Author"></i></h2>
+    {% elif 'Person' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-user-tie" alt="Person"></i></h2>
+    {% elif 'JournalisticBrand' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-newspaper" alt="JournalisticBrand"></i></h2>
+    {% elif 'Government' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-landmark" alt="Government"></i></h2>
+    {% elif 'Parliament' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-landmark" alt="Parliament"></i></h2>
+    {% elif 'Collection' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-boxes" alt="Collection"></i></h2>
+    {% elif 'LearningMaterial' in entry['dgraph.type'] %}
+        <h2><i class="fas fa-book" alt="LearningMaterial"></i></h2>
+    {% else %}
+        <h2><i class="fas fa-question" alt="Unknown"></i></h2>
+    {% endif %}
 {% endmacro %}
 
 {% macro render_publication(publication) %}

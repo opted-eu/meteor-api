@@ -57,6 +57,13 @@
     font-style: normal;
 }
 
+.icon-transcript::before {
+    content: "\f130";
+    font-weight: 900;
+    font-family: "Font Awesome 5 Free";
+    font-style: normal;
+}
+
 .icon-windows::before,
 .icon-Windows::before {
     content: "\f17a";
