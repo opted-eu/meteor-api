@@ -150,3 +150,8 @@ tools/*.json
 blub*
 *.xlsx
 bot.session
+tools/fontawesome/webfonts/fa-brands-400.ttf
+.gitignore
+.gitignore
+tools/fontawesome/webfonts/fa-regular-400.ttf
+tools/fontawesome/webfonts/fa-solid-900.ttf

@@ -57,3 +57,10 @@ angle-down
 angle-up
 bug
 paperclip
+microphone
+language
+code
+user-tie
+user-graduate
+landmark
+boxes

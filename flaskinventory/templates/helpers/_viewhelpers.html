@@ -11,6 +11,8 @@
         <i class="fas fa-building" alt="Organisation"></i>
         {% endif %}
     </h2>
+{% elif 'PoliticalParty' in entry['dgraph.type'] %}
+    <h2><i class="fas fa-flag" alt="Political Party"></i></h2>
 {% elif 'Archive' in entry['dgraph.type'] %}
     <h2><i class="fas fa-database" alt="Archive"></i></h2>
 {% elif 'Multinational' in entry['dgraph.type'] %}
