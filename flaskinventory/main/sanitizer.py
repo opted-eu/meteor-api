@@ -43,7 +43,7 @@ class Sanitizer:
             data = IMD2dict(data)
         self.user = current_user
         self.user_ip = get_ip()
-        self._validate_inputdata(data, self.user, self.user_ip)
+        self._prevalidate_inputdata(data, self.user, self.user_ip)
         if not isinstance(dgraph_type, str):
             dgraph_type = dgraph_type.__name__
         self.dgraph_type = dgraph_type
@@ -87,7 +87,7 @@ class Sanitizer:
         self._set_nquads()
 
     @staticmethod
-    def _validate_inputdata(data: dict, user: User, ip: str) -> bool:
+    def _prevalidate_inputdata(data: dict, user: User, ip: str) -> bool:
         if not isinstance(data, dict):
             raise TypeError('Data object has to be type dict!')
         if not isinstance(user, User):
@@ -98,7 +98,7 @@ class Sanitizer:
 
     @classmethod
     def edit(cls, data: dict, fields=None, dgraph_type=Entry, **kwargs):
-        cls._validate_inputdata(data, current_user, get_ip())
+        cls._prevalidate_inputdata(data, current_user, get_ip())
 
         if 'uid' not in data.keys():
             raise InventoryValidationError(
@@ -229,7 +229,7 @@ class Sanitizer:
                 self.facets[val] = {facet: self.data[key]}
 
     def _postprocess_list_facets(self):
-        for _, ll in self.entry.items():
+        for ll in self.entry.values():
             if isinstance(ll, list):
                 for val in ll:
                     if isinstance(val, Scalar):
@@ -237,6 +237,7 @@ class Sanitizer:
                             val.update_facets(self.facets[str(val)])
 
     def _parse(self):
+        # UID validation
         if self.data.get('uid'):
             uid = self.data.pop('uid')
             self.entry_uid = self.fields['uid'].validate(uid)
@@ -246,13 +247,17 @@ class Sanitizer:
         self.entry['uid'] = self.entry_uid
         self.skip_keys.append(self.fields['uid'].predicate)
 
+        # unpack facets from input dict (JSON)
         self._preprocess_facets()
 
+        # run all parse_ methods 
         for item in dir(self):
             if item.startswith('parse_'):
                 m = getattr(self, item)
-                if callable(m):
+                try:
                     m()
+                except:
+                    continue
 
         for key, item in self.fields.items():
             validated = None
@@ -286,10 +291,10 @@ class Sanitizer:
                 related_items = item.validate(self.data[key], facets=facets)
                 validated = []
                 if isinstance(related_items, list):
-                    for item in related_items:
-                        validated.append(item['uid'])
-                        if isinstance(item['uid'], NewID):
-                            self.related_entries.append(item)
+                    for i in related_items:
+                        validated.append(i['uid'])
+                        if isinstance(i['uid'], NewID):
+                            self.related_entries.append(i)
 
                 else:
                     validated = related_items['uid']
@@ -298,14 +303,20 @@ class Sanitizer:
 
             elif self.data.get(key) and hasattr(item, 'validate'):
                 validated = item.validate(self.data[key], facets=facets)
+            
             elif hasattr(item, 'autocode'):
                 if item.autoinput in self.data.keys():
                     validated = item.autocode(
                         self.data[item.autoinput], facets=facets)
+            
             elif hasattr(item, 'default'):
                 validated = item.default
                 if hasattr(validated, 'facets') and facets is not None:
                     validated.update_facets(facets)
+
+            #  check if required fields end validation sequence with a value
+            if item.required and validated is None and not self.is_upsert:
+                raise InventoryValidationError(f'Error in predicate <{key}>. Is required, but no value supplied!')
 
             if validated is None:
                 continue
@@ -329,7 +340,7 @@ class Sanitizer:
             ) if item.overwrite and k in self.data.keys()]
         else:
             self.entry = self._add_entry_meta(self.entry, newentry=True)
-            self.entry['_unique_name'] = self.generate_unique_name(self.entry)
+            # self.entry['_unique_name'] = self.generate_unique_name(self.entry)
 
         self._postprocess_list_facets()
 
@@ -365,7 +376,12 @@ class Sanitizer:
                     'You do not have the required permissions to change the review status!')
 
     def parse_unique_name(self):
-        if self.data.get('_unique_name'):
+        """ If the input data contains a _unique_name 
+            make sure that the _unique_name is not already taken
+            otherwise leave add a dummy value and 
+            generate the unique name after all other fields have been validated
+        """
+        if self.data.get('_unique_name') and self.is_upsert:
             unique_name = self.data['_unique_name'].strip().lower()
             if self.is_upsert:
                 check = dgraph.get_uid('_unique_name', unique_name)
@@ -374,24 +390,9 @@ class Sanitizer:
                         raise InventoryValidationError(
                             'Unique Name already taken!')
             self.entry['_unique_name'] = unique_name
-        elif not self.is_upsert:
-            name = slugify(self.data.get('name'), separator="_")
-
-            query_string = f''' query quicksearch($value: string)
-                                {{
-                                data1(func: eq(_unique_name, $value)) {{
-                                        _unique_name
-                                        uid
-                                }}
-                                
-                            }}'''
-
-            result = dgraph.query(query_string, variables={'$value': name})
-
-            if len(result['data1']) == 0:
-                self.entry['_unique_name'] = name
-            else:
-                self.entry['_unique_name'] = f'{name}_{secrets.token_urlsafe(4)}'
+        else:
+            self.data['_unique_name'] = 'dummy'
+            
 
     def parse_wikidata(self):
         predicates = Schema.get_predicates(self.dgraph_type)
@@ -410,17 +411,56 @@ class Sanitizer:
                             self.entry['alternate_names'] = []
                         self.entry[key] += val
 
-    def generate_unique_name(self, entry: dict):
+    @staticmethod
+    def generate_unique_name(entry: dict):
+        """
+        Utility function to assign a unique name to every entry
+        Naming convention
+        [entry type] + [country (first)]  + [name (as slug without spaces)] + [date added (optional)]
+        no spaces, only underscores
+        all lowercase
+        only ascii characters
+        
+        get the first dgraph.type that is not 'Entry'
+        """
         try:
-            unique_name = slugify(str(entry['name']), separator="_")
+            entry_type = [t for t in entry['dgraph.type'] if t != 'Entry'][0]
+        except:
+            entry_type = ""
+
+        # figure out which key is used for country
+        country_key = list({'country', 'countries'} & set(entry.keys()))
+        # does the entry have the predicate at all?
+        if len(country_key) > 0:
+            try:
+                country = entry[country_key[0]][0]
+            except:
+                country = entry[country_key[0]]
+            # add this point of the sanitation chain the country should be a clean UID
+            country = dgraph.get_unique_name(country).replace('_', '')
+        else:
+            country = None
+
+        try:
+            _name = slugify(str(entry['name']), separator="")
         except KeyError:
             current_app.logger.debug(
                 f'<{entry["uid"]}> No key "name" in dict. Autoassigning')
-            unique_name = slugify(str(entry['uid']), separator="_")
+            _name = slugify(str(entry['uid']), separator="")
             if hasattr(entry['uid'], 'original_value'):
                 entry['name'] = entry['uid'].original_value
+
+        # assemble unique name
+        unique_name = entry_type.lower() + '_'
+        if country:
+            unique_name += country + '_'
+
+        unique_name += _name
+        
         if dgraph.get_uid('_unique_name', unique_name):
-            unique_name += f'_{secrets.token_urlsafe(4)}'
+            # add timestamp as fallback
+            _stamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            unique_name += f'_{_stamp}'
 
         return unique_name
 
@@ -476,12 +516,12 @@ class Sanitizer:
             self.entry['identifier'] = self.entry['name']
 
         try:
-            country_uid = self.entry['country'][0]
+            country_uid = self.entry['countries'][0]
         except TypeError:
-            country_uid = self.entry['country']
+            country_uid = self.entry['countries']
 
         self.entry['_unique_name'] = self.source_unique_name(
-            self.entry['name'], channel=channel, country_uid=country_uid)
+            self.entry['name'], channel, country_uid)
 
         # inherit from main source
         for source in self.related_entries:
@@ -511,47 +551,31 @@ class Sanitizer:
                         'party_affiliated')
 
     @staticmethod
-    def source_unique_name(name, channel=None, country=None, country_uid=None):
-        name = slugify(str(name), separator="_")
-        channel = slugify(str(channel), separator="_")
-        if country_uid:
-            country = dgraph.query(
-                f'''{{ q(func: uid({country_uid.query})) {{ _unique_name }} }}''')
-            country = country['q'][0]['_unique_name']
-
+    def source_unique_name(name, channel, country_uid):
+        """
+        Special case for assigning a unique to a news source
+        Naming convention
+        [entry type] + [country (first)]  + [name (as slug without spaces)] + [channel] + [date added (optional)]
+        no spaces, only underscores
+        all lowercase
+        only ascii characters
+        """
+        
+        # TODO: update unique name logic!
+        name = slugify(str(name), separator="")
+        channel = slugify(str(channel), separator="")
+        country = dgraph.get_unique_name(country_uid)
         country = slugify(country, separator="_")
-        query_string = f'''{{
-                            field1 as var(func: eq(_unique_name, "{name}"))
-                            field2 as var(func: eq(_unique_name, "{name}_{channel}"))
-                            field3 as var(func: eq(_unique_name, "{name}_{country}_{channel}"))
-                        
-                            data1(func: uid(field1)) {{
-                                    _unique_name
-                                    uid
-                            }}
-                        
-                            data2(func: uid(field2)) {{
-                                _unique_name
-                                uid
-                            }}
 
-                            data3(func: uid(field3)) {{
-                                _unique_name
-                                uid
-                            }}
-                            
-                        }}'''
+        unique_name = f'newssource_{country}_{name}_{channel}'
 
-        result = dgraph.query(query_string)
+        if dgraph.get_uid('_unique_name', unique_name):
+            # add timestamp as fallback
+            _stamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            unique_name += f'_{_stamp}'
+        
+        return unique_name
 
-        if len(result['data1']) == 0:
-            return f'{name}'
-        elif len(result['data2']) == 0:
-            return f'{name}_{channel}'
-        elif len(result['data3']) == 0:
-            return f'{name}_{country}_{channel}'
-        else:
-            return f'{name}_{country}_{channel}_{secrets.token_urlsafe(4)}'
 
     def resolve_website(self):
         # first check if website exists

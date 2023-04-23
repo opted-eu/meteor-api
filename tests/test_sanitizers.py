@@ -75,7 +75,7 @@ class TestSanitizers(BasicTestSetup):
             'wikidata_id': "Q66048",
             'date_founded': 1956,
             'ownership_kind': 'private ownership',
-            'country': self.country_choices[0][0],
+            'country': self.germany_uid,
             'address': 'Schwanheimer Str. 149A, 60528 Frankfurt am Main, Deutschland',
             'employees': '5000',
             'publishes': [self.falter_print_uid, self.derstandard_print],
@@ -100,12 +100,14 @@ class TestSanitizers(BasicTestSetup):
                 self.assertEqual(sanitizer.is_upsert, False)
                 self.assertCountEqual(
                     list(sanitizer.entry.keys()), self.mock1_solution_keys)
+                self.assertEqual(sanitizer.entry['_unique_name'], '_test')
                 self.assertEqual(type(sanitizer.entry['alternate_names']), list)
 
                 sanitizer = Sanitizer(self.mock_data2)
                 self.assertEqual(sanitizer.is_upsert, False)
                 self.assertCountEqual(
                     list(sanitizer.entry.keys()), self.mock2_solution_keys)
+                self.assertEqual(sanitizer.entry['_unique_name'], '_testsomethin')
                 self.assertEqual(type(sanitizer.entry['alternate_names']), list)
                 self.assertEqual(len(sanitizer.entry['alternate_names']), 2)
 
@@ -165,7 +167,6 @@ class TestSanitizers(BasicTestSetup):
                               sanitizer.set_nquads)
 
     def test_edit_entry(self):
-        # print('-- test_edit_entry() --\n')
 
         with self.client:
             response = self.client.post(
@@ -207,7 +208,6 @@ class TestSanitizers(BasicTestSetup):
                     sanitizer.overwrite[sanitizer.entry_uid], ['alternate_names'])
 
     def test_new_org(self):
-        # print('-- test_new_org() --\n')
 
         with self.client:
             response = self.client.post(
@@ -222,6 +222,7 @@ class TestSanitizers(BasicTestSetup):
                                       'Entry', 'Organization'])
                 self.assertEqual(
                     sanitizer.entry['entry_review_status'], 'pending')
+                self.assertEqual(sanitizer.entry['_unique_name'], 'organization_germany_deutschebank')
                 self.assertIsNotNone(sanitizer.set_nquads)
                 self.assertIsNone(sanitizer.delete_nquads)
                 # WikiDataID for Deutsche Bank
@@ -231,12 +232,13 @@ class TestSanitizers(BasicTestSetup):
                 mock_org = copy.deepcopy(self.mock_organization)
                 mock_org.pop('address')
                 sanitizer = Sanitizer(
-                    self.mock_organization, dgraph_type=Organization)
+                    mock_org, dgraph_type=Organization)
                 self.assertEqual(sanitizer.is_upsert, False)
                 self.assertCountEqual(sanitizer.entry['dgraph.type'], [
                                       'Entry', 'Organization'])
                 self.assertEqual(
                     sanitizer.entry['entry_review_status'], 'pending')
+                self.assertEqual(sanitizer.entry['_unique_name'], 'organization_germany_deutschebank')
                 self.assertIsNotNone(sanitizer.set_nquads)
                 self.assertIsNone(sanitizer.delete_nquads)
 
@@ -283,15 +285,17 @@ class TestSanitizers(BasicTestSetup):
 
     def test_draft_source(self):
 
+        # this is a raw dgraph mutation
         new_draft = {'uid': '_:newdraft',
                       'dgraph.type': 'NewsSource',
                       'channel': {'uid': self.channel_print},
                       'channel_unique_name': 'print',
                       'name': 'Schwäbische Post',
+                      '_unqiue_name': 'newssource_germany_schwaebischepost_print',
                       'publication_kind': 'newspaper',
                       'geographic_scope': 'subnational',
-                      'country': {'uid': self.germany_uid},
-                      'languages': 'de',
+                      'countries': {'uid': self.germany_uid},
+                      'languages': {'uid': self.lang_german},
                       'entry_review_status': 'draft',
                       '_added_by': {'uid': self.reviewer.uid}}
 
@@ -308,6 +312,7 @@ class TestSanitizers(BasicTestSetup):
 
             self.client.get('/logout')
 
+        # this is a dict that needs to be sanitized
         edited_draft = {'uid': uid,
                       'channel': self.channel_print,
                       'channel_unique_name': 'print',
@@ -317,14 +322,14 @@ class TestSanitizers(BasicTestSetup):
                       'special_interest': 'no',
                       'publication_cycle': 'continuous',
                       'geographic_scope': 'subnational',
-                      'country': self.germany_uid,
-                      'languages': 'de',
+                      'countries': self.germany_uid,
+                      'languages': [self.lang_german],
                       'payment_model': 'partly free',
                       'contains_ads': 'non subscribers',
                       'publishes_org': self.derstandard_mbh_uid,
                       'related_news_sources': [self.falter_print_uid],
                       'entry_review_status': 'pending'}
-
+        
         # test if user
         with self.client:
             response = self.client.post(
@@ -348,7 +353,7 @@ class TestSanitizers(BasicTestSetup):
                 sanitizer = Sanitizer.edit(edited_draft, dgraph_type=NewsSource)
                 self.assertIn("<_edited_by>", sanitizer.set_nquads)
                 self.assertIn(
-                    '<_unique_name> "schwabische_post"', sanitizer.set_nquads)
+                    '<_unique_name> "newssource_germany_schwabischepost_print"', sanitizer.set_nquads)
 
             self.client.get('/logout')
 
@@ -387,8 +392,8 @@ class TestSanitizers(BasicTestSetup):
             "publication_cycle": "multiple times per week",
             "publication_cycle_weekday": ["1", "2", "3", "4", "5"],
             "geographic_scope": "national",
-            "country": self.germany_uid,
-            "languages": "de",
+            "countries": self.germany_uid,
+            "languages": self.lang_german,
             "payment_model": "free",
             "contains_ads": "no",
                             "publishes_org": [
@@ -411,11 +416,11 @@ class TestSanitizers(BasicTestSetup):
             self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
-                self.assertEqual
-
                 sanitizer = Sanitizer(new_website, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
-
+                self.assertIn(
+                    '<_unique_name> "newssource_germany_wwwtagesschaude_website"', sanitizer.set_nquads)
+                
             self.client.get('/logout')
 
     @patch('flaskinventory.main.sanitizer.twitter') 
@@ -435,8 +440,8 @@ class TestSanitizers(BasicTestSetup):
             "topical_focus": "politics",
             "publication_cycle": "continuous",
             "geographic_scope": "national",
-            "country": self.germany_uid,
-            "languages": "de",
+            "countries": self.germany_uid,
+            "languages": self.lang_german,
             "payment_model": "free",
             "contains_ads": "no",
             "publishes_org": [
@@ -453,10 +458,11 @@ class TestSanitizers(BasicTestSetup):
             self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
-                self.assertEqual
-
                 sanitizer = Sanitizer(new_twitter, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
+                self.assertIn(
+                    '<_unique_name> "newssource_germany_tagesschau_twitter"', sanitizer.set_nquads)
+
                 mock_twitter.assert_called_with('tagesschau')
 
             self.client.get('/logout')
@@ -477,8 +483,8 @@ class TestSanitizers(BasicTestSetup):
             "topical_focus": "politics",
             "publication_cycle": "continuous",
             "geographic_scope": "national",
-            "country": self.germany_uid,
-            "languages": "de",
+            "countries": self.germany_uid,
+            "languages": self.lang_german,
             "payment_model": "free",
             "contains_ads": "no",
             "publishes_org": [
@@ -498,10 +504,10 @@ class TestSanitizers(BasicTestSetup):
             self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
-                self.assertEqual
-
                 sanitizer = Sanitizer(new_instagram, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
+                self.assertIn(
+                    '<_unique_name> "newssource_germany_tagesschau_instagram"', sanitizer.set_nquads)
 
             self.client.get('/logout')
 
@@ -523,8 +529,8 @@ class TestSanitizers(BasicTestSetup):
             "topical_focus": "politics",
             "publication_cycle": "continuous",
             "geographic_scope": "national",
-            "country": self.germany_uid,
-            "languages": "de",
+            "countries": self.germany_uid,
+            "languages": self.lang_german,
             "payment_model": "free",
             "contains_ads": "no",
             "publishes_org": [
@@ -544,10 +550,10 @@ class TestSanitizers(BasicTestSetup):
             self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
-                self.assertEqual
-
                 sanitizer = Sanitizer(new_telegram, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
+                self.assertIn(
+                    '<_unique_name> "newssource_germany_ardtagesschaubot_telegram"', sanitizer.set_nquads)
 
             self.client.get('/logout')
 
@@ -565,8 +571,8 @@ class TestSanitizers(BasicTestSetup):
             "publication_kind": "alternative media",
             "publication_cycle": "continuous",
             "geographic_scope": "multinational",
-            "country": [self.germany_uid, self.austria_uid],
-            "languages": "de",
+            "countries": [self.germany_uid, self.austria_uid],
+            "languages": self.lang_german,
             "payment_model": "free",
             "contains_ads": "no",
         }
@@ -577,10 +583,12 @@ class TestSanitizers(BasicTestSetup):
             self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
-                self.assertEqual
-
                 sanitizer = Sanitizer(new_vk, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
+
+                possible_unique_names = ('<_unique_name> "newssource_austria_anonymousnewsorg_vkontakte"',
+                                         '<_unique_name> "newssource_germany_anonymousnewsorg_vkontakte"')
+                self.assertTrue(any([x in sanitizer.set_nquads for x in possible_unique_names]))
 
             self.client.get('/logout')
 
@@ -596,8 +604,8 @@ class TestSanitizers(BasicTestSetup):
                          'publication_cycle': 'multiple times per week',
                          'publication_cycle_weekday': ['1', '2', '3'],
                          'geographic_scope': 'national',
-                         'country': self.germany_uid,
-                         'languages': 'ak',
+                         'countries': self.germany_uid,
+                         'languages': self.lang_german,
                          'contains_ads': 'yes',
                          'publishes_org': ['New Media'],
                          'audience_size|count': '1234444',
@@ -610,10 +618,9 @@ class TestSanitizers(BasicTestSetup):
             self.assertEqual(current_user.display_name, 'Reviewer')
 
             with self.app.app_context():
-                self.assertEqual
-
                 sanitizer = Sanitizer(mock_facebook, dgraph_type=NewsSource)
                 self.assertEqual(type(sanitizer.set_nquads), str)
+                self.assertIn('<_unique_name> "newssource_germany_somesource_facebook"', sanitizer.set_nquads)
                 mock_facebook['geographic_scope'] = 'NA'
                 self.assertRaises(InventoryValidationError, Sanitizer, mock_facebook, dgraph_type=NewsSource)
 
