@@ -147,3 +147,6 @@ flaskinventory/add/sanitize.py
 
 tools/*.csv
 tools/*.json
+blub*
+*.xlsx
+bot.session
