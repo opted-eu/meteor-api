@@ -326,8 +326,6 @@ class OrderedListString(ListString):
 
 class OrderedListRelationship(SingleRelationship):
 
-    # TODO: get this thing to work
-
     dgraph_predicate_type = '[uid]'
     dgraph_directives = ['@reverse']
     is_list_predicate = True

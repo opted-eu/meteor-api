@@ -561,7 +561,6 @@ class Sanitizer:
         only ascii characters
         """
         
-        # TODO: update unique name logic!
         name = slugify(str(name), separator="")
         channel = slugify(str(channel), separator="")
         country = dgraph.get_unique_name(country_uid)
