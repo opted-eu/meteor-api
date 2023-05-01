@@ -17,22 +17,14 @@ if __name__ == "__main__":
     import datetime
     from flaskinventory.flaskdgraph import Schema
     from flaskinventory.flaskdgraph.dgraph_types import UID, Scalar
-    from flaskinventory.main.model import Entry, Organization, NewsSource
+    from flaskinventory.main.model import Entry, Organization, NewsSource, User
     from flaskinventory.main.sanitizer import Sanitizer, make_sanitizer
     from flaskinventory.errors import InventoryValidationError, InventoryPermissionError
     from flaskinventory import create_app, dgraph
     from flaskinventory.users.constants import USER_ROLES
-    from flaskinventory.main.model import User
+    from flaskinventory import AnonymousUser
     from flask_login import current_user
 
-
-class MockUser(User):
-    id = '0x123'
-    uid = '0x123'
-
-    def __init__(self, user_role=USER_ROLES.Contributor):
-        self._role = user_role
-        self.role = user_role
 
 def mock_wikidata(*args):
     return {'wikidata_id': "Q49653", 
@@ -49,7 +41,7 @@ class TestSanitizers(BasicTestSetup):
 
     def setUp(self):
 
-        self.anon_user = MockUser(user_role=USER_ROLES.Anon)
+        self.anon_user = AnonymousUser()
         self.contributor = User(email="contributor@opted.eu")
         self.reviewer = User(email="reviewer@opted.eu")
 

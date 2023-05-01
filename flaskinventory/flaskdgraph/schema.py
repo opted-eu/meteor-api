@@ -95,37 +95,42 @@ class Schema:
         Schema.__perm_registry_edit__[cls.__name__] = cls.__permission_edit__
 
         # Bind and "activate" predicates for initialized class
-        for key in cls.__dict__:
+        for key in predicates:
             attribute = getattr(cls, key)
-            if isinstance(attribute, (Predicate, MutualRelationship)):
-                setattr(attribute, 'predicate', key)
-                setattr(attribute, 'bound_dgraph_type', cls.__name__)
-                if attribute.facets:
-                    for facet in attribute.facets.values():
-                        facet.predicate = key
-                        if facet.queryable:
-                            queryable_predicates.update({str(facet): facet})
-                if key not in cls.__predicates_types__:
-                    cls.__predicates_types__.update({key: [cls.__name__]})
+            setattr(attribute, 'predicate', key)
+
+            cls_attribute = deepcopy(attribute)
+            setattr(cls_attribute, 'bound_dgraph_type', cls.__name__)
+            setattr(cls, key, cls_attribute)
+            # print(cls.__name__, key, attribute, attribute.bound_dgraph_type)
+            if attribute.facets:
+                for facet in attribute.facets.values():
+                    facet.predicate = key
+                    if facet.queryable:
+                        queryable_predicates.update({str(facet): facet})
+            if key not in cls.__predicates_types__:
+                cls.__predicates_types__.update({key: [cls.__name__]})
+            else:
+                cls.__predicates_types__[key].append(cls.__name__)
+            if isinstance(attribute, (SingleRelationship, MutualRelationship)):
+                if key not in cls.__relationship_predicates__:
+                    cls.__relationship_predicates__.update(
+                        {key: [cls.__name__]})
                 else:
-                    cls.__predicates_types__[key].append(cls.__name__)
-                if isinstance(attribute, (SingleRelationship, MutualRelationship)):
-                    if key not in cls.__relationship_predicates__:
-                        cls.__relationship_predicates__.update(
-                            {key: [cls.__name__]})
-                    else:
-                        cls.__relationship_predicates__[
-                            key].append(cls.__name__)
-                if key not in cls.__predicates__:
-                    cls.__predicates__.update({key: attribute})
-            elif isinstance(attribute, ReverseRelationship):
-                if attribute.predicate not in cls.__reverse_predicates_types__:
-                    cls.__reverse_predicates_types__.update(
-                        {attribute.predicate: [cls.__name__]})
-                else:
-                    if cls.__name__ not in cls.__reverse_predicates_types__[attribute.predicate]:
-                        cls.__reverse_predicates_types__[
-                            attribute.predicate].append(cls.__name__)
+                    cls.__relationship_predicates__[
+                        key].append(cls.__name__)
+            if key not in cls.__predicates__:
+                cls.__predicates__.update({key: attribute})
+            
+        for key in reverse_predicates:
+            attribute = getattr(cls, key)
+            if attribute.predicate not in cls.__reverse_predicates_types__:
+                cls.__reverse_predicates_types__.update(
+                    {attribute.predicate: [cls.__name__]})
+            else:
+                if cls.__name__ not in cls.__reverse_predicates_types__[attribute.predicate]:
+                    cls.__reverse_predicates_types__[
+                        attribute.predicate].append(cls.__name__)
 
         Schema.__queryable_predicates__.update(queryable_predicates)
 

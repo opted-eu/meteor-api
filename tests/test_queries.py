@@ -10,6 +10,7 @@ if __name__ == "__main__":
     from test_setup import BasicTestSetup
     from flaskinventory.view.routes import build_query_string
     from flaskinventory import dgraph
+    from flaskinventory.main.model import Country
 
 class TestQueries(BasicTestSetup):
 
@@ -178,6 +179,13 @@ class TestQueries(BasicTestSetup):
         # same List predicates are combined with AND operators
         # e.g., languages == "en" AND languages == "de"
 
+        query = {'languages': [self.lang_english, self.lang_german],
+                 "payment_model": ["free", "partly free"],
+                 }
+
+        query_string = build_query_string(query)
+        res = dgraph.query(query_string)
+
         with self.client as c:
             # English AND German speaking that is either free or partly free
             query = {"languages": [self.lang_english, self.lang_german],
@@ -295,6 +303,16 @@ class TestQueries(BasicTestSetup):
             response = c.get('/query',
                              query_string=query)
             self.assertEqual(len(response.json['result']), 11)
+
+    def test_count(self):
+
+        countries = Country.name.count()
+        res = dgraph.query(countries)
+        self.assertEqual(res['q'][0]['count'], 252)
+
+        opted_countries = Country.opted_scope.count()
+        res = dgraph.query(opted_countries)
+        self.assertEqual(res['q'][0]['count'], 32)
 
 
 if __name__ == "__main__":

@@ -503,11 +503,22 @@ class _PrimitivePredicate:
 
 
     def count(self, **kwargs) -> str:
-        # TODO: add filters via **kwargs
+        query_filter = kwargs.get('query_filter', [])
+
         if self.bound_dgraph_type:
-            return f'''{{ {self.predicate}(func: type({self.bound_dgraph_type})) @filter(has({self.predicate})) {{ count(uid) }} }} '''
-        
-        return f'''{{ {self.predicate}(func: has({self.predicate})) {{ count(uid) }} }} '''
+            query_filter.append(has(self.predicate))
+            query = DQLQuery(query_name=self.predicate.lower(), 
+                     func=type_(self.bound_dgraph_type),
+                     query_filter=query_filter,
+                     fetch=["count(uid)"])
+            return query
+
+        query = DQLQuery(query_name=self.predicate.lower(), 
+                     func=has(self.predicate),
+                     query_filter=query_filter,
+                     fetch=["count(uid)"])
+
+        return query
 
 class Predicate(_PrimitivePredicate):
 
@@ -1366,6 +1377,23 @@ class Boolean(Predicate):
         render_kw.update({'value': 'true'})
         return BooleanField(label=self.query_label, render_kw=render_kw)
 
+    def count(self, **kwargs) -> str:
+        query_filter = kwargs.get('query_filter', [])
+
+        if self.bound_dgraph_type:
+            query_filter.append(eq(self.predicate, True))
+            query = DQLQuery(query_name=self.predicate.lower(), 
+                     func=type_(self.bound_dgraph_type),
+                     query_filter=query_filter,
+                     fetch=["count(uid)"])
+            return query
+
+        query = DQLQuery(query_name=self.predicate.lower(), 
+                     func=eq(self.predicate, True),
+                     query_filter=query_filter,
+                     fetch=["count(uid)"])
+
+        return query
 
 class Geo(Predicate):
 
