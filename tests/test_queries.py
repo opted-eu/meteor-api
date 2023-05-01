@@ -14,7 +14,7 @@ if __name__ == "__main__":
 class TestQueries(BasicTestSetup):
 
     def test_query_builder(self):
-        query = {'languages': ['de'],
+        query = {'languages': [self.lang_german],
                  'channel': [self.channel_print],
                  'email': ["wp3@opted.eu"],
                  }
@@ -23,7 +23,7 @@ class TestQueries(BasicTestSetup):
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 3)
 
-        query = {'languages': ['de', 'en'],
+        query = {'languages': [self.lang_german, self.lang_english],
                  'languages*connector': ['OR'],
                  'channel': [self.channel_website],
                  }
@@ -69,7 +69,7 @@ class TestQueries(BasicTestSetup):
     def test_query_route_post(self):
 
         with self.client as c:
-            query = {'languages': ['de', 'en'],
+            query = {'languages': [self.lang_german, self.lang_english],
                      'languages*connector': ['OR'],
                      'channel': self.channel_print,
                      'email': "wp3@opted.eu",
@@ -105,7 +105,7 @@ class TestQueries(BasicTestSetup):
     def test_different_predicates(self):
 
         with self.client as c:
-            query = {"languages": ["de"],
+            query = {"languages": [self.lang_german],
                      "publication_kind": "alternative media",
                      "channel": self.channel_print,
                      'json': True}
@@ -132,7 +132,7 @@ class TestQueries(BasicTestSetup):
 
         with self.client as c:
             # German that is free OR partly for free
-            query = {"languages": ["de"],
+            query = {"languages": [self.lang_german],
                      "payment_model": ["free", "partly free"],
                      "json": True
                      }
@@ -143,7 +143,7 @@ class TestQueries(BasicTestSetup):
                 response.json['result'][0]['_unique_name'], "www.derstandard.at")
 
             # English that is free OR partly for free
-            query = {"languages": ["en"],
+            query = {"languages": [self.lang_english],
                      "payment_model": ["free", "partly free"],
                      "json": True
                      }
@@ -154,7 +154,7 @@ class TestQueries(BasicTestSetup):
                 response.json['result'][0]['_unique_name'], "globalvoices_org_website")
 
             # Free or partly for free IN Germany, but in English
-            query = {"languages": ["en"],
+            query = {"languages": [self.lang_english],
                      "payment_model": ["free", "partly free"],
                      "country": self.germany_uid,
                      "json": True
@@ -180,7 +180,7 @@ class TestQueries(BasicTestSetup):
 
         with self.client as c:
             # English AND German speaking that is either free or partly free
-            query = {"languages": ["de", "en"],
+            query = {"languages": [self.lang_english, self.lang_german],
                      "payment_model": ["free", "partly free"],
                      "json": True
                      }
@@ -190,7 +190,7 @@ class TestQueries(BasicTestSetup):
             self.assertEqual(len(response.json['result']), 0)
 
             # English AND Hungarian speaking that is either free or partly free
-            query = {"languages": ["en", "hu"],
+            query = {"languages": [self.lang_english, self.lang_hungarian],
                      "payment_model": ["free", "partly free"],
                      "json": True
                      }
