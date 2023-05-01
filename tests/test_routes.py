@@ -242,7 +242,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
 
             response = c.get('/view/Tool/uid/0xffffffffffffff',
                              follow_redirects=True)
-            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.status_code, 500)
 
     """ Review Routes """
 

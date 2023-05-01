@@ -91,6 +91,9 @@ def view_generic(dgraph_type=None, uid=None, unique_name=None):
         
     if not unique_name:
         try:
+            uid = validate_uid(uid)
+            if not uid:
+                return abort(404)
             unique_name = dgraph.get_unique_name(uid)
             return redirect(url_for('view.view_generic', dgraph_type=dgraph_type, unique_name=unique_name))
         except:
@@ -178,6 +181,7 @@ def query():
                 variables = {'$searchTerms': search_terms}
             else:
                 variables = None
+            # print(query_string)
             result = dgraph.query(query_string, variables=variables)
             total = result['total'][0]['count']
 
