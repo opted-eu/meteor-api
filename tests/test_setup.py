@@ -115,6 +115,7 @@ class BasicTestSetup(unittest.TestCase):
 
             cls.lang_german = dgraph.get_uid('_unique_name', 'language_german')
             cls.lang_english = dgraph.get_uid('_unique_name', 'language_english')
+            cls.lang_hungarian = dgraph.get_uid('_unique_name', 'language_hungarian')
 
     @classmethod
     def tearDownClass(cls) -> None:
