@@ -60,6 +60,14 @@
 {% endif %}
 
 
+{% if 'PoliticalParty' in entry['dgraph.type'] %}
+
+    {% include "view/elements/organization/location.html" %}
+    {% include "view/elements/organization/ownership.html" %}
+
+{% endif %}
+
+
 {% if 'Channel' in entry['dgraph.type'] %}
 
     {% include "view/elements/channel/about.html" %}
@@ -170,6 +178,10 @@
 
 {% if 'Organization' in entry['dgraph.type'] %}
     {% include "view/elements/organization/sidebar.html" %} 
+{% endif %}
+
+{% if 'PoliticalParty' in entry['dgraph.type'] %}
+    {% include "view/elements/politicalparty/sidebar.html" %} 
 {% endif %}
 
 {% endblock sidebar %}
