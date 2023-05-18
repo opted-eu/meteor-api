@@ -115,7 +115,7 @@ def view_generic(dgraph_type=None, uid=None, unique_name=None):
             return redirect(url_for('users.login'))
         
 
-    if any(x in data['dgraph.type'] for x in ['NewsSource', 'Organization']):
+    if any(x in data['dgraph.type'] for x in ['NewsSource', 'Organization', 'PoliticalParty']):
         show_sidebar = True
     else:
         show_sidebar = False
