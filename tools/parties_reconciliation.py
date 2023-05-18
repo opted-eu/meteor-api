@@ -12,31 +12,8 @@ import pydgraph
 from slugify import slugify
 import difflib
 from wikibase_reconcile import Client
-import tweepy
 
-"""
-    Helper Functions
-"""
 p = Path.cwd()
-
-config_path = p / "flaskinventory"/ "config.json"
-
-with open(config_path) as f:
-    api_keys = json.load(f)
-
-
-twitter_auth = tweepy.OAuthHandler(api_keys["TWITTER_CONSUMER_KEY"],
-                                    api_keys["TWITTER_CONSUMER_SECRET"])
-twitter_auth.set_access_token(api_keys["TWITTER_ACCESS_TOKEN"],
-                                api_keys["TWITTER_ACCESS_SECRET"])
-
-twitter_api = tweepy.API(twitter_auth)
-
-
-def fetch_twitter(username):
-    user = twitter_api.get_user(screen_name=username)
-    return {'followers': user.followers_count, 'fullname': user.screen_name, 'joined': user.created_at, 'verified': user.verified}
-
 
 # Load Data from Excel sheet
 xlsx = p / 'data' / 'OPTED Taxonomy.xlsx'
@@ -47,8 +24,11 @@ pfacts_feather = p / 'data' / 'partyfacts.feather'
 df = pd.read_excel(xlsx, sheet_name="political_party")
 
 # clean columns
-df_strings = df.select_dtypes(['object'])
-df[df_strings.columns] = df_strings.apply(lambda x: x.str.strip())
+
+df.name = df.name.str.strip()
+df.abbrev_name = df.abbrev_name.str.strip()
+df.alternate_names = df.alternate_names.str.strip()
+df.name_english = df.name_english.str.strip()
 
 
 # Join with Party facts data
@@ -56,9 +36,12 @@ df[df_strings.columns] = df_strings.apply(lambda x: x.str.strip())
 partyfacts = pd.read_feather(pfacts_feather)
 partyfacts.partyfacts_id = partyfacts.partyfacts_id.astype(int)
 
-# clean
-partyfacts_strings = partyfacts.select_dtypes(['object'])
-partyfacts[partyfacts_strings.columns] = partyfacts_strings.apply(lambda x: x.str.strip())
+partyfacts.name = partyfacts.name.str.strip()
+partyfacts.name_short = partyfacts.name_short.str.strip()
+partyfacts.name_english = partyfacts.name_english.str.strip()
+
+# manually fix some entries
+partyfacts.loc[partyfacts.partyfacts_id == 1816, "wikidata_id"] = "Q49766"
 
 opted_countries = df.dropna(subset="country").country.unique().tolist()
 # partyfacts = partyfacts.loc[partyfacts.country.isin(opted_countries), :]
@@ -99,13 +82,87 @@ for country in df.dropna(subset="country").country.unique():
     df.loc[filt, 'partyfacts_id'] = df[filt].name.apply(lambda x: fuzzy_match(x, possibilities, lookup))
 
 # find row without wikidata id or partyfacts_id
+
 filt = df.partyfacts_id.isna() & df.wikidata_id.isna()
 
 # Drop all without any id (for now)
 
 df_parties = df[~filt].reset_index(drop=True)
+
 df_parties.partyfacts_id = df_parties.partyfacts_id.astype(np.float64)
 
+parties_lookup = {unique_name: wikidata_id for unique_name, wikidata_id in zip(df_parties.unique_name.to_list(), df_parties.wikidata_id.to_list())}
+
+# Load the WP4 data and get the parties from there
+
+wp4 = pd.read_excel(xlsx, sheet_name="Resources")
+
+# clean
+wp4_strings = wp4.select_dtypes(['object'])
+wp4[wp4_strings.columns] = wp4_strings.apply(lambda x: x.str.strip())
+
+# split list cells
+
+wp4["political_party_list"] = wp4.political_party.str.split(";")
+wp4.political_party_list = wp4.political_party_list.apply(lambda l: [x.strip() for x in l])
+
+# fix manifesto separately
+manifesto_wp4 = wp4[wp4.name == "Manifesto Corpus"]
+wp4 = wp4[wp4.name != "Manifesto Corpus"]
+
+# Fix polidoc separately
+polidoc_wp4 = wp4[wp4.name == "Political Documents Archive"]
+wp4 = wp4[wp4.name != "Political Documents Archive"]
+
+# Fix FES Data (collapse to one)
+filt = wp4.url.str.contains("https://library.fes.de/pressemitteilungen")
+wp4.loc[filt, "url"] = "https://library.fes.de/pressemitteilungen"
+
+# get a unique list of datasets by urls
+wp4_datasets_unique = wp4.url.unique().tolist()
+# create a dict of dicts
+# each dict represents one dataset 
+wp4_datasets = {d: {'parties': []} for d in wp4_datasets_unique}
+
+# get parties for each dataset
+
+parties_not_found = []
+
+for dataset in wp4_datasets_unique:
+    tmp_parties = wp4.loc[wp4.url == dataset, "political_party_list"].explode().to_list()
+    tmp_parties = list(set(tmp_parties))
+    # reconcile against df_parties
+    for p in tmp_parties:
+        try:
+            wp4_datasets[dataset]['sources_included'].append(parties_lookup[p])
+        except KeyError:
+            parties_not_found.append(p)
+
+# try to reconcile with wikidata
+df_not_found = df[df.unique_name.isin(parties_not_found)]
+df_not_found['query'] = df_not_found['original.name'].str.replace(r' \(.*\)', "", regex=True)
+df_not_found['type'] = "Q7278"
+client = Client()
+
+results = client.reconcile(df_not_found)
+df_reconciled = client.results_to_pandas(results)
+df_reconciled = df_reconciled.loc[:, ['search_string', 'name', 'id', 'description']]
+
+df_not_found = df_not_found.join(df_reconciled.set_index('search_string'), on = "query", rsuffix="_wikidata")
+
+# export parties for manual reconciliation
+wp4['parties_not_found'] = wp4.political_party_list.apply(lambda x: set(x) & set(parties_not_found))
+wp4_manual_reconciliation = wp4[wp4.parties_not_found.apply(len) > 0]
+wp4_manual_reconciliation.parties_not_found = wp4_manual_reconciliation.parties_not_found.apply(lambda x: ", ".join(x))
+
+with pd.ExcelWriter('manual_reconciliation.xlsx') as f:
+    df_not_found.to_excel(f, sheet_name="Parties")
+    wp4_manual_reconciliation.to_excel(f, sheet_name="WP4")
+
+
+
+# take care of manifesto data
+manifesto = partyfacts[partyfacts.dataset_key == "manifesto"]
 
 # We want output like this
 sample_json = {
@@ -119,7 +176,7 @@ sample_json = {
     'parlgov_id': "558",
     'party_facts_id': "383",
     'country': '<germany>'
-}
+    }
 
 
 # This is a template dict that we copy below for each social media handle
@@ -147,7 +204,7 @@ client_stub = pydgraph.DgraphClientStub('localhost:9080')
 client = pydgraph.DgraphClient(client_stub)
 
 query_string = '''query countries($country: string) {
-    q(func: eq(name, $country)) @filter(eq(dgraph.type, [Country, Multinational])) { uid _unique_name } 
+    q(func: type(Country)) @filter(eq(name, $country)) { uid _unique_name } 
 }'''
 
 countries = df_parties.country.unique().tolist()
@@ -169,7 +226,17 @@ df_parties['country'] = df_parties.country.replace(country_uid_mapping)
 
 df_parties['_unique_name'] = ''
 
+# generate for parties without abbreviation
+# filt = df_parties.abbrev_name == ''
+# df_parties.loc[filt, '_unique_name'] = 'politicalparty_' + df_parties.loc[filt, 'country_unique_name'].apply(slugify, separator="") + '_' + df_parties.loc[filt, 'original.name'].apply(slugify, separator="")
+
+# df_parties.loc[~filt, '_unique_name'] = 'politicalparty_' + df_parties.loc[~filt, 'country_unique_name'].apply(slugify, separator="") + '_' + df_parties.loc[~filt, 'abbrev_name'].apply(slugify, separator="")
+
 df_parties['_unique_name'] = 'politicalparty_' + df_parties['country_unique_name'].apply(slugify, separator="") + '_' + df_parties['name'].apply(slugify, separator="")
+
+
+# assert len(df_parties) == len(df_parties.drop_duplicates(subset="_unique_name")), 'Not all unique names are unique!'
+# df_parties = df_parties.drop_duplicates(subset="_unique_name")
 
 
 # Step 1.5: Resolve channel uids
@@ -202,8 +269,6 @@ channels_mapping = {c['_unique_name']: c['uid'] for c in j['q']}
 filt = df_parties.name == df_parties.alternate_names
 df_parties.loc[filt, 'alternate_names'] = ""
 
-df_parties = df_parties.drop(columns=["color_hex"])
-
 df_parties = df_parties.rename(columns={'name_english': 'name@en', 
                    'party_colors': 'color_hex',
                    'official_website': 'url',
@@ -213,17 +278,16 @@ df_parties = df_parties.rename(columns={'name_english': 'name@en',
 
 df_parties = df_parties.drop(columns=['country_unique_name'])
 
-# remove np.nan values
+# go through the dataframe by unique partyfact_ids to generate a dict
 
-df_parties_strings = df_parties.select_dtypes(['object'])
-df_parties[df_parties_strings.columns] = df_parties_strings.replace({np.nan: ""})
+parties = {}
 
-df_parties['tmp_unique_name'] = df_parties.unique_name
-df_parties = df_parties.drop(columns=["unique_name"])
+for party_id in df_parties.partyfacts_id.dropna().unique().tolist():
+    pass
 
-# convert df_parties (unique by wikidata_id) to a dict
+# convert df_parties to a dict
 
-parties = df_parties.drop_duplicates(subset="wikidata_id").to_dict(orient='records')
+parties = df_parties.to_dict(orient='records')
 
 # Reformatting
 
@@ -246,33 +310,17 @@ for party in parties:
         handle = party['twitter']
         twitter = {**newssource_template}
         twitter['uid'] = f'_:{handle}_twitter'
-        twitter['entry_review_status'] = f'accepted'
-        twitter['_unique_name'] = "newssource_" + slugify(handle, separator="") + '_twitter'
-        twitter['channel'] = {'uid': channels_mapping['twitter']}
+        twitter['channel']['uid'] = channels_mapping['twitter']
         twitter['name'] = handle
         twitter['identifier'] = handle
-        try:
-            profile = fetch_twitter(handle)
-            twitter['alternate_names'] = profile['fullname']
-            twitter['audience_size'] = datetime.now().isoformat()
-            twitter['audience_size|unit'] = "followers"
-            twitter['audience_size|count'] = profile['followers'] 
-            twitter['audience_size_recent'] = profile['followers']
-            twitter['audience_size_recent|unit'] = "followers"
-            twitter['audience_size_recent|timestamp'] = datetime.now().isoformat()
-            twitter['date_founded'] = profile['joined'].isoformat()
-            twitter['verified_account'] = profile['verified']
-        except:
-            pass
         party['publishes'].append(twitter)
+        # TODO: grab data from Twitter API
     _ = party.pop('twitter')
     if party['facebook'] != '':
         handle = party['facebook']
         facebook = {**newssource_template}
         facebook['uid'] = f'_:{handle}_facebook'
-        facebook['entry_review_status'] = f'accepted'
-        facebook['_unique_name'] = "newssource_" + slugify(handle, separator="") + '_facebook'
-        facebook['channel'] = {'uid': channels_mapping['facebook']}
+        facebook['channel']['uid'] = channels_mapping['facebook']
         facebook['name'] = handle
         facebook['identifier'] = handle
         party['publishes'].append(facebook)
@@ -281,40 +329,11 @@ for party in parties:
         handle = party['instagram']
         instagram = {**newssource_template}
         instagram['uid'] = f'_:{handle}_instagram'
-        instagram['entry_review_status'] = f'accepted'
-        instagram['_unique_name'] = "newssource_" + slugify(handle, separator="") + '_instagram'
-        instagram['channel'] = {'uid': channels_mapping['instagram']}
+        instagram['channel']['uid'] = channels_mapping['instagram']
         instagram['name'] = handle
         instagram['identifier'] = handle
         party['publishes'].append(instagram)
     _ = party.pop('instagram')
-    # check for duplicates and append new names
-    if len(df_parties[df_parties.wikidata_id == party['wikidata_id']]) > 1:
-        additional_names = df_parties[df_parties.wikidata_id == party['wikidata_id']]['original.name'].to_list()
-        party['alternate_names'] += additional_names
-        party['alternate_names'] = list(set(party['alternate_names']))
-    
-for party in parties:
-    # final cleaning on np.nan vals
-    for k in list(party.keys()):
-        try:
-            if np.isnan(party[k]):
-                del party[k]
-        except:
-            continue
-
-for party in parties:
-    try:
-        party["partyfacts_id"] = int(party["partyfacts_id"])
-    except:
-        continue
-
-for party in parties:
-    # coerce floats to int
-    for k in list(party.keys()):
-        if isinstance(party[k], float):
-            party[k] = int(party[k])
-
 
 # Add related news sources to each other
 
@@ -331,4 +350,4 @@ for party in parties:
 output_file = p / 'data' / 'parties.json'
 
 with open(output_file, 'w') as f:
-    json.dump(parties, f, indent=True)
+    json.dump(parties, f)
