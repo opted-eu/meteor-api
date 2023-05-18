@@ -157,7 +157,7 @@ class PoliticalParty(Entry):
                         description="ID of party in ParlGov Dataset",
                         directives=["@index(hash)"])
 
-    party_facts_id = String(label="Party Facts ID",
+    partyfacts_id = String(label="Party Facts ID",
                             description="ID of party in Party Facts Dataset",
                             directives=["@index(hash)"])
 
@@ -599,6 +599,12 @@ class Archive(Entry):
     countries = ListRelationship(relationship_constraint=[
                                'Country', 'Multinational'], autoload_choices=True,
                                predicate_alias="country")
+    
+    text_type = ListRelationship(description="Text Genres covered by dataset",
+                                 relationship_constraint="TextType",
+                                 required=True,
+                                 autoload_choices=True)
+    
     text_units = ListRelationship(description="List of text units available in the data archive (e.g., sentences, paragraphs, tweets, news articles, summaries, headlines)",
                                   relationship_constraint="UnitOfAnalysis",
                                   render_kw={
@@ -674,6 +680,11 @@ class Dataset(Entry):
     temporal_coverage_start = DateTime(description="Start date of the dataset")
 
     temporal_coverage_end = DateTime(description="End date of the dataset")
+
+    text_type = ListRelationship(description="Text Genres covered by dataset",
+                                 relationship_constraint="TextType",
+                                 required=True,
+                                 autoload_choices=True)
 
     file_formats = ListRelationship(description="In which file format(s) is the dataset stored?",
                                    autoload_choices=True,
@@ -1096,6 +1107,12 @@ class ConceptVariable(Entry):
 
     pass
 
+
+class TextType(Entry):
+
+    __description__ = "Genre of text such as parliamentary debates, speeches, Tweets, news articles, manifestos"
+
+    pass
 
 class UnitOfAnalysis(Entry):
 
