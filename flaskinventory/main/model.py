@@ -245,7 +245,7 @@ class JournalisticBrand(Entry):
 
     __description__ = "A journalistic brand that encompasses different projects for distributing news"
 
-    news_sources_included = ListRelationship(description="Journalistic News Sources distributed under this brand",
+    sources_included = ListRelationship(description="Journalistic News Sources distributed under this brand",
                                              relationship_constraint="NewsSource")
 
 class NewsSource(Entry):
