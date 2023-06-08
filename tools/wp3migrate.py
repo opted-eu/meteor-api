@@ -27,6 +27,113 @@ print('Setting Schema to DGraph')
 # Set schema
 client.alter(pydgraph.Operation(schema=schema))
 
+""" Delete Rejected Entries """
+
+print("Deleting rejected entries...")
+
+query = """{ q(func: eq(entry_review_status, ["rejected", "deleted"])) {
+			u as uid
+  	}
+}"""
+
+delete = """
+uid(u) * * .
+uid(u) <name> * .
+uid(u) <unique_name> * .
+uid(u) <_date_created> * .
+uid(u) <_added_by> * .
+uid(u) <_edited_by> * .
+uid(u) <_reviewed_by> * .
+uid(u) <entry_review_status> * .
+uid(u) <geographic_scope> * .
+uid(u) <party_affiliated> * .
+uid(u) <publication_kind> * .
+uid(u) <special_interest> * .
+uid(u) <publication_cycle> * .
+uid(u) <contains_ads> * .
+uid(u) <audience_size> * .
+uid(u) <channel> * .
+uid(u) <countries> * .
+uid(u) <date_founded> * .
+uid(u) <date_modified> * .
+uid(u) <_languages_tmp> * .
+uid(u) <identifier> * .    
+uid(u) <input_file_formats> * .
+uid(u) <output_file_formats> * .
+uid(u) <language_independent> * .
+uid(u) <_programming_languages_tmp> * .
+uid(u) <website_comments_allowed> * .
+uid(u) <geographic_scope_subunit> * .
+uid(u) <graphical_user_interface> * .
+uid(u) <publication_cycle_weekday> * .
+uid(u) <website_comments_registration> * .
+uid(u) <owns> * .
+uid(u) <pypi> * .
+uid(u) <cran> * .
+uid(u) <conditions_of_access> * .
+uid(u) <github> * .
+uid(u) <address> * .
+uid(u) <_authors_fallback> * .
+uid(u) <author_validated> * .
+uid(u) <doi> * .
+uid(u) <url> * .
+uid(u) <channel_comments> * .
+uid(u) <sources_included> * .
+uid(u) <special_interest> * .
+uid(u) <affiliation> * .
+uid(u) <verified_account> * .
+uid(u) <publication_cycle> * .
+uid(u) <validation_corpus> * .
+uid(u) <entry_notes> * .
+uid(u) <file_formats> * .
+uid(u) <opensource> * .
+uid(u) <alternate_names> * .
+uid(u) <conditions_of_access> * .
+uid(u) <concept_variables> * .
+uid(u) <country_code> * .
+uid(u) <audience_size> * .
+uid(u) <channel_feeds> * .
+uid(u) <payment_model> * .
+uid(u) <topical_focus> * .
+uid(u) <_account_status> * .
+uid(u) <address> * .
+uid(u) <epaper_available> * .
+uid(u) <location_point> * .
+uid(u) <ownership_kind> * .
+uid(u) <date_published> * .
+uid(u) <countries> * .
+uid(u) <defunct> * .
+uid(u) <date_founded> * .
+uid(u) <venue> * .
+uid(u) <license> * .
+uid(u) <related_news_sources> * .
+uid(u) <designed_for> * .
+uid(u) <temporal_coverage_end> * .
+uid(u) <fulltext> * .
+uid(u) <platforms> * .
+uid(u) <used_for> * .
+uid(u) <employees> * .
+uid(u) <is_person> * .
+uid(u) <_materials_tmp> * .
+uid(u) <meta_variables> * .
+uid(u) <publishes> * .
+uid(u) <paper_kind> * .
+uid(u) <temporal_coverage_start> * .
+uid(u) <text_units> * .
+uid(u) <wikidata_id> * .
+uid(u) <address_geo> * .
+uid(u) <identifier> * .
+uid(u) <description> * .
+"""
+
+
+txn = client.txn()
+
+mutation = txn.create_mutation(del_nquads=delete)
+request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
+txn.do_request(request)
+
+
 """ Migrate Types """
 
 print('Migrating Datasets and Corpora...')
@@ -273,12 +380,14 @@ audience_size_recent = []
 
 for node in j:
     try:
+        count = int(node['audience_size|count']['0'])
         updated = {'uid': node['uid'],
-                'audience_size_recent': node['audience_size|count']['0'],
+                'audience_size_recent': count,
                 'audience_size_recent|unit': node['audience_size|unit']['0'],
                 'audience_size_recent|timestamp': node['audience_size'][0]}
     except:
         print('Could not parse node', node['uid'])
+        # print(node)
         continue
     audience_size_recent.append(updated)
     
@@ -332,11 +441,23 @@ txn.do_request(request)
 
 print('Migrating Authors ...')
 
-def resolve_openalex(entry):
+author_cache_file = p / "data" / "author_cache.json"
+
+try:
+    with open(author_cache_file) as f:
+        author_cache = json.load(f)
+except:
+    author_cache = {}
+
+def resolve_openalex(entry, cache):
     doi = entry['doi']
-    api = "http://api.openalex.org/works/doi:"
-    r = requests.get(api + doi)
-    j = r.json()
+    if doi in cache:
+        j = cache[doi]
+    else:
+        api = "http://api.openalex.org/works/doi:"
+        r = requests.get(api + doi)
+        j = r.json()
+        cache[doi] = j
     output = {'uid': entry['uid'],
               '_date_modified': datetime.now().isoformat()}
     authors = []
@@ -359,8 +480,8 @@ def resolve_openalex(entry):
 # get all entries with DOI
 
 query = """{
-	q(func: has(_authors_tmp)) @filter(has(doi))  {
-		uid name doi _authors_tmp
+	q(func: has(_authors_fallback)) @filter(has(doi))  {
+		uid name doi _authors_fallback
         }
     }
 """
@@ -370,23 +491,30 @@ res = client.txn().query(query)
 entries_with_doi = json.loads(res.json)['q']
 authors = []
 failed = []
+delete_nquads = []
 
 print('Retrieving Authors from OpenAlex ...')
 
 for entry in entries_with_doi:
     try:
-        authors.append(resolve_openalex(entry))
+        authors.append(resolve_openalex(entry, author_cache))
+        delete_nquads.append(f"<{entry['uid']}> <_authors_fallback> * .")
     except:
         failed.append(entry)
 
 txn = client.txn()
-res = txn.mutate(set_obj=authors, commit_now=True)
+res = txn.mutate(set_obj=authors, 
+                 del_nquads="\n".join(delete_nquads), 
+                 commit_now=True)
 
-# Delete _authors_tmp
+with open(author_cache_file, "w") as f:
+    json.dump(author_cache, f)
+
+# Delete _authors_fallback
 
 uids = [a['uid'] for a in authors]
 
-delete_nquads = [f'<{uid}> <_authors_tmp> * .' for uid in uids]
+delete_nquads = [f'<{uid}> <_authors_fallback> * .' for uid in uids]
 
 txn = client.txn()
 res = txn.mutate(del_nquads="\n".join(delete_nquads), commit_now=True)
@@ -478,7 +606,7 @@ j = json.loads(res.json)['q']
 
 updated_entries = []
 
-for entry in j:
+for entry in j: 
     updated = {'uid': entry['uid'],
                'programming_languages': []}
     for l in entry['_programming_languages_tmp']:
@@ -505,5 +633,91 @@ txn.do_request(request)
 
 
 """ Generate new unique names """
+
+print("Assigning new unique names")
+
+def generate_unique_name(entry): 
+    unique_name = ""
+    dgraph_type = entry['dgraph.type']
+    try:
+        dgraph_type.remove('Entry')
+    except:
+        pass
+    unique_name += slugify(dgraph_type[0], separator="")
+    if "country" in entry:
+        country = entry['country']['country_code']
+        unique_name += "_"
+        unique_name += country
+    elif "countries" in entry:
+        country = entry['countries'][0]['country_code']
+        unique_name += "_"
+        unique_name += country
+    else: 
+        country = None
+    name = slugify(entry['name'], separator="")
+    unique_name += "_"
+    unique_name += name
+    if "channel" in entry:
+        channel = entry['channel']['unique_name']
+        unique_name += "_"
+        unique_name += channel
+    return unique_name
+
+query_string = """{
+    q(func: has(unique_name)) @filter(NOT has(_unique_name)) {
+			uid unique_name name dgraph.type 
+            country { country_code }
+            countries { country_code }
+            channel { unique_name }
+  }
+}"""
+
+
+res = client.txn().query(query_string)
+
+j = json.loads(res.json)['q']
+
+updated_entries = []
+del_nquads = []
+
+for entry in j:
+    unique_name = generate_unique_name(entry)
+    updated = {'uid': entry['uid'],
+               "_unique_name": unique_name}
+    updated_entries.append(updated)
+    del_string = f"<{entry['uid']}> <unique_name> * ."
+    del_nquads.append(del_string)
+
+
+res = client.txn().mutate(set_obj=updated_entries, 
+                          del_nquads="\n".join(del_nquads), 
+                          commit_now=True)
+
+""" Wikidata IDs """
+
+print('Updating Wikidata IDs ...')
+
+query_string = """{
+	q(func: has(wikidata_id)) {
+		uid wikidata_id
+  }
+}"""
+
+
+res = client.txn().query(query_string)
+
+j = json.loads(res.json)['q']
+
+updated_entries = []
+
+for entry in j:
+    if entry['wikidata_id'].startswith("Q"):
+        continue
+    updated = {'uid': entry['uid'],
+               "wikidata_id": "Q" + entry['wikidata_id']}
+    updated_entries.append(updated)
+
+res = client.txn().mutate(set_obj=updated_entries, 
+                          commit_now=True)
 
 client_stub.close()

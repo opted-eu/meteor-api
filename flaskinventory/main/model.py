@@ -647,6 +647,8 @@ class Dataset(Entry):
                                       relationship_constraint="Author",
                                       tom_select=True,
                                       required=True)
+    
+    _authors_fallback = OrderedListString(delimiter=';')
 
     date_published = Year(label='Year of publication',
                           description="Which year was the dataset published?")
@@ -734,6 +736,8 @@ class Corpus(Entry):
                                       relationship_constraint="Author",
                                       tom_select=True,
                                       required=True)
+    
+    _authors_fallback = OrderedListString(delimiter=';')
 
     date_published = Year(label='Year of publication',
                           description="Which year was the corpus published?")
@@ -814,6 +818,8 @@ class Tool(Entry):
                                       relationship_constraint="Author",
                                       tom_select=True,
                                       required=True)
+    
+    _authors_fallback = OrderedListString(delimiter=';')
 
     date_published = Year(label='Year of publication',
                           description="Which year was the tool published?",
@@ -952,6 +958,8 @@ class ScientificPublication(Entry):
                                       relationship_constraint="Author",
                                       tom_select=True,
                                       required=True)
+    
+    _authors_fallback = OrderedListString(delimiter=';')
 
     date_published = Year(label='Year of publication',
                           description="Which year was the publication published?",

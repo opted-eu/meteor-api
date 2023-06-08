@@ -15,7 +15,7 @@ with gzip.open(g01_rdf) as f:
 tmp = tmp.replace("<country>", "<countries>")
 tmp = tmp.replace("<languages>", "<_languages_tmp>")
 tmp = tmp.replace("<programming_languages>", "<_programming_languages_tmp>")
-tmp = tmp.replace("<authors>", "<_authors_tmp>")
+tmp = tmp.replace("<authors>", "<_authors_fallback>")
 tmp = tmp.replace("<materials>", "<_materials_tmp>")
 tmp = tmp.replace("TextUnit", "UnitOfAnalysis")
 
@@ -77,7 +77,7 @@ with gzip.open(g01_schema) as f:
 tmp = tmp.replace("<country>", "<countries>")
 tmp = tmp.replace("<languages>", "<_languages_tmp>")
 tmp = tmp.replace("<programming_languages>", "<_programming_languages_tmp>")
-tmp = tmp.replace("<authors>", "<_authors_tmp>")
+tmp = tmp.replace("<authors>", "<_authors_fallback>")
 tmp = tmp.replace("<materials>", "<_materials_tmp>")
 tmp = tmp.replace("TextUnit", "UnitOfAnalysis")
 
@@ -91,7 +91,7 @@ pat = re.compile(r"programming_languages\b")
 tmp = re.sub(pat, r"_programming_languages_tmp", tmp)
 
 pat = re.compile(r"authors\b")
-tmp = re.sub(pat, r"_authors_tmp", tmp)
+tmp = re.sub(pat, r"_authors_fallback", tmp)
 
 pat = re.compile(r"materials\b")
 tmp = re.sub(pat, r"_materials_tmp", tmp)

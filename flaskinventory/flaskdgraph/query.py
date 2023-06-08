@@ -119,7 +119,7 @@ def build_query_string(query: dict, public=True) -> str:
     # these are the default predicates that we ALWAYS want to return
     # should be moved outside the function and declared as a setting
     query_parts = ['uid', '_unique_name', 'name', 'dgraph.type',
-                   'authors @facets', 'alternate_names', 'date_published']
+                   'authors @facets { name }', '_authors_fallback @facets', 'alternate_names', 'date_published']
 
     query_parts_total = ['count(uid)']
 

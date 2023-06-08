@@ -19,14 +19,27 @@
         <dt class="col-sm-3">Full Title</dt>
         <dd class="col-sm-9"><h5>{{ entry.title  }}</h5></dd>
         {% endif %} 
-        {% if entry.authors %}
+        {% if entry.authors or entry._authors_fallback %}
         <dt class="col-sm-3">Author(s)</dt>
         <dd class="col-sm-9"><h6>
-            {% if entry.authors is string %}
-                {{ entry.authors }}
+            {% if 'authors' in entry %}
+                {% set authors = entry.authors %}
+            {% elif '_authors_fallback' in entry %}
+                {% set authors = entry._authors_fallback %}
+            {% endif %}
+            {% if authors is string %}
+                {{ authors }}
+            {% elif authors[0] is string %}
+                <ul class="list-inline">
+                {% for author in authors %}
+                    <li class="list-inline-item {{ 'ps-2 border-start' if not loop.first else '' }}">
+                        {{author}}
+                    </li>
+                {% endfor %}
+                </ul>
             {% else %}
                 <ul class="list-inline">
-                {% for author in entry.authors%}
+                {% for author in authors %}
                     <li class="list-inline-item {{ 'ps-2 border-start' if not loop.first else '' }}">
                         <a href="{{ url_for('view.view_generic', dgraph_type='Author', unique_name=author._unique_name) }}">{{author.name}}</a>
                     </li>
