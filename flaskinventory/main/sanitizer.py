@@ -436,10 +436,12 @@ class Sanitizer:
                 country = entry[country_key[0]][0]
             except:
                 country = entry[country_key[0]]
-            # add this point of the sanitation chain the country should be a clean UID
-            country = dgraph.get_unique_name(country).replace('_', '')
+            # at this point of the sanitation chain the country should be a clean UID
+            query_string = f"{{ q(func: uid({country})) {{ country_code }} }}"
+            res = dgraph.query(query_string)
+            country_code = res['q'][0]['country_code']
         else:
-            country = None
+            country_code = None
 
         try:
             _name = slugify(str(entry['name']), separator="")
@@ -452,8 +454,8 @@ class Sanitizer:
 
         # assemble unique name
         unique_name = entry_type.lower() + '_'
-        if country:
-            unique_name += country + '_'
+        if country_code:
+            unique_name += country_code + '_'
 
         unique_name += _name
         
