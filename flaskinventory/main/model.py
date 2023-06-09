@@ -648,7 +648,7 @@ class Dataset(Entry):
                                       tom_select=True,
                                       required=True)
     
-    _authors_fallback = OrderedListString(delimiter=';')
+    _authors_fallback = OrderedListString(delimiter=';', directives=['@index(term)'])
 
     date_published = Year(label='Year of publication',
                           description="Which year was the dataset published?")
@@ -737,7 +737,7 @@ class Corpus(Entry):
                                       tom_select=True,
                                       required=True)
     
-    _authors_fallback = OrderedListString(delimiter=';')
+    _authors_fallback = OrderedListString(delimiter=';', directives=['@index(term)'])
 
     date_published = Year(label='Year of publication',
                           description="Which year was the corpus published?")
@@ -819,7 +819,7 @@ class Tool(Entry):
                                       tom_select=True,
                                       required=True)
     
-    _authors_fallback = OrderedListString(delimiter=';')
+    _authors_fallback = OrderedListString(delimiter=';', directives=['@index(term)'])
 
     date_published = Year(label='Year of publication',
                           description="Which year was the tool published?",
@@ -959,7 +959,7 @@ class ScientificPublication(Entry):
                                       tom_select=True,
                                       required=True)
     
-    _authors_fallback = OrderedListString(delimiter=';')
+    _authors_fallback = OrderedListString(delimiter=';', directives=['@index(term)'])
 
     date_published = Year(label='Year of publication',
                           description="Which year was the publication published?",

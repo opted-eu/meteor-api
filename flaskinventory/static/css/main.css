@@ -8,56 +8,56 @@
     content: "\f4a3";
 }
 
-.icon-website::before {
+.icon-website::before, .icon-channel_selfhostedwebsite::before {
     content: "\f0ac";
     font-weight: 900;
     font-family: "Font Awesome 5 Free";
     font-style: normal;
 }
 
-.icon-print::before {
+.icon-print::before, .icon-channel_print::before {
     content: "\f1ea";
     font-weight: 900;
     font-family: "Font Awesome 5 Free";
     font-style: normal;
 }
 
-.icon-instagram::before {
+.icon-instagram::before, .icon-channel_instagram::before {
     content: "\e055";
     font-weight: 400;
     font-family: "Font Awesome 5 Brands";
     font-style: normal;
 }
 
-.icon-facebook::before {
+.icon-facebook::before, .icon-channel_facebook::before {
     content: "\f09a";
     font-weight: 400;
     font-family: "Font Awesome 5 Brands";
     font-style: normal;
 }
 
-.icon-twitter::before {
+.icon-twitter::before, .icon-channel_twitter::before {
     content: "\f099";
     font-weight: 400;
     font-family: "Font Awesome 5 Brands";
     font-style: normal;
 }
 
-.icon-vkontakte::before {
+.icon-vkontakte::before, .icon-channel_vkontakte::before {
     content: "\f189";
     font-weight: 400;
     font-family: "Font Awesome 5 Brands";
     font-style: normal;
 }
 
-.icon-telegram::before {
+.icon-telegram::before, .icon-channel_telegram::before {
     content: "\f2c6";
     font-weight: 400;
     font-family: "Font Awesome 5 Brands";
     font-style: normal;
 }
 
-.icon-transcript::before {
+.icon-transcript::before, .icon-channel_transcript::before {
     content: "\f130";
     font-weight: 900;
     font-family: "Font Awesome 5 Free";
@@ -119,37 +119,37 @@
 
 /* social colors */
 
-.color-facebook {
+.color-facebook, .color-channel_facebook {
     color: #3b5999;
     fill: #3b5999;
 }
 
-.color-twitter {
+.color-twitter, .color-channel_twitter {
     color: #55acee;
     fill: #55acee;
 }
 
-.color-instagram {
+.color-instagram, .color-channel_instagram {
     color: #f82877;
     fill: #f82877;
 }
 
-.color-researchgate {
+.color-researchgate, .color-channel_researchgate {
     color: #40ba9b;
     fill: #40ba9b;
 }
 
-.color-github {
+.color-github, .color-channel_github {
     color: black;
 fill: black;
 }
 
-.color-vkontakte {
+.color-vkontakte, .color-channel_vkontakte {
     color: #2787f5;
     fill: #2787f5;
 }
 
-.color-telegram {
+.color-telegram, .color-channel_telegram {
     color: #0088cc;
     fill: #0088cc;
 }
@@ -307,12 +307,12 @@ svg .currentNode {
     fill: var(--bs-orange)!important;
 }
 
-svg .color-website {
+svg .color-website, svg .color-channel_selfhostedwebsite {
     /* green-300 */
     fill: #75b798;
 }
 
-svg .color-print {
+svg .color-print, svg .color-channel_print {
     /* green-300 */
     fill: var(--bs-gray);
 }

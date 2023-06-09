@@ -87,6 +87,7 @@ def view_generic(dgraph_type=None, uid=None, unique_name=None):
         if uid:
             return redirect(url_for('view.view_uid', uid=uid))
         else:
+            flash('Type not recognized', category="warning")
             return abort(404)
         
     if not unique_name:

@@ -133,6 +133,17 @@ mutation = txn.create_mutation(del_nquads=delete)
 request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
 txn.do_request(request)
 
+""" Get UID of Admin User """
+
+query_string = '{ q(func: eq(email, "wp3@opted.eu")) { uid } }'
+
+
+res = client.txn().query(query_string)
+
+j = json.loads(res.json)['q']
+
+ADMIN_UID = j[0]['uid']
+
 
 """ Migrate Types """
 
@@ -223,7 +234,11 @@ brand_template = {'dgraph.type': ["Entry", "JournalisticBrand"],
                    '_unique_name': "",
                   'name': "",
                   '_date_created': datetime.now().isoformat(),
-                  'entry_review_status': "pending"}
+                  'entry_review_status': "pending",
+                  '_added_by': {
+                      'uid': ADMIN_UID,
+                      '_added_by|timestamp': datetime.now().isoformat() },
+                  }
 
 # transcripts
 for source in sources:
@@ -470,7 +485,12 @@ def resolve_openalex(entry, cache):
                         'openalex': open_alex,
                         'name': a_name,
                         '_date_created': datetime.now().isoformat(),
-                        'authors|sequence': i}
+                        'authors|sequence': i,
+                        '_added_by': {
+                            'uid': ADMIN_UID,
+                            '_added_by|timestamp': datetime.now().isoformat()},
+                        'dgraph.type': ['Entry', 'Author']
+                        }
         if author['author'].get("orcid"):
             author_entry['orcid'] = author['author']['orcid']
         authors.append(author_entry)
@@ -532,6 +552,8 @@ languages = languages['set']
 
 for l in languages:
     l['entry_review_status'] = 'accepted'
+    l['_added_by'] = {'uid': ADMIN_UID,
+                      '_added_by|timestamp': datetime.now().isoformat()}
 
 languages_lookup = {l['icu_code']: l['uid'] for l in languages}
 
@@ -589,6 +611,9 @@ languages = languages['set']
 
 for l in languages:
     l['entry_review_status'] = 'accepted'
+    l['_added_by'] = {'uid': ADMIN_UID,
+                    '_added_by|timestamp': datetime.now().isoformat()}
+
 
 languages_lookup = {l['_unique_name'].replace("programming_language_", ""): l['uid'] for l in languages}
 

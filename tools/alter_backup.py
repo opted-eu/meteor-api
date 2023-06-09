@@ -54,7 +54,7 @@ wp3_mapping = {'creation_date': '_date_created',
                'pw_reset': '_pw_reset',
                'user_orcid': 'orcid',
                'date_joined': '_date_joined',
-               'user_role': '_role',
+               'user_role': 'role',
                'user_affiliation': 'affiliation',
                'account_status': '_account_status'}
 
