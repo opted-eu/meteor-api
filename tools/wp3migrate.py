@@ -91,6 +91,7 @@ uid(u) <alternate_names> * .
 uid(u) <conditions_of_access> * .
 uid(u) <concept_variables> * .
 uid(u) <country_code> * .
+uid(u) <iso_3166_1_2> * .
 uid(u) <audience_size> * .
 uid(u) <channel_feeds> * .
 uid(u) <payment_model> * .
@@ -452,6 +453,37 @@ mutation = txn.create_mutation(set_nquads=nquad, del_nquads=delete)
 request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
 txn.do_request(request)
 
+""" Countries predicate """
+
+print('Changing "Countries" predicate to "Country" predicate for organizations and subunits')
+
+query_string = """{ q(func: has(countries))
+    @filter(type(Organization) OR type(PoliticalParty) or type(Person) or type(Subnational) ) {
+        uid countries { uid }
+    }
+}"""
+
+res = client.txn().query(query_string)
+
+j = json.loads(res.json)['q']
+
+set_nquads = []
+del_nquads = []
+
+for entry in j:
+    update = f"<{entry['uid']}> <country> <{entry['countries'][0]['uid']}> ."
+    delete = f"<{entry['uid']}> <countries> * ."
+    set_nquads.append(update)
+    del_nquads.append(delete)
+
+txn = client.txn()
+
+txn.mutate(set_nquads="\n".join(set_nquads),
+           del_nquads="\n".join(del_nquads),
+           commit_now=True)
+
+txn.discard()
+
 """ Authors """
 
 print('Migrating Authors ...')
@@ -670,11 +702,11 @@ def generate_unique_name(entry):
         pass
     unique_name += slugify(dgraph_type[0], separator="")
     if "country" in entry:
-        country = entry['country']['country_code']
+        country = entry['country']['iso_3166_1_2']
         unique_name += "_"
         unique_name += country
     elif "countries" in entry:
-        country = entry['countries'][0]['country_code']
+        country = entry['countries'][0]['iso_3166_1_2']
         unique_name += "_"
         unique_name += country
     else: 
@@ -691,8 +723,8 @@ def generate_unique_name(entry):
 query_string = """{
     q(func: has(unique_name)) @filter(NOT has(_unique_name)) {
 			uid unique_name name dgraph.type 
-            country { country_code }
-            countries { country_code }
+            country { iso_3166_1_2 }
+            countries { iso_3166_1_2 }
             channel { unique_name }
   }
 }"""
@@ -706,7 +738,10 @@ updated_entries = []
 del_nquads = []
 
 for entry in j:
-    unique_name = generate_unique_name(entry)
+    if 'Channel' in entry['dgraph.type']:
+        unique_name = entry['unique_name']
+    else:
+        unique_name = generate_unique_name(entry)
     updated = {'uid': entry['uid'],
                "_unique_name": unique_name}
     updated_entries.append(updated)

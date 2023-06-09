@@ -18,6 +18,7 @@ tmp = tmp.replace("<programming_languages>", "<_programming_languages_tmp>")
 tmp = tmp.replace("<authors>", "<_authors_fallback>")
 tmp = tmp.replace("<materials>", "<_materials_tmp>")
 tmp = tmp.replace("TextUnit", "UnitOfAnalysis")
+tmp = tmp.replace("Subunit", "Subnational")
 
 # mapping dict 'old': 'new'
 wp3_mapping = {'creation_date': '_date_created',
@@ -56,7 +57,8 @@ wp3_mapping = {'creation_date': '_date_created',
                'date_joined': '_date_joined',
                'user_role': 'role',
                'user_affiliation': 'affiliation',
-               'account_status': '_account_status'}
+               'account_status': '_account_status',
+               'country_code': 'iso_3166_1_2'}
 
 for old, new in wp3_mapping.items():
     pat = re.compile(r"\b" + old + r"\b")
@@ -80,6 +82,7 @@ tmp = tmp.replace("<programming_languages>", "<_programming_languages_tmp>")
 tmp = tmp.replace("<authors>", "<_authors_fallback>")
 tmp = tmp.replace("<materials>", "<_materials_tmp>")
 tmp = tmp.replace("TextUnit", "UnitOfAnalysis")
+tmp = tmp.replace("Subunit", "Subnational")
 
 pat = re.compile(r"country\b")
 tmp = re.sub(pat, r"countries", tmp)
