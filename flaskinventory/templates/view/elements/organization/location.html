@@ -6,9 +6,7 @@
         {% if entry.country %}
         <dt class="col-sm-3">Country</dt>
         <dd class="col-sm-9">
-            {% for country in entry.country %}
-                <a href="{{ url_for('view.view_generic', dgraph_type='Country', unique_name=country._unique_name) }}">{{ country.name }}</a> 
-            {% endfor %}
+                <a href="{{ url_for('view.view_generic', dgraph_type='Country', unique_name=entry.country._unique_name) }}">{{ entry.country.name }}</a> 
         </dd>
         {% endif %}
         {% if entry.address %}
