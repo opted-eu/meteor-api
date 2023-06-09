@@ -7,7 +7,7 @@
             "opted_scope": true,
             "name": "Belgium",
             "wikidata_id": "Q31",
-            "country_code": "be"
+            "iso_3166_1_2": "be"
         },
         {
             "uid": "_:bulgaria",
@@ -16,7 +16,7 @@
             "opted_scope": true,
             "name": "Bulgaria",
             "wikidata_id": "Q219",
-            "country_code": "bg"
+            "iso_3166_1_2": "bg"
         },
         {
             "uid": "_:cyprus",
@@ -25,7 +25,7 @@
             "opted_scope": true,
             "name": "Cyprus",
             "wikidata_id": "Q229",
-            "country_code": "cy"
+            "iso_3166_1_2": "cy"
         },
         {
             "uid": "_:czechia",
@@ -37,7 +37,7 @@
                 "Czechia"
             ],
             "wikidata_id": "Q213",
-            "country_code": "cz"
+            "iso_3166_1_2": "cz"
         },
         {
             "uid": "_:germany",
@@ -46,7 +46,7 @@
             "opted_scope": true,
             "name": "Germany",
             "wikidata_id": "Q183",
-            "country_code": "de"
+            "iso_3166_1_2": "de"
         },
         {
             "uid": "_:denmark",
@@ -55,7 +55,7 @@
             "opted_scope": true,
             "name": "Denmark",
             "wikidata_id": "Q35",
-            "country_code": "dk"
+            "iso_3166_1_2": "dk"
         },
         {
             "uid": "_:estonia",
@@ -64,7 +64,7 @@
             "opted_scope": true,
             "name": "Estonia",
             "wikidata_id": "Q191",
-            "country_code": "ee"
+            "iso_3166_1_2": "ee"
         },
         {
             "uid": "_:spain",
@@ -73,7 +73,7 @@
             "opted_scope": true,
             "name": "Spain",
             "wikidata_id": "Q29",
-            "country_code": "es"
+            "iso_3166_1_2": "es"
         },
         {
             "uid": "_:finland",
@@ -82,7 +82,7 @@
             "opted_scope": true,
             "name": "Finland",
             "wikidata_id": "Q33",
-            "country_code": "fi"
+            "iso_3166_1_2": "fi"
         },
         {
             "uid": "_:france",
@@ -91,7 +91,7 @@
             "opted_scope": true,
             "name": "France",
             "wikidata_id": "Q142",
-            "country_code": "fr"
+            "iso_3166_1_2": "fr"
         },
         {
             "uid": "_:greece",
@@ -100,7 +100,7 @@
             "opted_scope": true,
             "name": "Greece",
             "wikidata_id": "Q41",
-            "country_code": "gr"
+            "iso_3166_1_2": "gr"
         },
         {
             "uid": "_:croatia",
@@ -109,7 +109,7 @@
             "opted_scope": true,
             "name": "Croatia",
             "wikidata_id": "Q224",
-            "country_code": "hr"
+            "iso_3166_1_2": "hr"
         },
         {
             "uid": "_:hungary",
@@ -118,7 +118,7 @@
             "opted_scope": true,
             "name": "Hungary",
             "wikidata_id": "Q28",
-            "country_code": "hu"
+            "iso_3166_1_2": "hu"
         },
         {
             "uid": "_:ireland",
@@ -127,7 +127,7 @@
             "opted_scope": true,
             "name": "Ireland",
             "wikidata_id": "Q27",
-            "country_code": "ie"
+            "iso_3166_1_2": "ie"
         },
         {
             "uid": "_:italy",
@@ -136,7 +136,7 @@
             "opted_scope": true,
             "name": "Italy",
             "wikidata_id": "Q38",
-            "country_code": "it"
+            "iso_3166_1_2": "it"
         },
         {
             "uid": "_:lithuania",
@@ -145,7 +145,7 @@
             "opted_scope": true,
             "name": "Lithuania",
             "wikidata_id": "Q37",
-            "country_code": "lt"
+            "iso_3166_1_2": "lt"
         },
         {
             "uid": "_:luxembourg",
@@ -154,7 +154,7 @@
             "opted_scope": true,
             "name": "Luxembourg",
             "wikidata_id": "Q32",
-            "country_code": "lu"
+            "iso_3166_1_2": "lu"
         },
         {
             "uid": "_:latvia",
@@ -163,7 +163,7 @@
             "opted_scope": true,
             "name": "Latvia",
             "wikidata_id": "Q211",
-            "country_code": "lv"
+            "iso_3166_1_2": "lv"
         },
         {
             "uid": "_:malta",
@@ -172,7 +172,7 @@
             "opted_scope": true,
             "name": "Malta",
             "wikidata_id": "Q233",
-            "country_code": "mt"
+            "iso_3166_1_2": "mt"
         },
         {
             "uid": "_:netherlands",
@@ -181,7 +181,7 @@
             "opted_scope": true,
             "name": "Netherlands",
             "wikidata_id": "Q55",
-            "country_code": "nl"
+            "iso_3166_1_2": "nl"
         },
         {
             "uid": "_:poland",
@@ -190,7 +190,7 @@
             "opted_scope": true,
             "name": "Poland",
             "wikidata_id": "Q36",
-            "country_code": "pl"
+            "iso_3166_1_2": "pl"
         },
         {
             "uid": "_:portugal",
@@ -199,7 +199,7 @@
             "opted_scope": true,
             "name": "Portugal",
             "wikidata_id": "Q45",
-            "country_code": "pt"
+            "iso_3166_1_2": "pt"
         },
         {
             "uid": "_:romania",
@@ -208,7 +208,7 @@
             "opted_scope": true,
             "name": "Romania",
             "wikidata_id": "Q218",
-            "country_code": "ro"
+            "iso_3166_1_2": "ro"
         },
         {
             "uid": "_:sweden",
@@ -217,7 +217,7 @@
             "opted_scope": true,
             "name": "Sweden",
             "wikidata_id": "Q34",
-            "country_code": "se"
+            "iso_3166_1_2": "se"
         },
         {
             "uid": "_:slovenia",
@@ -226,7 +226,7 @@
             "opted_scope": true,
             "name": "Slovenia",
             "wikidata_id": "Q215",
-            "country_code": "si"
+            "iso_3166_1_2": "si"
         },
         {
             "uid": "_:slovakia",
@@ -235,7 +235,7 @@
             "opted_scope": true,
             "name": "Slovakia",
             "wikidata_id": "Q214",
-            "country_code": "sk"
+            "iso_3166_1_2": "sk"
         },
         {
             "uid": "_:uk",
@@ -248,7 +248,7 @@
                 "Great Britain"
             ],
             "wikidata_id": "Q145",
-            "country_code": "gb"
+            "iso_3166_1_2": "gb"
         },
         {
             "uid": "_:israel",
@@ -260,7 +260,7 @@
                 "ישראל"
             ],
             "wikidata_id": "Q801",
-            "country_code": "il"
+            "iso_3166_1_2": "il"
         },
         {
             "uid": "_:norway",
@@ -269,7 +269,7 @@
             "opted_scope": true,
             "name": "Norway",
             "wikidata_id": "Q20",
-            "country_code": "no"
+            "iso_3166_1_2": "no"
         },
         {
             "uid": "_:switzerland",
@@ -278,7 +278,7 @@
             "opted_scope": true,
             "name": "Switzerland",
             "wikidata_id": "Q39",
-            "country_code": "ch"
+            "iso_3166_1_2": "ch"
         },
         {
             "uid": "_:palestine",
@@ -287,7 +287,7 @@
             "opted_scope": true,
             "name": "Palestinian Territories",
             "wikidata_id": "Q407199",
-            "country_code": "ps"
+            "iso_3166_1_2": "ps"
         },
         {
             "uid": "_:global",

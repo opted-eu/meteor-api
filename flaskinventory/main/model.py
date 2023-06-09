@@ -551,6 +551,13 @@ class Multinational(Entry):
     __permission_new__ = USER_ROLES.Admin
     __permission_edit__ = USER_ROLES.Admin
 
+    iso_3166_1_2 = String(permission=USER_ROLES.Admin,
+                          directives=["@index(exact)"])
+    iso_3166_1_3 = String(permission=USER_ROLES.Admin,
+                          directives=["@index(exact)"])
+    opted_scope = Boolean(description="Is country in the scope of OPTED?",
+                          label='Yes, in scope of OPTED')
+
     membership = ListRelationship(description="Which countries are part of this multinational construct?",
                                   relationship_constraint=["Country"])
 
@@ -565,8 +572,13 @@ class Subnational(Entry):
                                  autoload_choices=True,
                                  overwrite=True,
                                  relationship_constraint='Country')
+    
+    iso_3166_1_2 = String(description="ISO 3166-1 Alpha 2 code of the country this subunit belongs to",
+                          directives=["@index(exact)"])
+
     iso_3166_1_3 = String(description="ISO 3166-1 Alpha 3 code of the country this subunit belongs to",
                           directives=["@index(exact)"])
+    
     location_point = Geo(edit=False, new=False)
 
 
@@ -755,7 +767,7 @@ class Corpus(Entry):
     conditions_of_access = SingleChoice(choices={'free': 'Free',
                                    'restricted': 'Restricted'})
 
-    country = ListRelationship(description="Does the corpus have a specific geographic coverage?",
+    countries = ListRelationship(description="Does the corpus have a specific geographic coverage?",
                                relationship_constraint=[
                                    'Country', 'Multinational'],
                                autoload_choices=True,

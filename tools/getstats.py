@@ -22,14 +22,14 @@ query_sources = """
 query get_sources($maximum: int, $offset: int)
 {
 	sources(func: type("NewsSource"), first: $maximum, offset: $offset) @filter(eq(entry_review_status, "accepted") or eq(entry_review_status, "pending")) {
-        uid expand(_all_) { uid unique_name country_code opted_scope }
+        uid expand(_all_) { uid unique_name iso_3166_1_2 opted_scope }
     }
 } """
 query_organizations = """
 query get_organizations($maximum: int, $offset: int)
 {
     organizations(func: type("Organization"), first: $maximum, offset: $offset) @filter(eq(entry_review_status, "accepted") or eq(entry_review_status, "pending")) {
-        uid expand(_all_) { uid unique_name country_code }
+        uid expand(_all_) { uid unique_name iso_3166_1_2 }
     }
 }
 """
@@ -82,8 +82,8 @@ for entry in sources:
                 if country.get('opted_scope', False):
                     if country.get('_unique_name'):
                         entry[country['_unique_name']] = 1
-                    if country.get('country_code'):
-                        entry[f"country_{country['country_code']}"] = 1
+                    if country.get('iso_3166_1_2'):
+                        entry[f"country_{country['iso_3166_1_2']}"] = 1
             entry['country'] = ", ".join([country['_unique_name'] for country in entry['country']])
 
     except Exception as e:
@@ -124,9 +124,9 @@ for entry in organizations:
             for country in entry['country']:
                 if country.get('_unique_name'):
                     entry[country['_unique_name']] = 1
-                if country.get('country_code'):
-                    entry[f"country_{country['country_code']}"] = 1
-            entry['country'] = ", ".join([country['country_code'] for country in entry['country']])
+                if country.get('iso_3166_1_2'):
+                    entry[f"country_{country['iso_3166_1_2']}"] = 1
+            entry['country'] = ", ".join([country['iso_3166_1_2'] for country in entry['country']])
     except Exception as e:
         print(entry['_unique_name'])
         print(entry.get('uid'), e)

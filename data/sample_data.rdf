@@ -5,7 +5,7 @@
         _:austria <name> "Austria" .
         _:austria <alternate_names> "Österreich" .
         _:austria <wikidata_id> "Q40" .
-        _:austria <country_code> "at" .
+        _:austria <iso_3166_1_2> "at" .
         _:austria <opted_scope> "true" .
 
         _:germany <dgraph.type> "Country" .
@@ -13,21 +13,21 @@
         _:germany <name> "Germany" .
         _:germany <alternate_names> "Deutschland" .
         _:germany <wikidata_id> "Q183" .
-        _:germany <country_code> "de" .
+        _:germany <iso_3166_1_2> "de" .
         _:germany <opted_scope> "true" .
 
         _:denmark <dgraph.type> "Country" .
         _:denmark <_unique_name> "denmark" .
         _:denmark <name> "Denmark" .
         _:denmark <wikidata_id> "Q35" .
-        _:denmark <country_code> "dk" .
+        _:denmark <iso_3166_1_2> "dk" .
         _:denmark <opted_scope> "true" .
 
         _:switzerland <dgraph.type> "Country" .
         _:switzerland <_unique_name> "switzerland" .
         _:switzerland <name> "Switzerland" .
         _:switzerland <wikidata_id> "Q39" .
-        _:switzerland <country_code> "ch" .
+        _:switzerland <iso_3166_1_2> "ch" .
         _:switzerland <opted_scope> "true" .
 
         _:global <dgraph.type> "Multinational" .

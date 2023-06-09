@@ -437,9 +437,9 @@ class Sanitizer:
             except:
                 country = entry[country_key[0]]
             # at this point of the sanitation chain the country should be a clean UID
-            query_string = f"{{ q(func: uid({country})) {{ country_code }} }}"
+            query_string = f"{{ q(func: uid({country})) {{ iso_3166_1_2 }} }}"
             res = dgraph.query(query_string)
-            country_code = res['q'][0]['country_code']
+            country_code = res['q'][0]['iso_3166_1_2']
         else:
             country_code = None
 
