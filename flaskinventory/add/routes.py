@@ -12,8 +12,6 @@ from flaskinventory.users.dgraph import UserLogin
 from flaskinventory.flaskdgraph.utils import strip_query, validate_uid
 from flaskinventory.misc.utils import IMD2dict
 
-import traceback
-
 add = Blueprint('add', __name__)
 
 
@@ -138,9 +136,7 @@ def new(dgraph_type=None, draft=None, populate_form: dict = None):
                 sanitizer = Sanitizer.edit(data, dgraph_type=dgraph_type)
             except Exception as e:
                 if current_app.debug:
-                    e_trace = traceback.format_exception(
-                        None, e, e.__traceback__)
-                    current_app.logger.debug(e_trace)
+                    current_app.logger.debug(f'{dgraph_type} could not be updated: {e}', exc_info=True)
                 flash(f'{dgraph_type} could not be updated: {e}', 'danger')
                 return redirect(url_for('add.new', dgraph_type=dgraph_type, draft=form.data))
         else:
@@ -148,9 +144,7 @@ def new(dgraph_type=None, draft=None, populate_form: dict = None):
                 sanitizer = Sanitizer(data, dgraph_type=dgraph_type)
             except Exception as e:
                 if current_app.debug:
-                    e_trace = traceback.format_exception(
-                        None, e, e.__traceback__)
-                    current_app.logger.debug(e_trace)
+                    current_app.logger.debug(f'{dgraph_type} could not be added: {e}', exc_info=True)
                 flash(f'{dgraph_type} could not be added: {e}', 'danger')
                 return redirect(url_for('add.new', dgraph_type=dgraph_type))
 
@@ -169,8 +163,7 @@ def new(dgraph_type=None, draft=None, populate_form: dict = None):
             return redirect(url_for('view.view_uid', uid=uid))
         except Exception as e:
             if current_app.debug:
-                e_trace = traceback.format_exception(None, e, e.__traceback__)
-                current_app.logger.debug(e_trace)
+                current_app.logger.debug(f'{dgraph_type} could not be added: {e}', exc_info=True)
             flash(f'{dgraph_type} could not be added: {e}', 'danger')
             return redirect(url_for('add.new', dgraph_type=dgraph_type))
 
