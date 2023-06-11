@@ -1,12 +1,12 @@
- {% if entry.materials %}
+ {% if entry.documentation %}
 <div class="border rounded p-3">
     <dl class="row">
-        <dt class="col-sm-3 mb-4"><h5>Materials</h5></dt>
-        <dd class="col-sm-9 mb-4"><small class="text-muted">Collection of materials that help using the dataset or document it.</small></dd>
-        {% for material in entry.materials %}
-        <dt class="col-sm-3">{% if entry.get('materials|kind') %}{{ entry.get("materials|kind").get(loop.index0|string) or 'Material' }}{% else %}Material{% endif %}</dt>
+        <dt class="col-sm-3 mb-4"><h5>Documentation</h5></dt>
+        <dd class="col-sm-9 mb-4"><small class="text-muted">Collection of documentation that help using the dataset.</small></dd>
+        {% for documentation in entry.documentation %}
+        <dt class="col-sm-3">{% if entry.get('documentation|kind') %}{{ entry.get("documentation|kind").get(loop.index0|string) or 'Documentation' }}{% else %}Documentation{% endif %}</dt>
         <dd class="col-sm-9">
-            <a href="{{material}}" target="_blank">{{material}}</a>
+            <a href="{{documentation}}" target="_blank">{{documentation}}</a>
         </dd>
         {% endfor %}
     </dl>

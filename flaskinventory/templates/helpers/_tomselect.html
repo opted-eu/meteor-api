@@ -141,7 +141,7 @@ if (embeddedJSON) {
             };
         new TomSelect('#owns', TomSelectOrganisationConfig);
         
-    {% elif field.name in ['related_news_sources', 'sources_included'] %}    
+    {% elif field.name == 'related_news_sources' %}    
     
     var TomSelectRelatedSourcesConfig = {
         plugins: ['remove_button'],
@@ -200,6 +200,79 @@ if (embeddedJSON) {
     };
     new TomSelect("#{{ field.id }}", TomSelectRelatedSourcesConfig);
 
+    {% elif field.name == 'sources_included' %}    
+    
+    var TomSelectRelatedSourcesConfig = {
+        plugins: ['remove_button'],
+        valueField: 'uid',
+        labelField: 'name',
+        searchField: 'name',
+        optgroupField: 'type',
+        optgroups: [
+            {value: 'PoliticalParty', label: 'Political Party'},
+            {value: 'NewsSource', label: 'News Source'},
+            {value: 'Government', label: 'Government'},
+            {value: 'Parliament', label: 'Parliament'},
+            {value: 'Organization', label: 'Organization'},
+            {value: 'Person', label: 'Person'},
+        ],
+        delimiter: ',',
+        selectOnTab: true,
+        onItemAdd: function(input) { 
+            // clear input after item was selected
+            this.setTextboxValue();
+            this.refreshOptions();
+        },
+        load: function(query, callback) {
+            if ( query.length < 3 ) return callback();
+            var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + "&predicate=name&dgraph.type=NewsSource&dgraph.type=Organization&dgraph.type=PoliticalParty&dgraph.type=Government&dgraph.type=Parliament&dgraph.type=Person";
+            fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                json.data.forEach(entry => {
+                    entry['type'] = entry['dgraph.type'].filter(e => e != 'Entry')[0]
+                })
+                callback(json.data);
+            }).catch(() => {callback();});
+        },
+        render: {
+            option: function(data, escape) {
+                var channel_label = ' '
+                var channel_icon = ''
+                if (data.channel) {
+                    if (data.channel.name) {
+                        channel_icon = `<i class="icon-${data.channel._unique_name} color-${data.channel._unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
+                        channel_label = ' (' + escape(data.channel.name) + ') '
+                        }
+                };
+                var country_label = ' '
+                if ("country" in data) {
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.country.name) + ')</small>'
+                } else if ("countries" in data) {
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.countries[0].name) + ')</small>'
+                }
+                return '<div>' +
+                        '<span class="title">' + channel_icon + escape(data.name) + channel_label + '</span> ' +
+                        country_label +
+                    '</div>';
+            },
+            item: function(data, escape) {
+                var channel_label = ' '
+                if (data.channel) {
+                    if (data.channel.name) {
+                        var channel_label = ' (' + escape(data.channel.name) + ') '
+                    }
+                };
+                var country_label = ' '
+                if ("country" in data) {
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.country[0].name) + ')</small>'
+                }
+                return '<div>' + escape(data.name) + channel_label + country_label + '</div>';
+            }
+        }
+    };
+    new TomSelect("#{{ field.id }}", TomSelectRelatedSourcesConfig);
+
     {% elif field.name == 'geographic_scope_subunit' %}
     
     var TomSelectSubnationalConfig = {
@@ -223,21 +296,51 @@ if (embeddedJSON) {
 
     {% elif field.name == 'authors' %}
     
-    new TomSelect('#authors', {
-        create: true, 
-        plugins: ['remove_button'], 
-        delimiter: ';',
-        render: {
-                no_results:function(data,escape){
-                    return '<div></div>';
-            }}
-        })
+    var TomSelectAuthorsConfig = {
+                plugins: ['remove_button'],
+                valueField: 'uid',
+                labelField: 'name',
+                searchField: 'name',
+                create: true,
+                delimiter: ';',
+                selectOnTab: true,
+                load: function(query, callback) {
+                    if ( query.length < 3 ) return callback();
+                    var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + '&predicate=name&dgraph.type=Author';
+                    fetch(url)
+                    .then(response => response.json())
+                    .then(json => {
+                        callback(json.data);
+                    }).catch(() => {callback();});
+                },
+                render: {
+                    option: function(data, escape) {
+                        return '<div>' +
+                                '<span class="title">' + escape(data.name) + '</span> '
+                            '</div>';
+                    },
+                    item: function(data, escape) {
+                        return '<div>' + escape(data.name) + '</div>';
+                    }
+                },
+                create: function(input, callback) {
+                    var returnData = {
+                        value: input,
+                        uid: input,
+                        _unique_name: input,
+                        text: input,
+                        name: input + " (NEW!)",
+                    };
+                    callback(returnData);
+                },
+            };
+        new TomSelect('#authors', TomSelectAuthorsConfig);
 
-    {% elif field.name == 'materials' %}
+    {% elif field.name == 'documentation' %}
 
-    var materialsContainer = document.getElementById('materials').parentElement
+    var documentationContainer = document.getElementById('documentation').parentElement
 
-    function createMaterialsField(materialURL, content=null) {
+    function createdocumentationField(materialURL, content=null) {
                 var row = document.createElement('div')
                 row.classList.add('row', 'my-3', 'align-items-end')
                 row.id = 'container-' + materialURL
@@ -265,11 +368,11 @@ if (embeddedJSON) {
                 row.append(col)
 
                 // append to container
-                materialsContainer.append(row)
+                documentationContainer.append(row)
 
             } 
 
-    var TomSelectMaterialsConfig= {
+    var TomSelectdocumentationConfig= {
         plugins: ['remove_button'],
         create: true,
         selectOnTab: true,
@@ -277,7 +380,7 @@ if (embeddedJSON) {
             // clear input after item was selected
             this.setTextboxValue();
             this.refreshOptions();
-            createMaterialsField(input)
+            createdocumentationField(input)
         },
         onItemRemove: function(values) {
             let el = document.getElementById('container-' + values)
@@ -286,12 +389,12 @@ if (embeddedJSON) {
             }
         }
     };    
-    new TomSelect('#materials', TomSelectMaterialsConfig)
+    new TomSelect('#documentation', TomSelectdocumentationConfig)
 
     if (jsonData) {
-        if (jsonData['materials|kind']) {
-            for (val in jsonData['materials']) { 
-                createMaterialsField(jsonData['materials'][val], content=jsonData['materials|kind'][val])
+        if (jsonData['documentation|kind']) {
+            for (val in jsonData['documentation']) { 
+                createdocumentationField(jsonData['documentation'][val], content=jsonData['documentation|kind'][val])
             }
         }
     }

@@ -1,0 +1,15 @@
+
+{% if entry.documentation %}
+<div class="border rounded p-3">
+    <dl class="row">
+        <dt class="col-sm-3 mb-4"><h5>Documentation</h5></dt>
+        <dd class="col-sm-9 mb-4"><small class="text-muted">Documentation that help using the tool.</small></dd>
+        {% for documentation in entry.documentation %}
+            <dt class="col-sm-3">{{ entry.get("documentation|kind").get(loop.index0|string) or 'Documentation' }}</dt>
+            <dd class="col-sm-9">
+                <a href="{{documentation}}" target="_blank" class="external-link">{{documentation}}</a>
+            </dd>
+        {% endfor %}
+    </dl>
+</div>
+{% endif %} 
