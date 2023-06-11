@@ -572,11 +572,11 @@ fileformat_mapping = {c['_unique_name']: c['uid'] for c in j['q']}
 # 'primary.secondary' -> drop
 # 'storage' -> drop
 # 'archive' -> drop
-# 'authors' ->
-# 'scientific'
+# 'authors' -> '_authors_fallback'
+# 'scientific' -> drop
 
-# 'source.type'
-# 'meta_vars'
+# 'source.type' -> drop
+# 'meta_vars' -> 'meta_variables' (manually generate meta variables from unique list)
 # 'organization.name.av'
 # 'annot.av'
 
@@ -631,6 +631,10 @@ wp4[wp4_strings.columns] = wp4_strings.apply(lambda x: x.str.strip())
 
 wp4["political_party_list"] = wp4.political_party.str.split(";")
 wp4.political_party_list = wp4.political_party_list.apply(lambda l: [x.strip() for x in l])
+
+wp4.loc[wp4.meta_vars.isna(), 'meta_vars'] = ""
+# get list of meta variables
+wp4_metavars = wp4.meta_vars.str.split(',').apply(lambda l: [x.strip() for x in l]).explode().unique()
 
 # fix manifesto separately
 manifesto_wp4 = wp4[wp4.name == "Manifesto Corpus"]
