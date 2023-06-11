@@ -753,3 +753,15 @@ def cran(pkg) -> Union[dict, bool]:
         result['authors'] = ";".join(authors)
 
     return result
+
+
+def openalex_getauthorname(author_id: str) -> dict:
+    api = "https://api.openalex.org/people/"
+    r = requests.get(api + author_id, params={'mailto': "info@opted.eu"})
+    j = r.json()
+    result = {'openalex': author_id}
+    if 'display_name' in j:
+        result['name'] = j['display_name']
+    if 'orcid' in j:
+        result['orcid'] = j['orcid']
+    return result
