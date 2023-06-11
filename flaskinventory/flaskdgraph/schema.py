@@ -47,6 +47,11 @@ class Schema:
 
     __queryable_predicates_by_type__ = {}
 
+    __private_types__ = []
+
+    # Flag to protect certain dgraph types to be exposed to API endpoints
+    __private__ = False
+
     def __init_subclass__(cls) -> None:
 
         from .dgraph_types import _PrimitivePredicate, Facet, Predicate, SingleRelationship, ReverseRelationship, MutualRelationship
@@ -65,6 +70,9 @@ class Schema:
         # add reverse predicates that can be queried
         queryable_predicates.update(
             {val._predicate: val for key, val in reverse_predicates.items() if val.queryable})
+        
+        if cls.__private__:
+            Schema.__private_types__.append(cls.__name__)
 
         # inherit predicates from parent classes
         for parent in cls.__bases__:
@@ -102,7 +110,6 @@ class Schema:
             cls_attribute = deepcopy(attribute)
             setattr(cls_attribute, 'bound_dgraph_type', cls.__name__)
             setattr(cls, key, cls_attribute)
-            # print(cls.__name__, key, attribute, attribute.bound_dgraph_type)
             if attribute.facets:
                 for facet in attribute.facets.values():
                     facet.predicate = key
@@ -322,7 +329,11 @@ class Schema:
             return deepcopy(cls.__queryable_predicates_by_type__[_cls])
         except KeyError:
             return {}
-
+        
+    @classmethod
+    def is_private(cls, dgraph_type):
+        return dgraph_type in cls.__private_types__
+    
     @staticmethod
     def populate_form(form: FlaskForm, populate_obj: dict, fields: dict) -> FlaskForm:
         from flaskinventory.flaskdgraph.dgraph_types import SingleChoice
@@ -423,6 +434,8 @@ class Schema:
             # Allow to manually filter out some fields / hide them from users
             if k in skip_fields:
                 continue
+            if k.startswith('_'):
+                k = 'private' + k
             if v.edit and current_user._role >= v.permission:
                 if isinstance(v, (SingleRelationship, ReverseRelationship, MutualRelationship)) and k in populate_obj.keys():
                     if not v.autoload_choices:
