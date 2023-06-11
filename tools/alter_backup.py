@@ -16,8 +16,10 @@ tmp = tmp.replace("<country>", "<countries>")
 tmp = tmp.replace("<languages>", "<_languages_tmp>")
 tmp = tmp.replace("<programming_languages>", "<_programming_languages_tmp>")
 tmp = tmp.replace("<authors>", "<_authors_fallback>")
-tmp = tmp.replace("<materials>", "<_materials_tmp>")
+tmp = tmp.replace("<materials>", "<documentation>")
 tmp = tmp.replace("TextUnit", "UnitOfAnalysis")
+tmp = tmp.replace("MetaVar", "MetaVariable")
+tmp = tmp.replace("ConceptVar", "ConceptVariable")
 tmp = tmp.replace("Subunit", "Subnational")
 
 # mapping dict 'old': 'new'
@@ -80,8 +82,10 @@ tmp = tmp.replace("<country>", "<countries>")
 tmp = tmp.replace("<languages>", "<_languages_tmp>")
 tmp = tmp.replace("<programming_languages>", "<_programming_languages_tmp>")
 tmp = tmp.replace("<authors>", "<_authors_fallback>")
-tmp = tmp.replace("<materials>", "<_materials_tmp>")
+tmp = tmp.replace("<materials>", "<documentation>")
 tmp = tmp.replace("TextUnit", "UnitOfAnalysis")
+tmp = tmp.replace("MetaVar", "MetaVariable")
+tmp = tmp.replace("ConceptVar", "ConceptVariable")
 tmp = tmp.replace("Subunit", "Subnational")
 
 pat = re.compile(r"country\b")
@@ -97,7 +101,7 @@ pat = re.compile(r"authors\b")
 tmp = re.sub(pat, r"_authors_fallback", tmp)
 
 pat = re.compile(r"materials\b")
-tmp = re.sub(pat, r"_materials_tmp", tmp)
+tmp = re.sub(pat, r"documentation", tmp)
 
 
 for old, new in wp3_mapping.items():
