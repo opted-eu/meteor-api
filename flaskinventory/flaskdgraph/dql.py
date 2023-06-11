@@ -165,7 +165,8 @@ class regexp(eq):
         except:
             assert len(kwargs) == 1, "Too many or not enough parameters!"
             self.predicate, value = kwargs.popitem()
-        value = f'/{value}/'
+        if not isinstance(value, GraphQLVariable):
+            value = f'/{value}/'
         if case_insensitive:
             value += 'i'
         self.value = value
@@ -297,14 +298,18 @@ class DQLQuery:
 
     __slots__ = "query_name", "graphql_variable_declarations", "query_blocks"
 
-    def __init__(self, query_name="q", **kwargs) -> None:
+    def __init__(self, query_name="q", blocks: list = None, **kwargs) -> None:
 
         self.graphql_variable_declarations = []
         self.query_name = query_name
-        self.query_blocks = [QueryBlock(**kwargs)]
+        if blocks:
+            self.query_blocks = blocks
+        else:
+            self.query_blocks = [QueryBlock(**kwargs)]
 
         for q in self.query_blocks:
             self.graphql_variable_declarations += q.graphql_variables
+            self.graphql_variable_declarations = list(set(self.graphql_variable_declarations))
 
     def __str__(self) -> str:
         return self.render()
