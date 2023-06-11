@@ -6,8 +6,10 @@ from flaskinventory import dgraph
 from flaskinventory.errors import InventoryValidationError
 from flaskinventory.flaskdgraph.dgraph_types import *
 
-from flaskinventory.add.external import geocode, reverse_geocode, get_wikidata
+from flaskinventory.add.external import geocode, reverse_geocode, get_wikidata, openalex_getauthorname
 from flaskinventory.flaskdgraph.utils import validate_uid
+
+import re
 
 from slugify import slugify
 import secrets
@@ -326,6 +328,8 @@ class OrderedListString(ListString):
 
 class OrderedListRelationship(SingleRelationship):
 
+    """ This uses facets to preserve the order in which the relationship was entered """
+
     dgraph_predicate_type = '[uid]'
     dgraph_directives = ['@reverse']
     is_list_predicate = True
@@ -346,25 +350,29 @@ class OrderedListRelationship(SingleRelationship):
             for i, item in enumerate(data):
                 f = facets.copy()
                 f.update(sequence=i)
-                if not hasattr(item, 'facets'):
+                if isinstance(item, dict) and 'uid' in item:
+                    item['uid'].update_facets(f)
+                    ordered_uids.append(item)
+                elif not hasattr(item, 'facets'):
                     validated_item = validate_uid(item)
                     if not validated_item and self.allow_new:
-                        ordered_uids.append(NewID(item, facets=f))
+                        ordered_uids.append({'uid': NewID(item, facets=f),
+                                             'dgraph.type': self.relationship_constraint})
                     elif validated_item:
-                        ordered_uids.append(UID(validated_item, facets=f))
+                        ordered_uids.append({'uid': UID(validated_item, facets=f)})
                     else:
                         # skip over invalid data
                         continue
                 else:
                     item.update_facets(f)
-                    ordered_uids.append(item)
+                    ordered_uids.append({'uid': item})
             if len(ordered_uids) == 0:
                 raise InventoryValidationError(
                         f'Error in <{self.predicate}>! Could not validate data of type {type(data)}. Value: {data}')
             return ordered_uids
         elif hasattr(data, "facets"):
             data.update_facets(facets)
-            return [data]
+            return [{'uid': data}]
         else:
             raise InventoryValidationError(
                         f'Error in <{self.predicate}>! Do not know how to handle {type(data)}. Value: {data}')
@@ -383,6 +391,38 @@ class OrderedListRelationship(SingleRelationship):
                                        description=self.form_description,
                                        choices=self.choices_tuples,
                                        render_kw=self.render_kw)
+
+
+
+class AuthorList(OrderedListRelationship):
+
+    """ uses custom validation for author ids from openalex """
+
+    openalex_regex = re.compile(r"^A\d{4,}$")
+
+    def validation_hook(self, data):
+        pre_processed = []
+        for author in data:
+            try:
+                if self.openalex_regex.match(author.strip()):
+                    author_uid = dgraph.get_uid(field="openalex", value=author.strip())
+                    if author_uid:
+                        pre_processed.append({'uid': UID(author_uid)})
+                    else:
+                        try:
+                            new_author = openalex_getauthorname(author.strip())
+                            new_author['uid'] = NewID(author)
+                            new_author['dgraph.type'] = self.relationship_constraint
+                            pre_processed.append(new_author)
+                        except Exception as e:
+                            current_app.logger.error(f'failed retrieving author from openalex: {author}: {e}', exc_info=True)
+                            raise InventoryValidationError(f'Failed to retrieve author from openalex: {author}')
+                else:
+                    pre_processed.append(author)                    
+            except Exception as e:
+                current_app.logger.debug(f'Could not fetch author <{author}>: {e}', exc_info=True)
+                pre_processed.append(author)
+        return pre_processed
 
 
 
