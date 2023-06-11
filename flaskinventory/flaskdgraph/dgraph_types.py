@@ -761,7 +761,7 @@ class ReverseRelationship(_PrimitivePredicate):
         query_string = '{ '
 
         for dgraph_type in self.relationship_constraint:
-            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name_unique_name }} '''
+            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name _unique_name }} '''
 
         query_string += '}'
 
@@ -935,7 +935,7 @@ class MutualRelationship(_PrimitivePredicate):
         query_string = '{ '
 
         for dgraph_type in self.relationship_constraint:
-            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name_unique_name }} '''
+            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name _unique_name }} '''
 
         query_string += '}'
 
@@ -1476,7 +1476,7 @@ class SingleRelationship(Predicate):
         query_string = '{ '
 
         for dgraph_type in self.relationship_constraint:
-            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name_unique_name }} '''
+            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name _unique_name }} '''
 
         query_string += '}'
 
