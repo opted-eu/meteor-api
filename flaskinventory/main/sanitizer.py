@@ -287,7 +287,7 @@ class Sanitizer:
                     self.related_entries.append(data_node)
                 continue
 
-            elif self.data.get(key) and isinstance(item, SingleRelationship):
+            elif key in self.data and isinstance(item, SingleRelationship):
                 related_items = item.validate(self.data[key], facets=facets)
                 validated = []
                 if isinstance(related_items, list):
@@ -430,18 +430,20 @@ class Sanitizer:
 
         # figure out which key is used for country
         country_key = list({'country', 'countries'} & set(entry.keys()))
+        country_code = None
         # does the entry have the predicate at all?
         if len(country_key) > 0:
             try:
                 country = entry[country_key[0]][0]
             except:
                 country = entry[country_key[0]]
-            # at this point of the sanitation chain the country should be a clean UID
-            query_string = f"{{ q(func: uid({country})) {{ iso_3166_1_2 }} }}"
-            res = dgraph.query(query_string)
-            country_code = res['q'][0]['iso_3166_1_2']
-        else:
-            country_code = None
+            try:
+                # at this point of the sanitation chain the country should be a clean UID
+                query_string = f"{{ q(func: uid({country})) {{ iso_3166_1_2 }} }}"
+                res = dgraph.query(query_string)
+                country_code = res['q'][0]['iso_3166_1_2']
+            except Exception as e:
+                current_app.logger.warning(f'Could not retrieve country code for new entry <{entry["name"]}>: {e}', exc_info=True)
 
         try:
             _name = slugify(str(entry['name']), separator="")
