@@ -10,9 +10,10 @@ from flask import (current_app, Blueprint, request, jsonify, url_for, abort)
 from flask_login import current_user, login_required
 from flaskinventory import dgraph
 from flaskinventory.flaskdgraph.utils import strip_query, validate_uid
-from flaskinventory.main.model import NewsSource
+from flaskinventory.main.model import NewsSource, Schema
 from flaskinventory.main.sanitizer import Sanitizer
 from flaskinventory.add.dgraph import generate_fieldoptions
+from flaskinventory.flaskdgraph import dql
 
 
 endpoint = Blueprint('endpoint', __name__)
@@ -120,6 +121,94 @@ def sourcelookup():
         current_app.logger.warning(f'could not lookup source with query "{query}". {e}')
         return jsonify({'status': False, 'error': f'e'})
 
+
+"""
+    Generic Lookup Endpoint. Search entries by names (i.e., strings)
+    Can perform the following
+        - query: your search query (default uses equality matching)
+        - predicate: predicate to query; 
+            - special case is "name" which searches name-like fields (name, _unique_name)
+    Filters:
+        - dgraph.type: provide a list of types to filter
+"""
+
+@endpoint.route('/endpoint/lookup')
+def lookup():
+    # clean request arguments first
+    r = {k: v for k, v in request.args.to_dict(
+            flat=False).items() if v[0] != ''}
+    current_app.logger.debug(f'Received following request args: {r}')
+    if 'query' not in r or 'predicate' not in r:
+        return jsonify({'status': 400, 'error': 'Incorrect request parameters provided.'})
+    query = r['query'][0]
+
+    # by default: query anything that is an Entry
+    if "dgraph.type" not in r:
+        dgraph_types = ['Entry']
+    else:
+        # Ensure private dgraph.types are protected here
+        if any([Schema.is_private(t) for t in r['dgraph.type']]):
+            return jsonify({'status': 403, 'error': 'You cannot access this dgraph.type'})
+        dgraph_types = r['dgraph.type']
+    dgraph_types = [dql.type_(t) for t in dgraph_types]
+    if 'name' in r['predicate']:
+        query = strip_query(query)
+        query_regex = dql.GraphQLVariable(query_regex=f"/{query}/i")
+        query_beginning = dql.GraphQLVariable(query_beginning=f'/^{query}/i')
+
+        field1 = dql.QueryBlock(dql.regexp(name=query_regex), 
+                        query_filter=dgraph_types,
+                        filter_connector="OR",
+                        block_name="field1 as var")
+        
+        field2 = dql.QueryBlock(dql.regexp(alternate_names=query_regex),
+                                query_filter=dgraph_types,
+                                filter_connector="OR",
+                                block_name="field2 as var")
+
+        field3 = dql.QueryBlock(dql.regexp(_unique_name=query_regex),
+                                query_filter=dgraph_types,
+                                filter_connector="OR",
+                                block_name="field3 as var")
+
+        data = dql.QueryBlock(dql.uid("field1, field2, field3"),
+                            fetch=['uid', 
+                                   '_unique_name', 
+                                   'name', 
+                                   'dgraph.type',
+                                   'countries { name uid _unique_name }',
+                                   'country { name uid _unique_name }',
+                                   'channel { name uid _unique_name }'],
+                            block_name="data")
+
+        dql_query = dql.DQLQuery('lookup', blocks=[field1, field2, field3, data])
+
+    else:            
+        query_variable = dql.GraphQLVariable(query=query)
+        dql_query = dql.DQLQuery(block_name="data", func=dql.eq(r['predicate'][0], query_variable), 
+                        query_filter=dgraph_types,
+                        fetch=['uid', 
+                                '_unique_name', 
+                                'name', 
+                                'doi',
+                                'arxiv',
+                                'openalex',
+                                'pypi',
+                                'github',
+                                'cran',
+                                'dgraph.type',
+                                'countries { name uid _unique_name }',
+                                'country { name uid _unique_name }',
+                                'channel { name uid _unique_name }'])
+
+    try:
+        result = dgraph.query(dql_query)
+        result['status'] = 200
+        return jsonify(result)
+    except Exception as e:
+        current_app.logger.warning(f'could not lookup source with query "{query}". {e}')
+        return jsonify({'status': 500, 'error': f'{e}'})
+
 # cache this route
 @endpoint.route("/endpoint/new/fieldoptions")
 async def fieldoptions():
@@ -201,6 +290,8 @@ def identifier_lookup():
     elif request.args.get('github'):
         identifier = request.args.get('github').strip()
         field = 'github'
+    elif request.args.get('openalex'):
+        identifier = request.args.get('openalex').strip()
     else:
         return jsonify({'status': False})
 
@@ -219,6 +310,7 @@ def identifier_lookup():
                         arxiv
                         cran
                         pypi
+                        openalex
                     }}
                 }}
         '''
