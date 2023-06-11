@@ -45,15 +45,15 @@ function fetchMetaData(button) {
         }
 
         // check if already in inventory
-        fetch($SCRIPT_ROOT + '/endpoint/identifier/lookup?doi=' + doi)
+        fetch($SCRIPT_ROOT + '/endpoint/lookup?predicate=doi&query=' + doi)
             .then(response => response.json())
             .then(result => checkInventory(result))
 
-        let api = 'https://doi.org/'
+        let api = "https://api.openalex.org/works/doi:"
 
-        fetch(api + doi + '?lang=en', { headers: { 'Accept': 'application/vnd.citationstyles.csl+json, application/x-bibtex' } })
-            .then(response => response.text())
-            .then(text => resolveDOI(text))
+        fetch(api + doi)
+            .then(response => response.json())
+            .then(json => parseDOI(json))
             .then(result => fillForm(result))
             .then(_ => hideSpinner(button), buttonSuccess(button))
             .catch(error => handleError(error, button))
@@ -177,10 +177,15 @@ function fillForm(data) {
         let field = document.getElementById(key)
         if (field) {
             if (field.multiple) {
+                if (field.tomselect) {
+                    field.tomselect.addOptions(data[key])
+                    data[key].forEach(v => field.tomselect.addItem(v.uid))
+                } else {
                 for (let v of data[key]) {
                     if (document.querySelector(`#${field.id} option[value="${v}"]`)) {
                         document.querySelector(`#${field.id} option[value="${v}"]`).selected = true
-                    }
+                    } 
+                }
                 }
             } else {
                 field.value = data[key]
@@ -234,66 +239,40 @@ function buttonWarning(button, message = "Invalid Identifier!") {
     button.getElementsByClassName('button-text')[0].innerText = message
 }
 
-function resolveDOI(text) {
+function parseDOI(json) {
 
     result = new Array
 
     // if (headers.get('Content-Type').includes('csl+json')) {
 
-    let json = JSON.parse(text)
-    result['url'] = json['URL']
-    result['doi'] = json['DOI']
-    if (Object.keys(json).includes('container-title')) {
-        if (typeof json['container-title'] === 'object') {
-            result['venue'] = json['container-title'][0]
-        } else {
-            result['venue'] = json['container-title']
-        }
-    }
+    result['url'] = json.ids.doi
+    result['doi'] = json.ids.doi.replace('https://doi.org/', '')
+    result['venue'] = json.primary_location?.source?.display_name
 
-    if (typeof json['title'] === 'object') {
-        result['name'] = json['title'][0]
-    } else {
-        result['name'] = json['title']
-    }
+    result['name'] = json.title
 
     result['title'] = result['name']
 
     result['paper_kind'] = json['type']
 
-    if (Object.keys(json).includes('created')) {
-        if (Object.keys(json.created).includes('date-time')) {
-            result['date_published'] = json.created['date-time'].split('-')[0]
-        } else {
-            result['date_published'] = json.created['date-parts'][0][0]
-        }
-    } else if (Object.keys(json).includes('issued')) {
-        if (Object.keys(json.issued).includes('date-time')) {
-            result['date_published'] = json.issued['date-time'].split('-')[0]
-        } else {
-            result['date_published'] = json.issued['date-parts'][0][0]
-        }
-    }
+    result['date_published'] = json.publication_year
 
-    if (Object.keys(json).includes('link')) {
-        result['url'] = json['link'][0]['URL']
-    }
-    let authors = []
+    result['authors'] = []
 
-    for (let author of json.author) {
-        if (Object.keys(author).includes('family')) {
-            authors.push(`${author['family']}, ${author['given']}`)
-        } else {
-            authors.push(author.literal)
-        }
-    }
+    for (let author of json.authorships) {
+        parsed_author = new Object
+        parsed_author['openalex'] = author.author.id.replace('https://openalex.org/', '')
+        parsed_author['uid'] = parsed_author['openalex']
+        parsed_author['name'] = author.author.display_name
 
-    result['authors'] = authors.join(';')
+        result['authors'].push(parsed_author)
+    }
 
     if (Object.keys(json).includes('abstract')) {
         result['description'] = json.abstract
     }
 
+    console.log(result)
 
     // }
     // other parser here
@@ -368,7 +347,7 @@ function parsePyPi(package) {
     result['url'] = package.info['home_page']
     result['authors'] = package.info['author']
     result['license'] = package.info['license']
-    result['materials'] = []
+    result['documentation'] = []
     for (url in package.info['project_urls']) {
         let material_url = package.info.project_urls[url]
         if (material_url.match(github_regex)) {
@@ -378,7 +357,7 @@ function parsePyPi(package) {
             }
             result['github'] = github
         } else {
-            result['materials'].push(material_url)
+            result['documentation'].push(material_url)
         }
     }
 
