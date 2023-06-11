@@ -162,7 +162,7 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
 
     fields = Schema.get_predicates(dgraph_type)
 
-    if form.validate_on_submit():
+    if form.is_submitted():
         data = form.data.copy()
         additional_fields = IMD2dict(request.form)
         for k, v in additional_fields.items():
@@ -172,10 +172,8 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
             sanitizer = Sanitizer.edit(data, dgraph_type=dgraph_type)
         except Exception as e:
             if current_app.debug:
-                e_trace = "".join(traceback.format_exception(
-                    None, e, e.__traceback__))
-                current_app.logger.error(e_trace)
-            flash(f'{dgraph_type} could not be updated: {e}', 'danger')
+                current_app.logger.error(f'<{uid}> ({dgraph_type}) could not be updated: {e}', exc_info=True)
+            flash(f'<{uid}> ({dgraph_type}) could not be updated: {e}', 'danger')
             return redirect(url_for('edit.entry', dgraph_type=dgraph_type, uid=uid, **request.args))
         try:
             result = dgraph.upsert(
@@ -188,6 +186,7 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
                 flash(f'{dgraph_type} has been updated', 'success')
                 return redirect(url_for('view.view_uid', uid=uid, **request.args))
         except Exception as e:
+            current_app.logger.warning(f'<{uid}> ({dgraph_type}) could not be updated: {e}', exc_info=True)
             flash(f'{dgraph_type} could not be updated: {e}', 'danger')
             return redirect(url_for('edit.entry', dgraph_type=dgraph_type, uid=uid, **request.args))
 
