@@ -214,7 +214,7 @@ class TestSanitizers(BasicTestSetup):
                                       'Entry', 'Organization'])
                 self.assertEqual(
                     sanitizer.entry['entry_review_status'], 'pending')
-                self.assertEqual(sanitizer.entry['_unique_name'], 'organization_germany_deutschebank')
+                self.assertEqual(sanitizer.entry['_unique_name'], 'organization_de_deutschebank')
                 self.assertIsNotNone(sanitizer.set_nquads)
                 self.assertIsNone(sanitizer.delete_nquads)
                 # WikiDataID for Deutsche Bank
@@ -230,7 +230,7 @@ class TestSanitizers(BasicTestSetup):
                                       'Entry', 'Organization'])
                 self.assertEqual(
                     sanitizer.entry['entry_review_status'], 'pending')
-                self.assertEqual(sanitizer.entry['_unique_name'], 'organization_germany_deutschebank')
+                self.assertEqual(sanitizer.entry['_unique_name'], 'organization_de_deutschebank')
                 self.assertIsNotNone(sanitizer.set_nquads)
                 self.assertIsNone(sanitizer.delete_nquads)
 
