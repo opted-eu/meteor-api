@@ -336,6 +336,48 @@ if (embeddedJSON) {
             };
         new TomSelect('#authors', TomSelectAuthorsConfig);
 
+    {% elif field.name == 'initial_source' %}
+    
+    var TomSelectInitialSourceConfig = {
+                plugins: ['remove_button'],
+                valueField: 'uid',
+                labelField: 'name',
+                searchField: 'name',
+                create: true,
+                delimiter: ';',
+                selectOnTab: true,
+                load: function(query, callback) {
+                    if ( query.length < 3 ) return callback();
+                    var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + '&predicate=name&dgraph.type=Dataset';
+                    fetch(url)
+                    .then(response => response.json())
+                    .then(json => {
+                        callback(json.data);
+                    }).catch(() => {callback();});
+                },
+                render: {
+                    option: function(data, escape) {
+                        return '<div>' +
+                                '<span class="title">' + escape(data.name) + '</span> '
+                            '</div>';
+                    },
+                    item: function(data, escape) {
+                        return '<div>' + escape(data.name) + '</div>';
+                    }
+                },
+                create: function(input, callback) {
+                    var returnData = {
+                        value: input,
+                        uid: input,
+                        _unique_name: input,
+                        text: input,
+                        name: input + " (NEW!)",
+                    };
+                    callback(returnData);
+                },
+            };
+        new TomSelect('#initial_source', TomSelectInitialSourceConfig);
+
     {% elif field.name == 'documentation' %}
 
     var documentationContainer = document.getElementById('documentation').parentElement
