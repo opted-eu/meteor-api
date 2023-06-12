@@ -1,0 +1,77 @@
+[
+    {
+        "uid": "_:texttype_pressrelease",
+        "_unique_name": "texttype_pressrelease",
+        "name": "Press Release",
+        "description": "instrument of public relation",
+        "wikidata_id": "Q207184",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_socialmedia",
+        "_unique_name": "texttype_socialmedia",
+        "name": "Social Media",
+        "description": "texts from social media platforms",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_manifesto",
+        "_unique_name": "texttype_manifesto",
+        "name": "Manifesto",
+        "alternate_names": [
+            "Party Programme"
+        ],
+        "description": "formal list of political goals that a political party or individual candidate seeks to enact",
+        "wikidata_id": "Q1501855",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_partywebsite",
+        "_unique_name": "texttype_partywebsite",
+        "name": "Party Website",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_statutes",
+        "_unique_name": "texttype_statutes",
+        "name": "Statutes",
+        "description": "a law that has been formally approved and written down",
+        "wikidata_id": "Q55892549",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_speech",
+        "_unique_name": "texttype_speech",
+        "name": "Public Speech",
+        "description": "process and act of speaking or giving a lecture to a group of people in a structured, deliberate manner intended to inform, influence, or entertain a listening audience",
+        "wikidata_id": "Q18342738",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_statement",
+        "_unique_name": "texttype_statement",
+        "name": "Statement",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    }
+]
