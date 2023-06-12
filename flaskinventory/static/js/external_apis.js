@@ -245,7 +245,12 @@ function parseDOI(json) {
 
     // if (headers.get('Content-Type').includes('csl+json')) {
 
-    result['url'] = json.ids.doi
+    if (json.primary_location?.landing_page_url) {
+        result['url'] = json.primary_location.landing_page_url
+    } else {
+        result['url'] = json.ids.doi
+    }
+
     result['doi'] = json.ids.doi.replace('https://doi.org/', '')
     result['venue'] = json.primary_location?.source?.display_name
 
@@ -270,9 +275,11 @@ function parseDOI(json) {
 
     if (Object.keys(json).includes('abstract')) {
         result['description'] = json.abstract
+    } else {
+        result['description'] = Object.keys(json.abstract_inverted_index).join(" ")
     }
 
-    console.log(result)
+    console.debug(result)
 
     // }
     // other parser here
