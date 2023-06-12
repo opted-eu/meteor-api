@@ -94,6 +94,7 @@ def view_generic(dgraph_type=None, uid=None, unique_name=None):
         try:
             uid = validate_uid(uid)
             if not uid:
+                flash(f"Unrecognized UID <{uid}>")
                 return abort(404)
             unique_name = dgraph.get_unique_name(uid)
             return redirect(url_for('view.view_generic', dgraph_type=dgraph_type, unique_name=unique_name))
@@ -104,8 +105,8 @@ def view_generic(dgraph_type=None, uid=None, unique_name=None):
     data = get_entry(uid=uid, unique_name=unique_name, dgraph_type=dgraph_type)
 
     if not data:
+        flash(f'The requested entry "{unique_name}" <{uid}> ({dgraph_type}) is could not be found!', "danger")
         return abort(404)
-
 
     if not can_view(data, current_user):
         if current_user.is_authenticated:
@@ -182,7 +183,7 @@ def query():
                 variables = {'$searchTerms': search_terms}
             else:
                 variables = None
-            # print(query_string)
+
             result = dgraph.query(query_string, variables=variables)
             total = result['total'][0]['count']
 
