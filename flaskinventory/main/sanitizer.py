@@ -390,6 +390,9 @@ class Sanitizer:
                         raise InventoryValidationError(
                             'Unique Name already taken!')
             self.entry['_unique_name'] = unique_name
+        elif self.is_upsert:
+            # if no _unique_name is supplied when editing, just do nothing
+            pass
         else:
             self.data['_unique_name'] = 'dummy'
             
@@ -424,7 +427,7 @@ class Sanitizer:
         get the first dgraph.type that is not 'Entry'
         """
         try:
-            entry_type = [t for t in entry['dgraph.type'] if t != 'Entry'][0]
+            entry_type = list(set(entry['dgraph.type']).difference({'Entry'}))[0]
         except:
             entry_type = ""
 
@@ -445,14 +448,17 @@ class Sanitizer:
             except Exception as e:
                 current_app.logger.warning(f'Could not retrieve country code for new entry <{entry["name"]}>: {e}', exc_info=True)
 
-        try:
-            _name = slugify(str(entry['name']), separator="")
-        except KeyError:
-            current_app.logger.debug(
-                f'<{entry["uid"]}> No key "name" in dict. Autoassigning')
-            _name = slugify(str(entry['uid']), separator="")
-            if hasattr(entry['uid'], 'original_value'):
-                entry['name'] = entry['uid'].original_value
+        if 'openalex' in entry:
+            _name = slugify(entry['openalex'], separator="")
+        else:
+            try:
+                _name = slugify(str(entry['name']), separator="")
+            except KeyError:
+                current_app.logger.debug(
+                    f'<{entry["uid"]}> No key "name" in dict. Autoassigning')
+                _name = slugify(str(entry['uid']), separator="")
+                if hasattr(entry['uid'], 'original_value'):
+                    entry['name'] = entry['uid'].original_value
 
         # assemble unique name
         unique_name = entry_type.lower() + '_'
