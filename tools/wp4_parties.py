@@ -88,93 +88,54 @@ ADMIN_UID = j[0]['uid']
 # Load Data from Excel sheet
 xlsx = p / 'data' / 'OPTED Taxonomy.xlsx'
 
-# generate this feather file with `partyfacts_wikidata.py`
-pfacts_feather = p / 'data' / 'partyfacts.feather'
-
 df = pd.read_excel(xlsx, sheet_name="political_party")
 
 # clean columns
 
-df.name = df.name.str.strip()
-df.abbrev_name = df.abbrev_name.str.strip()
-df.alternate_names = df.alternate_names.str.strip()
-df.name_english = df.name_english.str.strip()
+df_strings = df.select_dtypes(['object'])
+df[df_strings.columns] = df_strings.apply(lambda x: x.str.strip())
 
-
-# Join with Party facts data
-
-partyfacts = pd.read_feather(pfacts_feather)
-partyfacts.partyfacts_id = partyfacts.partyfacts_id.astype(int)
-
-partyfacts.name = partyfacts.name.str.strip()
-partyfacts.name_short = partyfacts.name_short.str.strip()
-partyfacts.name_english = partyfacts.name_english.str.strip()
-
-# manually fix some entries
-partyfacts.loc[partyfacts.partyfacts_id == 1816, "wikidata_id"] = "Q49766"
-
-opted_countries = df.dropna(subset="country").country.unique().tolist()
-# partyfacts = partyfacts.loc[partyfacts.country.isin(opted_countries), :]
-
-# join by wikidata first
-party_ids_by_wikidata = {wikidata_id: party_id for wikidata_id, party_id in zip(
-    partyfacts.wikidata_id.to_list(), partyfacts.partyfacts_id.to_list())}
-
-df['partyfacts_id'] = df.wikidata_id.map(party_ids_by_wikidata)
-
-# join country-wise by abbreviation
-
-
-def fuzzy_match(x: str, possibilities: list, lookup: dict) -> str:
-    # small helper function that tries to fuzzy match party names
-    # returns the partyfacts_id from lookup dictionary
-    possibilities = [p for p in possibilities if p is not None]
-    try:
-        result = difflib.get_close_matches(x, possibilities)[0]
-        return lookup[result]
-    except:
-        return np.NaN
-
-
-for country in df.dropna(subset="country").country.unique():
-    partyfacts_filt = partyfacts.country == country
-    party_ids_by_abbrev = {name: party_id for name, party_id in zip(
-        partyfacts[partyfacts_filt].name_short.to_list(),
-        partyfacts[partyfacts_filt].partyfacts_id.to_list()
-    ) if name is not None}
-    party_ids_by_name = {name: party_id for name, party_id in zip(
-        partyfacts[partyfacts_filt].name.to_list(),
-        partyfacts[partyfacts_filt].partyfacts_id.to_list()
-    ) if name is not None}
-    lookup = {**party_ids_by_abbrev, **party_ids_by_name}
-    possibilities = [
-        p for p in partyfacts[partyfacts_filt].name.to_list() if p is not None]
-    filt = (df.country == country) & (df.partyfacts_id.isna())
-    # df.loc[filt, 'partyfacts_id'] = df[filt].abbrev_name.map(party_ids_by_abbrev).fillna(df.loc[filt, 'partyfacts_id'])
-    df.loc[filt, 'partyfacts_id'] = df[filt].name.apply(
-        lambda x: fuzzy_match(x, possibilities, lookup))
 
 # Load manually reconciled parties
 
 parties_manual = pd.read_excel(
     xlsx, sheet_name="Parties Manual Reconciliation")
-# drop missing wikidata ids
 
+# drop missing wikidata ids
 parties_manual = parties_manual[~parties_manual.wikidata_id.isna()]
 
-# get parties without partyfacts ID
-# filt = parties_manual.wikidata_id.isin(partyfacts.wikidata_id.to_list())
-# partyfacts_missing = parties_manual[~filt]
 
 # drop manually reconciled from df (xlsx sheet "political_party")
-
 filt = df.unique_name.isin(parties_manual.unique_name.to_list())
 
 df = df[~filt]
 
 # add manually reconciled
+df = pd.concat([df, parties_manual], ignore_index=True).reset_index(drop=True)
 
-df = pd.concat([df, parties_manual])
+
+# Join with Party facts data
+
+# generate this feather file with `partyfacts_wikidata.py`
+pfacts_feather = p / 'data' / 'partyfacts.feather'
+
+partyfacts = pd.read_feather(pfacts_feather)
+partyfacts.partyfacts_id = partyfacts.partyfacts_id.astype(int)
+
+partyfacts_strings = partyfacts.select_dtypes(['object'])
+partyfacts[partyfacts_strings.columns] = partyfacts_strings.apply(lambda x: x.str.strip())
+
+partyfacts = partyfacts.drop_duplicates(subset="partyfacts_id").reset_index(drop=True)
+
+opted_countries = df.dropna(subset="country").country.unique().tolist()
+# partyfacts = partyfacts.loc[partyfacts.country.isin(opted_countries), :]
+
+# join by wikidata
+party_ids_by_wikidata = {wikidata_id: party_id for wikidata_id, party_id in zip(
+    partyfacts.wikidata_id.to_list(), partyfacts.partyfacts_id.to_list())}
+
+df['partyfacts_id'] = df.wikidata_id.map(party_ids_by_wikidata)
+
 
 # find row without wikidata id
 filt = df.wikidata_id.isna()
@@ -303,7 +264,6 @@ parties_duplicated = df_parties[df_parties.wikidata_id.duplicated()].fillna(
 
 canonical_parties = []
 
-
 def remove_none(l: list):
     # helper to remove None and NA values from lists
     try:
@@ -402,18 +362,18 @@ for wikidata_id, party in parties_duplicated.items():
         instagram['countries'] = [{'uid': party['country'][0]}]
         instagram['_unique_name'] = "newssource_" + party['country_code'][0] + \
             '_' + slugify(handle, separator="") + '_instagram'
-        try:
-            api_data = fetch_instagram(handle)
-            if api_data['followers']:
-                instagram['audience_size'] = datetime.now().isoformat()
-                instagram['audience_size|count'] = api_data['followers']
-                instagram['audience_size|unit'] = 'followers'
-            if api_data['verified']:
-                instagram['verified_account'] = api_data['verified']
-            if api_data['fullname']:
-                instagram['alternate_names'] = api_data['fullname']
-        except Exception as e:
-            print('could not fetch instagram data', handle, e)
+        # try:
+        #     api_data = fetch_instagram(handle)
+        #     if api_data['followers']:
+        #         instagram['audience_size'] = datetime.now().isoformat()
+        #         instagram['audience_size|count'] = api_data['followers']
+        #         instagram['audience_size|unit'] = 'followers'
+        #     if api_data['verified']:
+        #         instagram['verified_account'] = api_data['verified']
+        #     if api_data['fullname']:
+        #         instagram['alternate_names'] = api_data['fullname']
+        # except Exception as e:
+        #     print('could not fetch instagram data', handle, e)
         new_party['publishes'].append(instagram)
     canonical_parties.append(new_party)
 
@@ -500,18 +460,18 @@ for party in parties:
         instagram['countries'] = [{'uid': party['country']}]
         instagram['_unique_name'] = "newssource_" + party['country_code'] + \
             '_' + slugify(handle, separator="") + '_instagram'
-        try:
-            api_data = fetch_instagram(handle)
-            if api_data['followers']:
-                instagram['audience_size'] = datetime.now().isoformat()
-                instagram['audience_size|count'] = api_data['followers']
-                instagram['audience_size|unit'] = 'followers'
-            if api_data['verified']:
-                instagram['verified_account'] = api_data['verified']
-            if api_data['fullname']:
-                instagram['alternate_names'] = api_data['fullname']
-        except Exception as e:
-            print('could not fetch instagram data', handle, e)
+        # try:
+        #     api_data = fetch_instagram(handle)
+        #     if api_data['followers']:
+        #         instagram['audience_size'] = datetime.now().isoformat()
+        #         instagram['audience_size|count'] = api_data['followers']
+        #         instagram['audience_size|unit'] = 'followers'
+        #     if api_data['verified']:
+        #         instagram['verified_account'] = api_data['verified']
+        #     if api_data['fullname']:
+        #         instagram['alternate_names'] = api_data['fullname']
+        # except Exception as e:
+        #     print('could not fetch instagram data', handle, e)
         new_party['publishes'].append(instagram)
     canonical_parties.append(new_party)
 
@@ -629,12 +589,42 @@ wp4[wp4_strings.columns] = wp4_strings.apply(lambda x: x.str.strip())
 
 # split list cells
 
-wp4["political_party_list"] = wp4.political_party.str.split(";")
+wp4["political_party_list"] = wp4.sources_included.str.split(";")
 wp4.political_party_list = wp4.political_party_list.apply(lambda l: [x.strip() for x in l])
+
+wp4["text_type"] = wp4.text_type.str.split(",")
+wp4["text_type"] = wp4.text_type.apply(lambda l: [x.strip() for x in l])
+
+text_types_lookup = {'Press Release': {'uid': '_:texttype_pressrelease'},
+                    'Social Media': {'uid': '_:texttype_socialmedia'},
+                    'Manifesto':  {'uid': '_:texttype_manifesto'},
+                    'Party Programme': {'uid': '_:texttype_manifesto'},
+                    'Party Websites': {'uid': '_:texttype_partywebsite'},
+                    'Statutes':  {'uid': '_:texttype_statutes'},
+                    'Speech': {'uid': '_:texttype_speech'},
+                    'Statement':  {'uid': '_:texttype_statement'}
+                    }
 
 wp4.loc[wp4.meta_vars.isna(), 'meta_vars'] = ""
 # get list of meta variables
 wp4_metavars = wp4.meta_vars.str.split(',').apply(lambda l: [x.strip() for x in l]).explode().unique()
+
+metavars_lookup = {'date': {'uid': 'metavariable_date'},
+                   'title': {'uid': 'metavariable_headline'},
+                   'title(s)': {'uid': 'metavariable_headline'},
+                   'newspaper': {'uid': 'metavariable_newssource'},
+                   'page': {'uid': 'metavariable_pagenumber'},
+                   'author': {'uid': '_:metavariable_author'},
+                   'country': {'uid': '_:metavariable_country'},
+                   'country country name': {'uid': '_:metavariable_country'},
+                   'ctryid country code': {'uid': '_:metavariable_country'},
+                   'election year':  {'uid': '_:metavariable_electionyear'},
+                   'election_year': {'uid': '_:metavariable_electionyear'},
+                   'keywords.': {'uid': '_:metavariable_keywords'},
+                   'language': {'uid': '_:metavariable_language'},
+                   'manifesto_title': {'uid': '_:metavariable_documenttitle'},
+                   'manifesto_year': {'uid': '_:metavariable_year'},
+                   }
 
 # fix manifesto separately
 manifesto_wp4 = wp4[wp4.name == "Manifesto Corpus"]
