@@ -685,10 +685,15 @@ class Dataset(Entry):
                         directives=["@index(exact)"])
 
     description = String(
-        large_textfield=True, description="Please provide a short description for the tool")
+        large_textfield=True, description="Please provide a short description for the dataset")
 
-    conditions_of_access = SingleChoice(choices={'free': 'Free',
-                                                 'restricted': 'Restricted'})
+    conditions_of_access = SingleChoice(description="How can the user access this dataset?",
+                                        choices={'NA': 'NA / Unknown',
+                                                 'free': 'Free',
+                                                 'registration': 'Registration',
+                                                 'request': 'Upon Request',
+                                                 'purchase': 'Purchase'},
+                                        queryable=True)
 
     fulltext_available = Boolean(
         description="does the dataset contain fulltext?")
@@ -720,6 +725,7 @@ class Dataset(Entry):
 
     file_formats = ListRelationship(description="In which file format(s) is the dataset stored?",
                                     autoload_choices=True,
+                                    allow_new=True,
                                     relationship_constraint="FileFormat",
                                     render_kw={'placeholder': 'Select multiple...'})
 
@@ -730,25 +736,27 @@ class Dataset(Entry):
                                tom_select=True, render_kw={'placeholder': 'please paste the URLs to the documentation here!'})
 
     initial_source = ListRelationship(description="If the dataset is derived from another corpus or dataset, the original source can be linked here",
-                                      relationship_constraint=[
-                                          'Dataset', 'Corpus'],
+                                      relationship_constraint=['Dataset'],
                                       render_kw={'placeholder': 'Select multiple...'})
 
     meta_variables = ListRelationship(description="List of meta data included in the dataset (e.g., date, language, source, medium)",
                                       relationship_constraint="MetaVariable",
                                       render_kw={
                                           'placeholder': 'Select multiple...'},
+                                          allow_new=True,
                                       autoload_choices=True)
 
     concept_variables = ListRelationship(description="List of variables based on concepts (e.g. sentiment, frames, etc)",
                                          relationship_constraint="ConceptVariable",
                                          render_kw={
                                              'placeholder': 'Select multiple...'},
+                                             allow_new=True,
                                          autoload_choices=True
                                          )
 
     text_units = ListRelationship(description="text segmentation in the resource, what level of text units are available",
                                   relationship_constraint="UnitOfAnalysis",
+                                  allow_new=True,
                                   autoload_choices=True)
 
     related_publications = ListRelationship(
@@ -848,12 +856,14 @@ class Tool(Entry):
     used_for = ListRelationship(description="Which operations can the tool perform?",
                                 relationship_constraint="Operation",
                                 autoload_choices=True,
+                                allow_new=True,
                                 required=True,
                                 queryable=True)
 
     concept_variables = ListRelationship(description="Which concepts can the tool measure (e.g. sentiment, frames, etc)",
                                          relationship_constraint="ConceptVariable",
                                          autoload_choices=True,
+                                         allow_new=True,
                                          queryable=True,
                                          query_label='Concept Variables')
 
@@ -878,11 +888,13 @@ class Tool(Entry):
     input_file_format = ListRelationship(description="Which file formats does the tool take as input?",
                                          autoload_choices=True,
                                          relationship_constraint="FileFormat",
+                                         allow_new=True,
                                          queryable=True)
 
     output_file_format = ListRelationship(description="Which file formats does the tool output?",
                                           autoload_choices=True,
                                           relationship_constraint="FileFormat",
+                                          allow_new=True,
                                           queryable=True)
 
     author_validated = SingleChoice(description="Do the authors of the tool report any validation?",
