@@ -603,7 +603,7 @@ class Archive(Entry):
     conditions_of_access = SingleChoice(description="How can the user access the archive?",
                                         choices={'NA': 'NA / Unknown',
                                                  'free': 'Free',
-                                                 'registration': 'Registration',
+                                                 'registration': 'Registration Required',
                                                  'request': 'Upon Request',
                                                  'purchase': 'Purchase'},
                                         queryable=True)
@@ -634,7 +634,7 @@ class Archive(Entry):
                                      'placeholder': 'Select multiple...'},
                                  autoload_choices=True)
 
-    date_modified = DateField()
+    date_modified = String()
 
     meta_variables = ListRelationship(description="List of meta data included in the archive (e.g., date, language, source, medium)",
                                       relationship_constraint="MetaVariable",
@@ -672,7 +672,7 @@ class Dataset(Entry):
     date_published = Year(label='Year of publication',
                           description="Which year was the dataset published?")
 
-    date_modified = DateTime(
+    date_modified = String(
         description="When was the dataset last updated?", new=False)
 
     url = String(label="URL", description="Link to the dataset", required=True)
@@ -690,7 +690,7 @@ class Dataset(Entry):
     conditions_of_access = SingleChoice(description="How can the user access this dataset?",
                                         choices={'NA': 'NA / Unknown',
                                                  'free': 'Free',
-                                                 'registration': 'Registration',
+                                                 'registration': 'Registration Required',
                                                  'request': 'Upon Request',
                                                  'purchase': 'Purchase'},
                                         queryable=True)
@@ -786,7 +786,7 @@ class Tool(Entry):
                           queryable=True,
                           comparison_operators={'ge': 'after', 'le': 'before', 'eq': 'exact'})
 
-    date_modified = DateTime(
+    date_modified = String(
         description="When was the tool last updated?", new=False)
 
     url = String(label="URL", description="Link to the tool", required=True)
@@ -848,7 +848,7 @@ class Tool(Entry):
     conditions_of_access = SingleChoice(description="How can the user access the tool?",
                                         choices={'NA': 'NA / Unknown',
                                                  'free': 'Free',
-                                                 'registration': 'Registration',
+                                                 'registration': 'Registration Required',
                                                  'request': 'Upon Request',
                                                  'purchase': 'Purchase'},
                                         queryable=True)
