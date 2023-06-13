@@ -19,30 +19,32 @@ p = Path.cwd()
 
 """ Twitter Helper functions """
 
-config_path = p / "flaskinventory"/ "config.json"
+config_path = p / "flaskinventory" / "config.json"
 
 with open(config_path) as f:
     api_keys = json.load(f)
 
 twitter_auth = tweepy.OAuthHandler(api_keys["TWITTER_CONSUMER_KEY"],
-                                    api_keys["TWITTER_CONSUMER_SECRET"])
+                                   api_keys["TWITTER_CONSUMER_SECRET"])
 twitter_auth.set_access_token(api_keys["TWITTER_ACCESS_TOKEN"],
-                                api_keys["TWITTER_ACCESS_SECRET"])
+                              api_keys["TWITTER_ACCESS_SECRET"])
 
 twitter_api = tweepy.API(twitter_auth)
 
 
 def fetch_twitter(username: str) -> dict:
     user = twitter_api.get_user(screen_name=username)
-    return {'followers': user.followers_count, 
-            'fullname': user.screen_name, 
-            'joined': user.created_at, 
+    return {'followers': user.followers_count,
+            'fullname': user.screen_name,
+            'joined': user.created_at,
             'verified': user.verified}
 
 
 """ Instagram Helper Functions """
 
-Loader = instaloader.Instaloader(user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+Loader = instaloader.Instaloader(
+    user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+
 
 def fetch_instagram(username: str, L=Loader) -> dict:
     # currently not working
@@ -123,9 +125,11 @@ partyfacts = pd.read_feather(pfacts_feather)
 partyfacts.partyfacts_id = partyfacts.partyfacts_id.astype(int)
 
 partyfacts_strings = partyfacts.select_dtypes(['object'])
-partyfacts[partyfacts_strings.columns] = partyfacts_strings.apply(lambda x: x.str.strip())
+partyfacts[partyfacts_strings.columns] = partyfacts_strings.apply(
+    lambda x: x.str.strip())
 
-partyfacts = partyfacts.drop_duplicates(subset="partyfacts_id").reset_index(drop=True)
+partyfacts = partyfacts.drop_duplicates(
+    subset="partyfacts_id").reset_index(drop=True)
 
 opted_countries = df.dropna(subset="country").country.unique().tolist()
 # partyfacts = partyfacts.loc[partyfacts.country.isin(opted_countries), :]
@@ -264,6 +268,7 @@ parties_duplicated = df_parties[df_parties.wikidata_id.duplicated()].fillna(
 
 canonical_parties = []
 
+
 def remove_none(l: list):
     # helper to remove None and NA values from lists
     try:
@@ -293,7 +298,9 @@ for wikidata_id, party in parties_duplicated.items():
     names = party['name'] + party['original.name'] + party['alternate_names']
     names.remove(new_party['name'])
     new_party['alternate_names'] = list(set(names))
-    new_party['_unique_name'] = 'politicalparty_' + party['country_code'][0] + '_' + slugify(new_party['name'], separator="")
+    new_party['_unique_name'] = 'politicalparty_' + \
+        party['country_code'][0] + '_' + \
+        slugify(new_party['name'], separator="")
     new_party['uid'] = '_:' + new_party['_unique_name']
     new_party['_tmp_unique_name'] = party['unique_name']
     # Step 5: reformat `country` to dicts
@@ -394,7 +401,8 @@ for party in parties:
     remove_none(names)
     if len(names) > 0:
         new_party['alternate_names'] = names
-    new_party['_unique_name'] = 'politicalparty_' + party['country_code'] + '_' + slugify(new_party['name'], separator="")
+    new_party['_unique_name'] = 'politicalparty_' + \
+        party['country_code'] + '_' + slugify(new_party['name'], separator="")
     new_party['uid'] = '_:' + new_party['_unique_name']
     new_party['_tmp_unique_name'] = party['unique_name']
     # Step 5: reformat `country` to dicts
@@ -537,34 +545,34 @@ fileformat_mapping = {c['_unique_name']: c['uid'] for c in j['q']}
 
 # 'source.type' -> drop
 # 'meta_vars' -> 'meta_variables' (manually generate meta variables from unique list)
-# 'organization.name.av'
-# 'annot.av'
+# 'organization.name.av' -> drop
+# 'annot.av' -> drop
 
-# 'codebook.av'
-# 'vars'
-# 'analysis.type'
-# 'contains_full_text'
+# 'codebook.av' -> drop
+# 'vars' -> drop
+# 'analysis.type' -> drop
+# 'contains_full_text' -> fulltext_available
 
-# 'text.ready'
-# 'corpus.type'
-# 'copyright'
-# 'copyright.owner'
-# 'notes'
+# 'text.ready' -> drop
+# 'corpus.type' -> drop
+# 'copyright' -> drop
+# 'copyright.owner' -> drop
+# 'notes' -> drop
 
-# 'entity'
-# 'description'
-# 'regio_supranat'
-# 'regio_subnat_dummy'
+# 'entity' -> dgraph.type
+# 'description' -> description
+# 'regio_supranat' -> drop
+# 'regio_subnat_dummy' -> drop
 
-# 'regio_subnat_labels'
-# 'languages'
-# 'subtype'
-# 'license'
+# 'regio_subnat_labels' -> fix manually later
+# 'languages' -> languages
+# 'subtype' -> drop
+# 'license' -> drop
 
-# 'last_updated'
-# 'interruptions'
-# 'platform'
-# 'doi'
+# 'last_updated' -> date_modified
+# 'interruptions' -> drop
+# 'platform' -> drop
+# 'doi' -> doi (use for openalex lookup)
 
 # 'linked_opted_material'
 # 'user_access'
@@ -580,8 +588,10 @@ fileformat_mapping = {c['_unique_name']: c['uid'] for c in j['q']}
 
 wp4 = pd.read_excel(xlsx, sheet_name="Resources")
 
-wp4['temporal_coverage_start'] = pd.to_datetime(wp4['start.date'], format="%d.%m.%Y")
-wp4['temporal_coverage_end'] = pd.to_datetime(wp4['end.date'], format="%d.%m.%Y")
+wp4['temporal_coverage_start'] = pd.to_datetime(
+    wp4['start.date'], format="%d.%m.%Y")
+wp4['temporal_coverage_end'] = pd.to_datetime(
+    wp4['end.date'], format="%d.%m.%Y")
 
 # clean
 wp4_strings = wp4.select_dtypes(['object'])
@@ -590,24 +600,30 @@ wp4[wp4_strings.columns] = wp4_strings.apply(lambda x: x.str.strip())
 # split list cells
 
 wp4["political_party_list"] = wp4.sources_included.str.split(";")
-wp4.political_party_list = wp4.political_party_list.apply(lambda l: [x.strip() for x in l])
+wp4.political_party_list = wp4.political_party_list.apply(
+    lambda l: [x.strip() for x in l])
+
+""" Text Types """
 
 wp4["text_type"] = wp4.text_type.str.split(",")
 wp4["text_type"] = wp4.text_type.apply(lambda l: [x.strip() for x in l])
 
 text_types_lookup = {'Press Release': {'uid': '_:texttype_pressrelease'},
-                    'Social Media': {'uid': '_:texttype_socialmedia'},
-                    'Manifesto':  {'uid': '_:texttype_manifesto'},
-                    'Party Programme': {'uid': '_:texttype_manifesto'},
-                    'Party Websites': {'uid': '_:texttype_partywebsite'},
-                    'Statutes':  {'uid': '_:texttype_statutes'},
-                    'Speech': {'uid': '_:texttype_speech'},
-                    'Statement':  {'uid': '_:texttype_statement'}
-                    }
+                     'Social Media': {'uid': '_:texttype_socialmedia'},
+                     'Manifesto':  {'uid': '_:texttype_manifesto'},
+                     'Party Programme': {'uid': '_:texttype_manifesto'},
+                     'Party Websites': {'uid': '_:texttype_partywebsite'},
+                     'Statutes':  {'uid': '_:texttype_statutes'},
+                     'Speech': {'uid': '_:texttype_speech'},
+                     'Statement':  {'uid': '_:texttype_statement'}
+                     }
+
+""" Meta Variables """
 
 wp4.loc[wp4.meta_vars.isna(), 'meta_vars'] = ""
 # get list of meta variables
-wp4_metavars = wp4.meta_vars.str.split(',').apply(lambda l: [x.strip() for x in l]).explode().unique()
+wp4_metavars = wp4.meta_vars.str.split(',').apply(
+    lambda l: [x.strip().lower() for x in l]).explode().unique()
 
 metavars_lookup = {'date': {'uid': 'metavariable_date'},
                    'title': {'uid': 'metavariable_headline'},
@@ -624,7 +640,59 @@ metavars_lookup = {'date': {'uid': 'metavariable_date'},
                    'language': {'uid': '_:metavariable_language'},
                    'manifesto_title': {'uid': '_:metavariable_documenttitle'},
                    'manifesto_year': {'uid': '_:metavariable_year'},
+                   'mp name': {'uid': '_:metavariable_politicianname'},
+                   "party": {'uid': '_:metavariable_partyname'},
+                   "party name": {'uid': '_:metavariable_partyname'},
+                   "party name (short or long)": {'uid': '_:metavariable_partyname'},
+                   "party name (short)": {'uid': '_:metavariable_partyname'},
+                   "party_id": {'uid': '_:metavariable_partyname'},
+                   "party_name": {'uid': '_:metavariable_partyname'},
+                   "partycode": {'uid': '_:metavariable_partyname'},
+                   "partyname": {'uid': '_:metavariable_partyname'},
+                   "political party": {'uid': '_:metavariable_partyname'},
+                   "source": {"uid": "_:metavariable_datasource"},
+                   "speaker": {"uid": "_:metavariable_speakername"},
+                   "speaker name": {"uid": "_:metavariable_speakername"},
+                   "speechyear": {'uid': '_:metavariable_year'},
+                   "time": {"uid": "_:metavariable_time"},
+                   "twitter_id": {"uid": "_:metavariable_twitterid"},
+                   "url": {"uid": "_:metavariable_url"},
+                   "url_original": {"uid": "_:metavariable_url"},
+                   "year": {'uid': '_:metavariable_year'}
                    }
+
+""" Concept Variables """
+
+wp4.loc[wp4.concept_vars.isna(), 'concept_vars'] = ""
+# get list of meta variables
+wp4_conceptvars = wp4.concept_vars.str.split(';').apply(
+    lambda l: [x.strip().lower() for x in l]).explode().unique()
+
+conceptvars_lookup = {
+    'party communication': {'uid': '_:conceptvariable_partycommunication'},
+    'issue salience': {'uid': '_:conceptvariable_issuesalience'},
+    'ideological position': {'uid': 'conceptvariable_ideologicalposition'},
+    'political sentiment': {'uid': 'conceptvariable_sentiment'}
+}
+
+""" Languages """
+
+query_string = '''{
+    q(func: type(Language)) { uid _unique_name name alternate_names iso_639_2 icu_code } 
+}'''
+
+res = client.txn(read_only=True).query(query_string)
+j = json.loads(res.json)
+
+language_mapping = {c['icu_code']: c['uid'] for c in j['q']}
+
+
+
+wp4.loc[wp4.languages.isna(), 'languages'] = ""
+
+wp4.languages = wp4.languages.str.split(',').apply(
+    lambda l: [{'uid': language_mapping[x.strip().lower()]} for x in l if x in language_mapping])
+
 
 # fix manifesto separately
 manifesto_wp4 = wp4[wp4.name == "Manifesto Corpus"]
@@ -641,6 +709,5 @@ wp4.loc[filt, "url"] = "https://library.fes.de/pressemitteilungen"
 # get a unique list of datasets by urls
 wp4_datasets_unique = wp4.url.unique().tolist()
 # create a dict of dicts
-# each dict represents one dataset 
+# each dict represents one dataset
 wp4_datasets = {d: {'parties': []} for d in wp4_datasets_unique}
-
