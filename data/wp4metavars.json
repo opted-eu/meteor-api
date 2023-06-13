@@ -1,0 +1,165 @@
+[
+    {
+        "uid": "_:metavariable_author",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_author",
+        "name": "Author"
+    },
+    {
+        "uid": "_:metavariable_country",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_country",
+        "name": "Country"
+    },
+    {
+        "uid": "_:metavariable_electionyear",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_electionyear",
+        "name": "Election Year"
+    },
+    {
+        "uid": "_:metavariable_keywords",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_keywords",
+        "name": "Keywords"
+    },
+    {
+        "uid": "_:metavariable_language",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_language",
+        "name": "Language"
+    },
+    {
+        "uid": "_:metavariable_documenttitle",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_documenttitle",
+        "name": "Document Title"
+    },
+    {
+        "uid": "_:metavariable_year",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_year",
+        "name": "Year"
+    },
+    {
+        "uid": "_:metavariable_politicianname",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_politicianname",
+        "name": "Politician Name",
+        "alternate_names": [
+            "Name of MP",
+            "Member of Parliament Name"
+        ]
+    },
+    {
+        "uid": "_:metavariable_partyname",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_partyname",
+        "name": "Party Name",
+        "alternate_names": [
+            "Name of Party",
+            "Party ID"
+        ]
+    },
+    {
+        "uid": "_:metavariable_datasource",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_datasource",
+        "name": "Data source",
+        "alternate_names": [
+            "Origin of the data"
+        ]
+    },
+    {
+        "uid": "_:metavariable_speakername",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_speakername",
+        "name": "Speaker Name",
+        "alternate_names": [
+            "name of the speaker"
+        ]
+    },
+    {
+        "uid": "_:metavariable_time",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_time",
+        "name": "Time",
+        "alternate_names": [
+            "Hour, minutes, seconds"
+        ]
+    },
+    {
+        "uid": "_:metavariable_twitterid",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_twitterid",
+        "name": "Twitter ID",
+        "description": "Unique ID of a Tweet or a User"
+    },
+    {
+        "uid": "_:metavariable_url",
+        "dgraph.type": [
+            "MetaVariable",
+            "Entry"
+        ],
+        "_unique_name": "metavariable_url",
+        "name": "URL"
+    },
+    {
+        "uid": "_:conceptvariable_partycommunication",
+        "dgraph.type": [
+            "ConceptVariable",
+            "Entry"
+        ],
+        "_unique_name": "conceptvariable_partycommunication",
+        "name": "Party Communication"
+    },
+    {
+        "uid": "_:conceptvariable_issuesalience",
+        "dgraph.type": [
+            "ConceptVariable",
+            "Entry"
+        ],
+        "_unique_name": "conceptvariable_issuesalience",
+        "name": "Issue Salience"
+    }
+
+]
