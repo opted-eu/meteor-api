@@ -10,9 +10,9 @@ from pathlib import Path
 from datetime import date, datetime
 import pydgraph
 from slugify import slugify
-import difflib
 import tweepy
 import instaloader
+import requests
 
 p = Path.cwd()
 
@@ -31,13 +31,22 @@ twitter_auth.set_access_token(api_keys["TWITTER_ACCESS_TOKEN"],
 
 twitter_api = tweepy.API(twitter_auth)
 
+try:
+    with open(p / 'data' / 'twitter_cache.json') as f:
+        TWITTER_CACHE = json.load(f)
+except:
+    TWITTER_CACHE = {}
 
 def fetch_twitter(username: str) -> dict:
+    if username in TWITTER_CACHE:
+        return TWITTER_CACHE[username]
     user = twitter_api.get_user(screen_name=username)
-    return {'followers': user.followers_count,
+    result = {'followers': user.followers_count,
             'fullname': user.screen_name,
             'joined': user.created_at,
             'verified': user.verified}
+    TWITTER_CACHE[username] = result
+    return result
 
 
 """ Instagram Helper Functions """
@@ -104,17 +113,15 @@ parties_manual = pd.read_excel(
     xlsx, sheet_name="Parties Manual Reconciliation")
 
 # drop missing wikidata ids
-parties_manual = parties_manual[~parties_manual.wikidata_id.isna()]
-
+parties_manual = parties_manual[~parties_manual.wikidata_id.isna()].reset_index(drop=True)
 
 # drop manually reconciled from df (xlsx sheet "political_party")
 filt = df.unique_name.isin(parties_manual.unique_name.to_list())
 
-df = df[~filt]
+df = df[~filt].reset_index(drop=True)
 
 # add manually reconciled
 df = pd.concat([df, parties_manual], ignore_index=True).reset_index(drop=True)
-
 
 # Join with Party facts data
 
@@ -123,6 +130,17 @@ pfacts_feather = p / 'data' / 'partyfacts.feather'
 
 partyfacts = pd.read_feather(pfacts_feather)
 partyfacts.partyfacts_id = partyfacts.partyfacts_id.astype(int)
+
+manifesto_parties = partyfacts[partyfacts.dataset_key == 'manifesto']
+manifesto_parties = manifesto_parties[~manifesto_parties.wikidata_id.isna()].reset_index(drop=True)
+manifesto_parties = manifesto_parties.drop_duplicates(subset="wikidata_id").reset_index(drop=True)
+manifesto_parties['cmp_code'] = manifesto_parties.dataset_party_id.astype(int)
+
+polidoc_file = p / 'data' / 'polidoc_parties.csv'
+
+polidoc_parties = pd.read_csv(polidoc_file)
+polidoc_parties = polidoc_parties.rename(columns={'CMP code': 'cmp_code'})
+polidoc_parties = polidoc_parties.merge(manifesto_parties, on="cmp_code")
 
 partyfacts_strings = partyfacts.select_dtypes(['object'])
 partyfacts[partyfacts_strings.columns] = partyfacts_strings.apply(
@@ -140,14 +158,12 @@ party_ids_by_wikidata = {wikidata_id: party_id for wikidata_id, party_id in zip(
 
 df['partyfacts_id'] = df.wikidata_id.map(party_ids_by_wikidata)
 
-
 # find row without wikidata id
 filt = df.wikidata_id.isna()
 
 # Drop all without id
 
 df_parties = df[~filt].reset_index(drop=True)
-
 
 party_template = {
     'dgraph.type': ['Entry', 'PoliticalParty'],
@@ -157,7 +173,6 @@ party_template = {
         'uid': ADMIN_UID,
         '_added_by|timestamp': datetime.now().isoformat()},
 }
-
 
 # This is a template dict that we copy below for each social media handle
 newssource_template = {
@@ -267,7 +282,7 @@ parties_duplicated = df_parties[df_parties.wikidata_id.duplicated()].fillna(
     '').groupby("wikidata_id").agg(lambda x: list(set(x))).to_dict(orient='index')
 
 canonical_parties = []
-
+parties_unique_name_lookup = {}
 
 def remove_none(l: list):
     # helper to remove None and NA values from lists
@@ -303,6 +318,8 @@ for wikidata_id, party in parties_duplicated.items():
         slugify(new_party['name'], separator="")
     new_party['uid'] = '_:' + new_party['_unique_name']
     new_party['_tmp_unique_name'] = party['unique_name']
+    for un in party['unique_name']:
+        parties_unique_name_lookup[un] = new_party['uid']
     # Step 5: reformat `country` to dicts
     new_party['country'] = {'uid': party['country'][0]}
     new_party['country']['_tmp_country_code'] = party['country_code'][0]
@@ -405,6 +422,7 @@ for party in parties:
         party['country_code'] + '_' + slugify(new_party['name'], separator="")
     new_party['uid'] = '_:' + new_party['_unique_name']
     new_party['_tmp_unique_name'] = party['unique_name']
+    parties_unique_name_lookup[party['unique_name']] = new_party['uid']
     # Step 5: reformat `country` to dicts
     new_party['country'] = {'uid': party['country']}
     new_party['country']['country_code'] = party['country_code']
@@ -499,99 +517,40 @@ output_file = p / 'data' / 'parties.json'
 with open(output_file, 'w') as f:
     json.dump(canonical_parties, f, indent=1)
 
+with open(p / 'data' / 'twitter_cache.json', "w") as f:
+    json.dump(TWITTER_CACHE, f, default=str)
+
 
 # txn = client.txn()
 
 # txn.mutate(set_obj=canonical_parties, commit_now=True)
 # txn.discard()
 
-
-# Resolve fileformat uids
-
-query_string = '''{
-    q(func: type(FileFormat)) { uid _unique_name name alternate_names } 
-}'''
-
-res = client.txn(read_only=True).query(query_string)
-j = json.loads(res.json)
-
-fileformat_mapping = {c['_unique_name']: c['uid'] for c in j['q']}
-
 # WP4 column mappings
 
 # 'country' -> 'countries' (get from political parties)
-# 'country.iso' -> drop
-# 'region' -> drop
 # 'political_party' -> 'sources_included'
-# 'eu.member' -> drop
-# 'text_units' -> "text_type"
-# 'text.type' -> drop
+# 'text_units' -> "text_type" (done)
 # 'name' -> 'name'
 # 'url' -> 'url'
-# 'start_date' -> drop
-# 'end_date' -> drop
-
+# 'start_date' -> 'temporal_coverage_start' (facets for countries)
+# 'end_date' -> 'temporal_coverage_end' (facets for countries)
 # 'start.date' -> 'temporal_coverage_start' (facets for countries)
 # 'end.date' -> 'temporal_coverage_end' (facets for countries)
-# 'complete' -> drop
-# 'retrieval.way' -> drop
-# 'file_format' -> file_formats
-
-# 'primary.secondary' -> drop
-# 'storage' -> drop
-# 'archive' -> drop
+# 'file_format' -> file_formats (done)
 # 'authors' -> '_authors_fallback'
-# 'scientific' -> drop
-
-# 'source.type' -> drop
-# 'meta_vars' -> 'meta_variables' (manually generate meta variables from unique list)
-# 'organization.name.av' -> drop
-# 'annot.av' -> drop
-
-# 'codebook.av' -> drop
-# 'vars' -> drop
-# 'analysis.type' -> drop
+# 'meta_vars' -> 'meta_variables' (done)
 # 'contains_full_text' -> fulltext_available
-
-# 'text.ready' -> drop
-# 'corpus.type' -> drop
-# 'copyright' -> drop
-# 'copyright.owner' -> drop
-# 'notes' -> drop
-
 # 'entity' -> dgraph.type
 # 'description' -> description
-# 'regio_supranat' -> drop
-# 'regio_subnat_dummy' -> drop
-
 # 'regio_subnat_labels' -> fix manually later
-# 'languages' -> languages
-# 'subtype' -> drop
-# 'license' -> drop
-
+# 'languages' -> languages (done)
 # 'last_updated' -> date_modified
-# 'interruptions' -> drop
-# 'platform' -> drop
 # 'doi' -> doi (use for openalex lookup)
-
-# 'linked_opted_material'
-# 'user_access'
-# 'concept_vars'
-
-# 'programming_language'
-# 'identifier'
-# 'access'
-# 'isAccessibleForFree'
-
-# 'temporal_coverage_start'
-# 'temporal_coverage_end'
+# 'concept_vars' -> concept_variables 
+# conditions_of_access -> conditions_of_access
 
 wp4 = pd.read_excel(xlsx, sheet_name="Resources")
-
-wp4['temporal_coverage_start'] = pd.to_datetime(
-    wp4['start.date'], format="%d.%m.%Y")
-wp4['temporal_coverage_end'] = pd.to_datetime(
-    wp4['end.date'], format="%d.%m.%Y")
 
 # clean
 wp4_strings = wp4.select_dtypes(['object'])
@@ -605,8 +564,10 @@ wp4.political_party_list = wp4.political_party_list.apply(
 
 """ Text Types """
 
-wp4["text_type"] = wp4.text_type.str.split(",")
-wp4["text_type"] = wp4.text_type.apply(lambda l: [x.strip() for x in l])
+wp4_texttypes_json = p / 'data' / 'wp4texttypes.json'
+
+with open(wp4_texttypes_json) as f:
+    wp4_texttypes = json.load(f)
 
 text_types_lookup = {'Press Release': {'uid': '_:texttype_pressrelease'},
                      'Social Media': {'uid': '_:texttype_socialmedia'},
@@ -618,12 +579,47 @@ text_types_lookup = {'Press Release': {'uid': '_:texttype_pressrelease'},
                      'Statement':  {'uid': '_:texttype_statement'}
                      }
 
+
+wp4["text_type"] = wp4.text_type.str.split(",")
+wp4["text_type"] = wp4.text_type.apply(lambda l: [text_types_lookup[x.strip()] for x in l])
+
+""" Temporal Coverage """
+
+
+wp4['temporal_coverage_start'] = pd.to_datetime(
+    wp4['start.date'], format="%d.%m.%Y")
+wp4['temporal_coverage_end'] = pd.to_datetime(
+    wp4['end.date'], format="%d.%m.%Y")
+
+wp4['temporal_coverage_start'] = wp4.temporal_coverage_start.dt.strftime('%Y-%m-%d')
+wp4['temporal_coverage_end'] = wp4.temporal_coverage_end.dt.strftime('%Y-%m-%d')
+
+wp4.loc[wp4.temporal_coverage_start.isna(), 'temporal_coverage_start'] = wp4[wp4.temporal_coverage_start.isna()].start_date.str.strip()
+wp4.loc[wp4.temporal_coverage_end.isna(), 'temporal_coverage_end'] = wp4[wp4.temporal_coverage_end.isna()].end_date.str.strip()
+
+""" File Formats """
+
+query_string = '''{
+    q(func: type(FileFormat)) { uid _unique_name name alternate_names } 
+}'''
+
+res = client.txn(read_only=True).query(query_string)
+j = json.loads(res.json)
+
+fileformat_mapping = {c['_unique_name']: {'uid': c['uid']} for c in j['q']}
+
+wp4["file_formats"] = wp4.file_formats.str.split(";")
+wp4["file_formats"] = wp4.file_formats.apply(lambda l: [fileformat_mapping[x.strip()] for x in l])
+
+
 """ Meta Variables """
 
 wp4.loc[wp4.meta_vars.isna(), 'meta_vars'] = ""
-# get list of meta variables
-wp4_metavars = wp4.meta_vars.str.split(',').apply(
-    lambda l: [x.strip().lower() for x in l]).explode().unique()
+
+wp4_metavars_json = p / "data" / "wp4metavars.json"
+
+with open(wp4_metavars_json) as f:
+    wp4_metavars = json.load(f)
 
 metavars_lookup = {'date': {'uid': 'metavariable_date'},
                    'title': {'uid': 'metavariable_headline'},
@@ -661,19 +657,8 @@ metavars_lookup = {'date': {'uid': 'metavariable_date'},
                    "year": {'uid': '_:metavariable_year'}
                    }
 
-""" Concept Variables """
-
-wp4.loc[wp4.concept_vars.isna(), 'concept_vars'] = ""
-# get list of meta variables
-wp4_conceptvars = wp4.concept_vars.str.split(';').apply(
-    lambda l: [x.strip().lower() for x in l]).explode().unique()
-
-conceptvars_lookup = {
-    'party communication': {'uid': '_:conceptvariable_partycommunication'},
-    'issue salience': {'uid': '_:conceptvariable_issuesalience'},
-    'ideological position': {'uid': 'conceptvariable_ideologicalposition'},
-    'political sentiment': {'uid': 'conceptvariable_sentiment'}
-}
+wp4["meta_variables"] = wp4.meta_vars.str.split(",")
+wp4["meta_variables"] = wp4.meta_variables.apply(lambda l: [metavars_lookup[x.strip().lower()] for x in l if x.strip().lower() in metavars_lookup])
 
 """ Languages """
 
@@ -692,6 +677,88 @@ wp4.loc[wp4.languages.isna(), 'languages'] = ""
 
 wp4.languages = wp4.languages.str.split(',').apply(
     lambda l: [{'uid': language_mapping[x.strip().lower()]} for x in l if x in language_mapping])
+
+""" Authors: Check OpenAlex """
+
+""" Unfortunately this does not work well at the moment
+    because OpenAlex does not include DOIs registered by
+    datacite.org
+"""
+
+author_cache_file = p / "data" / "author_cache.json"
+
+try:
+    with open(author_cache_file) as f:
+        author_cache = json.load(f)
+except:
+    author_cache = {}
+
+
+def resolve_openalex(doi, cache):
+    if doi in cache:
+        j = cache[doi]
+    else:
+        api = "https://api.openalex.org/works/doi:"
+        r = requests.get(api + doi, params={'mailto': "info@opted.eu"})
+        j = r.json()
+        cache[doi] = j
+    authors = []
+    for i, author in enumerate(j['authorships']):
+        a_name = author['author']['display_name']
+        open_alex = author['author']['id'].replace('https://openalex.org/', "")
+        author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
+                        '_unique_name': 'author_' + slugify(open_alex, separator=""),
+                        'entry_review_status': "pending",
+                        'openalex': open_alex,
+                        'name': a_name,
+                        '_date_created': datetime.now().isoformat(),
+                        'authors|sequence': i,
+                        '_added_by': {
+                            'uid': ADMIN_UID,
+                            '_added_by|timestamp': datetime.now().isoformat()},
+                        'dgraph.type': ['Entry', 'Author']
+                        }
+        if author['author'].get("orcid"):
+            author_entry['orcid'] = author['author']['orcid']
+        authors.append(author_entry)
+    return authors
+
+# get all entries with DOI
+
+wp4.doi = wp4.doi.str.replace('https://doi.org/', '', regex=False)
+
+dois = wp4[~wp4.doi.isna()].doi.unique()
+
+authors = {}
+failed = []
+
+print('Retrieving Authors from OpenAlex ...')
+
+for doi in dois:
+    try:
+        authors[doi] = resolve_openalex(doi, author_cache)
+    except Exception as e:
+        print(doi, e)
+        failed.append(doi)
+
+
+with open(author_cache_file, "w") as f:
+    json.dump(author_cache, f)
+
+
+""" Concept Variables """
+
+wp4.loc[wp4.concept_vars.isna(), 'concept_vars'] = ""
+
+conceptvars_lookup = {
+    'party communication': {'uid': '_:conceptvariable_partycommunication'},
+    'issue salience': {'uid': '_:conceptvariable_issuesalience'},
+    'ideological position': {'uid': 'conceptvariable_ideologicalposition'},
+    'political sentiment': {'uid': 'conceptvariable_sentiment'}
+}
+
+wp4['concept_variables'] = wp4.concept_vars.str.split(';').apply(
+    lambda l: [conceptvars_lookup[x.strip().lower()] for x in l if x.strip().lower() in conceptvars_lookup])
 
 
 # fix manifesto separately
