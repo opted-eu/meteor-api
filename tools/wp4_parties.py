@@ -3,6 +3,7 @@
     to JSON files, ready for DGraph
 """
 
+import itertools
 import json
 import pandas as pd
 import numpy as np
@@ -43,7 +44,7 @@ def fetch_twitter(username: str) -> dict:
     user = twitter_api.get_user(screen_name=username)
     result = {'followers': user.followers_count,
             'fullname': user.screen_name,
-            'joined': user.created_at,
+            'joined': user.created_at.isoformat(),
             'verified': user.verified}
     TWITTER_CACHE[username] = result
     return result
@@ -361,7 +362,7 @@ for wikidata_id, party in parties_duplicated.items():
             if api_data['fullname']:
                 twitter['alternate_names'] = api_data['fullname']
             if api_data['joined']:
-                twitter['date_founded'] = api_data['joined'].isoformat()
+                twitter['date_founded'] = api_data['joined']
         except Exception as e:
             print('could not fetch twitter data', handle, e)
         new_party['publishes'].append(twitter)
@@ -461,7 +462,7 @@ for party in parties:
             if api_data['fullname']:
                 twitter['alternate_names'] = api_data['fullname']
             if api_data['joined']:
-                twitter['date_founded'] = api_data['joined'].isoformat()
+                twitter['date_founded'] = api_data['joined']
         except Exception as e:
             print('could not fetch twitter data', handle, e)
         new_party['publishes'].append(twitter)
@@ -562,6 +563,7 @@ wp4["political_party_list"] = wp4.sources_included.str.split(";")
 wp4.political_party_list = wp4.political_party_list.apply(
     lambda l: [x.strip() for x in l])
 
+
 """ Text Types """
 
 wp4_texttypes_json = p / 'data' / 'wp4texttypes.json'
@@ -609,10 +611,21 @@ j = json.loads(res.json)
 fileformat_mapping = {c['_unique_name']: {'uid': c['uid']} for c in j['q']}
 
 wp4["file_formats"] = wp4.file_formats.str.split(";")
-wp4["file_formats"] = wp4.file_formats.apply(lambda l: [fileformat_mapping[x.strip()] for x in l])
+wp4.loc[~wp4.file_formats.isna(), "file_formats"] = wp4.loc[~wp4.file_formats.isna(), "file_formats"].apply(lambda l: [fileformat_mapping[x.strip()] for x in l])
 
 
 """ Meta Variables """
+
+query_string = """{
+    metavariable_date(func: eq(_unique_name, "metavariable_date")) { uid }
+    metavariable_headline(func: eq(_unique_name, "metavariable_headline")) { uid }
+    metavariable_newssource(func: eq(_unique_name, "metavariable_newssource")) { uid }
+    metavariable_pagenumber(func: eq(_unique_name, "metavariable_pagenumber")) { uid }
+}"""
+
+res = client.txn().query(query_string)
+
+j = json.loads(res.json)
 
 wp4.loc[wp4.meta_vars.isna(), 'meta_vars'] = ""
 
@@ -621,11 +634,11 @@ wp4_metavars_json = p / "data" / "wp4metavars.json"
 with open(wp4_metavars_json) as f:
     wp4_metavars = json.load(f)
 
-metavars_lookup = {'date': {'uid': 'metavariable_date'},
-                   'title': {'uid': 'metavariable_headline'},
-                   'title(s)': {'uid': 'metavariable_headline'},
-                   'newspaper': {'uid': 'metavariable_newssource'},
-                   'page': {'uid': 'metavariable_pagenumber'},
+metavars_lookup = {'date': {'uid': j['metavariable_date'][0]['uid']},
+                   'title': {'uid': j['metavariable_headline'][0]['uid']},
+                   'title(s)': {'uid': j['metavariable_headline'][0]['uid']},
+                   'newspaper': {'uid': j['metavariable_newssource'][0]['uid']},
+                   'page': {'uid': j['metavariable_pagenumber'][0]['uid']},
                    'author': {'uid': '_:metavariable_author'},
                    'country': {'uid': '_:metavariable_country'},
                    'country country name': {'uid': '_:metavariable_country'},
@@ -658,7 +671,7 @@ metavars_lookup = {'date': {'uid': 'metavariable_date'},
                    }
 
 wp4["meta_variables"] = wp4.meta_vars.str.split(",")
-wp4["meta_variables"] = wp4.meta_variables.apply(lambda l: [metavars_lookup[x.strip().lower()] for x in l if x.strip().lower() in metavars_lookup])
+wp4.loc[~wp4.meta_variables.isna(), "meta_variables"] = wp4.loc[~wp4.meta_variables.isna(), "meta_variables"].apply(lambda l: [metavars_lookup[x.strip().lower()] for x in l if x.strip().lower() in metavars_lookup])
 
 """ Languages """
 
@@ -670,8 +683,6 @@ res = client.txn(read_only=True).query(query_string)
 j = json.loads(res.json)
 
 language_mapping = {c['icu_code']: c['uid'] for c in j['q']}
-
-
 
 wp4.loc[wp4.languages.isna(), 'languages'] = ""
 
@@ -693,7 +704,6 @@ try:
 except:
     author_cache = {}
 
-
 def resolve_openalex(doi, cache):
     if doi in cache:
         j = cache[doi]
@@ -706,20 +716,31 @@ def resolve_openalex(doi, cache):
     for i, author in enumerate(j['authorships']):
         a_name = author['author']['display_name']
         open_alex = author['author']['id'].replace('https://openalex.org/', "")
-        author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
-                        '_unique_name': 'author_' + slugify(open_alex, separator=""),
-                        'entry_review_status': "pending",
-                        'openalex': open_alex,
-                        'name': a_name,
-                        '_date_created': datetime.now().isoformat(),
-                        'authors|sequence': i,
-                        '_added_by': {
-                            'uid': ADMIN_UID,
-                            '_added_by|timestamp': datetime.now().isoformat()},
-                        'dgraph.type': ['Entry', 'Author']
-                        }
-        if author['author'].get("orcid"):
-            author_entry['orcid'] = author['author']['orcid']
+        query_string = """query lookupAuthor ($openalex: string) 
+        {
+            q(func: eq(openalex, $openalex)) {
+                    uid
+            }
+        }"""
+        res = client.txn(read_only=True).query(query_string, variables={'$openalex': open_alex})
+        j = json.loads(res.json)
+        if len(j['q']) == 0:
+            author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
+                            '_unique_name': 'author_' + slugify(open_alex, separator=""),
+                            'entry_review_status': "pending",
+                            'openalex': open_alex,
+                            'name': a_name,
+                            '_date_created': datetime.now().isoformat(),
+                            'authors|sequence': i,
+                            '_added_by': {
+                                'uid': ADMIN_UID,
+                                '_added_by|timestamp': datetime.now().isoformat()},
+                            'dgraph.type': ['Entry', 'Author']
+                            }
+            if author['author'].get("orcid"):
+                author_entry['orcid'] = author['author']['orcid']
+        else:
+            author_entry = {'uid': j['q'][0]['uid']}
         authors.append(author_entry)
     return authors
 
@@ -748,13 +769,22 @@ with open(author_cache_file, "w") as f:
 
 """ Concept Variables """
 
+query_string = """{
+sentiment(func: eq(_unique_name, "conceptvariable_sentiment")) { uid }
+position(func: eq(_unique_name, "conceptvariable_ideologicalposition")) { uid }
+}"""
+
+res = client.txn().query(query_string)
+
+j = json.loads(res.json)
+
 wp4.loc[wp4.concept_vars.isna(), 'concept_vars'] = ""
 
 conceptvars_lookup = {
     'party communication': {'uid': '_:conceptvariable_partycommunication'},
     'issue salience': {'uid': '_:conceptvariable_issuesalience'},
-    'ideological position': {'uid': 'conceptvariable_ideologicalposition'},
-    'political sentiment': {'uid': 'conceptvariable_sentiment'}
+    'ideological position': {'uid': j['position'][0]['uid']},
+    'political sentiment': {'uid': j['sentiment'][0]['uid']}
 }
 
 wp4['concept_variables'] = wp4.concept_vars.str.split(';').apply(
@@ -773,8 +803,105 @@ wp4 = wp4[wp4.name != "Political Documents Archive"]
 filt = wp4.url.str.contains("https://library.fes.de/pressemitteilungen")
 wp4.loc[filt, "url"] = "https://library.fes.de/pressemitteilungen"
 
-# get a unique list of datasets by urls
-wp4_datasets_unique = wp4.url.unique().tolist()
-# create a dict of dicts
-# each dict represents one dataset
-wp4_datasets = {d: {'parties': []} for d in wp4_datasets_unique}
+# remove wikidata query
+filt = wp4.url.str.startswith("https://query.wikidata.org")
+wp4 = wp4[~filt]
+
+
+sample_dataset = {
+    'dgraph.type': ['Entry', 'Dataset'], # or Archive -> entity
+    'entry_review_status': 'accepted',
+    '_date_created': datetime.now().isoformat(), 
+    '_added_by': {'uid': ADMIN_UID,
+                  '_added_by|timestamp': datetime.now().isoformat()}, 
+    'name': "AUTNES", # -> name
+    # 'description': "Data set including a ...", # -> description
+    'doi': '10.11587/6L3JKK', # -> doi
+    'url': 'https://data.aussda.at/dataset.xhtml?persistentId=doi:10.11587/6L3JKK', # -> URL
+    #"authors": "", # fetch from OpenAlex API
+    "_authors_fallback": "",
+    # "date_published": "2021-05-28", # fetch from OpenAlex API
+    # "date_modified": "2021", # -> last_updated
+    "conditions_of_access": "registration", # -> access (to_lower!)
+    "fulltext_available": False, # -> contains_full_text (as bool)
+    "geographic_scope": "national", # -> region
+    # "languages": "", # -> languages
+    # "text_types": "", # -> text.type
+    # "file_formats": "", # -> file_format
+    # "meta_variables": "", # -> meta_vars
+    # "concept_variables": "", # -> concept_vars
+    # "sources_included": '', # -> political_party
+    # # "countries": "<Austria>", # infer from political_party
+    # "temporal_coverage_start": "2002", # -> start_date
+    # "temporal_coverage_end": "2002", # -> end_date
+}
+
+
+wp4_datasets = wp4.fillna('').groupby("url").agg(list).to_dict(orient='index')
+
+clean_wp4 = []
+
+for dataset_url, dataset in wp4_datasets.items():
+    for v in dataset.values():
+        remove_none(v)
+    new_dataset = {**sample_dataset}
+    new_dataset['name'] = dataset['name'][0]
+    new_dataset['uid'] = '_:' + slugify(dataset_url, separator="_")
+    try:
+        new_dataset['doi'] = dataset['doi'][0] if dataset['doi'][0].strip() != '' else None
+    except:
+        pass
+    new_dataset['url'] = dataset_url
+    new_dataset['description'] = dataset['description'][0]
+    if new_dataset['doi'] in authors:
+        new_dataset['authors'] = authors[new_dataset['doi']]
+    else:
+        new_dataset['_authors_fallback'] = [a.strip() for a in dataset['_authors_fallback'][0].split(";")]
+        new_dataset['_authors_fallback|sequence'] = {str(i): i for i in range(len(new_dataset['_authors_fallback']))}
+    new_dataset['conditions_of_access'] = dataset['conditions_of_access'][0]
+    new_dataset['fulltext_available'] = bool(dataset['fulltext_available'][0])
+    geographic_scope = []
+    for region in dataset['region']:
+        for r in region.split(','):
+            geographic_scope.append(r.strip())
+    new_dataset['geographic_scope'] = list(set(geographic_scope))
+    new_dataset['languages'] = list(itertools.chain(*dataset['languages']))
+    new_dataset['text_types'] = list(itertools.chain(*dataset['text_type']))
+    new_dataset['file_formats'] = list(itertools.chain(*dataset['file_formats']))
+    new_dataset['meta_variables'] = list(itertools.chain(*dataset['meta_variables']))
+    new_dataset['concept_variables'] = list(itertools.chain(*dataset['concept_variables']))
+    sources_included = []
+    failed_parties = []
+    for party_list in dataset['sources_included']:
+        for p in party_list.split(';'):
+            try:
+                sources_included.append({'uid': parties_unique_name_lookup[p.strip()]})
+            except:
+                failed_parties.append(p.strip())
+    new_dataset['sources_included'] = sources_included
+    try:
+        new_dataset['temporal_coverage_start'] = min(dataset['temporal_coverage_start'])
+    except:
+        pass
+    try:
+        new_dataset['temporal_coverage_end'] = max(dataset['temporal_coverage_end'])
+    except:
+        pass
+    new_dataset_countries = []
+    for i, dataset_country_list in enumerate(dataset['country']):
+        dataset_country_list = [country_uid_mapping[c.strip()] for c in dataset_country_list.split(',')]
+        for dataset_country in dataset_country_list:
+            try:
+                countries.append({'uid': dataset_country, 
+                                'countries|temporal_coverage_start': dataset['temporal_coverage_start'][i],
+                                'countries|temporal_coverage_end': dataset['temporal_coverage_end'][i]})
+            except:
+                pass
+    new_dataset['countries'] = new_dataset_countries
+    clean_wp4.append(new_dataset)
+
+
+mutation_obj = canonical_parties + clean_wp4 + wp4_metavars + wp4_texttypes
+
+txn = client.txn()
+res = txn.mutate(set_obj=mutation_obj, commit_now=True)
