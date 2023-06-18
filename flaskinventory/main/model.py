@@ -611,6 +611,14 @@ class Archive(Entry):
     sources_included = ListRelationship(
         relationship_constraint=['NewsSource', 'Organization', 'PoliticalParty', 'Government', 'Parliament'])
 
+    geographic_scope = MultipleChoice(description="What is the geographic scope of the archive?",
+                                    choices={'multinational': 'Multinational',
+                                             'national': 'National',
+                                             'subnational': 'Subnational'},
+                                    required=True,
+                                    # radio_field=True,
+                                    queryable=True)
+
     fulltext = Boolean(description='Archive contains fulltext')
     countries = ListRelationship(relationship_constraint=[
         'Country', 'Multinational'], autoload_choices=True,
@@ -697,6 +705,14 @@ class Dataset(Entry):
 
     fulltext_available = Boolean(
         description="does the dataset contain fulltext?")
+    
+    geographic_scope = MultipleChoice(description="What is the geographic scope of the dataset?",
+                                    choices={'multinational': 'Multinational',
+                                             'national': 'National',
+                                             'subnational': 'Subnational'},
+                                    required=True,
+                                    # radio_field=True,
+                                    queryable=True)
 
     countries = ListRelationship(description="Does the dataset have a specific geographic coverage?",
                                  relationship_constraint=[
@@ -717,7 +733,7 @@ class Dataset(Entry):
 
     temporal_coverage_end = DateTime(description="End date of the dataset")
 
-    text_type = ListRelationship(description="Text Genres covered by dataset",
+    text_types = ListRelationship(description="Text Genres covered by dataset",
                                  relationship_constraint="TextType",
                                  # required=True,
                                  allow_new=True,
@@ -1026,12 +1042,12 @@ class ScientificPublication(Entry):
                                  autoload_choices=True,
                                  relationship_constraint=["Country", "Multinational"])
 
-    geographic_scope = SingleChoice(description="What is the geographic scope of the news source?",
+    geographic_scope = MultipleChoice(description="What is the geographic scope of the publication?",
                                     choices={'multinational': 'Multinational',
                                              'national': 'National',
                                              'subnational': 'Subnational'},
                                     required=True,
-                                    radio_field=True,
+                                    # radio_field=True,
                                     queryable=True)
 
     languages = ListRelationship(autoload_choices=True, queryable=True,
