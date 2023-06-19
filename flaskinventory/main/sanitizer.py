@@ -554,8 +554,8 @@ class Sanitizer:
                     source['geographic_scope'] = self.entry.get(
                         'geographic_scope')
                     source['country'] = self.entry.get('country')
-                    source['geographic_scope_subunit'] = self.entry.get(
-                        'geographic_scope_subunit')
+                    source['subnational_scope'] = self.entry.get(
+                        'subnational_scope')
                     source['languages'] = self.entry.get('languages')
                     source['party_affiliated'] = self.entry.get(
                         'party_affiliated')

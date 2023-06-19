@@ -212,7 +212,16 @@ def query():
     except:
         current_page = 1
 
-    form = generate_query_forms(dgraph_types=['NewsSource', 'Organization', 'Tool', 'Archive', 'Dataset', 'Corpus'],
+    form = generate_query_forms(dgraph_types=['JournalisticBrand', 
+                                              'PoliticalParty', 
+                                              'Government', 
+                                              'Parliament', 
+                                              'Organization', 
+                                              'Person', 
+                                              'Tool', 
+                                              'Archive', 
+                                              'Dataset', 
+                                              'Collection'],
                                 populate_obj=request.args)
 
     if json_output:

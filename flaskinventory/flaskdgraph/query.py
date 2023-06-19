@@ -183,9 +183,11 @@ def build_query_string(query: dict, public=True) -> str:
     # make sure these default predicates are always queried
     # should be moved outside of this function and made as a setting
     if "country" not in _cleaned_query:
-        query_parts.append('country { uid name_unique_name }')
+        query_parts.append('country { uid name_unique_name name }')
+    if "countries" not in _cleaned_query:
+        query_parts.append('countries { uid name_unique_name name }')
     if "channel" not in _cleaned_query:
-        query_parts.append('channel { uid name_unique_name }')
+        query_parts.append('channel { uid name_unique_name name }')
 
     # handle facets
     query_parts = list(set(query_parts))

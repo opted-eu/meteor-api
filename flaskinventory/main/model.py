@@ -169,7 +169,7 @@ class PoliticalParty(Entry):
                                  render_kw={
                                      'placeholder': 'Select a country...'},
                                  queryable=True,
-                                 predicate_alias="countries")
+                                 predicate_alias=["countries"])
 
     url = String(label='URL', description='Official website of party')
 
@@ -207,7 +207,7 @@ class Organization(Entry):
                                  render_kw={
                                      'placeholder': 'Select a country...'},
                                  queryable=True,
-                                 predicate_alias="countries",
+                                 predicate_alias=["countries"],
                                  overwrite=True)
 
     publishes = ListRelationship(relationship_constraint='NewsSource',
@@ -247,6 +247,17 @@ class JournalisticBrand(Entry):
 
     sources_included = ListRelationship(description="Journalistic News Sources distributed under this brand",
                                         relationship_constraint="NewsSource")
+    
+    countries = SourceCountrySelection(label='Countries',
+                                       description='Which countries are in the geographic scope?',
+                                       required=True,
+                                       queryable=True,
+                                       predicate_alias=["country"])
+
+    subnational_scope = SubunitAutocode(label='Subunits',
+                                               description='What is the subnational scope?',
+                                               tom_select=True,
+                                               queryable=True)
 
 
 class NewsSource(Entry):
@@ -376,9 +387,9 @@ class NewsSource(Entry):
                                        description='Which countries are in the geographic scope?',
                                        required=True,
                                        queryable=True,
-                                       predicate_alias="country")
+                                       predicate_alias=["country"])
 
-    geographic_scope_subunit = SubunitAutocode(label='Subunits',
+    subnational_scope = SubunitAutocode(label='Subunits',
                                                description='What is the subnational scope?',
                                                tom_select=True,
                                                queryable=True)
@@ -473,7 +484,7 @@ class Government(Entry):
     country = SingleRelationship(relationship_constraint=["Country", "Multinational"],
                                  queryable=True,
                                  required=True,
-                                 predicate_alias="countries")
+                                 predicate_alias=["countries"])
 
     languages = ListRelationship(relationship_constraint=["Language"],
                                  queryable=True,
@@ -500,7 +511,7 @@ class Parliament(Entry):
     country = SingleRelationship(relationship_constraint=["Country", "Multinational"],
                                  queryable=True,
                                  required=True,
-                                 predicate_alias="country")
+                                 predicate_alias=["countries"])
 
     languages = ListRelationship(relationship_constraint=["Language"],
                                  queryable=True,
@@ -525,7 +536,7 @@ class Person(Entry):
 
     country = SingleRelationship(relationship_constraint=["Country"],
                                  queryable=True,
-                                 predicate_alias="country")
+                                 predicate_alias=["countries"])
 
     url = String(
         label="URL", description="Website related_news_sources to the person")
@@ -575,7 +586,8 @@ class Subnational(Entry):
                                  tom_select=True,
                                  autoload_choices=True,
                                  overwrite=True,
-                                 relationship_constraint='Country')
+                                 relationship_constraint='Country',
+                                 predicate_alias=["countries"])
 
     iso_3166_1_2 = String(description="ISO 3166-1 Alpha 2 code of the country this subunit belongs to",
                           directives=["@index(exact)"])
@@ -622,9 +634,9 @@ class Archive(Entry):
     fulltext = Boolean(description='Archive contains fulltext')
     countries = ListRelationship(relationship_constraint=[
         'Country', 'Multinational'], autoload_choices=True,
-        predicate_alias="country")
+        predicate_alias=["country"])
 
-    text_type = ListRelationship(description="Text Genres covered by dataset",
+    text_types = ListRelationship(description="Text Genres covered by dataset",
                                  relationship_constraint="TextType",
                                  required=True,
                                  autoload_choices=True)
@@ -720,7 +732,7 @@ class Dataset(Entry):
                                  autoload_choices=True,
                                  render_kw={
                                      'placeholder': 'Select multiple countries...'},
-                                 predicate_alias="country")
+                                 predicate_alias=["country"])
 
     languages = ListRelationship(description="Which languages are covered in the dataset?",
                                  relationship_constraint=['Language'],
