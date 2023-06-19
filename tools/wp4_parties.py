@@ -15,6 +15,8 @@ import tweepy
 import instaloader
 import requests
 
+ENTRY_REVIEW_STATUS = 'accepted'
+
 p = Path.cwd()
 
 
@@ -136,12 +138,15 @@ manifesto_parties = partyfacts[partyfacts.dataset_key == 'manifesto']
 manifesto_parties = manifesto_parties[~manifesto_parties.wikidata_id.isna()].reset_index(drop=True)
 manifesto_parties = manifesto_parties.drop_duplicates(subset="wikidata_id").reset_index(drop=True)
 manifesto_parties['cmp_code'] = manifesto_parties.dataset_party_id.astype(int)
+manifesto_parties_uids = []
 
 polidoc_file = p / 'data' / 'polidoc_parties.csv'
 
 polidoc_parties = pd.read_csv(polidoc_file)
 polidoc_parties = polidoc_parties.rename(columns={'CMP code': 'cmp_code'})
 polidoc_parties = polidoc_parties.merge(manifesto_parties, on="cmp_code")
+
+polidoc_parties_uids = []
 
 partyfacts_strings = partyfacts.select_dtypes(['object'])
 partyfacts[partyfacts_strings.columns] = partyfacts_strings.apply(
@@ -169,7 +174,7 @@ df_parties = df[~filt].reset_index(drop=True)
 party_template = {
     'dgraph.type': ['Entry', 'PoliticalParty'],
     '_date_created': datetime.now().isoformat(),
-    'entry_review_status': "pending",
+    'entry_review_status': ENTRY_REVIEW_STATUS,
     '_added_by': {
         'uid': ADMIN_UID,
         '_added_by|timestamp': datetime.now().isoformat()},
@@ -179,7 +184,7 @@ party_template = {
 newssource_template = {
     'dgraph.type': ['Entry', 'NewsSource'],
     '_date_created': datetime.now().isoformat(),
-    'entry_review_status': "pending",
+    'entry_review_status': ENTRY_REVIEW_STATUS,
     '_added_by': {
         'uid': ADMIN_UID,
         '_added_by|timestamp': datetime.now().isoformat()},
@@ -277,9 +282,13 @@ df_parties = df_parties.rename(columns={'name_english': 'name@en',
 
 # df_parties = df_parties.drop(columns=['country_unique_name'])
 
+# clean original.name
+
+df_parties['original.name'] = df_parties['original.name'].str.replace(r"\([A-Z]+\)", "", regex=True).str.strip()
+
 # deal first with duplicated parties
 
-parties_duplicated = df_parties[df_parties.wikidata_id.duplicated()].fillna(
+parties_duplicated = df_parties[df_parties.wikidata_id.duplicated(keep=False)].fillna(
     '').groupby("wikidata_id").agg(lambda x: list(set(x))).to_dict(orient='index')
 
 canonical_parties = []
@@ -313,11 +322,19 @@ for wikidata_id, party in parties_duplicated.items():
         new_party['name'] = party['original.name'][0]
     names = party['name'] + party['original.name'] + party['alternate_names']
     names.remove(new_party['name'])
+    try:
+        names.remove(party['abbrev_name'][0])
+    except:
+        pass
     new_party['alternate_names'] = list(set(names))
     new_party['_unique_name'] = 'politicalparty_' + \
         party['country_code'][0] + '_' + \
         slugify(new_party['name'], separator="")
     new_party['uid'] = '_:' + new_party['_unique_name']
+    if wikidata_id in manifesto_parties.wikidata_id.tolist():
+        manifesto_parties_uids.append(new_party['uid'])
+    if wikidata_id in polidoc_parties.wikidata_id.tolist():
+        polidoc_parties_uids.append(new_party['uid'])
     new_party['_tmp_unique_name'] = party['unique_name']
     for un in party['unique_name']:
         parties_unique_name_lookup[un] = new_party['uid']
@@ -404,7 +421,7 @@ for wikidata_id, party in parties_duplicated.items():
 
 # convert df_parties to a dict
 
-parties = df_parties[~df_parties.wikidata_id.duplicated()].fillna(
+parties = df_parties[~df_parties.wikidata_id.duplicated(keep=False)].fillna(
     '').to_dict(orient='records')
 
 # Reformatting
@@ -422,6 +439,10 @@ for party in parties:
     new_party['_unique_name'] = 'politicalparty_' + \
         party['country_code'] + '_' + slugify(new_party['name'], separator="")
     new_party['uid'] = '_:' + new_party['_unique_name']
+    if new_party['wikidata_id'] in manifesto_parties.wikidata_id.tolist():
+        manifesto_parties_uids.append(new_party['uid'])
+    if new_party['wikidata_id'] in polidoc_parties.wikidata_id.tolist():
+        polidoc_parties_uids.append(new_party['uid'])
     new_party['_tmp_unique_name'] = party['unique_name']
     parties_unique_name_lookup[party['unique_name']] = new_party['uid']
     # Step 5: reformat `country` to dicts
@@ -502,10 +523,43 @@ for party in parties:
         new_party['publishes'].append(instagram)
     canonical_parties.append(new_party)
 
+# Process Manifesto Parties
+
+manifesto_parties['country_code'] = manifesto_parties.country.replace(country_code_mapping)
+manifesto_parties['country_uid'] = manifesto_parties.country.replace(country_uid_mapping)
+
+filt = manifesto_parties.wikidata_id.isin(df_parties.wikidata_id.tolist())
+
+missing_manifesto_parties = manifesto_parties[~filt].to_dict(orient="records")
+
+# Reformatting
+
+for party in missing_manifesto_parties:
+    new_party = {**party_template}
+    new_party['wikidata_id'] = party['wikidata_id']
+    new_party['name'] = party['name']
+    new_party['alternate_names'] = party.get('name_other')
+    new_party['_unique_name'] = 'politicalparty_' + \
+        party['country_code'] + '_' + slugify(new_party['name'], separator="")
+    new_party['uid'] = '_:' + new_party['_unique_name']
+    new_party['country'] = {'uid': country_uid_mapping[party['country']]}
+    new_party['country']['country_code'] = party['country_code']
+    manifesto_parties_uids.append(new_party['uid'])
+    if new_party['wikidata_id'] in polidoc_parties.wikidata_id.tolist():
+        polidoc_parties_uids.append(new_party['uid'])
+    if party['name_short'] != '':
+        new_party['name_abbrev'] = party['name_short']
+    if party['name_english'] != '':
+        new_party['name@en'] = party['name_english']
+    if party['partyfacts_id'] != '':
+        new_party['partyfacts_id'] = int(party['partyfacts_id'])
+    canonical_parties.append(new_party)
+
+
 # Add related news sources to each other
 
 for party in canonical_parties:
-    if len(party['publishes']) > 1:
+    if 'publishes' in party and len(party['publishes']) > 1:
         new_ids = [{'uid': s['uid']} for s in party['publishes']]
         for newssource in party['publishes']:
             newssource['related_news_sources'] = new_ids
@@ -571,6 +625,13 @@ wp4_texttypes_json = p / 'data' / 'wp4texttypes.json'
 with open(wp4_texttypes_json) as f:
     wp4_texttypes = json.load(f)
 
+
+for entry in wp4_texttypes:
+    entry['_date_created'] = datetime.now().isoformat()
+    entry['entry_review_status'] = ENTRY_REVIEW_STATUS
+    entry['_added_by'] = {'uid': ADMIN_UID,
+                         '_added_by|timestamp': datetime.now().isoformat()}
+
 text_types_lookup = {'Press Release': {'uid': '_:texttype_pressrelease'},
                      'Social Media': {'uid': '_:texttype_socialmedia'},
                      'Manifesto':  {'uid': '_:texttype_manifesto'},
@@ -633,6 +694,14 @@ wp4_metavars_json = p / "data" / "wp4metavars.json"
 
 with open(wp4_metavars_json) as f:
     wp4_metavars = json.load(f)
+
+
+for entry in wp4_metavars:
+    entry['_date_created'] = datetime.now().isoformat()
+    entry['entry_review_status'] = ENTRY_REVIEW_STATUS
+    entry['_added_by'] = {'uid': ADMIN_UID,
+                         '_added_by|timestamp': datetime.now().isoformat()}
+
 
 metavars_lookup = {'date': {'uid': j['metavariable_date'][0]['uid']},
                    'title': {'uid': j['metavariable_headline'][0]['uid']},
@@ -727,7 +796,7 @@ def resolve_openalex(doi, cache):
         if len(j['q']) == 0:
             author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
                             '_unique_name': 'author_' + slugify(open_alex, separator=""),
-                            'entry_review_status': "pending",
+                            'entry_review_status': ENTRY_REVIEW_STATUS,
                             'openalex': open_alex,
                             'name': a_name,
                             '_date_created': datetime.now().isoformat(),
@@ -793,10 +862,13 @@ wp4['concept_variables'] = wp4.concept_vars.str.split(';').apply(
 
 # fix manifesto separately
 manifesto_wp4 = wp4[wp4.name == "Manifesto Corpus"]
+manifesto_wp4 = manifesto_wp4.reset_index(drop=True)
 wp4 = wp4[wp4.name != "Manifesto Corpus"]
 
 # Fix polidoc separately
 polidoc_wp4 = wp4[wp4.name == "Political Documents Archive"]
+polidoc_wp4 = polidoc_wp4.reset_index(drop=True)
+
 wp4 = wp4[wp4.name != "Political Documents Archive"]
 
 # Fix FES Data (collapse to one)
@@ -810,16 +882,16 @@ wp4 = wp4[~filt]
 
 sample_dataset = {
     'dgraph.type': ['Entry', 'Dataset'], # or Archive -> entity
-    'entry_review_status': 'accepted',
+    'entry_review_status': ENTRY_REVIEW_STATUS,
     '_date_created': datetime.now().isoformat(), 
     '_added_by': {'uid': ADMIN_UID,
                   '_added_by|timestamp': datetime.now().isoformat()}, 
     'name': "AUTNES", # -> name
     # 'description': "Data set including a ...", # -> description
-    'doi': '10.11587/6L3JKK', # -> doi
-    'url': 'https://data.aussda.at/dataset.xhtml?persistentId=doi:10.11587/6L3JKK', # -> URL
-    #"authors": "", # fetch from OpenAlex API
-    "_authors_fallback": "",
+    # 'doi': '10.11587/6L3JKK', # -> doi
+    # 'url': 'https://data.aussda.at/dataset.xhtml?persistentId=doi:10.11587/6L3JKK', # -> URL
+    # "authors": "", # fetch from OpenAlex API
+    # "_authors_fallback": "",
     # "date_published": "2021-05-28", # fetch from OpenAlex API
     # "date_modified": "2021", # -> last_updated
     "conditions_of_access": "registration", # -> access (to_lower!)
@@ -847,17 +919,22 @@ for dataset_url, dataset in wp4_datasets.items():
     new_dataset = {**sample_dataset}
     new_dataset['name'] = dataset['name'][0]
     new_dataset['uid'] = '_:' + slugify(dataset_url, separator="_")
+    new_dataset['dgraph.type'] = dataset['entity'] + ['Entry']
+    new_dataset['_unique_name'] = dataset['entity'][0].lower() + '_' + slugify(new_dataset['name'], separator="")
     try:
         new_dataset['doi'] = dataset['doi'][0] if dataset['doi'][0].strip() != '' else None
     except:
         pass
     new_dataset['url'] = dataset_url
     new_dataset['description'] = dataset['description'][0]
-    if new_dataset['doi'] in authors:
+    if 'doi' in new_dataset and new_dataset['doi'] is not None and new_dataset['doi'] in authors:
         new_dataset['authors'] = authors[new_dataset['doi']]
     else:
-        new_dataset['_authors_fallback'] = [a.strip() for a in dataset['_authors_fallback'][0].split(";")]
-        new_dataset['_authors_fallback|sequence'] = {str(i): i for i in range(len(new_dataset['_authors_fallback']))}
+        try:
+            new_dataset['_authors_fallback'] = [a.strip() for a in dataset['_authors_fallback'][0].split(";")]
+            new_dataset['_authors_fallback|sequence'] = {str(i): i for i in range(len(new_dataset['_authors_fallback']))}
+        except:
+            pass
     new_dataset['conditions_of_access'] = dataset['conditions_of_access'][0]
     new_dataset['fulltext_available'] = bool(dataset['fulltext_available'][0])
     geographic_scope = []
@@ -881,10 +958,14 @@ for dataset_url, dataset in wp4_datasets.items():
     new_dataset['sources_included'] = sources_included
     try:
         new_dataset['temporal_coverage_start'] = min(dataset['temporal_coverage_start'])
+        if new_dataset['temporal_coverage_start'] in ['ongoing', '?']:
+             new_dataset['temporal_coverage_start'] = None
     except:
         pass
     try:
         new_dataset['temporal_coverage_end'] = max(dataset['temporal_coverage_end'])
+        if new_dataset['temporal_coverage_end'] in ['ongoing', '?']:
+            new_dataset['temporal_coverage_end'] = None
     except:
         pass
     new_dataset_countries = []
@@ -892,7 +973,7 @@ for dataset_url, dataset in wp4_datasets.items():
         dataset_country_list = [country_uid_mapping[c.strip()] for c in dataset_country_list.split(',')]
         for dataset_country in dataset_country_list:
             try:
-                countries.append({'uid': dataset_country, 
+                new_dataset_countries.append({'uid': dataset_country, 
                                 'countries|temporal_coverage_start': dataset['temporal_coverage_start'][i],
                                 'countries|temporal_coverage_end': dataset['temporal_coverage_end'][i]})
             except:
@@ -900,8 +981,90 @@ for dataset_url, dataset in wp4_datasets.items():
     new_dataset['countries'] = new_dataset_countries
     clean_wp4.append(new_dataset)
 
+""" Manifesto Corpus """
+
+manifesto_corpus = {**sample_dataset}
+
+manifesto_corpus['name'] = "Manifesto Corpus"
+manifesto_corpus['url'] = manifesto_wp4.url[0]
+manifesto_corpus['uid'] = '_:' + slugify(manifesto_corpus['url'], separator="_")
+manifesto_corpus['dgraph.type'] = ['Entry', 'Dataset']
+manifesto_corpus['_unique_name'] = 'dataset_' + slugify(manifesto_corpus['name'], separator="")
+manifesto_corpus['doi'] = "10.25522/manifesto.mpdssa.2020b"
+manifesto_corpus['description'] = manifesto_wp4.description[0]
+manifesto_corpus['_authors_fallback'] = [a.strip() for a in manifesto_wp4['_authors_fallback'][0].split(";")]
+manifesto_corpus['_authors_fallback|sequence'] = {str(i): i for i in range(len(manifesto_corpus['_authors_fallback']))}
+manifesto_corpus['conditions_of_access'] = manifesto_wp4['conditions_of_access'][0]
+manifesto_corpus['fulltext_available'] = bool(manifesto_wp4['fulltext_available'][0])
+manifesto_corpus['geographic_scope'] = ['national', 'multinational']
+manifesto_corpus['languages'] = list(itertools.chain(*manifesto_wp4['languages']))
+manifesto_corpus['text_types'] = list(itertools.chain(*manifesto_wp4['text_type']))
+manifesto_corpus['file_formats'] = list(itertools.chain(*manifesto_wp4['file_formats']))
+manifesto_corpus['meta_variables'] = list(itertools.chain(*manifesto_wp4['meta_variables']))
+manifesto_corpus['concept_variables'] = list(itertools.chain(*manifesto_wp4['concept_variables']))
+manifesto_corpus['sources_included'] = [{'uid': uid} for uid in manifesto_parties_uids]
+manifesto_corpus['temporal_coverage_start'] = min(manifesto_wp4['temporal_coverage_start'])
+manifesto_corpus['temporal_coverage_end'] = max(manifesto_wp4['temporal_coverage_end'])
+manifesto_corpus_countries = []
+for i, manifesto_wp4_country_list in enumerate(manifesto_wp4.country.tolist()):
+    manifesto_wp4_country_list = [country_uid_mapping[c.strip()] for c in manifesto_wp4_country_list.split(',')]
+    for manifesto_wp4_country in manifesto_wp4_country_list:
+        try:
+            manifesto_corpus_countries.append({'uid': manifesto_wp4_country, 
+                            'countries|temporal_coverage_start': manifesto_wp4['temporal_coverage_start'][i],
+                            'countries|temporal_coverage_end': manifesto_wp4['temporal_coverage_end'][i]})
+        except:
+            pass
+manifesto_corpus['countries'] = manifesto_corpus_countries
+
+
+""" Polidoc """
+
+polidoc_dataset = {**sample_dataset}
+
+polidoc_dataset['name'] = "Political Documents Archive"
+polidoc_dataset['url'] = polidoc_wp4.url[0]
+polidoc_dataset['uid'] = '_:' + slugify(polidoc_dataset['url'], separator="_")
+polidoc_dataset['dgraph.type'] = ['Entry', 'Dataset']
+polidoc_dataset['_unique_name'] = 'dataset_' + slugify(polidoc_dataset['name'], separator="")
+polidoc_dataset['doi'] = "10.1080/09644000903055856"
+polidoc_dataset['description'] = polidoc_wp4.description[0]
+polidoc_dataset['authors'] = resolve_openalex("10.1080/09644000903055856", author_cache)
+polidoc_dataset['conditions_of_access'] = polidoc_wp4['conditions_of_access'][0]
+polidoc_dataset['fulltext_available'] = bool(polidoc_wp4['fulltext_available'][0])
+polidoc_dataset['geographic_scope'] = ['subnational', 'national', 'multinational']
+polidoc_dataset['languages'] = list(itertools.chain(*polidoc_wp4['languages']))
+polidoc_dataset['text_types'] = list(itertools.chain(*polidoc_wp4['text_type']))
+polidoc_dataset['file_formats'] = list(itertools.chain(*polidoc_wp4['file_formats']))
+polidoc_dataset['meta_variables'] = list(itertools.chain(*polidoc_wp4['meta_variables']))
+polidoc_dataset['concept_variables'] = list(itertools.chain(*polidoc_wp4['concept_variables']))
+polidoc_dataset['sources_included'] = [{'uid': uid} for uid in polidoc_parties_uids]
+polidoc_dataset['temporal_coverage_start'] = min(polidoc_wp4['temporal_coverage_start'])
+polidoc_dataset['temporal_coverage_end'] = max(polidoc_wp4['temporal_coverage_end'])
+polidoc_dataset_countries = []
+for i, polidoc_wp4_country_list in enumerate(polidoc_wp4.country.tolist()):
+    polidoc_wp4_country_list = [country_uid_mapping[c.strip()] for c in polidoc_wp4_country_list.split(',')]
+    for polidoc_wp4_country in polidoc_wp4_country_list:
+        try:
+            polidoc_dataset_countries.append({'uid': polidoc_wp4_country, 
+                            'countries|temporal_coverage_start': polidoc_wp4['temporal_coverage_start'][i],
+                            'countries|temporal_coverage_end': polidoc_wp4['temporal_coverage_end'][i]})
+        except:
+            pass
+
+polidoc_dataset['countries'] = polidoc_dataset_countries
+
 
 mutation_obj = canonical_parties + clean_wp4 + wp4_metavars + wp4_texttypes
+mutation_obj.append(manifesto_corpus)
+mutation_obj.append(polidoc_dataset)
+
+p = Path.cwd()
+
+wp4_mutation_file = p / 'data' / 'wp4mutation.json'
+
+with open(wp4_mutation_file, "w") as f:
+    json.dump(mutation_obj, f, indent=1)
 
 txn = client.txn()
 res = txn.mutate(set_obj=mutation_obj, commit_now=True)

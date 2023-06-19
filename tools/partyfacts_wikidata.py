@@ -24,6 +24,7 @@ df = pd.read_excel(xlsx, sheet_name="political_party")
 # Join with Party facts data
 
 partyfacts = pd.read_csv("https://partyfacts.herokuapp.com/download/external-parties-csv/")
+partyfacts = partyfacts[~partyfacts.partyfacts_id.isna()]
 partyfacts.partyfacts_id = partyfacts.partyfacts_id.astype(int)
 countries_df = pd.read_csv("https://partyfacts.herokuapp.com/download/countries-csv/")
 countries_mapping = {ctr: country for ctr, country in zip(countries_df.country.to_list(), countries_df.name.to_list())}
