@@ -30,24 +30,43 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
     else:
         query_func += f'@filter(has(dgraph.type))'
 
-    query_fields = '''{ uid dgraph.type expand(_all_) { uid _unique_name name entry_review_status display_name authors @facets { uid _unique_name name } _authors_fallback @facets title channel { name _unique_name } }'''
+    query_fields = '''{ uid dgraph.type 
+                        expand(_all_) { 
+                            uid _unique_name name entry_review_status display_name 
+                            authors @facets { uid _unique_name name } 
+                            _authors_fallback @facets title 
+                            channel { name _unique_name 
+                            } 
+                        }'''
 
     if dgraph_type == 'NewsSource':
         query_fields += '''published_by: ~publishes @facets @filter(type("Organization")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
                             archives: ~sources_included @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
                             datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets }
-                            corpora: ~sources_included @facets @filter(type("Corpus")) (orderasc: _unique_name) { name _unique_name uid entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets  }
                             papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets } 
                         } }'''
 
     elif dgraph_type == 'Organization':
         query_fields += 'owned_by: ~owns @filter(type(Organization)) (orderasc: _unique_name) { uid name _unique_name entry_review_status } } }'
 
-    elif dgraph_type == 'Corpus':
+    elif dgraph_type == 'Dataset':
         query_fields += '''
-                        papers: ~corpus_used @facets @filter(type("ScientificPublication")) (orderasc: name) { uid title date_published name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets } 
+                        papers: ~datasets_used @facets @filter(type("ScientificPublication")) (orderasc: name) { uid title date_published name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets } 
                         } }
                         '''
+
+    elif dgraph_type == 'PoliticalParty':
+        query_fields += '''archives: ~sources_included @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
+                           datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets }
+                           papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets } 
+                        } }'''
+        
+    elif dgraph_type == 'Author':
+        query_fields += '''tools: ~authors @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published programming_languages platform } 
+                           archives: ~authors @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
+                           datasets: ~authors @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets }
+                           publications: ~authors @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets } 
+                        } }'''
 
     elif dgraph_type == 'Operation':
         query_fields += '''
@@ -65,21 +84,19 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
     elif dgraph_type == 'MetaVariable':
         query_fields += '''
                         datasets: ~meta_variables @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
-                        corpus: ~meta_variables @filter(type("Corpus"))  (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
                         } }
                         '''
     
     elif dgraph_type == 'ConceptVariable':
         query_fields += '''
                         datasets: ~concept_variables @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
-                        corpus: ~concept_variables @filter(type("Corpus"))  { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
                         tools: ~concept_variables @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published programming_languages platform }
                         } }
                         '''
 
     elif dgraph_type == 'UnitOfAnalysis':
         query_fields += '''
-                        corpus: ~text_units @filter(type("Corpus")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
+                        dataset: ~text_units @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
                         } }
                         '''
     else:
@@ -123,8 +140,8 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
         data['num_sources'] = num_sources['country'][0]['count']
 
     elif dgraph_type == 'Subnational':
-        num_sources = dgraph.query(NewsSource.geographic_scope_subunit.count(uid, _reverse=True, entry_review_status="accepted"))
-        data['num_sources'] = num_sources['geographic_scope_subunit'][0]['count']
+        num_sources = dgraph.query(NewsSource.subnational_scope.count(uid, _reverse=True, entry_review_status="accepted"))
+        data['num_sources'] = num_sources['subnational_scope'][0]['count']
 
     return data
 
