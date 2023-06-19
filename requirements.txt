@@ -36,3 +36,5 @@ tweepy
 lxml
 telethon
 pandas
+openpyxl
+pyarrow
