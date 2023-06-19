@@ -15,6 +15,12 @@
                 </span>
             {% endif %}
         </dd>
+        {% if entry.get('name@en') %}
+        {% if entry.name != entry.get('name@en') %}
+        <dt class="col-sm-3">English Name</dt>
+        <dd class="col-sm-9">{{ entry.get('name@en') }}</dd>
+        {% endif %}
+        {% endif %}
         {% if entry.title %}
         <dt class="col-sm-3">Full Title</dt>
         <dd class="col-sm-9"><h5>{{ entry.title  }}</h5></dd>
@@ -51,6 +57,16 @@
         {% if entry.alternate_names %}
         <dt class="col-sm-3">Also known as</dt>
         <dd class="col-sm-9">{{ ", ".join(entry.alternate_names) }}
+        </dd>
+        {% endif %} 
+        {% if entry.name_abbrev %}
+        <dt class="col-sm-3">Abbreviated Name</dt>
+        <dd class="col-sm-9">{{ entry.name_abbrev }}
+        </dd>
+        {% endif %} 
+        {% if entry.color_hex %}
+        <dt class="col-sm-3">Color</dt>
+        <dd class="col-sm-9"><span style="background-color: #{{ entry.color_hex }}; width: 15px; height: 15px; display: block; border-style: solid; border-width: thin"></span>
         </dd>
         {% endif %} 
         {% if entry.date_published %}
@@ -110,6 +126,11 @@
         {% if entry.wikidata_id %}
         <dt class="col-sm-3">Wikidata</dt>
         <dd class="col-sm-9"><a href="https://www.wikidata.org/wiki/{{ entry.wikidata_id }}" target="_blank" class="external-link">{{ entry.wikidata_id }}</a>
+        </dd>
+        {% endif %}
+        {% if entry.partyfacts_id %}
+        <dt class="col-sm-3">Partyfacts ID</dt>
+        <dd class="col-sm-9"><a href="https://partyfacts.herokuapp.com/data/partycodes/{{ entry.partyfacts_id }}/" target="_blank" class="external-link">{{ entry.partyfacts_id }}</a>
         </dd>
         {% endif %}
         {% if entry.date_founded %}

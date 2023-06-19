@@ -62,9 +62,7 @@
         {% if entry.languages %}
         <dt class="col-sm-3">Supported Language(s)</dt>
         <dd class="col-sm-9">
-            {% for language in entry.languages %}
-                <span class="badge bg-primary me-2">{{language}}</span>
-            {% endfor %}
+            {{ render_tags(entry.languages) }}
         {% endif %}
         {% if entry.input_file_format %}
         <dt class="col-sm-3">Tool accepts these input file formats</dt>

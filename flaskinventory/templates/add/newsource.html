@@ -327,7 +327,7 @@
             <small id="geographic-scope-multiple-helptext"></small>
             <select name="geographic_scope_multiple" id="geographic-scope-multiple" class="form-select form-select-lg" aria-describedby="geographic-scope-multiple-feedback" placeholder="Select multiple or create new entries..." autocomplete="off" required multiple></select>
             <input id="geographic-scope-countries-hidden" name="country" type="text" class="form-control" readonly hidden>
-            <input id="geographic-scope-subunits-hidden" name="geographic_scope_subunits" type="text" class="form-control" readonly hidden>
+            <input id="geographic-scope-subunits-hidden" name="subnational_scope" type="text" class="form-control" readonly hidden>
             <div id="geographic-scope-multiple-feedback"></div>
         </div>
 
@@ -335,7 +335,7 @@
             <label for="geographic-scope-subunit" class="form-label fw-bold fs-5">What is the subnational scope?
                 {{ make_tooltip('Here, terms that are as all-encompassing as possible are required. For example, enter “Vienna” and not each individual district of the city.') }}
             </label>
-            <select type="text" name="geographic_scope_subunit" class="form-control form-control-lg" id="geographic-scope-subunit" aria-describedby="geographic-scope-subunit-feedback" placeholder="Enter name(s) and separate by comma..." multiple></select>
+            <select type="text" name="subnational_scope_" class="form-control form-control-lg" id="geographic-scope-subunit" aria-describedby="geographic-scope-subunit-feedback" placeholder="Enter name(s) and separate by comma..." multiple></select>
             <div id="geographic-scope-subunit-feedback"></div>
         </div>
 
@@ -806,7 +806,7 @@
                     Value
                 </h4>
             </div>
-            <div id='summary-geographic_scope_subunit' hidden>
+            <div id='summary-subnational_scope' hidden>
                 <h6 class="text-muted mb-1">
                     What is the subnational scope?
                 </h6>

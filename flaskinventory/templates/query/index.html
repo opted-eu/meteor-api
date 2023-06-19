@@ -28,10 +28,10 @@
         {% endif %}
           <td class="text-truncate" >{{ entry.get("dgraph.type")[0] }}</td>
           <td class="text-truncate" >
-            {% if entry.get("country") %} 
+            {% if entry.get("countries") %} 
                 <span 
-                title="{% for country in entry.country %}{{ country.name }}{{ ", " if not loop.last else "" }}{% endfor %}">
-                {% for country in entry.country %}
+                title="{% for country in entry.countries %}{{ country.name }}{{ ", " if not loop.last else "" }}{% endfor %}">
+                {% for country in entry.countries %}
                     {{ country.name }}{{ "," if not loop.last else "" }}
                 {% endfor %}
                 </span>

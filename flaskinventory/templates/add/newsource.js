@@ -541,8 +541,8 @@ function populateForm(jsonData) {
                         hiddenGeographicScopeCountry.value += country["uid"] + ","
                     }
                 }
-                if ("geographic_scope_subunit" in jsonData) {
-                    for (subunit of jsonData["geographic_scope_subunit"]) {
+                if ("subnational_scope" in jsonData) {
+                    for (subunit of jsonData["subnational_scope"]) {
                         if (document.querySelector(`#geographic-scope-multiple option[value='${subunit._unique_name}']`)) {
                             document.querySelector(`#geographic-scope-multiple option[value='${subunit._unique_name}']`).selected = true
                             document.getElementById("geographic-scope-subunits-hidden").value += country["uid"] + ","
@@ -559,8 +559,8 @@ function populateForm(jsonData) {
                 }
 
             } else if (jsonData["geographic_scope"] == "subnational") {
-                if ("geographic_scope_subunit" in jsonData) {
-                    for (subunit of jsonData["geographic_scope_subunit"]) {
+                if ("subnational_scope" in jsonData) {
+                    for (subunit of jsonData["subnational_scope"]) {
                         if (document.querySelector(`#geographic-scope-subunit option[value='${subunit.uid}']`)) {
                             document.querySelector(`#geographic-scope-subunit option[value='${subunit.uid}']`).selected = true
                         }

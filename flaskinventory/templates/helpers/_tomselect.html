@@ -273,7 +273,7 @@ if (embeddedJSON) {
     };
     new TomSelect("#{{ field.id }}", TomSelectRelatedSourcesConfig);
 
-    {% elif field.name == 'geographic_scope_subunit' %}
+    {% elif field.name == 'subnational_scope' %}
     
     var TomSelectSubnationalConfig = {
         plugins: ['remove_button'],
@@ -292,7 +292,7 @@ if (embeddedJSON) {
         }
     };
     
-    new TomSelect('#geographic_scope_subunit', TomSelectSubnationalConfig);
+    new TomSelect('#subnational_scope', TomSelectSubnationalConfig);
 
     {% elif field.name == 'authors' %}
     

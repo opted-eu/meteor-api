@@ -96,13 +96,26 @@
     {% endif %}
 {% endmacro %}
 
-{% macro render_tags(tags) %}
+{% macro render_tags(tags, facets=None) %}
 <ul class="list-inline">
 {% for tag in tags %}
     <li class="list-inline-item"><a href="{{ url_for('view.view_uid', uid=tag.uid) }}">{{tag.name}}</a>
         {% if tag.entry_review_status == 'pending' %}
         <small data-bs-toggle="tooltip" data-bs-placement="top" title="This entry has to be checked by a reviewer first." class="text-muted">(pending)</small>
-        {% endif %}</li>
+        {% endif %}
+        {% if tag.get('countries|temporal_coverage_start') %}
+        <small class="text-muted">from: {% if tag.get('countries|temporal_coverage_start') is string %} 
+            {{ tag.get('countries|temporal_coverage_start') }}
+            {% else %}
+            {{ tag.get('countries|temporal_coverage_start').strftime('%Y') }}
+            {% endif %}</small>
+        <small class="text-muted">to: {% if tag.get('countries|temporal_coverage_end') is string %} 
+            {{ tag.get('countries|temporal_coverage_end') }}
+            {% else %}
+            {{ tag.get('countries|temporal_coverage_end').strftime('%Y') }}
+            {% endif %}</small>
+        {% endif %}
+    </li>
 {% endfor %}
 </ul>
 {% endmacro %}

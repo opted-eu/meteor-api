@@ -4,24 +4,34 @@
         <dt class="col-sm-3 mb-4"><h5>About</h5></dt>
         <dd class="col-sm-9 mb-4"><small class="text-muted"></small></dd>
         {% if entry.conditions_of_access %}
-        <dt class="col-sm-3">Access</dt>
+        <dt class="col-sm-3">Conditions of Access</dt>
         <dd class="col-sm-9">
             {{entry.conditions_of_access}}
+        {% endif %}
+        {% if entry.get('fulltext_available') %}
+        <dt class="col-sm-3">Fulltexts available</dt>
+        <dd class="col-sm-9">
+            {% if entry.fulltext_available %}
+            Yes, fulltexts are available
+            {% else %}
+            No, fulltexts are not available
+            {% endif %}
+        {% endif %}
+        {% if entry.text_types %}
+        <dt class="col-sm-3">Text types</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.text_types) }}
+        </dd>
         {% endif %}
         {% if entry.languages %}
         <dt class="col-sm-3">Language(s) in dataset</dt>
         <dd class="col-sm-9">
-            {% for language in entry.languages %}
-                <span class="badge bg-primary me-2">{{language}}</span>
-            {% endfor %}
+            {{ render_tags(entry.languages) }}
         {% endif %}
-        {% if entry.country %}
+        {% if entry.countries %}
         <dt class="col-sm-3">Countries covered in dataset</dt>
         <dd class="col-sm-9">
-            {% for country in entry.country %}
-            <span><a href="{{ url_for('view.view_uid', uid=country.uid) }}">{{ country.name }}</a></span>
-            {{ ", " if not loop.last else "" }}
-            {% endfor %}
+            {{ render_tags(entry.countries) }}
         </dd>
         {% endif %}
         {% if entry.temporal_coverage_start %}
@@ -60,6 +70,5 @@
             {{ render_tags(entry.concept_variables ) }}
         </dd>
         {% endif %}
-        </dd>
     </dl>
 </div>

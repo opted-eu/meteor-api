@@ -11,7 +11,7 @@
     </div>
     <div class="w-100">
         <h2 class="{{ 'text-muted' if entry.defunct else '' }}">
-        {{ entry.name }} 
+        {{ entry.name }}
         {% if entry.verified_account %} 
         <span class="fa-stack text-primary align-middle" style="font-size: 0.3em;">
             <i class="fas fa-certificate fa-stack-2x" aria-hidden="true"></i>
@@ -63,7 +63,6 @@
 {% if 'PoliticalParty' in entry['dgraph.type'] %}
 
     {% include "view/elements/organization/location.html" %}
-    {% include "view/elements/organization/ownership.html" %}
 
 {% endif %}
 

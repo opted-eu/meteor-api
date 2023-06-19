@@ -80,10 +80,10 @@
             {{ ", " if not loop.last else "" }}
             {% endfor %}
         </dd>
-        {% if entry.geographic_scope_subunit %}
+        {% if entry.subnational_scope %}
         <dt class="col-sm-3">Subnational <a data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Note that entities listed in 'Subnational' are not necessarily part of all the entities listed in 'Countries'."><i class="fas mx-1 fa-question-circle"></i></a></dt>
         <dd class="col-sm-9">
-            {% for subunit in entry.geographic_scope_subunit %}
+            {% for subunit in entry.subnational_scope %}
             <span><a href="{{ url_for('view.view_generic', dgraph_type='Subnational', uid=subunit.uid)}}">{{ subunit.name }}</a></span>
             {{ ", " if not loop.last else "" }}
             {% endfor %}
@@ -94,9 +94,7 @@
         {% if entry.languages %}
         <dt class="col-sm-3">Languages</dt>
         <dd class="col-sm-9">
-            {% for language in entry.languages %}
-             <span class="badge bg-primary me-2">{{ language }}</span>
-             {% endfor %}
+             {{ render_tags(entry.languages) }}
             </dd>
         {% endif %}
         {% if entry.party_affiliated %}

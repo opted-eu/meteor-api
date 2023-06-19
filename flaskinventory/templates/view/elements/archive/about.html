@@ -4,17 +4,62 @@
         <dt class="col-sm-3 mb-4"><h5>About</h5></dt>
         <dd class="col-sm-9 mb-4"><small class="text-muted"></small></dd>
         {% if entry.conditions_of_access %}
-        <dt class="col-sm-3">Access</dt>
+        <dt class="col-sm-3">Conditions of Access</dt>
         <dd class="col-sm-9">
             {{entry.conditions_of_access}}
         {% endif %}
-        {% if entry.country %}
+        {% if entry.get('fulltext_available') %}
+        <dt class="col-sm-3">Fulltexts available</dt>
+        <dd class="col-sm-9">
+            {% if entry.fulltext_available %}
+            Yes, fulltexts are available
+            {% else %}
+            No, fulltexts are not available
+            {% endif %}
+        {% endif %}
+        {% if entry.text_types %}
+        <dt class="col-sm-3">Text types</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.text_types) }}
+        </dd>
+        {% endif %}
+        {% if entry.languages %}
+        <dt class="col-sm-3">Language(s) in dataset</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.languages) }}
+        {% endif %}
+        {% if entry.countries %}
         <dt class="col-sm-3">Countries covered in dataset</dt>
         <dd class="col-sm-9">
-            {% for country in entry.country %}
-            <span><a href="{{ url_for('view.view_uid', uid=country.uid) }}">{{ country.name }}</a></span>
-            {{ ", " if not loop.last else "" }}
-            {% endfor %}
+            {{ render_tags(entry.countries) }}
+        </dd>
+        {% endif %}
+        {% if entry.temporal_coverage_start %}
+        <dt class="col-sm-3">Start Date of coverage</dt>
+        <dd class="col-sm-9">
+            {{entry.temporal_coverage_start.strftime('%Y-%m-%d') }}
+        {% endif %}
+        {% if entry.temporal_coverage_end %}
+        <dt class="col-sm-3">End Date of coverage</dt>
+        <dd class="col-sm-9">
+            {{entry.temporal_coverage_end.strftime('%Y-%m-%d')}}
+        {% endif %}
+        {% if entry.file_formats %}
+        <dt class="col-sm-3">Dataset File Format</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.file_formats) }}
+        </dd>
+        {% endif %}
+        {% if entry.meta_variables %}
+        <dt class="col-sm-3">Included Meta Variables</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.meta_variables ) }}
+        </dd>
+        {% endif %}
+        {% if entry.concept_variables %}
+        <dt class="col-sm-3">Included Conceptual Variables</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.concept_variables ) }}
         </dd>
         {% endif %}
         <dt class="col-sm-3 my-4"><h5>Sources included</h5></dt>
@@ -22,6 +67,8 @@
         <dt class="col-sm-3">Total</dt>
         <dd class="col-sm-9"><a href="{{ url_for('view.query') }}?dgraph.type=NewsSource&~sources_included={{ entry.uid }}">{{ entry.num_sources }}</a>
         </dd>
+        <dt class="col-sm-3">Sources</dt>
+        <dd class="col-sm-9">{{ render_tags(entry.sources_included) }}</dd>
         {% if entry.text_units %}
         <dt class="col-sm-3">Text Units</dt>
         <dd class="col-sm-9">

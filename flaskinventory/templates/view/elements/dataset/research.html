@@ -1,4 +1,6 @@
- {% if entry.documentation %}
+{% from "helpers/_viewhelpers.html" import render_publication, render_tags %}
+
+{% if entry.documentation %}
 <div class="border rounded p-3">
     <dl class="row">
         <dt class="col-sm-3 mb-4"><h5>Documentation</h5></dt>
@@ -17,15 +19,15 @@
         <dt class="col-sm-3 my-4"><h5>Sources included</h5></dt>
         <dd class="col-sm-9 my-4"><small class="text-muted">Shows how many of the sources listed in this inventory are included in the dataset.</small></dd>
         <dt class="col-sm-3">Total</dt>
-        <dd class="col-sm-9"><a href="{{ url_for('view.query') }}?dgraph.type=NewsSource&~sources_included={{ entry.uid }}">{{ entry.num_sources }}</a>
-        </dd>
+        <dd class="col-sm-9"><a href="{{ url_for('view.query') }}?~sources_included={{ entry.uid }}">{{ entry.num_sources }}</a>
+        <dt class="col-sm-3">Sources</dt>
+        <dd class="col-sm-9">{{ render_tags(entry.sources_included) }}</dd>
     </dl>
 </div>
-{% from "helpers/_viewhelpers.html" import render_publication %}
 <div class="border rounded p-3">
     <dl class="row">
         <dt class="col-sm-3 mb-4"><h5>Research</h5></dt>
-        <dd class="col-sm-9 mb-4"><small class="text-muted">Following publications are related_news_sources to this corpus.</small></dd>
+        <dd class="col-sm-9 mb-4"><small class="text-muted">Following publications are related_news_sources to this dataset.</small></dd>
         <dt class="col-sm-3"></dt>
         <dd class="col-sm-9 mb-4">
         {% if entry.papers %} 
