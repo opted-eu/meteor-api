@@ -22,6 +22,7 @@ tmp = tmp.replace("MetaVar", "MetaVariable")
 tmp = tmp.replace("ConceptVar", "ConceptVariable")
 tmp = tmp.replace("Subunit", "Subnational")
 
+
 # mapping dict 'old': 'new'
 wp3_mapping = {'creation_date': '_date_created',
                'entry_added': '_added_by',
@@ -60,7 +61,8 @@ wp3_mapping = {'creation_date': '_date_created',
                'user_role': 'role',
                'user_affiliation': 'affiliation',
                'account_status': '_account_status',
-               'country_code': 'iso_3166_1_2'}
+               'country_code': 'iso_3166_1_2',
+               'geographic_scope_subunit': 'subnational_scope'}
 
 for old, new in wp3_mapping.items():
     pat = re.compile(r"\b" + old + r"\b")

@@ -1,4 +1,5 @@
 # Script for Migrating WP3 Schema to new Schema
+# Requires DGraph v23.0.0
 
 import sys
 from os.path import dirname
@@ -15,6 +16,8 @@ from pathlib import Path
 
 client_stub = pydgraph.DgraphClientStub('localhost:9080')
 client = pydgraph.DgraphClient(client_stub)
+
+ENTRY_REVIEW_STATUS = "accepted"
 
 p = Path.cwd()
 
@@ -204,7 +207,15 @@ query_sources = """
 query get_sources($maximum: int, $offset: int)
 {
 	sources(func: type("NewsSource"), first: $maximum, offset: $offset) @filter(eq(entry_review_status, "accepted") or eq(entry_review_status, "pending")) {
-        uid name unique_name wikidata_id channel { uid unique_name } related_news_sources { uid unique_name channel { unique_name } }
+        uid name unique_name wikidata_id 
+        countries { uid }
+        subnational_scope { uid }
+        channel { uid unique_name } 
+        related_news_sources { 
+            uid unique_name channel { unique_name } 
+            countries { uid }
+            subnational_scope { uid }
+            }
     }
 } """
 
@@ -235,7 +246,7 @@ brand_template = {'dgraph.type': ["Entry", "JournalisticBrand"],
                    '_unique_name': "",
                   'name': "",
                   '_date_created': datetime.now().isoformat(),
-                  'entry_review_status': "pending",
+                  'entry_review_status': ENTRY_REVIEW_STATUS,
                   '_added_by': {
                       'uid': ADMIN_UID,
                       '_added_by|timestamp': datetime.now().isoformat() },
@@ -248,12 +259,25 @@ for source in sources:
         brand = {**brand_template}
         brand['_unique_name'] = "journalisticbrand_" + slugify(source['name'], separator="") + "_" + datetime.now().strftime("%Y%m%d")
         brand['name'] = source['name']
+        brand['countries'] = source['countries']
+        try:
+            brand['subnational_scope'] = source['subnational_scope']
+        except:
+            pass
         brand['sources_included'] = [{'uid': source['uid']}]
         if "wikidata_id" in source:
             brand['wikidata_id'] = "Q" + str(source['wikidata_id'])
         if "related_news_sources" in source:
             for related_news_sources in source['related_news_sources']:
                 brand['sources_included'].append({'uid': related_news_sources['uid']})
+                try:
+                    brand['countries'] += related_news_sources['countries']
+                except:
+                    pass
+                try:
+                    brand['subnational_scope'] += related_news_sources['subnational_scope']
+                except:
+                    pass
                 processed_memory.append(related_news_sources['uid'])
         journalistic_brands.append(brand)
         
@@ -268,12 +292,25 @@ for source in sources:
         brand = {**brand_template}
         brand['_unique_name'] = "journalisticbrand_" + slugify(source['name'], separator="") + "_" + datetime.now().strftime("%Y%m%d")
         brand['name'] = source['name']
+        brand['countries'] = source['countries']
+        try:
+            brand['subnational_scope'] = source['subnational_scope']
+        except:
+            pass
         brand['sources_included'] = [{'uid': source['uid']}]
         if "wikidata_id" in source:
             brand['wikidata_id'] = "Q" + str(source['wikidata_id'])
         if "related_news_sources" in source:
             for related_news_sources in source['related_news_sources']:
                 brand['sources_included'].append({'uid': related_news_sources['uid']})
+                try:
+                    brand['countries'] += related_news_sources['countries']
+                except:
+                    pass
+                try:
+                    brand['subnational_scope'] += related_news_sources['subnational_scope']
+                except:
+                    pass
                 processed_memory.append(related_news_sources['uid'])
         journalistic_brands.append(brand)
         
@@ -287,6 +324,11 @@ for source in sources:
         brand = {**brand_template}
         brand['_unique_name'] = "journalisticbrand_" + slugify(source['name'], separator="") + "_" + datetime.now().strftime("%Y%m%d")
         brand['name'] = source['name']
+        brand['countries'] = source['countries']
+        try:
+            brand['subnational_scope'] = source['subnational_scope']
+        except:
+            pass
         brand['sources_included'] = [{'uid': source['uid']}]
         if "wikidata_id" in source:
             brand['wikidata_id'] = "Q" + str(source['wikidata_id'])
@@ -294,6 +336,14 @@ for source in sources:
             for related_news_sources in source['related_news_sources']:
                 brand['sources_included'].append({'uid': related_news_sources['uid']})
                 processed_memory.append(related_news_sources['uid'])
+                try:
+                    brand['countries'] += related_news_sources['countries']
+                except:
+                    pass
+                try:
+                    brand['subnational_scope'] += related_news_sources['subnational_scope']
+                except:
+                    pass
         journalistic_brands.append(brand)
         
 
@@ -306,6 +356,11 @@ for source in sources:
         brand = {**brand_template}
         brand['_unique_name'] = "journalisticbrand_" + slugify(source['name'], separator="") + "_" + datetime.now().strftime("%Y%m%d")
         brand['name'] = source['name']
+        brand['countries'] = source['countries']
+        try:
+            brand['subnational_scope'] = source['subnational_scope']
+        except:
+            pass
         brand['sources_included'] = [{'uid': source['uid']}]
         if "wikidata_id" in source:
             brand['wikidata_id'] = "Q" + str(source['wikidata_id'])
@@ -313,6 +368,14 @@ for source in sources:
             for related_news_sources in source['related_news_sources']:
                 brand['sources_included'].append({'uid': related_news_sources['uid']})
                 processed_memory.append(related_news_sources['uid'])
+                try:
+                    brand['countries'] += related_news_sources['countries']
+                except:
+                    pass
+                try:
+                    brand['subnational_scope'] += related_news_sources['subnational_scope']
+                except:
+                    pass
         journalistic_brands.append(brand)
         
 
@@ -327,6 +390,11 @@ for source in sources:
         brand = {**brand_template}
         brand['_unique_name'] = "journalisticbrand_" + slugify(source['name'], separator="") + "_" + datetime.now().strftime("%Y%m%d")
         brand['name'] = source['name']
+        brand['countries'] = source['countries']
+        try:
+            brand['subnational_scope'] = source['subnational_scope']
+        except:
+            pass
         brand['sources_included'] = [{'uid': source['uid']}]
         if "wikidata_id" in source:
             brand['wikidata_id'] = "Q" + str(source['wikidata_id'])
@@ -334,6 +402,14 @@ for source in sources:
             for related_news_sources in source['related_news_sources']:
                 brand['sources_included'].append({'uid': related_news_sources['uid']})
                 processed_memory.append(related_news_sources['uid'])
+                try:
+                    brand['countries'] += related_news_sources['countries']
+                except:
+                    pass
+                try:
+                    brand['subnational_scope'] += related_news_sources['subnational_scope']
+                except:
+                    pass
         journalistic_brands.append(brand)
         
 
@@ -346,6 +422,11 @@ for source in sources:
         brand = {**brand_template}
         brand['_unique_name'] = "journalisticbrand_" + slugify(source['name'], separator="") + "_" + datetime.now().strftime("%Y%m%d")
         brand['name'] = source['name']
+        brand['countries'] = source['countries']
+        try:
+            brand['subnational_scope'] = source['subnational_scope']
+        except:
+            pass
         brand['sources_included'] = [{'uid': source['uid']}]
         if "wikidata_id" in source:
             brand['wikidata_id'] = "Q" + str(source['wikidata_id'])
@@ -353,6 +434,14 @@ for source in sources:
             for related_news_sources in source['related_news_sources']:
                 brand['sources_included'].append({'uid': related_news_sources['uid']})
                 processed_memory.append(related_news_sources['uid'])
+                try:
+                    brand['countries'] += related_news_sources['countries']
+                except:
+                    pass
+                try:
+                    brand['subnational_scope'] += related_news_sources['subnational_scope']
+                except:
+                    pass
         journalistic_brands.append(brand)
         
 
@@ -365,6 +454,11 @@ for source in sources:
         brand = {**brand_template}
         brand['_unique_name'] = "journalisticbrand_" + slugify(source['name'], separator="") + "_" + datetime.now().strftime("%Y%m%d")
         brand['name'] = source['name']
+        brand['countries'] = source['countries']
+        try:
+            brand['subnational_scope'] = source['subnational_scope']
+        except:
+            pass
         brand['sources_included'] = [{'uid': source['uid']}]
         if "wikidata_id" in source:
             brand['wikidata_id'] = "Q" + str(source['wikidata_id'])
@@ -372,6 +466,14 @@ for source in sources:
             for related_news_sources in source['related_news_sources']:
                 brand['sources_included'].append({'uid': related_news_sources['uid']})
                 processed_memory.append(related_news_sources['uid'])
+                try:
+                    brand['countries'] += related_news_sources['countries']
+                except:
+                    pass
+                try:
+                    brand['subnational_scope'] += related_news_sources['subnational_scope']
+                except:
+                    pass
         journalistic_brands.append(brand)
 
 # Apply
@@ -513,7 +615,7 @@ def resolve_openalex(entry, cache):
         open_alex = author['author']['id'].replace('https://openalex.org/', "")
         author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
                         '_unique_name': 'author_' + slugify(open_alex, separator=""),
-                        'entry_review_status': "pending",
+                        'entry_review_status': ENTRY_REVIEW_STATUS,
                         'openalex': open_alex,
                         'name': a_name,
                         '_date_created': datetime.now().isoformat(),

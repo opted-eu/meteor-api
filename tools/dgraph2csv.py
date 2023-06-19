@@ -24,7 +24,7 @@ for entry in raw:
     entry['languages'] = ", ".join(entry.get('languages', []))
     entry['publication_kind'] = ", ".join(entry.get('publication_kind', []))
     entry['country'] = ", ".join([country['name'] for country in entry.get('country', [])])
-    entry['subunit'] = ", ".join([subunit['name'] for subunit in entry.get('geographic_scope_subunit', [])])
+    entry['subunit'] = ", ".join([subunit['name'] for subunit in entry.get('subnational_scope', [])])
     entry['_added_by_email'] = entry['_added_by']['email']
     entry['_added_by_username'] = entry['_added_by']['display_name']
     try:
