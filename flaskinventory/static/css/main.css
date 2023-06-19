@@ -208,8 +208,9 @@ dt {
 .header-branding-serif {
     font-family: serif;
     font-weight: 900;
-    letter-spacing: .02rem;
+    letter-spacing: .05rem;
     line-height: 0.5em;
+    text-transform: uppercase;
 }
 
 .header-branding-small {
