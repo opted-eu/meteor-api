@@ -63,6 +63,8 @@
 {% if 'PoliticalParty' in entry['dgraph.type'] %}
 
     {% include "view/elements/organization/location.html" %}
+    {% include "view/elements/politicalparty/research.html" %} 
+
 
 {% endif %}
 
@@ -93,6 +95,14 @@
     {% include "view/elements/subunit/summary.html" %}
 
 {% endif %}
+
+
+{% if 'Author' in entry['dgraph.type'] %}
+
+    {% include "view/elements/author/about.html" %}
+
+{% endif %}
+
 
 
 {% if 'ScientificPublication' in entry['dgraph.type'] %}

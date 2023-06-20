@@ -1,0 +1,43 @@
+{% from "helpers/_viewhelpers.html" import render_tags, render_publication %}
+{% if entry.tools %} 
+<div class="border rounded p-3">
+    <dl class="row">
+        <dt class="col-sm-3 my-4"><h5>Tools</h5></dt>
+        <dd class="col-sm-9 my-4"><small class="text-muted"></small></dd>
+        <dt class="col-sm-3"></dt>
+        <dd class="col-sm-9 mb-4">
+            {% for tool in entry.tools %}
+                <p>{{ render_publication(tool) }}</p>
+            {% endfor %}
+        </dd>
+    </dl>
+</div>
+{% endif %}
+{% if entry.datasets %} 
+<div class="border rounded p-3">
+    <dl class="row">
+        <dt class="col-sm-3 my-4"><h5>Datasets</h5></dt>
+        <dd class="col-sm-9 my-4"><small class="text-muted"></small></dd>
+        <dt class="col-sm-3"></dt>
+        <dd class="col-sm-9 mb-4">
+            {% for dataset in entry.datasets %}
+                <p>{{ render_publication(dataset) }}</p>
+            {% endfor %}
+        </dd>
+    </dl>
+</div>
+{% endif %}
+{% if entry.archives %} 
+<div class="border rounded p-3">
+    <dl class="row">
+        <dt class="col-sm-3 my-4"><h5>Archives</h5></dt>
+        <dd class="col-sm-9 my-4"><small class="text-muted"></small></dd>
+        <dt class="col-sm-3"></dt>
+        <dd class="col-sm-9 mb-4">
+            {% for archive in entry.archives %}
+                <p>{{ render_publication(archive) }}</p>
+            {% endfor %}
+        </dd>
+    </dl>
+</div>
+{% endif %}

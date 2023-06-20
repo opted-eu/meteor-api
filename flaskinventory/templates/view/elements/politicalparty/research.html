@@ -1,0 +1,43 @@
+{% from "helpers/_viewhelpers.html" import render_publication %}
+<div class="border rounded p-3">
+    <dl class="row">
+        <dt class="col-sm-3 mb-4"><h5>Data Access</h5></dt>
+        <dd class="col-sm-9 mb-4"><small class="text-muted">Following data archives include text data.</small></dd>
+        <dt class="col-sm-3"></dt>
+        <dd class="col-sm-9 mb-4">
+        {% if entry.datasets %} 
+            {% for archive in entry.archives %}
+                <p>{{ render_publication(archive) }}</p>
+            {% endfor %}
+        {% endif %}
+        </dd>
+    </dl>
+</div>
+<div class="border rounded p-3">
+    <dl class="row">
+        <dt class="col-sm-3 mb-4"><h5>Datasets</h5></dt>
+        <dd class="col-sm-9 mb-4"><small class="text-muted">Following datasets include the political party.</small></dd>
+        <dt class="col-sm-3"></dt>
+        <dd class="col-sm-9 mb-4">
+        {% if entry.datasets %} 
+            {% for dataset in entry.datasets %}
+                <p>{{ render_publication(dataset) }}</p>
+            {% endfor %}
+        {% endif %}
+        </dd>
+    </dl>
+</div>
+<div class="border rounded p-3">
+    <dl class="row">
+        <dt class="col-sm-3 mb-4"><h5>Research</h5></dt>
+        <dd class="col-sm-9 mb-4"><small class="text-muted">Following publications investigated this political party.</small></dd>
+        {% if entry.papers %} 
+        <dt class="col-sm-3"></dt>
+        <dd class="col-sm-9 mb-4">
+            {% for paper in entry.papers %}
+                <p>{{ render_publication(paper) }}</p>
+            {% endfor %}
+        </dd>
+        {% endif %}
+    </dl>
+</div>

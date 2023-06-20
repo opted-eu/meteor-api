@@ -13,9 +13,7 @@
         {% if entry.programming_languages %}
         <dt class="col-sm-3">Programming Language(s)</dt>
         <dd class="col-sm-9">
-            {% for programming_language in entry.programming_languages %}
-                <span class="badge bg-indigo me-2">{{programming_language}}</span>
-            {% endfor %}
+            {{ render_tags(entry.programming_languages) }}
         {% endif %}
         {% if entry.open_source %}
             <dt class="col-sm-3">Open NewsSource</dt>

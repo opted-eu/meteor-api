@@ -77,19 +77,22 @@
         <span>({{ publication.date_published.strftime('%Y') }})</span>
     {% endif %}
     {% for key in publication.keys() %}
-        {% if '|from' in key %}
+        {% if '|from' in key or 'temporal_coverage_start' in key %}
             <span class="text-muted ms-2">
-                from: {{ publication.get(key).strftime('%Y-%m-%d') }}
+                from: {{ publication.get(key).strftime('%Y') }}
             </span>
         {%endif%}
     {% endfor %} 
     {% for key in publication.keys() %}
-        {% if '|to' in key %}
+        {% if '|to' in key or 'temporal_coverage_end' in key  %}
             <span class="text-muted ms-1">
-                to: {{ publication.get(key).strftime('%Y-%m-%d') }}
+                to: {{ publication.get(key).strftime('%Y') }}
             </span>
         {%endif%}
     {% endfor %} 
+    {% if publication.fulltext_available %}
+        <i data-bs-toggle="tooltip" data-bs-placement="top" title="Fulltexts are available" class="fas fa-check text-success" alt="Fulltext Available"></i>
+    {% endif %}
     </span>
     {% if publication.entry_review_status == 'pending' %}
     <small data-bs-toggle="tooltip" data-bs-placement="top" title="This entry has to be checked by a reviewer first." class="text-muted">(pending)</small>

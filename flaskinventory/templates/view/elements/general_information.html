@@ -185,5 +185,17 @@
             <dt class="col-sm-3">GitHub</dt>
             <dd class="col-sm-9"><a href="https://github.com/{{ entry.github }}" target="_blank" class="external-link">{{ entry.github }}</a></dd>
         {% endif %}
+        {% if entry.orcid %}
+            <dt class="col-sm-3">ORCID</dt>
+            <dd class="col-sm-9">
+                <a href="https://orcid.org/{{ entry.orcid }}" target="_blank" class="external-link">{{ entry.orcid }}</a>
+            </dd>
+        {% endif %}
+        {% if entry.openalex %}
+            <dt class="col-sm-3">OpenAlex</dt>
+            <dd class="col-sm-9">
+                <a href="https://explore.openalex.org/authors/{{ entry.openalex }}" target="_blank" class="external-link">{{ entry.openalex }}</a>
+            </dd>
+        {% endif %}
     </dl>
 </div>

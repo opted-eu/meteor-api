@@ -12,7 +12,7 @@
         <dt class="col-sm-3 mb-4">Date joined</dt>
         <dd class="col-sm-9">{{ current_user._date_joined.strftime('%Y-%m-%d') }}</dd>
         <dt class="col-sm-3 mb-4">User Role</dt>
-        <dd class="col-sm-9">{{ _role }} <a data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="<b>Contributor:</b> can add new entries.<br><b>Reviewer:</b> can review, edit and delete entries."><i class="fas mx-3 fa-question-circle"></i></a></dd>
+        <dd class="col-sm-9">{{ user_role }} <a data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="<b>Contributor:</b> can add new entries.<br><b>Reviewer:</b> can review, edit and delete entries."><i class="fas mx-3 fa-question-circle"></i></a></dd>
         <dt class="col-sm-3 mb-4">Username</dt>
         <dd class="col-sm-9">{{ current_user.display_name }}</dd>
         <dt class="col-sm-3 mb-4">Affiliation</dt>

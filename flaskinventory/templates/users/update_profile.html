@@ -17,12 +17,12 @@
                 {% else %} {{ form.display_name(class="form-control form-control-lg", placeholder="{{ current_user.displayname }}") }} {% endif %} {{ form.display_name.label() }}
             </div>
             <div class="form-floating mb-3">
-                {% if form.user_affiliation.errors %} {{ form.user_affiliation(class="form-control form-control-lg is-invalid") }}
+                {% if form.affiliation.errors %} {{ form.affiliation(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.user_affiliation.errors %}
+                    {% for error in form.affiliation.errors %}
                     <span>{{ error }}</span> {% endfor %}
                 </div>
-                {% else %} {{ form.user_affiliation(class="form-control form-control-lg", placeholder="{{ current_user.affiliation }}") }} {% endif %} {{ form.user_affiliation.label() }}
+                {% else %} {{ form.affiliation(class="form-control form-control-lg", placeholder="{{ current_user.affiliation }}") }} {% endif %} {{ form.affiliation.label() }}
             </div>
             <div class="form-floating mb-3">
                 {% if form.orcid.errors %} {{ form.orcid(class="form-control form-control-lg is-invalid") }}

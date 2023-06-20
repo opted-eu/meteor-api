@@ -8,7 +8,7 @@
         <dd class="col-sm-9">
             {{entry.conditions_of_access}}
         {% endif %}
-        {% if entry.get('fulltext_available') %}
+        {% if 'fulltext_available' in entry %}
         <dt class="col-sm-3">Fulltexts available</dt>
         <dd class="col-sm-9">
             {% if entry.fulltext_available %}
