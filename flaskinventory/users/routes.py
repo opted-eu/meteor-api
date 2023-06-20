@@ -87,7 +87,7 @@ def logout():
 @users.route('/users/profile')
 @login_required
 def profile():
-    user_role = USER_ROLES.dict_reverse[current_user._role]
+    user_role = USER_ROLES.dict_reverse[current_user.role]
     return render_template('users/profile.html', title='Profile', show_sidebar=True, user_role=user_role)
 
 
