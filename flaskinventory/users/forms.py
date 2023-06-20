@@ -52,7 +52,7 @@ class LoginForm(FlaskForm):
 class UpdateProfileForm(FlaskForm):
     display_name = StringField('Display Name',
                                    validators=[Length(min=2, max=40)])
-    user_affiliation = StringField('Affiliation',
+    affiliation = StringField('Affiliation',
                                    validators=[Length(max=(60))])
     orcid = StringField('ORCID',
                              validators=[Length(max=20)])
