@@ -331,7 +331,7 @@ class Schema:
             return {}
         
     @classmethod
-    def is_private(cls, dgraph_type):
+    def is_private(cls, dgraph_type: str) -> bool:
         return dgraph_type in cls.__private_types__
     
     @staticmethod

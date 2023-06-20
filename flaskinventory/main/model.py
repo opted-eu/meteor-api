@@ -21,9 +21,9 @@ import secrets
 
 class User(Schema, UserLogin):
 
-    # currently prevent any kind of editing
-    __permission_new__ = USER_ROLES.Admin + 100
-    __permission_edit__ = USER_ROLES.Admin + 100
+    __permission_new__ = USER_ROLES.Admin
+    __permission_edit__ = USER_ROLES.Admin
+    # prevent any kind of editing
     __private__ = True
 
     uid = UIDPredicate()

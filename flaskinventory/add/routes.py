@@ -113,6 +113,10 @@ def new(dgraph_type=None, draft=None, populate_form: dict = None):
 
     if not dgraph_type:
         return abort(404)
+    
+    if Schema.is_private(dgraph_type):
+        flash('You cannot add new entries of this type', category="warning")
+        return abort(403)
 
     form = Schema.generate_new_entry_form(
         dgraph_type=dgraph_type, populate_obj=populate_form)
