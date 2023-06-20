@@ -612,6 +612,17 @@ class Archive(Entry):
 
     url = String()
 
+    authors = AuthorList(allow_new=True,
+                         relationship_constraint="Author")
+
+    _authors_fallback = OrderedListString(
+        delimiter=';', directives=['@index(term)'],
+        edit=False,
+        tom_select=True)
+    
+    doi = String(label='DOI', directives=['@index(hash)'])
+    arxiv = String(label="arXiv", directives=['@index(hash)'])
+
     conditions_of_access = SingleChoice(description="How can the user access the archive?",
                                         choices={'NA': 'NA / Unknown',
                                                  'free': 'Free',
@@ -631,7 +642,8 @@ class Archive(Entry):
                                     # radio_field=True,
                                     queryable=True)
 
-    fulltext = Boolean(description='Archive contains fulltext')
+    fulltext_available = Boolean(description='Archive contains fulltext')
+
     countries = ListRelationship(relationship_constraint=[
         'Country', 'Multinational'], autoload_choices=True,
         predicate_alias=["country"])
