@@ -76,9 +76,10 @@ class BasicTestSetup(unittest.TestCase):
             cls.austria_uid = dgraph.get_uid('_unique_name', 'austria')
             cls.germany_uid = dgraph.get_uid('_unique_name', 'germany')
             cls.switzerland_uid = dgraph.get_uid('_unique_name', 'switzerland')
+            cls.spain_uid = dgraph.get_uid('_unique_name', 'spain')
 
             cls.countries = [cls.austria_uid,
-                             cls.germany_uid, cls.switzerland_uid]
+                             cls.germany_uid, cls.switzerland_uid, cls.spain_uid]
             
             cls.country_choices = get_country_choices()
 
@@ -116,6 +117,10 @@ class BasicTestSetup(unittest.TestCase):
             cls.lang_german = dgraph.get_uid('_unique_name', 'language_german')
             cls.lang_english = dgraph.get_uid('_unique_name', 'language_english')
             cls.lang_hungarian = dgraph.get_uid('_unique_name', 'language_hungarian')
+
+            cls.lang_spanish = dgraph.get_uid('_unique_name', 'language_spanish')
+
+            cls.fileformat_csv = dgraph.get_uid('_unique_name', 'fileformat_csv')
 
     @classmethod
     def tearDownClass(cls) -> None:

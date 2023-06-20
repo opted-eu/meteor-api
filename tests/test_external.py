@@ -146,7 +146,7 @@ class TestSanitizers(unittest.TestCase):
         with self.app.app_context():
             wikidata = external.get_wikidata(spd)
             self.assertCountEqual(list(wikidata.keys()), [
-                                  'wikidata_id', 'alternate_names', 'date_founded', 'country', 'address'])
+                                  'wikidata_id', 'alternate_names', 'date_founded', 'country'])
             self.assertEqual(wikidata['wikidata_id'], "Q49768")
 
 

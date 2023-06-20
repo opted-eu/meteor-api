@@ -33,8 +33,8 @@ class TestQueries(BasicTestSetup):
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 2)
 
-        query = {'country': [self.austria_uid, self.germany_uid],
-                 'country*connector': ['AND'],
+        query = {'countries': [self.austria_uid, self.germany_uid],
+                 'countries*connector': ['AND'],
                  }
 
         query_string = build_query_string(query)
@@ -140,8 +140,9 @@ class TestQueries(BasicTestSetup):
 
             response = c.get('/query',
                              query_string=query)
-            self.assertEqual(
-                response.json['result'][0]['_unique_name'], "www.derstandard.at")
+            res = [entry['_unique_name'] for entry in response.json['result']]
+            self.assertCountEqual(res, 
+                                  ["www.derstandard.at", "globalvoices_org_website"])
 
             # English that is free OR partly for free
             query = {"languages": [self.lang_english],
@@ -187,8 +188,8 @@ class TestQueries(BasicTestSetup):
         res = dgraph.query(query_string)
 
         with self.client as c:
-            # English AND German speaking that is either free or partly free
-            query = {"languages": [self.lang_english, self.lang_german],
+            # Spanish AND German speaking that is either free or partly free
+            query = {"languages": [self.lang_spanish, self.lang_german],
                      "payment_model": ["free", "partly free"],
                      "json": True
                      }
