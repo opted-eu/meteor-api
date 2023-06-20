@@ -56,9 +56,9 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
                         '''
 
     elif dgraph_type == 'PoliticalParty':
-        query_fields += '''archives: ~sources_included @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
-                           datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets }
-                           papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets } 
+        query_fields += '''archives: ~sources_included @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status fulltext_available authors @facets { uid _unique_name name } _authors_fallback @facets temporal_coverage_start temporal_coverage_end } 
+                           datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name) { name _unique_name uid entry_review_status fulltext_available authors @facets { uid _unique_name name } _authors_fallback @facets temporal_coverage_start temporal_coverage_end }
+                           papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status fulltext_available authors @facets { uid _unique_name name } _authors_fallback @facets temporal_coverage_start temporal_coverage_end } 
                         } }'''
         
     elif dgraph_type == 'Author':

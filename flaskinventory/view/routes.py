@@ -217,6 +217,7 @@ def query():
                                               'Government', 
                                               'Parliament', 
                                               'Organization', 
+                                              'NewsSource',
                                               'Person', 
                                               'Tool', 
                                               'Archive', 
