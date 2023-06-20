@@ -124,7 +124,7 @@
         _:derstandardat <special_interest> "false" .
         _:derstandardat <publication_cycle> "continuous" .
         _:derstandardat <geographic_scope> "national" .
-        _:derstandardat <country> _:austria .
+        _:derstandardat <countries> _:austria .
         _:derstandardat <audience_size> "2021-05-06" (count=884687, unit="daily visitors", data_from="https://siterankdata.com/derstandard.at") .
 
         _:derstandardprint <dgraph.type> "NewsSource" .
@@ -141,7 +141,7 @@
         _:derstandardprint <special_interest> "false" .
         _:derstandardprint <publication_cycle> "daily" .
         _:derstandardprint <geographic_scope> "national" .
-        _:derstandardprint <country> _:austria .
+        _:derstandardprint <countries> _:austria .
         _:derstandardprint <audience_size> "2018" (count=57221, unit="copies sold", data_from="https://www.oeak.at/wp-content/uploads/2019/01/KORR_Auflagenliste_H1_2018.pdf") .
 
         _:derstandardinstagram <dgraph.type> "NewsSource" .
@@ -156,7 +156,7 @@
         _:derstandardinstagram <special_interest> "false" .
         _:derstandardinstagram <publication_cycle> "continuous" .
         _:derstandardinstagram <geographic_scope> "national" .
-        _:derstandardinstagram <country> _:austria .
+        _:derstandardinstagram <countries> _:austria .
         _:derstandardinstagram <audience_size> "2021-05-06" (count=292000, unit="followers") .
         _:derstandardinstagram <verified_account> "true" .
 
@@ -172,7 +172,7 @@
         _:derstandardtwitter <special_interest> "false" .
         _:derstandardtwitter <publication_cycle> "continuous" .
         _:derstandardtwitter <geographic_scope> "national" .
-        _:derstandardtwitter <country> _:austria .
+        _:derstandardtwitter <countries> _:austria .
         _:derstandardtwitter <audience_size> "2021-05-06" (count=333700, unit="followers") .
         _:derstandardtwitter <verified_account> "true" .
 
@@ -188,7 +188,7 @@
         _:derstandardfacebook <special_interest> "false" .
         _:derstandardfacebook <publication_cycle> "continuous" .
         _:derstandardfacebook <geographic_scope> "national" .
-        _:derstandardfacebook <country> _:austria .
+        _:derstandardfacebook <countries> _:austria .
         _:derstandardfacebook <audience_size> "2021-05-06" (count=347671, unit="followers") .
         _:derstandardfacebook <verified_account> "true" .
 
@@ -252,7 +252,7 @@
         _:falterprint <publication_cycle> "weekly" .
         _:falterprint <publication_cycle_weekday> "3" .
         _:falterprint <geographic_scope> "national" .
-        _:falterprint <country> _:austria .
+        _:falterprint <countries> _:austria .
         _:falterprint <audience_size> "2020" (count=51000, unit="copies sold", data_from="https://www.falter.at/media/b2b/Mediadaten2021_FALTER.pdf") .
 
         _:falterverlag <dgraph.type> "Organization" .
@@ -394,7 +394,7 @@
         _:globalvoices_website <special_interest> "false" .
         _:globalvoices_website <date_founded> "2005-01-01T00:00:00Z" .
         _:globalvoices_website <channel> _:website .
-        _:globalvoices_website <country> _:global .
+        _:globalvoices_website <countries> _:global .
 
         _:direkt_print <dgraph.type> "NewsSource" .
         _:direkt_print <publication_kind> "alternative media" . 
@@ -408,9 +408,9 @@
         _:direkt_print <name> "Direkt" . 
         _:direkt_print <party_affiliated> "yes" . 
         _:direkt_print <_unique_name> "direkt_print" . 
-        _:direkt_print <country> _:germany . 
-        _:direkt_print <country> _:austria . 
-        _:direkt_print <country> _:switzerland .
+        _:direkt_print <countries> _:germany . 
+        _:direkt_print <countries> _:austria . 
+        _:direkt_print <countries> _:switzerland .
         _:direkt_print <channel> _:print . 
 
 
