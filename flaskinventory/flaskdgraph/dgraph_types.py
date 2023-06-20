@@ -1262,10 +1262,13 @@ class DateTime(Predicate):
 
     def query_filter(self, 
                      vals: Union[str, list, int], 
-                     operator: Union[le, ge] = None, 
+                     operator: Union[le, ge, gt, lt, str] = None, 
                      **kwargs) -> str:
         if vals is None:
             return f'{has(self.predicate)}'
+        
+        if isinstance(operator, str):
+            operator = operator_conversion[operator]
 
         try:
             if isinstance(vals, list) and len(vals) > 1:
@@ -1279,7 +1282,7 @@ class DateTime(Predicate):
                     vals = vals[0]
                 date = self.validation_hook(vals)
                 if operator:
-                    return f'{operator(self.predicate, {date.year})}'
+                    return f'{operator(self.predicate, date.year)}'
                 else:
                     v1 = f'"{date.year}-01-01"'
                     v2 = f'"{date.year}-12-31"'
