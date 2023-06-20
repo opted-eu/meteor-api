@@ -14,6 +14,7 @@ from slugify import slugify
 import tweepy
 import instaloader
 import requests
+from dateutil import parser as dateparser
 
 ENTRY_REVIEW_STATUS = 'accepted'
 
@@ -766,12 +767,20 @@ wp4.languages = wp4.languages.str.split(',').apply(
 """
 
 author_cache_file = p / "data" / "author_cache.json"
+crossref_cache_file = p / "data" / "crossref_cache.json"
 
 try:
     with open(author_cache_file) as f:
         author_cache = json.load(f)
 except:
     author_cache = {}
+
+try:
+    with open(crossref_cache_file) as f:
+        crossref_cache = json.load(f)
+except:
+    crossref_cache = {}
+
 
 def resolve_openalex(doi, cache):
     if doi in cache:
@@ -807,11 +816,53 @@ def resolve_openalex(doi, cache):
                             'dgraph.type': ['Entry', 'Author']
                             }
             if author['author'].get("orcid"):
-                author_entry['orcid'] = author['author']['orcid']
+                author_entry['orcid'] = author['author']['orcid'].replace('https://orcid.org/', '')
         else:
             author_entry = {'uid': j['q'][0]['uid']}
         authors.append(author_entry)
     return authors
+
+
+def crossref(doi: str, cache):
+    # clean input string
+    doi = doi.replace("https://doi.org/", "")
+    doi = doi.replace("http://doi.org/", "")
+    doi = doi.replace("doi.org/", "")
+
+    if doi in cache:
+        publication = cache[doi]
+    else:
+        api = 'https://api.crossref.org/works/'
+        r = requests.get(api + doi)
+        if r.status_code != 200:
+            r.raise_for_status()
+        publication = r.json()
+
+        if publication['status'] != 'ok':
+            raise Exception
+        publication = publication['message']
+        cache[doi] = publication
+
+    result = {'doi': doi}
+
+    result['venue'] = publication.get('container-title')
+    if isinstance(result['venue'], list):
+        result['venue'] = result['venue'][0]
+    result['title'] = publication.get('title')
+
+    if isinstance(result['title'], list):
+        result['title'] = result['title'][0]
+
+    result['paper_kind'] = publication.get('type')
+
+    if publication.get('created'):
+        result['date_published'] = dateparser.parse(publication['created']['date-time']).isoformat()
+
+    if publication.get('link'):
+        result['url'] = publication['link'][0]['URL']
+    
+    return result
+
 
 # get all entries with DOI
 
@@ -820,6 +871,7 @@ wp4.doi = wp4.doi.str.replace('https://doi.org/', '', regex=False)
 dois = wp4[~wp4.doi.isna()].doi.unique()
 
 authors = {}
+publication_info = {}
 failed = []
 
 print('Retrieving Authors from OpenAlex ...')
@@ -827,6 +879,7 @@ print('Retrieving Authors from OpenAlex ...')
 for doi in dois:
     try:
         authors[doi] = resolve_openalex(doi, author_cache)
+        publication_info[doi] = crossref(doi, crossref_cache)
     except Exception as e:
         print(doi, e)
         failed.append(doi)
@@ -835,6 +888,9 @@ for doi in dois:
 with open(author_cache_file, "w") as f:
     json.dump(author_cache, f)
 
+
+with open(crossref_cache_file, "w") as f:
+    json.dump(crossref_cache, f)
 
 """ Concept Variables """
 
@@ -922,7 +978,12 @@ for dataset_url, dataset in wp4_datasets.items():
     new_dataset['dgraph.type'] = dataset['entity'] + ['Entry']
     new_dataset['_unique_name'] = dataset['entity'][0].lower() + '_' + slugify(new_dataset['name'], separator="")
     try:
-        new_dataset['doi'] = dataset['doi'][0] if dataset['doi'][0].strip() != '' else None
+        doi = dataset['doi'][0] if dataset['doi'][0].strip() != '' else None
+        new_dataset['doi'] = doi
+        if doi in publication_info:
+            new_dataset['date_published'] = publication_info[doi]['date_published']
+            new_dataset['venue'] = publication_info[doi]['venue']
+            new_dataset['paper_kind'] = publication_info[doi]['paper_kind']
     except:
         pass
     new_dataset['url'] = dataset_url
@@ -986,11 +1047,20 @@ for dataset_url, dataset in wp4_datasets.items():
 manifesto_corpus = {**sample_dataset}
 
 manifesto_corpus['name'] = "Manifesto Corpus"
+manifesto_corpus['alternate_names'] = ["CMP", "Comparative Manifestos Project", "MARPOR", "Manifesto Research on Political Representation"]
 manifesto_corpus['url'] = manifesto_wp4.url[0]
 manifesto_corpus['uid'] = '_:' + slugify(manifesto_corpus['url'], separator="_")
 manifesto_corpus['dgraph.type'] = ['Entry', 'Dataset']
 manifesto_corpus['_unique_name'] = 'dataset_' + slugify(manifesto_corpus['name'], separator="")
-manifesto_corpus['doi'] = "10.25522/manifesto.mpdssa.2020b"
+doi = "10.25522/manifesto.mpdssa.2020b"
+manifesto_corpus['doi'] = doi
+try:
+    manifesto_crossref = crossref(doi, crossref_cache)
+    manifesto_corpus['date_published'] = manifesto_crossref['date_published']
+    manifesto_corpus['venue'] = manifesto_crossref['venue']
+    manifesto_corpus['paper_kind'] = manifesto_crossref['paper_kind']
+except:
+    pass
 manifesto_corpus['description'] = manifesto_wp4.description[0]
 manifesto_corpus['_authors_fallback'] = [a.strip() for a in manifesto_wp4['_authors_fallback'][0].split(";")]
 manifesto_corpus['_authors_fallback|sequence'] = {str(i): i for i in range(len(manifesto_corpus['_authors_fallback']))}
@@ -1023,11 +1093,20 @@ manifesto_corpus['countries'] = manifesto_corpus_countries
 polidoc_dataset = {**sample_dataset}
 
 polidoc_dataset['name'] = "Political Documents Archive"
+polidoc_dataset['alternate_names'] = ["Polidoc", "polidoc.net"]
 polidoc_dataset['url'] = polidoc_wp4.url[0]
 polidoc_dataset['uid'] = '_:' + slugify(polidoc_dataset['url'], separator="_")
 polidoc_dataset['dgraph.type'] = ['Entry', 'Dataset']
 polidoc_dataset['_unique_name'] = 'dataset_' + slugify(polidoc_dataset['name'], separator="")
-polidoc_dataset['doi'] = "10.1080/09644000903055856"
+doi = "10.1080/09644000903055856"
+polidoc_dataset['doi'] = doi
+try:
+    polidoc_crossref = crossref(doi, crossref_cache)
+    polidoc_dataset['date_published'] = polidoc_crossref['date_published']
+    polidoc_dataset['venue'] = polidoc_crossref['venue']
+    polidoc_dataset['paper_kind'] = polidoc_crossref['paper_kind']
+except:
+    pass
 polidoc_dataset['description'] = polidoc_wp4.description[0]
 polidoc_dataset['authors'] = resolve_openalex("10.1080/09644000903055856", author_cache)
 polidoc_dataset['conditions_of_access'] = polidoc_wp4['conditions_of_access'][0]
