@@ -626,7 +626,7 @@ def resolve_openalex(entry, cache):
                         'dgraph.type': ['Entry', 'Author']
                         }
         if author['author'].get("orcid"):
-            author_entry['orcid'] = author['author']['orcid']
+            author_entry['orcid'] = author['author']['orcid'].replace('https://orcid.org/', '')
         authors.append(author_entry)
     output['authors'] = authors
     return output
