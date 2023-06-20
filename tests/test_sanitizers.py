@@ -17,7 +17,7 @@ if __name__ == "__main__":
     import datetime
     from flaskinventory.flaskdgraph import Schema
     from flaskinventory.flaskdgraph.dgraph_types import UID, Scalar
-    from flaskinventory.main.model import Entry, Organization, NewsSource, User
+    from flaskinventory.main.model import Entry, Organization, NewsSource, User, ScientificPublication
     from flaskinventory.main.sanitizer import Sanitizer, make_sanitizer
     from flaskinventory.errors import InventoryValidationError, InventoryPermissionError
     from flaskinventory import create_app, dgraph
@@ -80,7 +80,6 @@ class TestSanitizers(BasicTestSetup):
             self.client.get('/logout')
 
     def test_new_entry(self):
-        # print('-- test_new_entry() --\n')
 
         with self.client:
             response = self.client.post(
@@ -615,6 +614,37 @@ class TestSanitizers(BasicTestSetup):
                 self.assertIn('<_unique_name> "newssource_germany_somesource_facebook"', sanitizer.set_nquads)
                 mock_facebook['geographic_scope'] = 'NA'
                 self.assertRaises(InventoryValidationError, Sanitizer, mock_facebook, dgraph_type=NewsSource)
+
+            self.client.get('/logout')
+
+    def test_newscientificpublication(self):
+        sample_data =  {
+                        "authors": ["A4356501006", "A261564576", "A4356539172"],
+                        "conditions_of_access": "free",
+                        "countries": [self.spain_uid],
+                        "date_published": "2015",
+                        "description": "Data set analysing the sentiment of 2,704,523 tweets referring to Spanish politicians and parties between December 3rd, 2014 and January 12th, 2005.",
+                        "dgraph.type": ["Entry", "Dataset"],
+                        "doi": "10.1177/0165551515598926",
+                        "url": "https://doi.org/10.1177/0165551515598926",
+                        "file_formats": [self.fileformat_csv],
+                        "fulltext_available": True,
+                        "geographic_scope": "national",
+                        "languages": [self.lang_spanish],
+                        "title": "The megaphone of the people? Spanish SentiStrength for real-time analysis of political tweets",
+                        "temporal_coverage_end": "2015-01-12",
+                        "temporal_coverage_start": "2014-12-03",
+                    }
+        
+        with self.client:
+            response = self.client.post(
+                '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
+            self.assertEqual(current_user.display_name, 'Reviewer')
+
+            with self.app.app_context():
+                sanitizer = Sanitizer(sample_data, dgraph_type=ScientificPublication)
+                self.assertEqual(type(sanitizer.set_nquads), str)
+                self.assertEqual(sanitizer.entry['_unique_name'], "mike_thelwall_et_al_2015_the_megaphone_of_the_people")
 
             self.client.get('/logout')
 
