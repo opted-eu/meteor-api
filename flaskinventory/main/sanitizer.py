@@ -38,6 +38,7 @@ class Sanitizer:
     upsert_query = None
 
     def __init__(self, data: dict, fields: dict = None, dgraph_type=Entry, entry_review_status=None, **kwargs):
+        current_app.logger.debug(f'Got the following data: {data}')
 
         if isinstance(data, ImmutableMultiDict):
             data = IMD2dict(data)
@@ -314,7 +315,7 @@ class Sanitizer:
                 if hasattr(validated, 'facets') and facets is not None:
                     validated.update_facets(facets)
 
-            #  check if required fields end validation sequence with a value
+            #  assert validation procedure really yields values for required fields
             if item.required and validated is None and not self.is_upsert:
                 raise InventoryValidationError(f'Error in predicate <{key}>. Is required, but no value supplied!')
 
@@ -446,7 +447,7 @@ class Sanitizer:
                 res = dgraph.query(query_string)
                 country_code = res['q'][0]['iso_3166_1_2']
             except Exception as e:
-                current_app.logger.warning(f'Could not retrieve country code for new entry <{entry["name"]}>: {e}', exc_info=True)
+                current_app.logger.warning(f'Could not retrieve country code for new entry <{entry.get("name", entry)}>: {e}', exc_info=True)
 
         if 'openalex' in entry:
             _name = slugify(entry['openalex'], separator="")
@@ -482,19 +483,29 @@ class Sanitizer:
             Special steps for papers
             Generate a name based on author and title
         """
-        if isinstance(self.entry['authors'], list) and len(self.entry['authors']) > 1:
-            author = f"{self.entry['authors'][0]} et al."
-        elif isinstance(self.entry['authors'], list) and len(self.entry['authors']) == 1:
-            author = f"{self.entry['authors'][0]}"
+        for author in self.entry['authors']:
+            if author.facets['sequence'] == 0: break
+        if isinstance(author, NewID):
+            for entry in self.related_entries:
+                if entry['uid'] == author: break
+            author_name = entry['name']
         else:
-            author = f"{self.entry['authors']}"[:32]
+            query_string = """q(func: uid($authoruid)) { name }"""
+            res  = dgraph.query(query_string, variables={'$authoruid': str(author)})
+            author_name = res["q"][0]['name']
+        if len(self.entry['authors']) > 1:
+            author_name += " et al."
 
-        title = re.match(r".*?[\?:\.!]", str(self.entry['title']))[0]
+        try:
+            title = re.match(r".*?[\?:\.!]", str(self.entry['title']))[0]
+        except:
+            title = str(self.entry['title'])
+
         title = title.replace(':', '')
 
         year = self.entry['date_published'].year
 
-        self.entry['name'] = f'{author} ({year}): {title}'
+        self.entry['name'] = f'{author_name} ({year}): {title}'
 
         self.entry['_unique_name'] = slugify(self.entry['name'], separator="_")
 
