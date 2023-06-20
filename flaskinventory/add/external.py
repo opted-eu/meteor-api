@@ -448,8 +448,7 @@ def fetch_wikidata(wikidataid, query=None):
             f"Could not get inception date: {e}. Query: {query}. Wikidata ID: {wikidataid}")
 
     try:
-        country = wikidata['entities'][wikidataid]['claims']['P17'][0]['mainsnak']['datavalue']['value']['id'].replace(
-            'Q', '')
+        country = wikidata['entities'][wikidataid]['claims']['P17'][0]['mainsnak']['datavalue']['value']['id']
         query_string = f'''{{q(func: eq(wikidata_id, {country})) {{ name uid }} }}'''
         country_uid = dgraph.query(query_string)
 
@@ -473,15 +472,7 @@ def fetch_wikidata(wikidataid, query=None):
         r = requests.get(api, params=params)
         wikidata = r.json()
         address = wikidata['entities'][headquarters]['labels']['en']['value']
-
-        # TODO: Remove geocoding :/
-
-        geo_result = geocode(address)
-        address_geo = GeoScalar('Point', [
-            float(geo_result.get('lon')), float(geo_result.get('lat'))])
-
         result['address'] = address
-        # result['address_geo'] = address_geo
     except Exception as e:
         current_app.logger.debug(
             f"Could not get address: {e}. Query: {query}. Wikidata ID: {wikidataid}")
