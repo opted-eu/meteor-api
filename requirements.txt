@@ -38,3 +38,4 @@ telethon
 pandas
 openpyxl
 pyarrow
+tqdm
