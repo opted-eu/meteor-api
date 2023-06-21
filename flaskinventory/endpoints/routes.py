@@ -149,6 +149,7 @@ def lookup():
         # Ensure private dgraph.types are protected here
         if any([Schema.is_private(t) for t in r['dgraph.type']]):
             return jsonify({'status': 403, 'error': 'You cannot access this dgraph.type'})
+        # TODO: add check whether predicate is not private
         dgraph_types = r['dgraph.type']
     dgraph_types = [dql.type_(t) for t in dgraph_types]
     if 'name' in r['predicate']:
@@ -208,6 +209,51 @@ def lookup():
     except Exception as e:
         current_app.logger.warning(f'could not lookup source with query "{query}". {e}')
         return jsonify({'status': 500, 'error': f'{e}'})
+
+"""
+    Get entry by UID.
+    Only returns:
+        - uid
+        - _unique_name
+        - name
+        - country / countries
+        - channel
+    TODO: add ability to retrieve list of UIDs
+"""
+
+
+@endpoint.route("/endpoint/lookup/uid/<string:uid>")
+def lookup_uid(uid):
+    uid = validate_uid(uid)
+    if not uid:
+        return abort(404)
+    
+    dgraphtype = dgraph.get_dgraphtype(uid)
+
+    if Schema.is_private(dgraphtype):
+        return abort(403)
+
+    if not dgraphtype:
+        return abort(404)
+        
+    if dgraphtype.lower() == 'rejected':
+        return abort(404)
+
+    if dgraphtype:
+        dql_query = dql.DQLQuery(func=dql.uid(uid),
+                     fetch=["uid", "name", "title", "_unique_name", 
+                            "country { uid name _unique_name }",
+                            "countries { uid name _unique_name }",
+                            "channel { uid name _unique_name }"])
+        try:
+            result = dgraph.query(dql_query)
+            result['status'] = 200
+            return jsonify(result)
+        except Exception as e:
+            current_app.logger.warning(f'could not lookup source with UID "{uid}". {e}')
+            return jsonify({'status': 500, 'error': f'{e}'})
+
+        
 
 # cache this route
 @endpoint.route("/endpoint/new/fieldoptions")
