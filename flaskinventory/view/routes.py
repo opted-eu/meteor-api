@@ -217,11 +217,11 @@ def query():
                                               'Government', 
                                               'Parliament', 
                                               'Organization', 
-                                              'NewsSource',
-                                              'Person', 
-                                              'Tool', 
-                                              'Archive', 
                                               'Dataset', 
+                                              'Archive', 
+                                              'NewsSource',
+                                              'Tool', 
+                                              'Author', 
                                               'Collection'],
                                 populate_obj=request.args)
 

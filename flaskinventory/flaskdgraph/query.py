@@ -60,6 +60,7 @@ def build_query_string(query: dict, public=True) -> str:
                             anyofterms(description, $searchTerms) OR
                             anyofterms(alternate_names, $searchTerms) OR 
                             anyofterms(title, $searchTerms) OR 
+                            anyofterms(_authors_fallback, $searchTerms) OR 
                             eq(doi, $searchTerms) OR 
                             eq(arxiv, $searchTerms))""")
 
