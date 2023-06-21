@@ -183,6 +183,7 @@ class uid(_FuncPrimitive):
 
     def __init__(self, val) -> None:
         self.value = val
+        self.predicate = "uid"
 
     def __str__(self) -> str:
         if isinstance(self.value, GraphQLVariable):
