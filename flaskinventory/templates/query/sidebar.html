@@ -110,7 +110,26 @@
 <script>
 
 const entitySelector = document.getElementById('dgraph.type')
-const alwaysVisible = ['_terms', 'country', 'languages', 'channel']
+const alwaysVisible = ['_terms', 'countries', 'languages', 'channel']
+
+// temporary hack to update sources_included
+
+let current_url = new URL(document.location.href)
+let endpoint_lookup_uid = $SCRIPT_ROOT + "/endpoint/lookup/uid/"
+
+if (current_url.searchParams.get('sources_included')) {
+    let sources_included = document.getElementById('sources_included')
+    for (uid of current_url.searchParams.getAll('sources_included')) {
+        fetch(endpoint_lookup_uid + uid)
+            .then((response) => response.json())
+            .then(function(json) {
+                console.log(json);
+                sources_included.tomselect.addOption(json["q"][0]);
+                sources_included.tomselect.addItem(json["q"][0]["uid"])
+            })
+    }
+}
+
 
 function hideFields() {
     let all = document.querySelectorAll('[data-entities]')
@@ -165,7 +184,7 @@ function clearFields(event) {
         }
     }
     if (selectedEntities.length == 1 && selectedEntities[0] == 'Tool') {
-            document.getElementById('country').tomselect.clear()
+            document.getElementById('countries').tomselect.clear()
     }
 }
 
@@ -180,7 +199,8 @@ const sortedContainer = document.getElementById('fieldset-container-sorted')
 const unsortedContainer = document.getElementById('fieldset-container-unsorted')
 
 const correctOrder = ["dgraph.type", 
-                        "country", "channel", "languages", 
+                        "countries", "channel", "languages",
+                        "sources_included",
                         "used_for",
                         "concept_variables",
                         "programming_languages",
@@ -226,6 +246,5 @@ rearrange()
 var event = new Event('change');
 
 entitySelector.dispatchEvent(event)
-
 
 </script>

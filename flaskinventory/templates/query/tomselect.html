@@ -5,18 +5,97 @@
         {% set field = form.get_field(f) %}
     
         {% if field.type ==  "TomSelectMultipleField" %}
+            {% if field.name == 'sources_included' %}
+
+            new TomSelect("#{{ field.id.replace('.', '\\\.').replace('~', '\\\~').replace('|', '\\\|') }}", {
+                    plugins: ['remove_button'],
+                    valueField: 'uid',
+                    labelField: 'name',
+                    searchField: 'name',
+                    optgroupField: 'type',
+                    optgroups: [
+                        {value: 'PoliticalParty', label: 'Political Party'},
+                        {value: 'NewsSource', label: 'News Source'},
+                        {value: 'Government', label: 'Government'},
+                        {value: 'Parliament', label: 'Parliament'},
+                        {value: 'Organization', label: 'Organization'},
+                        {value: 'Person', label: 'Person'},
+                    ],
+                    delimiter: ',',
+                    selectOnTab: true,
+                    onItemAdd: function(input) { 
+                        // clear input after item was selected
+                        this.setTextboxValue();
+                        this.refreshOptions();
+                    },
+                    load: function(query, callback) {
+                        if ( query.length < 3 ) return callback();
+                        var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + "&predicate=name&dgraph.type=NewsSource&dgraph.type=Organization&dgraph.type=PoliticalParty&dgraph.type=Government&dgraph.type=Parliament&dgraph.type=Person";
+                        fetch(url)
+                        .then(response => response.json())
+                        .then(json => {
+                            json.data.forEach(entry => {
+                                entry['type'] = entry['dgraph.type'].filter(e => e != 'Entry')[0]
+                            })
+                            callback(json.data);
+                        }).catch(() => {callback();});
+                    },
+                    render: {
+                        option: function(data, escape) {
+                            var channel_label = ' '
+                            var channel_icon = ''
+                            if (data.channel) {
+                                if (data.channel.name) {
+                                    channel_icon = `<i class="icon-${data.channel._unique_name} color-${data.channel._unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
+                                    channel_label = ' (' + escape(data.channel.name) + ') '
+                                    }
+                            };
+                            var country_label = ' '
+                            if ("country" in data) {
+                                country_label = '<small class="text-muted mx-1"> (' + escape(data.country.name) + ')</small>'
+                            } else if ("countries" in data) {
+                                country_label = '<small class="text-muted mx-1"> (' + escape(data.countries[0].name) + ')</small>'
+                            }
+                            return '<div>' +
+                                    '<span class="title">' + channel_icon + escape(data.name) + channel_label + '</span> ' +
+                                    country_label +
+                                '</div>';
+                        },
+                        item: function(data, escape) {
+                            var channel_label = ' '
+                            if (data.channel) {
+                                if (data.channel.name) {
+                                    var channel_label = ' (' + escape(data.channel.name) + ') '
+                                }
+                            };
+                            var country_label = ' '
+                            if ("country" in data) {
+                                country_label = '<small class="text-muted mx-1"> (' + escape(data.country.name) + ')</small>'
+                            } else if ("countries" in data) {
+                                country_label = '<small class="text-muted mx-1"> (' + escape(data.countries[0].name) + ')</small>'
+                            }
+                            return '<div>' + escape(data.name) + channel_label + country_label + '</div>';
+                        }
+                    }
+                });
+
+            {% else %}
+
+            new TomSelect("#{{ field.id.replace('.', '\\\.').replace('~', '\\\~').replace('|', '\\\|') }}",
+            {
+                create: false, 
+                plugins: ['remove_button', 'clear_button'], 
+                hidePlaceholder: true,
+                onItemAdd:function(){ // clear input after item was selected
+                        this.setTextboxValue();
+                        this.refreshOptions();
+                }
+                });
     
-        new TomSelect("#{{ field.id.replace('.', '\\\.').replace('~', '\\\~').replace('|', '\\\|') }}", 
-        {
-            create: false, 
-            plugins: ['remove_button', 'clear_button'], 
-            hidePlaceholder: true,
-            onItemAdd:function(){ // clear input after item was selected
-                    this.setTextboxValue();
-                    this.refreshOptions();
-            }
-            })
+
+            {% endif %}
     
+
         {% endif %}
     
     {% endfor %}

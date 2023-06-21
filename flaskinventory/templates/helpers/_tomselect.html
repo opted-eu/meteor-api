@@ -265,7 +265,9 @@ if (embeddedJSON) {
                 };
                 var country_label = ' '
                 if ("country" in data) {
-                    country_label = '<small class="text-muted mx-1"> (' + escape(data.country[0].name) + ')</small>'
+                                country_label = '<small class="text-muted mx-1"> (' + escape(data.country.name) + ')</small>'
+                } else if ("countries" in data) {
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.countries[0].name) + ')</small>'
                 }
                 return '<div>' + escape(data.name) + channel_label + country_label + '</div>';
             }
