@@ -168,7 +168,6 @@ class PoliticalParty(Entry):
                                  description='In which country is the political party registered?',
                                  render_kw={
                                      'placeholder': 'Select a country...'},
-                                 queryable=True,
                                  predicate_alias=["countries"])
 
     url = String(label='URL', description='Official website of party')
@@ -206,7 +205,6 @@ class Organization(Entry):
                                  description='In which country is the organisation located?',
                                  render_kw={
                                      'placeholder': 'Select a country...'},
-                                 queryable=True,
                                  predicate_alias=["countries"],
                                  overwrite=True)
 
@@ -482,7 +480,6 @@ class Government(Entry):
     __description__ = "national, supranational or subnational executives"
 
     country = SingleRelationship(relationship_constraint=["Country", "Multinational"],
-                                 queryable=True,
                                  required=True,
                                  predicate_alias=["countries"])
 
@@ -509,7 +506,6 @@ class Parliament(Entry):
     __description__ = "national, supranational or subnational legislative bodies"
 
     country = SingleRelationship(relationship_constraint=["Country", "Multinational"],
-                                 queryable=True,
                                  required=True,
                                  predicate_alias=["countries"])
 
@@ -535,7 +531,6 @@ class Person(Entry):
                             queryable=True)
 
     country = SingleRelationship(relationship_constraint=["Country"],
-                                 queryable=True,
                                  predicate_alias=["countries"])
 
     url = String(
@@ -651,20 +646,23 @@ class Archive(Entry):
     text_types = ListRelationship(description="Text Genres covered by dataset",
                                  relationship_constraint="TextType",
                                  required=True,
-                                 autoload_choices=True)
+                                 autoload_choices=True,
+                                 queryable=True)
 
     text_units = ListRelationship(description="List of text units available in the data archive (e.g., sentences, paragraphs, tweets, news articles, summaries, headlines)",
                                   relationship_constraint="UnitOfAnalysis",
                                   render_kw={
                                       'placeholder': 'Select multiple...'},
                                   autoload_choices=True,
-                                  allow_new=True)
+                                  allow_new=True,
+                                  queryable=True)
 
     languages = ListRelationship(description="Which languages are covered in the archive?",
                                  tom_select=True,
                                  render_kw={
                                      'placeholder': 'Select multiple...'},
-                                 autoload_choices=True)
+                                 autoload_choices=True,
+                                 queryable=True)
 
     date_modified = String()
 
@@ -672,13 +670,15 @@ class Archive(Entry):
                                       relationship_constraint="MetaVariable",
                                       render_kw={
                                           'placeholder': 'Select multiple...'},
-                                      autoload_choices=True)
+                                      autoload_choices=True,
+                                      queryable=True)
 
     concept_variables = ListRelationship(description="List of variables based on concepts (e.g. sentiment, frames, etc)",
                                          relationship_constraint="ConceptVariable",
                                          render_kw={
                                              'placeholder': 'Select multiple...'},
-                                         autoload_choices=True
+                                         autoload_choices=True,
+                                         queryable=True
                                          )
 
 
@@ -728,7 +728,8 @@ class Dataset(Entry):
                                         queryable=True)
 
     fulltext_available = Boolean(
-        description="does the dataset contain fulltext?")
+        description="does the dataset contain fulltext?",
+        queryable=True)
     
     geographic_scope = MultipleChoice(description="What is the geographic scope of the dataset?",
                                     choices={'multinational': 'Multinational',
@@ -744,14 +745,16 @@ class Dataset(Entry):
                                  autoload_choices=True,
                                  render_kw={
                                      'placeholder': 'Select multiple countries...'},
-                                 predicate_alias=["country"])
+                                 predicate_alias=["country"],
+                                 queryable=True)
 
     languages = ListRelationship(description="Which languages are covered in the dataset?",
                                  relationship_constraint=['Language'],
                                  # tom_select=True,
                                  render_kw={
                                      'placeholder': 'Select multiple...'},
-                                 autoload_choices=True)
+                                 autoload_choices=True,
+                                 queryable=True)
 
     temporal_coverage_start = DateTime(description="Start date of the dataset")
 
@@ -761,7 +764,8 @@ class Dataset(Entry):
                                  relationship_constraint="TextType",
                                  # required=True,
                                  allow_new=True,
-                                 autoload_choices=True)
+                                 autoload_choices=True,
+                                 queryable=True)
 
     file_formats = ListRelationship(description="In which file format(s) is the dataset stored?",
                                     autoload_choices=True,
@@ -770,7 +774,8 @@ class Dataset(Entry):
                                     render_kw={'placeholder': 'Select multiple...'})
 
     sources_included = ListRelationship(relationship_constraint=['NewsSource', 'Organization', 'PoliticalParty', 'Government', 'Parliament', 'Person'],
-                                        render_kw={'placeholder': 'Select multiple...'})
+                                        render_kw={'placeholder': 'Select multiple...'},
+                                        queryable=True)
 
     documentation = ListString(description="Is there additional documentation for the dataset? (e.g., codebook, documentation, etc)",
                                tom_select=True, render_kw={'placeholder': 'please paste the URLs to the documentation here!'})
@@ -783,21 +788,24 @@ class Dataset(Entry):
                                       relationship_constraint="MetaVariable",
                                       render_kw={
                                           'placeholder': 'Select multiple...'},
-                                          allow_new=True,
-                                      autoload_choices=True)
+                                      allow_new=True,
+                                      autoload_choices=True,
+                                      queryable=True)
 
     concept_variables = ListRelationship(description="List of variables based on concepts (e.g. sentiment, frames, etc)",
                                          relationship_constraint="ConceptVariable",
                                          render_kw={
                                              'placeholder': 'Select multiple...'},
-                                             allow_new=True,
-                                         autoload_choices=True
+                                         allow_new=True,
+                                         autoload_choices=True,
+                                         queryable=True
                                          )
 
     text_units = ListRelationship(description="text segmentation in the resource, what level of text units are available",
                                   relationship_constraint="UnitOfAnalysis",
                                   allow_new=True,
-                                  autoload_choices=True)
+                                  autoload_choices=True,
+                                  queryable=True)
 
     related_publications = ListRelationship(
         relationship_constraint="ScientificPublication")
