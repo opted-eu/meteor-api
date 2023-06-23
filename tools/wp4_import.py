@@ -1,6 +1,6 @@
 """
-    Script for converting table (csv, xlsx) data about political parties
-    to JSON files, ready for DGraph
+    Script to import WP4 data (parties & datasets) into Meteor
+    Requires master spreadsheet "OPTED Taxonomy.xlsx" as input.
 """
 
 import itertools
