@@ -632,6 +632,7 @@ for dataset_url, dataset in wp5_datasets.items():
             except:
                 pass
     new_dataset['countries'] = new_dataset_countries
+    # TODO: asser unique name not already taken
     new_dataset['_unique_name'] = dataset['dgraph_type'][0].lower() + '_' + country_code_mapping[dataset['countries'][0]] + '_' + slugify(new_dataset['name'], separator="")
 
     clean_wp5.append(new_dataset)
