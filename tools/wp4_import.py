@@ -705,8 +705,6 @@ for entry in wp4_metavars:
 
 
 metavars_lookup = {'date': {'uid': j['metavariable_date'][0]['uid']},
-                   'title': {'uid': j['metavariable_headline'][0]['uid']},
-                   'title(s)': {'uid': j['metavariable_headline'][0]['uid']},
                    'newspaper': {'uid': j['metavariable_newssource'][0]['uid']},
                    'page': {'uid': j['metavariable_pagenumber'][0]['uid']},
                    'author': {'uid': '_:metavariable_author'},
@@ -717,6 +715,8 @@ metavars_lookup = {'date': {'uid': j['metavariable_date'][0]['uid']},
                    'election_year': {'uid': '_:metavariable_electionyear'},
                    'keywords.': {'uid': '_:metavariable_keywords'},
                    'language': {'uid': '_:metavariable_language'},
+                   'title': {'uid': "_:metavariable_documenttitle"},
+                   'title(s)': {'uid': "_:metavariable_documenttitle"},
                    'manifesto_title': {'uid': '_:metavariable_documenttitle'},
                    'manifesto_year': {'uid': '_:metavariable_year'},
                    'mp name': {'uid': '_:metavariable_politicianname'},
@@ -803,6 +803,13 @@ def resolve_openalex(doi, cache):
         res = client.txn(read_only=True).query(query_string, variables={'$openalex': open_alex})
         j = json.loads(res.json)
         if len(j['q']) == 0:
+            if open_alex in cache:
+                author_details = cache[open_alex]
+            else:
+                api = "https://api.openalex.org/people/"
+                r = requests.get(api + open_alex, params={'mailto': "info@opted.eu"})
+                author_details = r.json()
+                cache[open_alex] = author_details
             author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
                             '_unique_name': 'author_' + slugify(open_alex, separator=""),
                             'entry_review_status': ENTRY_REVIEW_STATUS,
@@ -817,6 +824,11 @@ def resolve_openalex(doi, cache):
                             }
             if author['author'].get("orcid"):
                 author_entry['orcid'] = author['author']['orcid'].replace('https://orcid.org/', '')
+            try:
+                author_entry['last_known_institution'] = author_details['last_known_institution']['display_name']
+                author_entry['last_known_institution|openalex'] = author_details['last_known_institution']['id']
+            except:
+                pass
         else:
             author_entry = {'uid': j['q'][0]['uid']}
         authors.append(author_entry)
