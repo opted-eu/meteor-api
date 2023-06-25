@@ -1,0 +1,74 @@
+[
+    {
+        "uid": "_:texttype_legislativespeech",
+        "_unique_name": "texttype_legislativespeech",
+        "name": "Legislative Speech",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_question",
+        "_unique_name": "texttype_question",
+        "name": "Question",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_interpelletion",
+        "_unique_name": "texttype_interpelletion",
+        "name": "Interpelletion",
+        "wikidata_id": "Q1505023",
+        "description": "formal request of a parliament to the respective government",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_legislativedocument",
+        "_unique_name": "texttype_legislativedocument",
+        "name": "Legislative Document",
+        "description": "Broad category that also includes bills and laws",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_law",
+        "_unique_name": "texttype_law",
+        "name": "Law",
+        "description": "a law passed by a parliament",
+        "wikidata_id": "Q1076579",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_bill",
+        "_unique_name": "texttype_bill",
+        "name": "Bill",
+        "description": "fully formulated legal act, which is presented to the legislative bodies for consideration and vote",
+        "wikidata_id": "Q686822",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_amendment",
+        "_unique_name": "texttype_amendment",
+        "name": "Amendment",
+        "wikidata_id": "Q1269627",
+        "description": "legal act proposed in a bill or motion, that adds, changes, substitutes, omits or abolishes clauses to one or several other acts which previously adopted or projected.",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    }
+]
