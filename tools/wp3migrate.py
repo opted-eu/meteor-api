@@ -153,7 +153,9 @@ ADMIN_UID = j[0]['uid']
 
 print('Migrating Datasets and Corpora...')
 
-# Dataset and Corpus
+""" text types """
+
+# Dataset, Corpus, and Archives
 
 query = """{
   c as var(func: type(Corpus))
@@ -603,7 +605,7 @@ def resolve_openalex(entry, cache):
     if doi in cache:
         j = cache[doi]
     else:
-        api = "http://api.openalex.org/works/doi:"
+        api = "https://api.openalex.org/works/doi:"
         r = requests.get(api + doi)
         j = r.json()
         cache[doi] = j
@@ -613,6 +615,13 @@ def resolve_openalex(entry, cache):
     for i, author in enumerate(j['authorships']):
         a_name = author['author']['display_name']
         open_alex = author['author']['id'].replace('https://openalex.org/', "")
+        if open_alex in cache:
+            author_details = cache[open_alex]
+        else:
+            api = "https://api.openalex.org/people/"
+            r = requests.get(api + open_alex, params={'mailto': "info@opted.eu"})
+            author_details = r.json()
+            cache[open_alex] = author_details
         author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
                         '_unique_name': 'author_' + slugify(open_alex, separator=""),
                         'entry_review_status': ENTRY_REVIEW_STATUS,
@@ -627,6 +636,11 @@ def resolve_openalex(entry, cache):
                         }
         if author['author'].get("orcid"):
             author_entry['orcid'] = author['author']['orcid'].replace('https://orcid.org/', '')
+        try:
+            author_entry['last_known_institution'] = author_details['last_known_institution']['display_name']
+            author_entry['last_known_institution|openalex'] = author_details['last_known_institution']['id']
+        except:
+            pass
         authors.append(author_entry)
     output['authors'] = authors
     return output
@@ -881,5 +895,40 @@ for entry in j:
 
 res = client.txn().mutate(set_obj=updated_entries, 
                           commit_now=True)
+
+# Text types
+
+text_types = [{'uid': '_:texttype_journalistictext',
+               '_unique_name': 'texttype_journalistictext',
+               'name': 'Journalistic Text',
+               'alternate_names': ['Journalistic Mass-mediated political text', 'JMPT'],
+               '_date_created': datetime.now().isoformat(),
+               'entry_review_status': 'accepted',
+                '_added_by': {
+                    'uid': ADMIN_UID,
+                    '_added_by|timestamp': datetime.now().isoformat()},
+                'dgraph.type': ['Entry', 'TextType']
+               }]
+
+txn = client.txn()
+res = txn.mutate(set_obj=text_types, commit_now=True)
+
+# Dataset, Corpus, and Archives
+
+query = """{
+  d as var(func: type(Dataset))
+  a as var(func: type(Archive))
+  jmpt as var(func: eq(_unique_name, "texttype_journalistictext"))
+}"""
+
+nquad = """uid(d) <text_types> uid(jmpt) .
+           uid(a) <text_types> uid(jmpt) .
+        """
+
+txn = client.txn()
+
+mutation = txn.create_mutation(set_nquads=nquad)
+request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
+txn.do_request(request)
 
 client_stub.close()
