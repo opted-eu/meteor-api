@@ -107,12 +107,12 @@
         <small data-bs-toggle="tooltip" data-bs-placement="top" title="This entry has to be checked by a reviewer first." class="text-muted">(pending)</small>
         {% endif %}
         {% if tag.get('countries|temporal_coverage_start') %}
-        <small class="text-muted">from: {% if tag.get('countries|temporal_coverage_start') is string %} 
+        <small class="text-muted">from: {% if tag.get('countries|temporal_coverage_start') is string or tag.get('countries|temporal_coverage_start') is integer %} 
             {{ tag.get('countries|temporal_coverage_start') }}
             {% else %}
             {{ tag.get('countries|temporal_coverage_start').strftime('%Y') }}
             {% endif %}</small>
-        <small class="text-muted">to: {% if tag.get('countries|temporal_coverage_end') is string %} 
+        <small class="text-muted">to: {% if tag.get('countries|temporal_coverage_end') is string or tag.get('countries|temporal_coverage_end') is integer %} 
             {{ tag.get('countries|temporal_coverage_end') }}
             {% else %}
             {{ tag.get('countries|temporal_coverage_end').strftime('%Y') }}
