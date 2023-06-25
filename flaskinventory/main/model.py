@@ -643,7 +643,7 @@ class Archive(Entry):
         'Country', 'Multinational'], autoload_choices=True,
         predicate_alias=["country"])
 
-    text_types = ListRelationship(description="Text Genres covered by dataset",
+    text_types = ListRelationship(description="Text Genres covered by archive",
                                  relationship_constraint="TextType",
                                  required=True,
                                  autoload_choices=True,
@@ -1096,6 +1096,8 @@ class Author(Entry):
     url = String(label="URL", description="Website of author")
     openalex = ListString(label="OpenAlex ID",
                           description="ID(s) of the author on OpenAlex")
+    
+    last_known_institution = String(description="Affiliation of author")
 
 
 """
