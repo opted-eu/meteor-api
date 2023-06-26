@@ -29,6 +29,13 @@
                     </div>
                     {{ form.used_for(class="form-select form-select-lg", placeholder='anything...') }}
                 </div>
+                <div class="col-md-5" id="form-text_types" hidden>
+                    {{ form.text_types.label(class="form-label") }}
+                    <div class="invalid-feedback">
+                        Please select one type.
+                    </div>
+                    {{ form.text_types(class="form-select form-select-lg", placeholder='anything...') }}
+                </div>
 
             </div>
             <div class="row">
@@ -77,9 +84,15 @@
         if (typeSelector.value == 'Tool') {
             document.getElementById('form-used_for').hidden = false
             document.getElementById('form-country').hidden = true
+            document.getElementById('form-text_types').hidden = true
+        } else if (['Dataset', 'Archive'].includes(typeSelector.value)) {
+            document.getElementById('form-used_for').hidden = true
+            document.getElementById('form-country').hidden = true
+            document.getElementById('form-text_types').hidden = false
         } else {
             document.getElementById('form-used_for').hidden = true
             document.getElementById('form-country').hidden = false
+            document.getElementById('form-text_types').hidden = true
         }
     }
 

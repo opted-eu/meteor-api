@@ -175,6 +175,13 @@
 
 {% endif %}
 
+
+{% if 'TextType' in entry['dgraph.type'] %}
+
+    {% include "view/elements/texttype/reverse.html" %}
+
+{% endif %}
+
 {% if config['DEBUG'] %}
 
 <div class="border rounded p-3">

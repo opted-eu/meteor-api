@@ -35,6 +35,7 @@ class User(Schema, UserLogin):
     _pw = Password(label='Password', required=True)
     _pw_reset = String(hidden=True, edit=False, facets=[
                        Facet('used', dtype=bool)])
+    
     orcid = String('ORCID')
     _date_joined = DateTime(label="Date joined", description='Date when this account was created',
                             read_only=True, edit=False)
@@ -47,8 +48,10 @@ class User(Schema, UserLogin):
                                    hidden=True, edit=False, default='pending')
 
     preference_emails = Boolean('Receive Email notifications', default=True)
-    follows_entities = ListRelationship('Following', autoload_choices=False,
-                                        edit=False)
+    follows_entities = ListRelationship('Following', 
+                                        autoload_choices=False,
+                                        edit=False,
+                                        relationship_constraint="Entry")
     follows_types = ListString('Following types')
 
 
@@ -393,6 +396,7 @@ class NewsSource(Entry):
                                                queryable=True)
 
     languages = ListRelationship(description="In which language(s) does the news source publish its news texts?",
+                                 relationship_constraint="Language",
                                  required=True,
                                  tom_select=True,
                                  queryable=True,
@@ -496,7 +500,7 @@ class Government(Entry):
                                     radio_field=True,
                                     queryable=True)
 
-    subnational = SingleRelationship()
+    subnational = SingleRelationship(relationship_constraint="Subnational")
 
     url = String(label="URL", description="Official website of the government")
 
@@ -659,6 +663,7 @@ class Archive(Entry):
 
     languages = ListRelationship(description="Which languages are covered in the archive?",
                                  tom_select=True,
+                                 relationship_constraint="Language",
                                  render_kw={
                                      'placeholder': 'Select multiple...'},
                                  autoload_choices=True,
@@ -881,6 +886,7 @@ class Tool(Entry):
                                              description="Which programming languages are used for the tool? \
                                             Please also include language that can directly interface with this tool.",
                                              required=False,
+                                             relationship_constraint="ProgrammingLanguage",
                                              tom_select=True,
                                              queryable=True,
                                              autoload_choices=True)
@@ -930,6 +936,7 @@ class Tool(Entry):
 
     languages = ListRelationship(description="Which languages does the tool support?",
                                  tom_select=True,
+                                 relationship_constraint="Language",
                                  queryable=True,
                                  autoload_choices=True)
 

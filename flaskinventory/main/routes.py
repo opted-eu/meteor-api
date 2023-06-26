@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, send_from_directory, current_app, 
 from flaskinventory import dgraph
 from flaskinventory.misc.forms import get_country_choices
 from flaskinventory.view.forms import SimpleQuery
-from flaskinventory.main.model import Tool, NewsSource
+from flaskinventory.main.model import Tool, NewsSource, Dataset, Archive
 
 from datetime import datetime
 
@@ -19,6 +19,7 @@ def home():
         pass
 
     setattr(Q, 'used_for', Tool.used_for.query_field)
+    setattr(Q, 'text_types', Dataset.text_types.query_field)
     form = Q()
     form.country.choices = c_choices
 

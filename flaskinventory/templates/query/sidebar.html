@@ -110,7 +110,7 @@
 <script>
 
 const entitySelector = document.getElementById('dgraph.type')
-const alwaysVisible = ['_terms', 'countries', 'languages', 'channel']
+const alwaysVisible = ['_terms', 'countries', 'languages', 'channel', 'text_types']
 
 // temporary hack to update sources_included
 
@@ -199,7 +199,9 @@ const sortedContainer = document.getElementById('fieldset-container-sorted')
 const unsortedContainer = document.getElementById('fieldset-container-unsorted')
 
 const correctOrder = ["dgraph.type", 
-                        "countries", "channel", "languages",
+                        "countries", "channel", 
+                        "languages",
+                        "text_types",
                         "sources_included",
                         "used_for",
                         "concept_variables",
