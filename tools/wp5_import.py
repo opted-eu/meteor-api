@@ -14,6 +14,7 @@ import pydgraph
 from slugify import slugify
 import requests
 from dateutil import parser as dateparser
+import secrets
 
 from tools.countries_language_mapping import get_country_language_mapping, get_country_wikidata_mapping
 
@@ -342,14 +343,14 @@ fileformats_lookup = {'rtf': {'uid': j['fileformat_rtf'][0]['uid']},
                    'info': {'uid': j['fileformat_txt'][0]['uid']},
                    'pdf': {'uid': j['fileformat_pdf'][0]['uid']},
                    'doc': {'uid': j['fileformat_doc'][0]['uid']},
-                   #"eaf": {'uid': j['fileformat_eaf'][0]['uid']},
+                   "eaf": {'uid': j['fileformat_eaf'][0]['uid']},
                    'rdata': {'uid': j['fileformat_rdata'][0]['uid']},
                    'tab': {'uid': j['fileformat_tsvtab'][0]['uid']},
                    'csv': {'uid': j['fileformat_csv'][0]['uid']},
-                   #'rdf': {'uid': j['fileformat_rdf'][0]['uid']},
+                   'rdf': {'uid': j['fileformat_rdf'][0]['uid']},
                    'odt': {'uid': j['fileformat_odt'][0]['uid']},
                    'xls': {'uid': j['fileformat_xls'][0]['uid']},
-                   #'tmx': {'uid': j['fileformat_tmx'][0]['uid']},
+                   'tmx': {'uid': j['fileformat_tmx'][0]['uid']},
                    }
 
 
@@ -556,6 +557,9 @@ wp5_datasets = df.fillna('').groupby("url").agg(list).to_dict(orient='index')
 
 clean_wp5 = []
 
+# keep track on unique names
+_unique_names = []
+
 for dataset_url, dataset in wp5_datasets.items():
     for v in dataset.values():
         remove_none(v)
@@ -632,8 +636,15 @@ for dataset_url, dataset in wp5_datasets.items():
             except:
                 pass
     new_dataset['countries'] = new_dataset_countries
-    # TODO: asser unique name not already taken
-    new_dataset['_unique_name'] = dataset['dgraph_type'][0].lower() + '_' + country_code_mapping[dataset['countries'][0]] + '_' + slugify(new_dataset['name'], separator="")
+    # assert unique name not already taken
+    _unique_name = dataset['dgraph_type'][0].lower() + '_' + country_code_mapping[dataset['countries'][0]] + '_' + slugify(new_dataset['name'], separator="")
+    if _unique_name not in _unique_names:
+        new_dataset['_unique_name'] = _unique_name
+        _unique_names.append(_unique_name)
+    else:
+        _unique_name += secrets.token_urlsafe(6)
+        new_dataset['_unique_name'] = _unique_name
+        _unique_names.append(_unique_name)
 
     clean_wp5.append(new_dataset)
 
