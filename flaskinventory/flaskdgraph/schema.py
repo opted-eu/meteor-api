@@ -37,9 +37,15 @@ class Schema:
     # registry of all relationship predicates
     __relationship_predicates__ = {}
 
+    # registry of all reverse relationships
+    # key: dgraph.type where reverse relationship points to
+    # value: predicate that points to dgraph.type
+    # e.g., {'User': <DGraph Predicate "_added_by">}
+    __reverse_relationships__ = {}
+
     # registry of explicit reverse relationship that should generate a form field
     # key = predicate (string), val = dict of predicates
-    __reverse_relationship_predicates__ = {}
+    __explicit_reverse_relationship_predicates__ = {}
 
     # registry of all predicates that can be queried by users
     # have their attribute `queryable` set to `True`
@@ -55,14 +61,24 @@ class Schema:
     def __init_subclass__(cls) -> None:
 
         from .dgraph_types import _PrimitivePredicate, Facet, Predicate, SingleRelationship, ReverseRelationship, MutualRelationship
-        predicates = {key: getattr(cls, key) for key in cls.__dict__ if isinstance(
-            getattr(cls, key), (Predicate, MutualRelationship))}
+        # all predicates associated with type
+        predicates = {}
+        # only relationship predicates
+        relationship_predicates = {}
+        # reverse relationship predicates
+        # reverse_relationships = {}
+        # explicit reverse predicates
+        reverse_predicates = {}
 
-        relationship_predicates = {key: getattr(cls, key) for key in cls.__dict__ if isinstance(
-            getattr(cls, key), (SingleRelationship, MutualRelationship))}
+        for key in cls.__dict__:
+            val = getattr(cls, key)
+            if isinstance(val, (Predicate, MutualRelationship)):
+                predicates[key] = val
+            if isinstance(val, (SingleRelationship, MutualRelationship)):
+                relationship_predicates[key] = val
+            if isinstance(val, ReverseRelationship):
+                reverse_predicates[key] = val
 
-        reverse_predicates = {key: getattr(cls, key) for key in cls.__dict__ if isinstance(
-            getattr(cls, key), ReverseRelationship)}
 
         # base list of queryable predicates
         queryable_predicates = {key: val for key,
@@ -97,7 +113,7 @@ class Schema:
                         set(Schema.__inheritance__[cls.__name__]))
 
         Schema.__types__[cls.__name__] = predicates
-        Schema.__reverse_relationship_predicates__[
+        Schema.__explicit_reverse_relationship_predicates__[
             cls.__name__] = reverse_predicates
         Schema.__perm_registry_new__[cls.__name__] = cls.__permission_new__
         Schema.__perm_registry_edit__[cls.__name__] = cls.__permission_edit__
@@ -126,6 +142,12 @@ class Schema:
                 else:
                     cls.__relationship_predicates__[
                         key].append(cls.__name__)
+                if cls_attribute.dgraph_directives is not None and '@reverse' in cls_attribute.dgraph_directives:
+                    for constraint in cls_attribute.relationship_constraint:
+                        try:
+                            Schema.__reverse_relationships__[constraint].append(cls_attribute)
+                        except:
+                            Schema.__reverse_relationships__[constraint] = [cls_attribute]
             if key not in cls.__predicates__:
                 cls.__predicates__.update({key: attribute})
             
@@ -199,7 +221,23 @@ class Schema:
 
         relationships = cls.__types__[_cls]
         return {k: v for k, v in relationships.items() if isinstance(v, (SingleRelationship, MutualRelationship))}
+    
+    @classmethod
+    def get_reverse_relationships(cls, _cls) -> dict:
+        """
+            Get all reverse relationships from the DGraph Type to other DGraph Types.
+            Returns a dict of `{'predicate_name': <DGraph Predicate>}`
+            `Schema.get_reverse_relationships('NewsSource')` -> {'publishes': <DGraph Predicate "publishes"> ...}
+        """
+        from .dgraph_types import SingleRelationship, MutualRelationship
+        if not isinstance(_cls, str):
+            _cls = _cls.__name__
 
+        try:
+            return deepcopy(Schema.__reverse_relationships__[_cls])
+        except KeyError:
+            return None
+      
     @classmethod
     def get_reverse_predicates(cls, _cls) -> dict:
         """
@@ -209,8 +247,8 @@ class Schema:
         """
         if not isinstance(_cls, str):
             _cls = _cls.__name__
-        if _cls in cls.__reverse_relationship_predicates__:
-            return deepcopy(cls.__reverse_relationship_predicates__[_cls])
+        if _cls in cls.__explicit_reverse_relationship_predicates__:
+            return deepcopy(cls.__explicit_reverse_relationship_predicates__[_cls])
         else:
             return None
 
@@ -237,8 +275,8 @@ class Schema:
 
     @classmethod
     def reverse_predicates(cls) -> dict:
-        if cls.__name__ in cls.__reverse_relationship_predicates__:
-            return deepcopy(cls.__reverse_relationship_predicates__[cls.__name__])
+        if cls.__name__ in cls.__explicit_reverse_relationship_predicates__:
+            return deepcopy(cls.__explicit_reverse_relationship_predicates__[cls.__name__])
         else:
             return None
 

@@ -332,3 +332,7 @@ class DQLQuery:
     
     def get_graphql_variables(self) -> dict:
         return {var.name: var.value for var in self.graphql_variable_declarations}
+    
+    def fetch(self, predicates: list) -> None:
+        for query_block in self.query_blocks:
+            query_block.attributes_to_fetch = predicates
