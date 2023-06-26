@@ -9,15 +9,15 @@ class SimpleQuery(FlaskForm):
     entity = SelectField('Entity Type',
                          choices=[
                              ('PoliticalParty', 'Political Party'),
+                             ('Dataset', 'Dataset'),
+                             ('Archive', 'Data Archive'),
                              ('JournalisticBrand', 'Journalistic Brand'),
+                             ('Tool', 'Tool'),
+                             ('Collection', 'Collection'),
                              ('Government', 'Government'),
                              ('Parliament', 'Parliament'),
                              ('Person', 'Person'),
-                             ('Organization', 'Organization'),
-                             ('Archive', 'Data Archive'),
-                             ('Dataset', 'Dataset'),
-                             ('Tool', 'Tool'),
-                             ('Collection', 'Collection')
+                             ('Organization', 'Organization')
                              ],
                             validators=[DataRequired()],
                             name='dgraph.type')

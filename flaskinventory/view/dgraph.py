@@ -35,9 +35,9 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
                             uid _unique_name name entry_review_status display_name 
                             authors @facets { uid _unique_name name } 
                             _authors_fallback @facets title 
-                            channel { name _unique_name 
-                            } 
-                        }'''
+                            channel { uid name _unique_name }
+                            }
+                        '''
 
     if dgraph_type == 'NewsSource':
         query_fields += '''published_by: ~publishes @facets @filter(type("Organization")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
@@ -97,6 +97,13 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
     elif dgraph_type == 'UnitOfAnalysis':
         query_fields += '''
                         dataset: ~text_units @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
+                        } }
+                        '''
+    elif dgraph_type == 'TextType':
+        query_fields += '''
+                        datasets: ~text_types @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
+                        archives: ~text_types @filter(type("Archive")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
+                        publications: ~text_types @filter(type("ScientificPublication")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
                         } }
                         '''
     else:
