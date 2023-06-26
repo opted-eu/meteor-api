@@ -119,12 +119,12 @@ class UserLogin(UserMixin):
         user_id = data.get('confirm')
 
         user = cls(uid=user_id)
-        if user.pw_reset_used:
+        if user._pw_reset_used:
             return False
-        elif user.pw_reset != token:
+        elif user._pw_reset != token:
             return False
         else:
-            dgraph.update_entry({'pw_reset|used': True}, uid=user_id)
+            dgraph.update_entry({'_pw_reset|used': True}, uid=user_id)
             return user
 
     @classmethod
@@ -180,8 +180,8 @@ class UserLogin(UserMixin):
             algorithm="HS256"
         )
 
-        dgraph.update_entry({'pw_reset': reset_token,
-                             'pw_reset|used': False}, uid=self.id)
+        dgraph.update_entry({'_pw_reset': reset_token,
+                             '_pw_reset|used': False}, uid=self.id)
         return reset_token
 
     def get_invite_token(self, expires_days=7) -> str:

@@ -6,7 +6,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from flaskinventory import dgraph
 from flaskinventory.flaskdgraph.utils import validate_uid
 from flaskinventory.users.forms import (InviteUserForm, RegistrationForm, LoginForm, UpdatePasswordForm,
-                                        UpdateProfileForm, RequestResetForm, ResetPasswordForm,
+                                        UpdateProfileForm, RequestResetForm, ResetPasswordForm, ResendConfirmationForm,
                                         EditUserForm, AcceptInvitationForm)
 from flaskinventory.users.utils import requires_access_level, make_users_table
 from flaskinventory.users.emails import send_reset_email, send_invite_email, send_verification_email
@@ -57,6 +57,26 @@ def verify_email(token):
     flash('Email verified! You can now try to log in', 'success')
     return redirect(url_for('users.login'))
 
+
+@users.route('/register/resend', methods=['GET', 'POST'])
+def resend_email():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    form = ResendConfirmationForm()
+    if form.validate_on_submit():
+        user = User(email=form.email.data)
+        if user._account_status == 'active':
+            flash(Markup(f'Your email is already verified. Please try to login. Have you forgotten your password? <a href="{url_for("users.reset_request")}" class="alert-link">You can reset your password here</a>'), 'danger')
+            return redirect(url_for('users.login'))
+        else:
+            send_verification_email(user)
+            flash(
+                f'Verification email send to {form.email.data}! Please check your inbox and verify your email address!', 'success')
+            return redirect(url_for('users.login'))
+    
+    return render_template('users/reset_request.html', title='Resend Verification Email', form=form)
+
+
 @users.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -74,6 +94,7 @@ def login():
             return redirect(next_page) if next_page else redirect(url_for('users.profile'))
         else:
             flash(Markup(f'Login unsuccessful. Please check username and password. Have you verified your email address? Do you need an account? <a href="{url_for("users.register")}" class="alert-link">You can register here</a>'), 'danger')
+    
     return render_template('users/login.html', title='Login', form=form)
 
 
@@ -130,7 +151,9 @@ def reset_request():
         # Change for ORM syntax
         # user = dgraph.query(User.email == "email")
         user = User(email=form.email.data)
-        send_reset_email(user)
+        token = user.get_reset_token()
+        send_reset_email(token, user.email)
+
         flash('An email has been sent with instructions to reset your password', 'info')
         return redirect(url_for('users.login'))
     return render_template('users/reset_request.html', title='Reset Password', form=form)

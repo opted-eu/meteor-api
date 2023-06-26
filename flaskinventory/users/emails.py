@@ -2,11 +2,10 @@ from flask import current_app, url_for, render_template
 from flaskinventory import mail
 from flask_mail import Message
 
-def send_reset_email(user):
-    token = user.get_reset_token()
+def send_reset_email(token, email):
     subject = 'Password Reset Request'
     msg = Message(subject,
-                  sender=current_app.config['MAIL_DEFAULT_SENDER'], recipients=[user.email])
+                  sender=current_app.config['MAIL_DEFAULT_SENDER'], recipients=[email])
 
     msg.html = render_template('emails/reset.html', token=token, subject=subject)
     msg.body = f'''To reset your password visit the following link:
