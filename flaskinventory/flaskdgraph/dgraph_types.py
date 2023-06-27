@@ -588,7 +588,7 @@ class Scalar:
         Utility class for Single Values
     """
 
-    def __init__(self, value, facets=None):
+    def __init__(self, value: Any, facets: dict = None) -> None:
         if type(value) in [datetime.date, datetime.datetime]:
             self.year = value.year
             self.month = value.month

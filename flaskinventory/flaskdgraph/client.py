@@ -154,11 +154,18 @@ class DGraph(object):
         data = json.loads(res.json, object_hook=self.datetime_hook)
         return data
 
-    def get_uid(self, field: str, value: str) -> str:
+    def get_uid(self, field: str, value: str, query_filter: list = None) -> str:
         value = str(value).strip()
         query_string = f'''
             query quicksearch($value: string)
-            {{ q(func: eq({field}, $value)) {{ uid {field} }} }}'''
+            {{ q(func: eq({field}, $value)) '''
+        
+        if query_filter:
+            query_string += "@filter(" + " AND ".join(query_filter) + ")"
+        
+        query_string += f'''
+            {{ uid {field} dgraph.type }} }}'''
+        
         data = self.query(query_string, variables={'$value': value})
         if len(data['q']) == 0:
             return None
