@@ -232,14 +232,15 @@ class DGraph(object):
         Update Methods
     """
 
-    def update_entry(self, input_data, uid=None):
-        self.logger.debug("Performing mutation:")
-        self.logger.debug(input_data)
+    def update_entry(self, input_data: dict, uid=None) -> bool:
         if type(input_data) is not dict:
             raise TypeError()
 
         if uid:
             input_data['uid'] = str(uid)
+
+        self.logger.debug("Performing mutation:")
+        self.logger.debug(input_data)
 
         txn = self.connection.txn()
 
