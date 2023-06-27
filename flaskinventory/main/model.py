@@ -966,10 +966,10 @@ class Tool(Entry):
     documentation = ListString(description="Is there additional documentation for the tool? (e.g., FAQ, Tutorials, Website, etc)",
                                tom_select=True, render_kw={'placeholder': 'please paste the URLs to the documentation here!'})
 
-    materials = ReverseListRelationship('tools_taught', description="Learning materials related to the tool",
+    materials = ReverseListRelationship('tools', description="Learning materials related to the tool",
                                         tom_select=True)
 
-    related_publications = ReverseListRelationship('tools_used',
+    related_publications = ReverseListRelationship('tools',
                                                    description="Which research publications are using this tool?",
                                                    autoload_choices=True,
                                                    new=False,
@@ -1045,7 +1045,7 @@ class ScientificPublication(Entry):
     description = String(
         large_textfield=True, description="Abstract or a short description of the publication")
 
-    tools_used = ListRelationship(description="Which research tool(s) where used in the publication?",
+    tools = ListRelationship(description="Which research tool(s) where used in the publication?",
                                   autoload_choices=True,
                                   relationship_constraint="Tool")
 
@@ -1055,7 +1055,8 @@ class ScientificPublication(Entry):
 
     concept_variables = ListRelationship(description="concepts investigated in this publication",
                                          relationship_constraint="ConceptVariable",
-                                         allow_new=True)
+                                         allow_new=True,
+                                         autoload_choices=True)
 
     sources_included = ListRelationship(description="Which entities are covered in the publication",
                                         autoload_choices=False,
@@ -1171,11 +1172,17 @@ class UnitOfAnalysis(Entry):
 
 class Collection(Entry):
 
-    creators = ListRelationship(
-        relationship_constraint="User", default=get_current_user_uid)
+    name = String(required=True, description="How do you want to call your new collection?")
+
+    alternate_names = ListString(description='Other names for your collection?')
+
+    description = String(large_textfield=True,
+                         overwrite=True,
+                         description="Please provide a brief description for your collection")
 
     entries_included = ListRelationship(description="What are the entries that you want to include in this collection?",
                                         autoload_choices=False,
+                                        queryable=True,
                                         relationship_constraint=["Dataset",
                                                                  "Archive",
                                                                  "NewsSource",
@@ -1190,8 +1197,13 @@ class Collection(Entry):
                                  relationship_constraint=["Language"],
                                  autoload_choices=True)
 
-    countries = ListRelationship(description="Which countries, multinational constructs, or subunits are related to this collection?",
-                                 relationship_constraint=["Country", "Multinational", "Subnational"])
+    countries = ListRelationship(description="Which countries, or multinational constructs are related to this collection?",
+                                 relationship_constraint=["Country", "Multinational"])
+    
+    subnational_scope = SubunitAutocode(label='Subunits',
+                                        description='Which subnational entities are related to this collection?',
+                                        tom_select=True,
+                                        queryable=True)
 
     tools = ListRelationship(description="Which tools are related to this collection?",
                              relationship_constraint=["Tool"])
@@ -1203,7 +1215,8 @@ class Collection(Entry):
                                  relationship_constraint=["LearningMaterial"])
 
     concept_variables = ListRelationship(description="Is this collection about concepts or related to theoretical constructs?",
-                                         relationship_constraint=["ConceptVariable"])
+                                         relationship_constraint=["ConceptVariable"],
+                                         autoload_choices=True)
 
 
 class LearningMaterial(Entry):
@@ -1220,7 +1233,7 @@ class LearningMaterial(Entry):
                                      relationship_constraint="Operation",
                                      allow_new=True)
 
-    tools_taught = ListRelationship(description="Which tools are related to this learning material?",
+    tools = ListRelationship(description="Which tools are related to this learning material?",
                                     relationship_constraint=["Tool"])
 
     datasets_used = ListRelationship(description="Does the learning material use a specific dataset?",
