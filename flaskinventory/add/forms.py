@@ -9,13 +9,17 @@ class NewEntry(FlaskForm):
 
     entity = SelectField('Entity Type',
                          choices=[
-                             ('NewsSource', 'News Source'),
-                             ('Organization', 'Media Organization'),
+                             ('Collection', 'Collection'),
                              ('Archive', 'Data Archive'),
                              ('Dataset', 'Dataset'),
                              ('Tool', 'Tool'),
-                             ('Corpus', 'Corpus'),
-                              ('ScientificPublication', 'Scientific Publication')
+                             ('JournalisticBrand', 'Journalistic Brand'),
+                             ('NewsSource', 'News Source'),
+                             ('Person', 'Person'),
+                             ('PoliticalParty', 'Political Party'),
+                             ('Government', 'Government'),
+                             ('Parliament', 'Parliament'),
+                             ('Organization', 'Organization')
                          ],
                          validators=[DataRequired()])
 
