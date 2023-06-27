@@ -76,8 +76,9 @@ def build_query_string(query: dict, public=True) -> str:
         dgraph_type = query.pop('dgraph.type')
         if isinstance(dgraph_type, str):
             dgraph_type = [dgraph_type]
+        dgraph_type = [Schema.get_type(dt) for dt in dgraph_type]
         type_filter = " OR ".join(
-            [f'type("{Schema.get_type(dt)}")' for dt in dgraph_type if Schema.get_type(dt)])
+            [f'type("{dt}")' for dt in dgraph_type if not Schema.is_private(dt)])
         if type_filter:
             filters.append(f'({type_filter})')
     except KeyError:
@@ -91,7 +92,7 @@ def build_query_string(query: dict, public=True) -> str:
         queryable_predicates = Schema.get_queryable_predicates()
     else:
         queryable_predicates = Schema.predicates()
-
+    
     _cleaned_query = {k: v for k, v in query.items(
     ) if k in queryable_predicates}
     cleaned_query = {queryable_predicates[k]: v for k, v in _cleaned_query.items(
