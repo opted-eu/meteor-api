@@ -415,6 +415,13 @@ def resolve_openalex(doi, cache):
         res = client.txn(read_only=True).query(query_string, variables={'$openalex': open_alex})
         j = json.loads(res.json)
         if len(j['q']) == 0:
+            if open_alex in cache:
+                author_details = cache[open_alex]
+            else:
+                api = "https://api.openalex.org/people/"
+                r = requests.get(api + open_alex, params={'mailto': "info@opted.eu"})
+                author_details = r.json()
+                cache[open_alex] = author_details
             author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
                             '_unique_name': 'author_' + slugify(open_alex, separator=""),
                             'entry_review_status': ENTRY_REVIEW_STATUS,
@@ -429,6 +436,11 @@ def resolve_openalex(doi, cache):
                             }
             if author['author'].get("orcid"):
                 author_entry['orcid'] = author['author']['orcid'].replace('https://orcid.org/', '')
+            try:
+                author_entry['last_known_institution'] = author_details['last_known_institution']['display_name']
+                author_entry['last_known_institution|openalex'] = author_details['last_known_institution']['id']
+            except:
+                pass
         else:
             author_entry = {'uid': j['q'][0]['uid']}
         authors.append(author_entry)
@@ -614,13 +626,13 @@ for dataset_url, dataset in wp5_datasets.items():
     sources_included += [{'uid': canonical_governments[g]['uid']} for g in list(itertools.chain(*dataset['government'])) if g in canonical_governments]
     new_dataset['sources_included'] = sources_included
     try:
-        new_dataset['temporal_coverage_start'] = int(min(dataset['temporal_coverage_start']))
+        new_dataset['temporal_coverage_start'] = str(int(min(dataset['temporal_coverage_start'])))
         if new_dataset['temporal_coverage_start'] in ['ongoing', '?']:
              new_dataset['temporal_coverage_start'] = None
     except:
         pass
     try:
-        new_dataset['temporal_coverage_end'] = int(max(dataset['temporal_coverage_end']))
+        new_dataset['temporal_coverage_end'] = str(int(max(dataset['temporal_coverage_end'])))
         if new_dataset['temporal_coverage_end'] in ['ongoing', '?']:
             new_dataset['temporal_coverage_end'] = None
     except:
@@ -654,7 +666,7 @@ mutation_obj = list(canonical_parliaments.values()) + clean_wp5 + wp5_texttypes
 txn = client.txn()
 res = txn.mutate(set_obj=mutation_obj, commit_now=True)
 
-# wp5_mutation_json = p / 'data' / 'wp5_mutation.json'
+wp5_mutation_json = p / 'data' / 'wp5_mutation.json'
 
-# with open(wp5_mutation_json, 'w') as f:
-#     json.dump(mutation_obj, f, indent=1)
+with open(wp5_mutation_json, 'w') as f:
+    json.dump(mutation_obj, f, indent=1)
