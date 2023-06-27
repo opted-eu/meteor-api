@@ -8,7 +8,7 @@ from flaskinventory.flaskdgraph.utils import validate_uid
 from flaskinventory.users.forms import (InviteUserForm, RegistrationForm, LoginForm, UpdatePasswordForm,
                                         UpdateProfileForm, RequestResetForm, ResetPasswordForm, ResendConfirmationForm,
                                         EditUserForm, AcceptInvitationForm)
-from flaskinventory.users.utils import requires_access_level, make_users_table
+from flaskinventory.users.utils import requires_access_level
 from flaskinventory.users.emails import send_reset_email, send_invite_email, send_verification_email
 from flaskinventory.users.constants import USER_ROLES
 from flaskinventory.main.model import User
@@ -242,17 +242,17 @@ def invite():
 @requires_access_level(USER_ROLES.Admin)
 def admin_view():
     user_list = User.list_users()
-    if user_list:
-        users_table = make_users_table(user_list)
-    return render_template('users/admin.html', title='Manage Users', users=users_table)
+    return render_template('users/admin.html', title='Manage Users', users=user_list)
 
 
 @users.route('/users/<string:uid>/edit', methods=['GET', 'POST'])
 @login_required
 @requires_access_level(USER_ROLES.Admin)
 def edit_user(uid):
-    editable_user = User.get_user_data(uid=uid)
-    if editable_user is None:
+    res = dgraph.query(User.uid == uid)
+    try:
+        editable_user = res['q'][0]
+    except:
         return abort(404)
     form = EditUserForm()
     if form.validate_on_submit():
@@ -270,37 +270,30 @@ def edit_user(uid):
         return redirect(url_for('users.admin_view'))
     elif request.method == 'GET':
         form.display_name.data = editable_user.get("display_name")
-        form.user_role.data = editable_user.get("_role")
+        form.role.data = editable_user.get("role")
     return render_template('users/update_user.html', title='Manage Users', user=editable_user, form=form)
 
 
 @users.route('/users/<string:uid>/entries')
-@login_required
 def my_entries(uid):
     uid = validate_uid(uid)
     if not uid:
         return abort(404)
-    if current_user._role > USER_ROLES.Contributor or current_user.id == uid:
-        sources = User.list_entries(uid)
-        if current_user.id == uid:
-            title = 'My Entries'
-        else:
-            title = f'Entries of user <{uid}>' 
-        if sources:
-            return render_template('users/entries.html', 
-                                    title=title, 
-                                    show_sidebar=False, 
-                                    drafts=sources[0].get('drafts'),
-                                    pending=sources[0].get('pending'),
-                                    accepted=sources[0].get('accepted'),
-                                    rejected=sources[0].get('rejected'))
-        else:
-            return render_template('users/entries.html', 
-                                    title=title, 
-                                    show_sidebar=False, 
-                                    drafts=None,
-                                    pending=None,
-                                    accepted=None)
+    sources = User.list_entries(uid)
+    if not sources:
+        return abort(404)
+    if current_user._role <= USER_ROLES.Contributor:
+        sources['drafts'] = None
+        sources['pending'] = None
+        sources['rejected'] = None
+    if hasattr(current_user, 'id') and current_user.id == uid:
+        title = 'My Entries'
     else:
-        return abort(403)
-        
+        title = f'Entries of user <{uid}>' 
+    return render_template('users/entries.html', 
+                            title=title, 
+                            show_sidebar=False, 
+                            drafts=sources.get('drafts'),
+                            pending=sources.get('pending'),
+                            accepted=sources.get('accepted'),
+                            rejected=sources.get('rejected'))

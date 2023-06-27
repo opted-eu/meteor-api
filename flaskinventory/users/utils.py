@@ -21,25 +21,6 @@ def requires_access_level(access_level):
     return decorator
 
 
-from flaskinventory.view.utils import InternalURLCol
-from flask_table import create_table, Col, DateCol, LinkCol
-from flask_table.html import element
-
-# generate table for user admin view
-# lists all users and links to edit permissions
-def make_users_table(table_data):
-    cols = sorted(list(table_data[0].keys()))
-    TableCls = create_table('Table')
-    TableCls.allow_empty = True
-    TableCls.classes = ['table']
-
-    TableCls.add_column('_date_joined', DateCol('Joined Date'))
-    TableCls.add_column('email', Col('Email'))
-    TableCls.add_column('uid', LinkCol('UID', 'users.edit_user', url_kwargs=dict(uid='uid'), attr_list='uid'))
-    TableCls.add_column('_role', Col('User Level'))
-    return TableCls(table_data)
-
-
 # unused utility function for saving picture files to static folder
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)

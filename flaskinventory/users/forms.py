@@ -125,7 +125,7 @@ class EditUserForm(FlaskForm):
     display_name = StringField('Display Name',
                                    validators=[Length(min=2, max=40)])
 
-    user_role = SelectField(
+    role = SelectField(
         'User Role', choices=USER_ROLES.list_of_tuples_b)
 
     submit = SubmitField('Update')

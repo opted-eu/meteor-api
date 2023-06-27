@@ -288,10 +288,8 @@ class UserLogin(UserMixin):
                 if entry.get('dgraph.type'):
                     if 'Entry' in entry['dgraph.type']:
                         entry['dgraph.type'].remove('Entry')
-                    if 'Resource' in entry['dgraph.type']:
-                        entry['dgraph.type'].remove('Resource')
 
-        return data['q']
+        return data['q'][0]
 
     @staticmethod
     def list_users() -> list:

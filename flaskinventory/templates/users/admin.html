@@ -1,6 +1,20 @@
 {% extends "layout.html" %} {% block content %}
 <div class="content-section">
-    {{ users }}
+    <table class="table">
+        <thead>
+            <tr><th>Joined Date</th><th>Email</th><th>UID</th><th>Display Name</th><th>User Level</th></tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user._date_joined }}</td>
+                <td>{{ user.email }}</td>
+                <td><a href="{{ url_for('users.edit_user', uid=user.uid) }}">{{ user.uid }}</a></td>
+                <td>{{ user.display_name }}</td>
+                <td>{{ user.role }}</td></tr>
+            {% endfor %}
+        </table>
+    
 </div>
 
 {% endblock content %}
