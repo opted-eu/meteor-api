@@ -472,8 +472,8 @@ class GitHubAuto(String):
     Utilities
 """
 
-def get_current_user_uid():
+def get_current_user_uid() -> UID:
     if current_user.is_authenticated:
-        return current_user.uid
+        return UID(current_user.uid)
     else:
         raise InventoryValidationError('Cannot determine current user. User not logged in?')
