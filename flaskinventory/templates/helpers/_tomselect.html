@@ -8,6 +8,34 @@ if (embeddedJSON) {
     jsonData = JSON.parse(embeddedJSON.innerHTML)
 } 
 
+function sortAuthors(array, key) {
+    return array.sort(function(a, b) { 
+        var keyA = a[key]
+        var keyB = b[key]
+        if (keyA < keyB) return -1;
+        if (keyA > keyB) return 1;
+        return 0;
+    })
+};
+
+function renderAuthors(data) {
+    let authors = ''
+    let authors_array = new Array
+    if (data.authors) {
+        authors_array = sortAuthors(data.authors, 'authors|sequence').map(a => a.name)
+    } else if (data._authors_fallback) {
+        for ( s of Object.values(data['_authors_fallback|sequence']) ) { 
+            authors_array.push(data['_authors_fallback'][s]) 
+        }
+    }
+    if (authors_array.length > 2) {
+            authors = authors_array[0]
+            authors = authors + ' et al'
+        } else {
+            authors = authors_array.join(", ")
+        }
+    return authors
+}
 
 {% for f in fields %} 
     
@@ -249,7 +277,7 @@ if (embeddedJSON) {
                 if ("country" in data) {
                     country_label = '<small class="text-muted mx-1"> (' + escape(data.country.name) + ')</small>'
                 } else if ("countries" in data) {
-                    country_label = '<small class="text-muted mx-1"> (' + escape(data.countries[0].name) + ')</small>'
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.countries.map(e => e.name).join(", ")) + ')</small>'
                 }
                 return '<div>' +
                         '<span class="title">' + channel_icon + escape(data.name) + channel_label + '</span> ' +
@@ -267,13 +295,240 @@ if (embeddedJSON) {
                 if ("country" in data) {
                                 country_label = '<small class="text-muted mx-1"> (' + escape(data.country.name) + ')</small>'
                 } else if ("countries" in data) {
-                    country_label = '<small class="text-muted mx-1"> (' + escape(data.countries[0].name) + ')</small>'
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.countries.map(e => e.name).join(", ")) + ')</small>'
                 }
                 return '<div>' + escape(data.name) + channel_label + country_label + '</div>';
             }
         }
     };
     new TomSelect("#{{ field.id }}", TomSelectRelatedSourcesConfig);
+
+    {% elif field.name == 'entries_included' %}    
+    
+    var TomSelectEntriesIncludedConfig = {
+        plugins: ['remove_button'],
+        valueField: 'uid',
+        labelField: 'name',
+        searchField: ['name', 'alternate_names', '_unique_name'],
+        optgroupField: 'type',
+        optgroups: [
+            {value: 'Dataset', label: 'Dataset'},
+            {value: 'Archive', label: 'Archive'},
+            {value: 'PoliticalParty', label: 'Political Party'},
+            {value: 'NewsSource', label: 'News Source'},
+            {value: 'JournalisticBrand', label: 'Journalistic Brand'},
+            {value: 'Government', label: 'Government'},
+            {value: 'Parliament', label: 'Parliament'},
+            {value: 'Organization', label: 'Organization'},
+            {value: 'Person', label: 'Person'},
+        ],
+        delimiter: ',',
+        selectOnTab: true,
+        onItemAdd: function(input) { 
+            // clear input after item was selected
+            this.setTextboxValue();
+            this.refreshOptions();
+        },
+        load: function(query, callback) {
+            if ( query.length < 3 ) return callback();
+            var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + 
+                "&predicate=name&dgraph.type=NewsSource&dgraph.type=Organization&dgraph.type=PoliticalParty&dgraph.type=Government&dgraph.type=Parliament&dgraph.type=Person&dgraph.type=Archive&dgraph.type=Dataset&dgraph.type=JournalisticBrand";
+            fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                json.data.forEach(entry => {
+                    entry['type'] = entry['dgraph.type'].filter(e => e != 'Entry')[0]
+                })
+                callback(json.data);
+            }).catch(() => {callback();});
+        },
+        render: {
+            option: function(data, escape) {
+                var channel_label = ' '
+                var channel_icon = ''
+                if (data.channel) {
+                    if (data.channel.name) {
+                        channel_icon = `<i class="icon-${data.channel._unique_name} color-${data.channel._unique_name} me-2 fa-fw" alt="${data.channel.name}"></i>`
+                        channel_label = ' (' + escape(data.channel.name) + ') '
+                        }
+                };
+                var country_label = ' '
+                if ("country" in data) {
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.country.name) + ')</small>'
+                } else if ("countries" in data) {
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.countries.map(e => e.name).join(", ")) + ')</small>'
+                }
+                return '<div>' +
+                        '<span class="title">' + channel_icon + escape(data.name) + channel_label + 
+                        // '<small class="text-muted title">' + data.alternate_names?.join(', ') + '</small>' + 
+                        '</span> ' +
+                        country_label +
+                    '</div>';
+            },
+            item: function(data, escape) {
+                var channel_label = ' '
+                if (data.channel) {
+                    if (data.channel.name) {
+                        var channel_label = ' (' + escape(data.channel.name) + ') '
+                    }
+                };
+                var country_label = ' '
+                if ("country" in data) {
+                                country_label = '<small class="text-muted mx-1"> (' + escape(data.country.name) + ')</small>'
+                } else if ("countries" in data) {
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.countries.map(e => e.name).join(", ")) + ')</small>'
+                }
+                return '<div>' + escape(data.name) + channel_label + country_label + '</div>';
+            }
+        }
+    };
+    new TomSelect("#{{ field.id }}", TomSelectEntriesIncludedConfig);
+
+    {% elif field.name == 'countries' %}    
+    
+    var TomSelectCountriesConfig = {
+        plugins: ['remove_button'],
+        valueField: 'uid',
+        labelField: 'name',
+        searchField: ['name', 'alternate_names', '_unique_name'],
+        optgroupField: 'type',
+        optgroups: [
+            {value: 'Country', label: 'Country'},
+            {value: 'Multinational', label: 'Multinational'},
+        ],
+        delimiter: ',',
+        selectOnTab: true,
+        onItemAdd: function(input) { 
+            // clear input after item was selected
+            this.setTextboxValue();
+            this.refreshOptions();
+        },
+        load: function(query, callback) {
+            if ( query.length < 3 ) return callback();
+            var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + 
+                "&predicate=name&dgraph.type=Country&dgraph.type=Multinational";
+            fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                json.data.forEach(entry => {
+                    entry['type'] = entry['dgraph.type'].filter(e => e != 'Entry')[0]
+                })
+                callback(json.data);
+            }).catch(() => {callback();});
+        },
+        render: {
+            option: function(data, escape) {
+                var country_label = ' '
+                if ("country" in data) {
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.country.name) + ')</small>'
+                } else if ("countries" in data) {
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.countries.map(e => e.name).join(", ")) + ')</small>'
+                }
+                return '<div>' +
+                        '<span class="title">' + escape(data.name) +  
+                        // '<small class="text-muted title">' + data.alternate_names?.join(', ') + '</small>' + 
+                        '</span> ' +
+                        country_label +
+                    '</div>';
+            },
+            item: function(data, escape) {
+                var country_label = ' '
+                if ("country" in data) {
+                                country_label = '<small class="text-muted mx-1"> (' + escape(data.country.name) + ')</small>'
+                } else if ("countries" in data) {
+                    country_label = '<small class="text-muted mx-1"> (' + escape(data.countries.map(e => e.name).join(", ")) + ')</small>'
+                }
+                return '<div>' + escape(data.name) + country_label + '</div>';
+            }
+        }
+    };
+    new TomSelect("#{{ field.id }}", TomSelectCountriesConfig);
+
+    {% elif field.name in ['tools', 'tools_taught', 'tools_used'] %}    
+    
+    var TomSelectToolsConfig = {
+        plugins: ['remove_button'],
+        valueField: 'uid',
+        labelField: 'name',
+        searchField: ['name', 'alternate_names', '_unique_name'],
+        delimiter: ',',
+        selectOnTab: true,
+        onItemAdd: function(input) { 
+            // clear input after item was selected
+            this.setTextboxValue();
+            this.refreshOptions();
+        },
+        load: function(query, callback) {
+            if ( query.length < 3 ) return callback();
+            var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + 
+                "&predicate=name&dgraph.type=Tool";
+            fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                json.data.forEach(entry => {
+                    entry['type'] = entry['dgraph.type'].filter(e => e != 'Entry')[0]
+                })
+                callback(json.data);
+            }).catch(() => {callback();});
+        },
+        render: {
+            option: function(data, escape) {
+                let authors = renderAuthors(data)
+                return '<div>' +
+                        '<span class="title">' + escape(data.name) +  
+                        '<small class="text-muted"> (' + authors + ')</small>' + 
+                        '</span> ' +
+                    '</div>';
+            },
+            item: function(data, escape) {
+                return '<div>' + escape(data.name) + '</div>';
+            }
+        }
+    };
+    new TomSelect("#{{ field.id }}", TomSelectToolsConfig);
+
+    {% elif field.name in ['references'] %}    
+    
+    var TomSelectReferencesConfig = {
+        plugins: ['remove_button'],
+        valueField: 'uid',
+        labelField: 'name',
+        searchField: ['name', 'alternate_names', '_unique_name', 'title'],
+        delimiter: ',',
+        selectOnTab: true,
+        onItemAdd: function(input) { 
+            // clear input after item was selected
+            this.setTextboxValue();
+            this.refreshOptions();
+        },
+        load: function(query, callback) {
+            if ( query.length < 3 ) return callback();
+            var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + 
+                "&predicate=name&dgraph.type=ScientificPublication";
+            fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                json.data.forEach(entry => {
+                    entry['type'] = entry['dgraph.type'].filter(e => e != 'Entry')[0]
+                })
+                callback(json.data);
+            }).catch(() => {callback();});
+        },
+        render: {
+            option: function(data, escape) {
+                let authors = renderAuthors(data)
+                return '<div>' +
+                        '<span class="title">' + escape(data.name) +  
+                        // '<small class="text-muted"> (' + authors + ')</small>' + 
+                        '</span> ' +
+                    '</div>';
+            },
+            item: function(data, escape) {
+                return '<div>' + escape(data.name) + '</div>';
+            }
+        }
+    };
+    new TomSelect("#{{ field.id }}", TomSelectReferencesConfig);
 
     {% elif field.name == 'subnational_scope' %}
     

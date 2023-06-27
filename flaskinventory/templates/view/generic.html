@@ -136,12 +136,12 @@
 {% endif %}
 
 
-{% if 'Corpus' in entry['dgraph.type'] %}
+{% if 'Collection' in entry['dgraph.type'] %}
 
-    {% include "view/elements/corpus/about.html" %}
-    {% include "view/elements/corpus/research.html" %}
+    {% include "view/elements/collection/about.html" %}
 
 {% endif %}
+
 
 {% if 'Operation' in entry['dgraph.type'] %}
 

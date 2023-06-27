@@ -1,0 +1,85 @@
+{% from "helpers/_viewhelpers.html" import render_tags, render_publication %}
+
+<div class="border rounded p-3">
+    <dl class="row">
+        <dt class="col-sm-3">Created by</dt>
+        <dd class="col-sm-9"><a href="{{url_for('users.my_entries', uid=entry._added_by.uid) }}">{{ entry._added_by.display_name }}</a></dd>
+    </dl>
+</div>
+<div class="border rounded p-3">
+    <dl class="row">
+        <dt class="col-sm-3 my-4"><h5>Collection includes</h5></dt>
+        <dd class="col-sm-9 my-4"><small class="text-muted">Which entries are included in the collection.</small></dd>
+        <dt class="col-sm-3">Entries</dt>
+        <dd class="col-sm-9">{{ render_tags(entry.entries_included) }}</dd>
+        {% if entry.references %}
+        <dt class="col-sm-3">Research</dt>
+        <dd class="col-sm-9">
+            {% for paper in entry.references %}
+                <p>{{ render_publication(paper) }}</p>
+            {% endfor %}
+        </dd>
+        {% endif %}
+        {% if entry.text_types %}
+        <dt class="col-sm-3">Text types</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.text_types) }}
+        </dd>
+        {% endif %}
+        {% if entry.languages %}
+        <dt class="col-sm-3">Language(s) in collection</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.languages) }}
+        {% endif %}
+        {% if entry.countries %}
+        <dt class="col-sm-3">Countries covered in collection</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.countries) }}
+        </dd>
+        {% endif %}
+        {% if entry.temporal_coverage_start %}
+        <dt class="col-sm-3">Start Date of coverage</dt>
+        <dd class="col-sm-9">
+            {{entry.temporal_coverage_start.strftime('%Y-%m-%d') }}
+        {% endif %}
+        {% if entry.temporal_coverage_end %}
+        <dt class="col-sm-3">End Date of coverage</dt>
+        <dd class="col-sm-9">
+            {{entry.temporal_coverage_end.strftime('%Y-%m-%d')}}
+        {% endif %}
+        {% if entry.file_formats %}
+        <dt class="col-sm-3">collection File Format</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.file_formats) }}
+        </dd>
+        {% endif %}
+        {% if entry.initial_source %}
+        <dt class="col-sm-3">Initial Sources of collection</dt>
+        <dd class="col-sm-9">
+            {% for source in entry.initial_source %}
+                {{ render_publication(source) }}
+            {% endfor %}
+        </dd>
+        {% endif %}
+        {% if entry.meta_variables %}
+        <dt class="col-sm-3">Included Meta Variables</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.meta_variables ) }}
+        </dd>
+        {% endif %}
+        {% if entry.concept_variables %}
+        <dt class="col-sm-3">Included Conceptual Variables</dt>
+        <dd class="col-sm-9">
+            {{ render_tags(entry.concept_variables ) }}
+        </dd>
+        {% endif %}
+        {% if entry.tools %} 
+        <dt class="col-sm-3">Tools</dt>
+        <dd class="col-sm-9 mb-4">
+            {% for tool in entry.tools %}
+                <p>{{ render_publication(tool) }}</p>
+            {% endfor %}
+        </dd>
+        {% endif %}
+    </dl>
+</div>
