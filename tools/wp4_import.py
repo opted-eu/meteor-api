@@ -15,6 +15,7 @@ import tweepy
 import instaloader
 import requests
 from dateutil import parser as dateparser
+import secrets
 
 ENTRY_REVIEW_STATUS = 'accepted'
 
@@ -981,6 +982,9 @@ wp4_datasets = wp4.fillna('').groupby("url").agg(list).to_dict(orient='index')
 
 clean_wp4 = []
 
+# keep track on unique names
+_unique_names = []
+
 for dataset_url, dataset in wp4_datasets.items():
     for v in dataset.values():
         remove_none(v)
@@ -988,7 +992,6 @@ for dataset_url, dataset in wp4_datasets.items():
     new_dataset['name'] = dataset['name'][0]
     new_dataset['uid'] = '_:' + slugify(dataset_url, separator="_")
     new_dataset['dgraph.type'] = dataset['entity'] + ['Entry']
-    new_dataset['_unique_name'] = dataset['entity'][0].lower() + '_' + slugify(new_dataset['name'], separator="")
     try:
         doi = dataset['doi'][0] if dataset['doi'][0].strip() != '' else None
         new_dataset['doi'] = doi
@@ -1052,6 +1055,15 @@ for dataset_url, dataset in wp4_datasets.items():
             except:
                 pass
     new_dataset['countries'] = new_dataset_countries
+    _unique_name = dataset['entity'][0].lower() + '_' + slugify(new_dataset['name'], separator="")
+    if _unique_name not in _unique_names:
+        new_dataset['_unique_name'] = _unique_name
+        _unique_names.append(_unique_name)
+    else:
+        _unique_name += secrets.token_urlsafe(6)
+        new_dataset['_unique_name'] = _unique_name
+        _unique_names.append(_unique_name)
+
     clean_wp4.append(new_dataset)
 
 """ Manifesto Corpus """
