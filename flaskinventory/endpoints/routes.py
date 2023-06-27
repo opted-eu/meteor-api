@@ -127,7 +127,7 @@ def sourcelookup():
     Can perform the following
         - query: your search query (default uses equality matching)
         - predicate: predicate to query; 
-            - special case is "name" which searches name-like fields (name, _unique_name)
+            - special case is "name" which searches name-like fields (name, _unique_name, alternate_names, title)
     Filters:
         - dgraph.type: provide a list of types to filter
 """
@@ -171,37 +171,50 @@ def lookup():
                                 query_filter=dgraph_types,
                                 filter_connector="OR",
                                 block_name="field3 as var")
+        
+        field4 = dql.QueryBlock(dql.allofterms(title=query),
+                                query_filter=dgraph_types,
+                                filter_connector="OR",
+                                block_name="field4 as var")
 
-        data = dql.QueryBlock(dql.uid("field1, field2, field3"),
+        data = dql.QueryBlock(dql.uid("field1, field2, field3, field4"),
                             fetch=['uid', 
                                    '_unique_name', 
                                    'name', 
+                                   'title',
                                    'dgraph.type',
+                                   'alternate_names',
                                    'countries { name uid _unique_name }',
                                    'country { name uid _unique_name }',
-                                   'channel { name uid _unique_name }'],
+                                   'channel { name uid _unique_name }',
+                                   'authors @facets { name uid _unique_name }',
+                                   '_authors_fallback @facets'],
                             block_name="data")
 
-        dql_query = dql.DQLQuery('lookup', blocks=[field1, field2, field3, data])
+        dql_query = dql.DQLQuery('lookup', blocks=[field1, field2, field3, field4, data])
 
     else:            
         query_variable = dql.GraphQLVariable(query=query)
+        fetch = ['uid', 
+                '_unique_name', 
+                'name', 
+                'doi',
+                'arxiv',
+                'openalex',
+                'pypi',
+                'github',
+                'cran',
+                'dgraph.type',
+                'countries { name uid _unique_name }',
+                'country { name uid _unique_name }',
+                'channel { name uid _unique_name }',
+                'authors @facets { name uid _unique_name }',
+                '_authors_fallback @facets']
+        if r['predicate'][0] not in fetch:
+            fetch.append(r['predicate'][0])
         dql_query = dql.DQLQuery(block_name="data", func=dql.eq(r['predicate'][0], query_variable), 
                         query_filter=dgraph_types,
-                        fetch=['uid', 
-                                '_unique_name', 
-                                'name', 
-                                'doi',
-                                'arxiv',
-                                'openalex',
-                                'pypi',
-                                'github',
-                                'cran',
-                                'dgraph.type',
-                                'countries { name uid _unique_name }',
-                                'country { name uid _unique_name }',
-                                'channel { name uid _unique_name }'])
-
+                        fetch=fetch)
     try:
         result = dgraph.query(dql_query)
         result['status'] = 200
