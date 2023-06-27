@@ -405,7 +405,7 @@ class AuthorList(OrderedListRelationship):
         for author in data:
             try:
                 if self.openalex_regex.match(author.strip()):
-                    author_uid = dgraph.get_uid(field="openalex", value=author.strip())
+                    author_uid = dgraph.get_uid(field="openalex", value=author.strip(), query_filter=["not type(Rejected)"])
                     if author_uid:
                         pre_processed.append({'uid': UID(author_uid)})
                     else:

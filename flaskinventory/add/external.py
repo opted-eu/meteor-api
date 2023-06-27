@@ -755,4 +755,13 @@ def openalex_getauthorname(author_id: str) -> dict:
         result['name'] = j['display_name']
     if 'orcid' in j:
         result['orcid'] = j['orcid']
+    if 'last_known_institution' in j:
+        try:
+            # prevent circular imports
+            from flaskinventory.flaskdgraph.dgraph_types import Scalar
+            institution = Scalar(j['last_known_institution']['display_name'],
+                                facets={'openalex': j['last_known_institution']['id']})
+            result['last_known_institution'] = institution
+        except:
+            pass
     return result

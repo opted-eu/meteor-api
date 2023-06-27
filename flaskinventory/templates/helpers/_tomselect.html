@@ -558,22 +558,56 @@ function renderAuthors(data) {
                 valueField: 'uid',
                 labelField: 'name',
                 searchField: 'name',
+                optgroupField: 'origin',
+                optgroups: [
+                    {value: 'meteor', label: 'Meteor'},
+                    {value: 'openalex', label: 'OpenAlex API'},
+                ],
                 create: true,
                 delimiter: ';',
                 selectOnTab: true,
                 load: function(query, callback) {
                     if ( query.length < 3 ) return callback();
                     var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + '&predicate=name&dgraph.type=Author';
-                    fetch(url)
-                    .then(response => response.json())
-                    .then(json => {
-                        callback(json.data);
+                    var openalex_url = 'https://api.openalex.org/autocomplete/authors?q=' + encodeURIComponent(query) + '&mailto=info@opted.eu'
+                    Promise.all([fetch(url)
+                                    .then(response => response.json())
+                                    .then(j => j.data)
+                                    .then(function(results) {
+                                        let newArray = new Array
+                                        results.forEach((e) => { 
+                                            e.origin = 'meteor' 
+                                            newArray.push(e)    
+                                        })
+                                        return newArray
+                                    }),
+                                fetch(openalex_url).then(response => response.json())
+                                    .then(j => j.results)
+                                    .then(function(results) {
+                                        let newArray = new Array
+                                        results.forEach((e) => {
+                                            e.name = e.display_name
+                                            e.openalex = e.id
+                                            e.uid = e.id.replace("https://openalex.org/", "")
+                                            e.last_known_institution = e.external_id || e.hint
+                                            e.origin = "openalex"
+                                            newArray.push(e)
+                                        })
+                                        return newArray
+                                    })])
+                    .then((arrayOfArrays) => {
+                        return [].concat.apply([], arrayOfArrays);
+                    })
+                    .then(data => {
+                        callback(data);
                     }).catch(() => {callback();});
                 },
                 render: {
                     option: function(data, escape) {
+                        console.log(data)
                         return '<div>' +
-                                '<span class="title">' + escape(data.name) + '</span> '
+                                '<span class="title">' + escape(data.name) + '</span> ' +
+                                '<small class="text-muted">' + escape(data.last_known_institution) + '</small>' +
                             '</div>';
                     },
                     item: function(data, escape) {

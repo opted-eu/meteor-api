@@ -197,5 +197,11 @@
                 <a href="https://explore.openalex.org/authors/{{ entry.openalex }}" target="_blank" class="external-link">{{ entry.openalex }}</a>
             </dd>
         {% endif %}
+        {% if entry.last_known_institution %}
+            <dt class="col-sm-3">Last known institution</dt>
+            <dd class="col-sm-9">
+                <a href="{{ entry.get('last_known_institution|openalex') }}" target="_blank" class="external-link">{{ entry.last_known_institution }}</a>
+            </dd>
+        {% endif %}
     </dl>
 </div>
