@@ -82,15 +82,14 @@ class UserLogin(UserMixin):
 
     @classmethod
     def login(cls, email: str, password: str):
-        if not current_app.debug:
-            query_string = f"""query login_attempt($email: string)
-                            {{login_attempt(func: eq(email, $email)) {{ _account_status }} }}"""
-            userstatus = dgraph.query(
-                query_string, variables={"$email": email})
-            if len(userstatus['login_attempt']) == 0:
-                return False
-            if userstatus['login_attempt'][0]['_account_status'] != 'active':
-                return False
+        query_string = f"""query login_attempt($email: string)
+                        {{login_attempt(func: eq(email, $email)) {{ _account_status }} }}"""
+        userstatus = dgraph.query(
+            query_string, variables={"$email": email})
+        if len(userstatus['login_attempt']) == 0:
+            return False
+        if userstatus['login_attempt'][0]['_account_status'] != 'active':
+            return False
 
         query_string = f"""query login_attempt($email: string, $pw: string)
                         {{login_attempt(func: eq(email, $email)) {{ checkpwd(_pw, $pw) }} }}"""
@@ -124,7 +123,6 @@ class UserLogin(UserMixin):
         elif user._pw_reset != token:
             return False
         else:
-            dgraph.update_entry({'_pw_reset|used': True}, uid=user_id)
             return user
 
     @classmethod
@@ -141,7 +139,6 @@ class UserLogin(UserMixin):
         user_id = data.get('confirm')
         user = cls(uid=user_id)
         if user:
-            dgraph.update_entry({'_account_status': 'active'}, uid=user_id)
             return user
         else:
             return False
@@ -243,10 +240,10 @@ class UserLogin(UserMixin):
         user_data['preference_emails'] = True
         user_data['_date_joined'] = datetime.datetime.now(
             datetime.timezone.utc).isoformat()
-        if not current_app.debug:
-            user_data['_account_status'] = 'pending'
-        else:
+        if current_app.config.get('TESTING'):
             user_data['_account_status'] = 'active'
+        else:
+            user_data['_account_status'] = 'pending'
 
         if invited_by:
             user_data['_invited_by'] = {'uid': invited_by,

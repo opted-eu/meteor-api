@@ -21,7 +21,7 @@ def send_verification_email(user):
     token = user.get_invite_token()
     subject = 'OPTED Meteor: Please verify your email address'
     msg = Message(subject,
-                sender=current_app.config['MAIL_USERNAME'], recipients=[user.email])
+                sender=current_app.config['MAIL_DEFAULT_SENDER'], recipients=[user.email])
 
     msg.html = render_template('emails/verify.html', token=token, subject=subject)
 
@@ -31,7 +31,7 @@ def send_invite_email(user):
     token = user.get_invite_token()
     subject = 'OPTED: Invitation to join Meteor'
     msg = Message(subject=subject,
-                  sender=current_app.config['MAIL_USERNAME'], recipients=[user.email])
+                  sender=current_app.config['MAIL_DEFAULT_SENDER'], recipients=[user.email])
 
     msg.html = render_template('emails/invitation.html', subject=subject, token=token)
 
@@ -53,7 +53,7 @@ def send_accept_email(entry):
 
     subject = f'Meteor: {name_pretty} now public!'
     msg = Message(subject=subject,
-                  sender=current_app.config['MAIL_USERNAME'], recipients=[entry['_added_by']['email']])
+                  sender=current_app.config['MAIL_DEFAULT_SENDER'], recipients=[entry['_added_by']['email']])
 
     msg.html = render_template('emails/entry_accepted.html', subject=subject, entry=entry)
 

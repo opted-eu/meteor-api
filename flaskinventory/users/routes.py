@@ -26,14 +26,6 @@ def register():
         new_user = {'email': form.email.data,
                     '_pw': form.password.data}
         
-        # Change for ORM syntax
-        # new_uid = dgraph.add(User, email="email", pw="pw")
-
-        # or:
-        # new_user = User(email="email", pw="pw", **kwargs)
-        # new_uid = dgraph.add(new_user)
-
-        # user = dgraph.query(User.uid == new_uid)
         new_uid = User.create_user(new_user)
         user = User(uid=new_uid)
         send_verification_email(user)
@@ -53,7 +45,7 @@ def verify_email(token):
     if user is None:
         flash('That is an invalid or expired token! Please contact us if you experiencing issues.', 'warning')
         return redirect(url_for('main.home'))
-
+    dgraph.update_entry({'_account_status': 'active'}, uid=user.id)
     flash('Email verified! You can now try to log in', 'success')
     return redirect(url_for('users.login'))
 
@@ -85,15 +77,12 @@ def login():
     if form.validate_on_submit():
         user = User.login(form.email.data, form.password.data)
         if user:
-            # Change for ORM syntax
-            # user = dgraph.query(User.email == "email")
-            # user = User(email=form.email.data)
             login_user(user, remember=form.remember.data)
             flash(f'You have been logged in', 'success')
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('users.profile'))
         else:
-            flash(Markup(f'Login unsuccessful. Please check username and password. Have you verified your email address? Do you need an account? <a href="{url_for("users.register")}" class="alert-link">You can register here</a>'), 'danger')
+            flash(Markup(f'<h4 class="alert-heading">Login unsuccessful</h4><p>Please check username and password.</p><p>Have you verified your email address? <a href="{url_for("users.resend_email")}" class="alert-link">You can resend the email verification here</a></p><p>Do you need an account? <a href="{url_for("users.register")}" class="alert-link">You can register here</a></p>'), 'danger')
     
     return render_template('users/login.html', title='Login', form=form)
 
@@ -163,17 +152,19 @@ def reset_request():
 def reset_token(token):
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
+    form = ResetPasswordForm()
 
     user = User.verify_reset_token(token)
-    if user is None:
+    if not user:
         flash('That is an invalid or expired token', 'warning')
         return redirect(url_for('users.reset_request'))
 
-    form = ResetPasswordForm()
     if form.validate_on_submit():
         new_password = {'_pw': form.password.data, '_pw_reset': False}
-        new_uid = dgraph.update_entry(new_password, uid=user.id)
-
+        change_pw = dgraph.update_entry(new_password, uid=user.id)
+        if not change_pw:
+            return abort(403)
+        dgraph.update_entry({'_pw_reset': user._pw_reset, '_pw_reset|used': True}, uid=user.id)
         flash(f'Password updated for {user.id}!', 'success')
         return redirect(url_for('users.login'))
     return render_template('users/reset_token.html', title='Reset Password', form=form)
