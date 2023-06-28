@@ -152,7 +152,7 @@ function fetchMetaData(button) {
 function checkInventory(data) {
     let container = document.getElementById('magic-warning-container')
     let button = document.getElementById('magic')
-    if (data.status) {
+    if (data.status && data.data.length > 0) {
         let identifier = data.data[0].doi
         if (!identifier) {
             identifier = data.data[0].arxiv
@@ -240,6 +240,7 @@ function buttonWarning(button, message = "Invalid Identifier!") {
 }
 
 function parseDOI(json) {
+    console.log(json)
 
     result = new Array
 
@@ -252,6 +253,9 @@ function parseDOI(json) {
     }
 
     result['doi'] = json.ids.doi.replace('https://doi.org/', '')
+    result['openalex'] = json.ids.openalex.replace('https://openalex.org/', '')
+
+
     result['venue'] = json.primary_location?.source?.display_name
 
     result['name'] = json.title
