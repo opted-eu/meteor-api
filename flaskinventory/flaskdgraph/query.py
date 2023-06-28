@@ -175,7 +175,7 @@ def build_query_string(query: dict, public=True) -> str:
 
         if isinstance(predicate, (SingleRelationship, MutualRelationship)):
             query_parts.append(
-                f'{predicate.query} {facet_filter} {facet_list}  {{ uid name_unique_name }}'.strip())
+                f'{predicate.query} {facet_filter} {facet_list}  {{ uid name _unique_name }}'.strip())
         else:
             query_parts.append(
                 f'{predicate.query} {facet_filter} {facet_list}'.strip())
@@ -185,11 +185,11 @@ def build_query_string(query: dict, public=True) -> str:
     # make sure these default predicates are always queried
     # should be moved outside of this function and made as a setting
     if "country" not in _cleaned_query:
-        query_parts.append('country { uid name_unique_name name }')
+        query_parts.append('country { uid name _unique_name }')
     if "countries" not in _cleaned_query:
-        query_parts.append('countries { uid name_unique_name name }')
+        query_parts.append('countries { uid name _unique_name }')
     if "channel" not in _cleaned_query:
-        query_parts.append('channel { uid name_unique_name name }')
+        query_parts.append('channel { uid name _unique_name }')
 
     # handle facets
     query_parts = list(set(query_parts))
