@@ -559,6 +559,7 @@ function renderAuthors(data) {
                 labelField: 'name',
                 searchField: 'name',
                 optgroupField: 'origin',
+                lockOptgroupOrder: true,
                 optgroups: [
                     {value: 'meteor', label: 'Meteor'},
                     {value: 'openalex', label: 'OpenAlex API'},
@@ -569,7 +570,7 @@ function renderAuthors(data) {
                 load: function(query, callback) {
                     if ( query.length < 3 ) return callback();
                     var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + '&predicate=name&dgraph.type=Author';
-                    var openalex_url = 'https://api.openalex.org/autocomplete/authors?q=' + encodeURIComponent(query) + '&mailto=info@opted.eu'
+                    var openalex_url = 'https://api.openalex.org/autocomplete/authors?q=' + encodeURIComponent(query) + '&author_hint=institution&mailto=info@opted.eu'
                     Promise.all([fetch(url)
                                     .then(response => response.json())
                                     .then(j => j.data)
@@ -589,7 +590,10 @@ function renderAuthors(data) {
                                             e.name = e.display_name
                                             e.openalex = e.id
                                             e.uid = e.id.replace("https://openalex.org/", "")
-                                            e.last_known_institution = e.external_id || e.hint
+                                            e.last_known_institution = e.hint
+                                            if (e.external_id) {
+                                                e.last_known_institution += e.external_id.replace('https://orcid.org/', ' (ORCID: ') + ')'
+                                            }
                                             e.origin = "openalex"
                                             newArray.push(e)
                                         })
@@ -757,7 +761,7 @@ function renderAuthors(data) {
                 this.refreshOptions();
             }
             });
-    
+
     {% endif %}
 
 {% endfor %}
