@@ -26,6 +26,9 @@ print('Loading Schema from model...')
 # Apply new schema (after loading backup)
 schema = Schema.generate_dgraph_schema()
 
+# Add index for temporary unique names (drop later)
+schema += "\n_tmp_unique_name: [string] @index(exact) ."
+
 print('Setting Schema to DGraph')
 # Set schema
 client.alter(pydgraph.Operation(schema=schema))

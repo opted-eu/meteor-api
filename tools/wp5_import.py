@@ -65,11 +65,16 @@ except:
 xlsx = p / 'data' / 'OPTED Taxonomy.xlsx'
 
 df = pd.read_excel(xlsx, sheet_name="WP5")
+cap_df = pd.read_excel(xlsx, sheet_name="CAP")
 
 # clean columns
 
 df_strings = df.select_dtypes(['object'])
 df[df_strings.columns] = df_strings.apply(lambda x: x.str.strip())
+
+cap_df_strings = cap_df.select_dtypes(['object'])
+cap_df[cap_df_strings.columns] = cap_df_strings.apply(lambda x: x.str.strip())
+
 
 """ Get some wikidata mappings for dgraph """
 
@@ -78,10 +83,15 @@ countries_language_mapping_dgraph = get_country_language_mapping()
 
 """ Get Parliaments and Governments from Wikidata """
 df.loc[df.parliament.isna(), 'parliament'] = ""
+cap_df.loc[cap_df.parliament.isna(), 'parliament'] = ""
+
 
 df['parliament'] = df.parliament.apply(lambda x: [y.strip() for y in x.split(';')])
+cap_df['parliament'] = cap_df.parliament.apply(lambda x: [y.strip() for y in x.split(';')])
 
-parliaments_wikidata_ids = df.parliament.explode().unique().tolist()
+
+parliaments_wikidata_ids = df.parliament.explode().unique().tolist() + cap_df.parliament.explode().unique().tolist()
+parliaments_wikidata_ids = list(set(parliaments_wikidata_ids))
 parliaments_wikidata_ids.remove('')
 
 canonical_parliaments = {}
@@ -162,10 +172,14 @@ canonical_parliaments['Q8908']['languages'] = [{'uid': j['french'][0]['uid']},
 """ Governments """
 
 df.loc[df.government.isna(), 'government'] = ""
+cap_df.loc[cap_df.government.isna(), 'government'] = ""
 
 df['government'] = df.government.apply(lambda x: [y.strip() for y in x.split(';')])
+cap_df['government'] = cap_df.government.apply(lambda x: [y.strip() for y in x.split(';')])
 
-governments_wikidata_ids = df.government.explode().unique().tolist()
+governments_wikidata_ids = df.government.explode().unique().tolist() + cap_df.government.explode().unique().tolist()
+governments_wikidata_ids = list(set(governments_wikidata_ids))
+
 governments_wikidata_ids.remove('')
 
 canonical_governments = {}
@@ -230,9 +244,6 @@ for wikidata_id in governments_wikidata_ids:
     new_government['uid'] = '_:' + new_government['_unique_name']
     canonical_governments[wikidata_id] = new_government
 
-with open(wikidata_cache_file, "w") as f:
-    json.dump(wikidata_cache, f)
-
 
 # Manually fix European Commission
 canonical_governments['Q8880']['_unique_name'] = "government_eu_europeancommission"
@@ -258,6 +269,10 @@ for entry in wp5_texttypes:
     entry['entry_review_status'] = ENTRY_REVIEW_STATUS
     entry['_added_by'] = {'uid': ADMIN_UID,
                          '_added_by|timestamp': datetime.now().isoformat()}
+# get manifesto from WP4
+query_string = '{ manifesto(func: eq(_unique_name, "texttype_manifesto")) { uid } }'
+res = client.txn().query(query_string)
+j = json.loads(res.json)
 
 text_type_mapping = {'Legislative speech': {'uid': '_:texttype_legislativespeech'},
                      'Questions': {'uid': '_:texttype_question'},
@@ -265,14 +280,17 @@ text_type_mapping = {'Legislative speech': {'uid': '_:texttype_legislativespeech
                      'Legislative document': {'uid': '_:texttype_legislativedocument'},
                      'Laws': {'uid': '_:texttype_law'},
                      'Bills': {'uid': '_:texttype_bill'},
-                     'Amendments': {'uid': '_:texttype_amendment'}}
+                     'Amendments': {'uid': '_:texttype_amendment'},
+                     'Manifesto': j['manifesto'][0]}
 
 df.loc[df.text_type.isna(), 'text_type'] = ""
 df['text_types'] = df.text_type.apply(lambda x: [text_type_mapping[y.strip()] for y in x.split(';')])
 
+
 """ Meta Vars """
 
 df.loc[df.meta_vars.isna(), 'meta_vars'] = ""
+cap_df.loc[cap_df.meta_vars.isna(), 'meta_vars'] = ""
 
 query_string = """{
     metavariable_date(func: eq(_unique_name, "metavariable_date")) { uid }
@@ -307,6 +325,7 @@ metavars_lookup = {'date': {'uid': j['metavariable_date'][0]['uid']},
 
 
 df['meta_variables'] = df.meta_vars.apply(lambda x: [metavars_lookup[y.strip().lower()] for y in x.split(',') if y.strip().lower() in metavars_lookup])
+
 
 """ File Formats """
 
@@ -363,7 +382,7 @@ query_string = '''query countries($country: string) {
     q(func: match(name, $country, 2)) @filter(type(Country) OR type(Multinational)) { uid _unique_name name iso_3166_1_2 } 
 }'''
 
-countries = df.countries.unique().tolist()
+countries = list(set(df.countries.unique().tolist() + cap_df.countries.unique().tolist()))
 
 country_uid_mapping = {}
 country_unique_name_mapping = {}
@@ -509,13 +528,6 @@ for doi in dois:
         failed.append(doi)
 
 
-with open(author_cache_file, "w") as f:
-    json.dump(author_cache, f)
-
-
-with open(crossref_cache_file, "w") as f:
-    json.dump(crossref_cache, f)
-
 """ Dataframe to json """
 
 def remove_none(l: list):
@@ -660,13 +672,183 @@ for dataset_url, dataset in wp5_datasets.items():
 
     clean_wp5.append(new_dataset)
 
+""" CAP Comparative Agendas Project """
+
+# Only principal investigators, in alphabetical order
+
+cap_authors_ids = [
+                   'A2131181776', # "E. Scott Adler"
+                   'A2058889440', # "Petya Alexandrova"
+                   'A2092558081', # "Anthony M. Bertelli",
+                   'A4364111795', # "Shaun Bevan"
+                   'A2117355790', # Felipe Gonçalves Brasil
+                   'A2113519852', # "Christian Breunig"
+                   'A2280864390', # "Laura Chaqués Bonafont"
+                   'A2004930978', # Ana Cláudia Niedhardt Capella
+                   'A147734712', # "Marcello Carammia"
+                   'A2050248265', # "Roy Gava"
+                   'A2118894099', # Christoffer Green-Pedersen
+                   'A314638087', # "Isabelle Guinaudeau"
+                   'A2167894569', # Will Jennings
+                   'A4358641479', # Peter John
+                   'A4267416689', # Luz Muñoz Màrquez
+                   'A2014855980', # Peter B. Mortensen
+                   'A2131914141', # Anna M. Palau
+                   'A4339388086', # "Sebastiaan Princen"
+                   'A4333550685', # "Tinette Schnatterer"
+                   'A2188386334', # "Pascal Sciarini"
+                   'A4337499954', # "Arco Timmermans"
+                   'A4297190057', # Anke Tresch
+                   'A4357284298', # Stefaan Walgrave 
+                   'A4297309152', # "John Wilkerson"
+                   'A72279048', # "Christina Wolbrecht"
+                   'A1145779895', # "Frédéric Varone"
+                   ]
+
+cap_authors = []
+
+for i, open_alex in enumerate(cap_authors_ids):
+    query_string = """query lookupAuthor ($openalex: string) 
+    {
+        q(func: eq(openalex, $openalex)) {
+                uid
+        }
+    }"""
+    res = client.txn(read_only=True).query(query_string, variables={'$openalex': open_alex})
+    j = json.loads(res.json)
+    if len(j['q']) == 0:
+        if open_alex in author_cache:
+            author_details = author_cache[open_alex]
+        else:
+            api = "https://api.openalex.org/people/"
+            r = requests.get(api + open_alex, params={'mailto': "info@opted.eu"})
+            author_details = r.json()
+            author_cache[open_alex] = author_details
+        author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
+                        '_unique_name': 'author_' + slugify(open_alex, separator=""),
+                        'entry_review_status': ENTRY_REVIEW_STATUS,
+                        'openalex': open_alex,
+                        'name': author_details['display_name'],
+                        '_date_created': datetime.now().isoformat(),
+                        'authors|sequence': i,
+                        '_added_by': {
+                            'uid': ADMIN_UID,
+                            '_added_by|timestamp': datetime.now().isoformat()},
+                        'dgraph.type': ['Entry', 'Author']
+                        }
+        if author_details['ids'].get("orcid"):
+            author_entry['orcid'] = author_details['ids']['orcid'].replace('https://orcid.org/', '')
+        try:
+            author_entry['last_known_institution'] = author_details['last_known_institution']['display_name']
+            author_entry['last_known_institution|openalex'] = author_details['last_known_institution']['id']
+        except:
+            pass
+    else:
+        author_entry = {'uid': j['q'][0]['uid']}
+    cap_authors.append(author_entry)
+
+cap_metavars = cap_df.meta_vars.apply(lambda x: [y.strip().lower() for y in x.split(',')]).explode().unique()
+cap_metavariables = [metavars_lookup[v] for v in cap_metavars.tolist() if v in metavars_lookup]
+
+cap_df['countries_uid'] = cap_df.countries.replace(country_uid_mapping)
+
+cap_countries = {c: {'uid': c} for c in cap_df['countries_uid'].unique().tolist()}
+cap_start = cap_df.groupby("countries_uid").agg(list).temporal_coverage_start.apply(min).to_dict()
+cap_end = cap_df.groupby("countries_uid").agg(list).temporal_coverage_end.apply(max).to_dict()
+
+for k in cap_countries:
+    cap_countries[k]['countries|temporal_coverage_start'] = cap_start[k]
+    cap_countries[k]['countries|temporal_coverage_end'] = cap_end[k]
+
+cap_df.loc[cap_df.parties.isna(), 'parties'] = "" 
+cap_parties_tmp_names = cap_df.parties.apply(lambda x: [y.strip().lower() for y in x.split(';')]).explode().unique().tolist()
+cap_parties_tmp_names.remove('')
+query_string = """query party($party: string) {
+    q(func: eq(_tmp_unique_name, $party)) { uid }
+}"""
+
+parties_lookup = {}
+
+for party in cap_parties_tmp_names:
+    try:
+        res = client.txn().query(query_string, variables={'$party': party})
+        j = json.loads(res.json)['q'][0]
+        parties_lookup[party] = j['uid']
+    except:
+        print('couldnt find party:', party)
+
+filt = cap_df.parties != ""
+
+cap_parties = []
+
+for index, row in cap_df[filt].iterrows():
+    parties = [p.lower().strip() for p in row['parties'].split(';')]
+    temporal_coverage_start = row['temporal_coverage_start']
+    temporal_coverage_end = row['temporal_coverage_end']
+    for p in parties:
+        try:
+            party = {'uid': parties_lookup[p],
+                    'sources_included|temporal_coverage_start': temporal_coverage_start,
+                    'sources_included|temporal_coverage_end': temporal_coverage_end}
+            cap_parties.append(party)
+        except:
+            continue
+
+sources_included = [{'uid': canonical_parliaments[p]['uid']} for p in cap_df.parliament.explode().unique().tolist() if p in canonical_parliaments]
+sources_included += [{'uid': canonical_governments[g]['uid']} for g in cap_df.government.explode().unique().tolist() if g in canonical_governments]
+sources_included += cap_parties
+
+cap_entry = {
+    'name': 'Comparative Agendas Project',
+    '_unique_name': 'dataset_global_comparative_agendas_project',
+    'uid': '_:dataset_global_comparative_agendas_project',
+    'alternate_names': ['CAP', 
+                        'French Policy Agendas Project', 
+                        'German Comparative Agenda',
+                        'Agenda Dynamics in Spain',
+                        'UK Policy Agendas Project'],
+    'url': 'https://www.comparativeagendas.net/',
+    'description': 'The Comparative Agendas Project (CAP) assembles and codes information on the policy processes of governments from around the world. [Authors listed in alphabetical order]',
+    'dgraph.type': ['Entry', 'Dataset'],
+    'authors': cap_authors,
+    'conditions_of_access': 'free',
+    'fulltext_available': True,
+    'geographic_scope': ['national', 'supranational'],
+    'text_types': list(text_type_mapping.values()),
+    'file_formats': [fileformats_lookup['csv']],
+    'meta_variables': cap_metavariables,
+    'temporal_coverage_start': str(int(cap_df.temporal_coverage_start.min())),
+    'temporal_coverage_end': str(int(cap_df.temporal_coverage_end.max())),
+    'countries': list(cap_countries.values()),
+    'sources_included': sources_included,
+    '_date_created': datetime.now().isoformat(),
+    'entry_review_status': ENTRY_REVIEW_STATUS,
+    '_added_by': {
+        'uid': ADMIN_UID,
+        '_added_by|timestamp': datetime.now().isoformat()},
+}
 
 mutation_obj = list(canonical_parliaments.values()) + clean_wp5 + wp5_texttypes
+mutation_obj.append(cap_entry)
 
 txn = client.txn()
 res = txn.mutate(set_obj=mutation_obj, commit_now=True)
+
+p = Path.cwd()
 
 wp5_mutation_json = p / 'data' / 'wp5_mutation.json'
 
 with open(wp5_mutation_json, 'w') as f:
     json.dump(mutation_obj, f, indent=1)
+
+
+with open(author_cache_file, "w") as f:
+    json.dump(author_cache, f)
+
+
+with open(crossref_cache_file, "w") as f:
+    json.dump(crossref_cache, f)
+
+
+with open(wikidata_cache_file, "w") as f:
+    json.dump(wikidata_cache, f)
