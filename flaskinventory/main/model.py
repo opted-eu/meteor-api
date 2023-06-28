@@ -1048,11 +1048,11 @@ class ScientificPublication(Entry):
         large_textfield=True, description="Abstract or a short description of the publication")
 
     tools = ListRelationship(description="Which research tool(s) where used in the publication?",
-                                  autoload_choices=True,
                                   relationship_constraint="Tool")
 
     methodologies = ListRelationship(description="Methodologies / Operations used in the publication",
                                      relationship_constraint="Operation",
+                                     autoload_choices=True,
                                      allow_new=True)
 
     concept_variables = ListRelationship(description="concepts investigated in this publication",
@@ -1068,6 +1068,12 @@ class ScientificPublication(Entry):
                                                                  "Person",
                                                                  "Government",
                                                                  "Parliament"])
+    
+    text_types = ListRelationship(description="Text Genres investigated in publication",
+                                 relationship_constraint="TextType",
+                                 required=True,
+                                 autoload_choices=True,
+                                 queryable=True)
 
     text_units = ListRelationship(description="List of text units analysed in the publication (e.g., sentences, paragraphs, tweets, news articles, summaries, headlines)",
                                   relationship_constraint="UnitOfAnalysis",

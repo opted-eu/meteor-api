@@ -450,7 +450,7 @@ class Sanitizer:
                 current_app.logger.warning(f'Could not retrieve country code for new entry <{entry.get("name", entry)}>: {e}', exc_info=True)
 
         if 'openalex' in entry:
-            _name = slugify(entry['openalex'], separator="")
+            _name = slugify(str(entry['openalex']), separator="")
         else:
             try:
                 _name = slugify(str(entry['name']), separator="")

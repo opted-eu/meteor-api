@@ -15,6 +15,7 @@ class NewEntry(FlaskForm):
                              ('Tool', 'Tool'),
                              ('JournalisticBrand', 'Journalistic Brand'),
                              ('NewsSource', 'News Source'),
+                             ('ScientificPublication', 'Scientific Publication'),
                              ('Person', 'Person'),
                              ('PoliticalParty', 'Political Party'),
                              ('Government', 'Government'),
@@ -27,7 +28,7 @@ class NewEntry(FlaskForm):
 class AutoFill(FlaskForm):
     platform = SelectField('Autofill from',
                             choices=[('arxiv', 'arXiv'),
-                                      ('doi', 'DOI'),
+                                     ('doi', 'DOI'),
                                      ('cran', 'CRAN')],
                             validators=[DataRequired()])
 
