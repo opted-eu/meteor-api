@@ -123,7 +123,6 @@ if (current_url.searchParams.get('sources_included')) {
         fetch(endpoint_lookup_uid + uid)
             .then((response) => response.json())
             .then(function(json) {
-                console.log(json);
                 sources_included.tomselect.addOption(json["q"][0]);
                 sources_included.tomselect.addItem(json["q"][0]["uid"])
             })

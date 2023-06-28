@@ -41,3 +41,17 @@
     </dl>
 </div>
 {% endif %}
+{% if entry.publications %} 
+<div class="border rounded p-3">
+    <dl class="row">
+        <dt class="col-sm-3 my-4"><h5>Publications</h5></dt>
+        <dd class="col-sm-9 my-4"><small class="text-muted"></small></dd>
+        <dt class="col-sm-3"></dt>
+        <dd class="col-sm-9 mb-4">
+            {% for publication in entry.publications %}
+                <p>{{ render_publication(publication) }}</p>
+            {% endfor %}
+        </dd>
+    </dl>
+</div>
+{% endif %}

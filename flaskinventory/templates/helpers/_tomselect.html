@@ -608,7 +608,6 @@ function renderAuthors(data) {
                 },
                 render: {
                     option: function(data, escape) {
-                        console.log(data)
                         return '<div>' +
                                 '<span class="title">' + escape(data.name) + '</span> ' +
                                 '<small class="text-muted">' + escape(data.last_known_institution) + '</small>' +
