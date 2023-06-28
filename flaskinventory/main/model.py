@@ -638,6 +638,7 @@ class Archive(Entry):
                                              'national': 'National',
                                              'subnational': 'Subnational'},
                                     required=True,
+                                    tom_select=True,
                                     # radio_field=True,
                                     queryable=True)
 
@@ -741,6 +742,7 @@ class Dataset(Entry):
                                              'national': 'National',
                                              'subnational': 'Subnational'},
                                     required=True,
+                                    tom_select=True,
                                     # radio_field=True,
                                     queryable=True)
 
@@ -1087,6 +1089,7 @@ class ScientificPublication(Entry):
                                              'national': 'National',
                                              'subnational': 'Subnational'},
                                     required=True,
+                                    tom_select=True,
                                     # radio_field=True,
                                     queryable=True)
 
