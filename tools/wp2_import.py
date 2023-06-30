@@ -387,10 +387,7 @@ for index, row in wp2datasets[~filt].iterrows():
     except:
         pass
     new_entry['name'] = row['name']
-    if type(doi) == float:
-        new_entry['_unique_name'] = 'dataset_' + slugify(new_entry['url'], separator="")
-    else:
-        new_entry['_unique_name'] = 'dataset_' + slugify(doi, separator="")
+    new_entry['_unique_name'] = 'dataset_' + slugify(new_entry['name'], separator="")
     new_entry['uid'] = '_:' + new_entry['_unique_name']
     new_entry['text_types'] = [{"uid": "_:texttype_citizen"}]
     wp2_datasets_canonical[row['wp2_paper_id']] = new_entry
