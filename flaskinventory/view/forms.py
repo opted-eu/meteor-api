@@ -14,6 +14,7 @@ class SimpleQuery(FlaskForm):
                              ('JournalisticBrand', 'Journalistic Brand'),
                              ('Tool', 'Tool'),
                              ('Collection', 'Collection'),
+                             ('ScientificPublication', 'Scientific Publication'),
                              ('Government', 'Government'),
                              ('Parliament', 'Parliament'),
                              ('Person', 'Person'),

@@ -214,15 +214,17 @@ def query():
 
     form = generate_query_forms(dgraph_types=['JournalisticBrand', 
                                               'PoliticalParty', 
-                                              'Government', 
-                                              'Parliament', 
-                                              'Organization', 
+                                              'Collection',
                                               'Dataset', 
                                               'Archive', 
                                               'NewsSource',
                                               'Tool', 
-                                              'Author', 
-                                              'Collection'],
+                                              'ScientificPublication',
+                                              'Government', 
+                                              'Parliament', 
+                                              'Organization', 
+                                              'Author'
+                                              ],
                                 populate_obj=request.args)
 
     if json_output:
