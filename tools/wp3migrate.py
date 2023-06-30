@@ -21,6 +21,20 @@ ENTRY_REVIEW_STATUS = "accepted"
 
 p = Path.cwd()
 
+
+author_cache_file = p / "data" / "author_cache.json"
+
+try:
+    with open(author_cache_file) as f:
+        author_cache = json.load(f)
+except:
+    author_cache = {}
+
+new_channels_file = p / "data" / "channels.json"
+
+with open(new_channels_file) as f:
+    new_channels = json.load(f)
+
 print('Loading Schema from model...')
 
 # Apply new schema (after loading backup)
@@ -595,14 +609,6 @@ txn.discard()
 
 print('Migrating Authors ...')
 
-author_cache_file = p / "data" / "author_cache.json"
-
-try:
-    with open(author_cache_file) as f:
-        author_cache = json.load(f)
-except:
-    author_cache = {}
-
 def resolve_openalex(entry, cache):
     doi = entry['doi']
     if doi in cache:
@@ -933,5 +939,22 @@ txn = client.txn()
 mutation = txn.create_mutation(set_nquads=nquad)
 request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
 txn.do_request(request)
+
+""" Add new channels """
+
+channel_template = {'_date_created': datetime.now().isoformat(),
+                  'entry_review_status': ENTRY_REVIEW_STATUS,
+                  '_added_by': {
+                      'uid': ADMIN_UID,
+                      '_added_by|timestamp': datetime.now().isoformat() },
+                  }
+
+for c in new_channels:
+    c.update(channel_template)
+
+
+txn = client.txn()
+res = txn.mutate(set_obj=new_channels, commit_now=True)
+
 
 client_stub.close()

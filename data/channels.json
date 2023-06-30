@@ -1,0 +1,90 @@
+[{
+    "uid": "_:youtube",
+    "_unique_name": "youtube",
+    "name": "YouTube",
+    "description": "video-sharing platform owned by Google",
+    "wikidata_id": "Q866",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:reddit",
+    "_unique_name": "reddit",
+    "name": "Reddit",
+    "description": "American social news aggregation website and discussion portal",
+    "wikidata_id": "Q1136",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:4chan",
+    "_unique_name": "4chan",
+    "name": "4chan",
+    "description": "English-language imageboard website",
+    "wikidata_id": "Q238330",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:tumblr",
+    "_unique_name": "tumblr",
+    "name": "Tumblr",
+    "description": "microblogging platform and social networking website",
+    "wikidata_id": "Q384060",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:Googleplus",
+    "_unique_name": "googleplus",
+    "name": "Google+",
+    "description": "social networking service",
+    "wikidata_id": "Q356",
+    "defunct": true,
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:linkedin",
+    "_unique_name": "linkedin",
+    "name": "LinkedIn",
+    "description": "American social networking website for people in professional occupations",
+    "wikidata_id": "Q213660",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:pinterest",
+    "_unique_name": "pinterest",
+    "name": "Pinterest",
+    "description": "photo sharing and publishing website",
+    "wikidata_id": "Q255381",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:weibo",
+    "_unique_name": "weibo",
+    "name": "Sina Weibo",
+    "name@zh": "新浪微博",
+    "description": "photo sharing and publishing website",
+    "wikidata_id": "Q92526",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+}]
