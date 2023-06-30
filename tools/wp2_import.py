@@ -107,7 +107,7 @@ wp2datasets.loc[wp2datasets.temporal_coverage_end.isna(), 'temporal_coverage_end
 
 
 query_string = '''query countries($country: string) {
-    q(func: match(name, $country, 2)) @filter(type(Country) OR type(Multinational)) { uid _unique_name name iso_3166_1_2 } 
+    q(func: match(name, $country, 1)) @filter(type(Country) OR type(Multinational)) { uid _unique_name name iso_3166_1_2 } 
 }'''
 
 df.loc[df.countries.isna(), 'countries'] = ''
