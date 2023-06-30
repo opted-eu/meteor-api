@@ -46,10 +46,9 @@ def restore_sequence(d: dict, sequence_key='sequence'):
             if isinstance(val[0], dict) and predicate + "|" + sequence_key in val[0].keys():
                 ordered_sequence = {int(subval[predicate + "|" + sequence_key]): subval for subval in val}
                 d[predicate] = [ordered_sequence[i] for i in sorted(ordered_sequence.keys())]
-            else:
-                for subval in val:
-                    if isinstance(subval, dict):
-                        restore_sequence(subval, sequence_key=sequence_key)      
+            for subval in val:
+                if isinstance(subval, dict):
+                    restore_sequence(subval, sequence_key=sequence_key)      
         if predicate + "|" + sequence_key in d.keys():
             ordered_sequence = {int(k): v for k, v in sorted(d[predicate + "|" + sequence_key].items(), key=lambda item: item[1])}
             d[predicate] = [d[predicate][k] for k, _ in ordered_sequence.items()]
