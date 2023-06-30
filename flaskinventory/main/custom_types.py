@@ -437,6 +437,9 @@ class MultipleChoiceInt(MultipleChoice):
     dgraph_predicate_type = '[int]'
     dgraph_directives = ['@index(int)']
 
+    def __init__(self, overwrite=True, *args, **kwargs) -> None:
+        super().__init__(overwrite, default=None, *args, **kwargs)
+
     def validation_hook(self, data):
         if isinstance(data, str):
             data = data.split(',')

@@ -50,8 +50,8 @@ function addFieldOptions(fieldOptions, key, selector, addother, othernames = fal
                 item_label += ' (' + item.alternate_names.join(', ') + ')'
             }
         }
-        if ('country' in item) {
-            item_label += ' [' + item.country[0]['name'] + ']'
+        if ("countries" in item) {
+            item_label += ' [' + item.countries[0]['name'] + ']'
         }
         opt.innerText = item_label
         document.querySelector(selector).append(opt);
@@ -533,9 +533,9 @@ function populateForm(jsonData) {
         document.querySelector(`input[name=geographic_scope][value='${jsonData["geographic_scope"]}']`).checked = true
         document.querySelector(`input[name=geographic_scope][value='${jsonData["geographic_scope"]}']`).dispatchEvent(new Event("input"))
         let hiddenGeographicScopeCountry = document.getElementById('geographic-scope-countries-hidden')
-        if ("country" in jsonData) {
+        if ("countries" in jsonData) {
             if (jsonData["geographic_scope"] == "multinational") {
-                for (country of jsonData["country"]) {
+                for (country of jsonData["countries"]) {
                     if (document.querySelector(`#geographic-scope-multiple option[value='${country._unique_name}']`)) {
                         document.querySelector(`#geographic-scope-multiple option[value='${country._unique_name}']`).selected = true
                         hiddenGeographicScopeCountry.value += country["uid"] + ","
@@ -548,11 +548,11 @@ function populateForm(jsonData) {
                             document.getElementById("geographic-scope-subunits-hidden").value += country["uid"] + ","
                         }
                     }
-                    hiddenGeographicScopeCountry.value = jsonData["country"][0]["uid"]
-                    document.querySelector(`#geographic-scope-single option[value='${jsonData['country'][0]["uid"]}']`).selected = true
+                    hiddenGeographicScopeCountry.value = jsonData["countries"][0]["uid"]
+                    document.querySelector(`#geographic-scope-single option[value='${jsonData["countries"][0]["uid"]}']`).selected = true
                 }
             } else if (jsonData["geographic_scope"] == "national") {
-                let country = jsonData["country"][0]
+                let country = jsonData["countries"][0]
                 if (document.querySelector(`#geographic-scope-single option[value='${country["uid"]}']`)) {
                     document.querySelector(`#geographic-scope-single option[value='${country["uid"]}']`).selected = true
                     hiddenGeographicScopeCountry.value = country['uid']
@@ -565,7 +565,7 @@ function populateForm(jsonData) {
                             document.querySelector(`#geographic-scope-subunit option[value='${subunit.uid}']`).selected = true
                         }
                     }
-                    let country = jsonData["country"][0]
+                    let country = jsonData["countries"][0]
                     if (document.querySelector(`#geographic-scope-single option[value='${country["uid"]}']`)) {
                         document.querySelector(`#geographic-scope-single option[value='${country["uid"]}']`).selected = true
                         hiddenGeographicScopeCountry.value = country['uid']
@@ -637,8 +637,8 @@ ready(() => {
         .then(function(data) {
 
             addFieldOptionsData(data, 'channel', '#channel-select');
-            addLanguages(data, 'language', '#languages', false);
-            addFieldOptions(data, 'country', '#geographic-scope-single', false, false, false);
+            addFieldOptions(data, 'language', '#languages', false, false, false);
+            addFieldOptions(data, "country", '#geographic-scope-single', false, false, false);
             addFieldOptions(data, 'subunit', '#geographic-scope-subunit', false, true, false);
 
             addFieldOptions(data, 'archive', '#archive-sources-included', false, false, false);
@@ -660,7 +660,7 @@ ready(() => {
                 let opt = document.createElement('option')
                 opt.setAttribute('value', item._unique_name)
                 opt.setAttribute('data-uid', item.uid)
-                opt.setAttribute('data-type', 'country')
+                opt.setAttribute('data-type', "countries")
                 opt.innerText = item.name
                 optgroupMultinational.append(opt)
             });
@@ -671,7 +671,7 @@ ready(() => {
                 let opt = document.createElement('option')
                 opt.setAttribute('value', item._unique_name)
                 opt.setAttribute('data-uid', item.uid)
-                opt.setAttribute('data-type', 'country')
+                opt.setAttribute('data-type', "countries")
                 opt.innerText = item.name
                 optgroupCountries.append(opt)
             });
@@ -687,8 +687,8 @@ ready(() => {
                 if ('alternate_names' in item) {
                     item_label += ' (' + item.alternate_names.join(', ') + ')'
                 }
-                if ('country' in item) {
-                    item_label += ' [' + item.country[0]['name'] + ']'
+                if ("countries" in item) {
+                    item_label += ' [' + item.countries[0]['name'] + ']'
                 }
                 opt.innerText = item_label
                 optgroupSubnational.append(opt)
@@ -704,7 +704,7 @@ ready(() => {
                 var selectedCountries = new Array;
                 var selectedSubnational = new Array;
                 for (opt of this.selectedOptions) {
-                    if (opt.getAttribute('data-type') == 'country') {
+                    if (opt.getAttribute('data-type') == "countries") {
                         selectedCountries.push(opt.getAttribute('data-uid'));
                     } else {
                         if (opt.getAttribute('data-uid') === null) {
@@ -818,6 +818,7 @@ ready(() => {
 
             var TomSelectLanguagesConfig = {
                 plugins: ['remove_button'],
+                create: true,
                 selectOnTab: true,
                 onInitialize: function() { // hacky way of forcing the field to be not-validated on load
                     this.input.classList.remove('is-invalid');
@@ -886,8 +887,8 @@ ready(() => {
                 render: {
                     option: function(data, escape) {
                         var country_label = ' '
-                        if ('country' in data) {
-                            country_label = ' (' + escape(data.country[0].name) + ') '
+                        if ("country" in data) {
+                            country_label = ' (' + escape(data.country.name) + ') '
                         };
                         return '<div>' +
                             '<span class="title">' + escape(data.name) + '</span>' +
@@ -896,8 +897,8 @@ ready(() => {
                     },
                     item: function(data, escape) {
                         var country_label = ' '
-                        if ('country' in data) {
-                            country_label = ' (' + escape(data.country[0].name) + ') '
+                        if ("country" in data) {
+                            country_label = ' (' + escape(data.country.name) + ') '
                         };
                         return '<div>' + escape(data.name) + ' <small class="mx-1">' + country_label + '</small></div>';
                     }
@@ -942,8 +943,8 @@ ready(() => {
                 render: {
                     option: function(data, escape) {
                         var country_label = ' '
-                        if ('country' in data) {
-                            country_label = ' (' + escape(data.country[0].name) + ') '
+                        if ("country" in data) {
+                            country_label = ' (' + escape(data.country.name) + ') '
                         };
                         return '<div>' +
                             '<span class="title">' + escape(data.name) + '</span>' +
@@ -952,8 +953,8 @@ ready(() => {
                     },
                     item: function(data, escape) {
                         var country_label = ' '
-                        if ('country' in data) {
-                            country_label = ' (' + escape(data.country[0].name) + ') '
+                        if ("country" in data) {
+                            country_label = ' (' + escape(data.country.name) + ') '
                         };
                         return '<div>' + escape(data.name) + ' <small class="mx-1">' + country_label + '</small></div>';
                     }
@@ -1138,8 +1139,8 @@ ready(() => {
                             }
                         };
                         var country_label = ' '
-                        if ("country" in data) {
-                            country_label = '<small class="text-muted mx-1"> (' + escape(data.country[0].name) + ')</small>'
+                        if ("countries" in data) {
+                            country_label = '<small class="text-muted mx-1"> (' + escape(data.countries[0].name) + ')</small>'
                         }
                         return '<div>' +
                             '<span class="title">' + channel_icon + escape(data.name) + channel_label + '</span> ' +
@@ -1156,8 +1157,8 @@ ready(() => {
                             }
                         };
                         var country_label = ' '
-                        if ("country" in data) {
-                            country_label = '<small class="text-muted mx-1"> (' + escape(data.country[0].name) + ')</small>'
+                        if ("countries" in data) {
+                            country_label = '<small class="text-muted mx-1"> (' + escape(data.countries[0].name) + ')</small>'
                         }
                         return '<div>' + channel_icon + escape(data.name) + channel_label + country_label + '</div>';
                     }

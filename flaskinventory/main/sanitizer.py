@@ -366,7 +366,6 @@ class Sanitizer:
             if self.entry_review_status == 'draft' and self.data['entry_review_status'] == 'pending':
                 self.entry['entry_review_status'] = 'pending'
             elif self.data['entry_review_status'] == 'pending':
-                self.entry_review_status == 'pending'
                 self.entry['entry_review_status'] = 'pending'
             elif self.user._role >= USER_ROLES.Reviewer:
                 validated = self.fields.get('entry_review_status').validate(

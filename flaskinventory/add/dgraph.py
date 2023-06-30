@@ -14,10 +14,11 @@ async def generate_fieldoptions():
     query_dataset = '''dataset(func: type("Dataset"), orderasc: name) { uid _unique_name name  }'''
     query_archive = '''archive(func: type("Archive"), orderasc: name) { uid _unique_name name  }'''
     query_subunit = '''subunit(func: type("Subnational"), orderasc: name) { uid _unique_name name alternate_names country{ name } }'''
+    query_language = '''language(func: type("Language"), orderasc: name) { uid _unique_name name alternate_names }'''
     query_multinational = '''multinational(func: type("Multinational"), orderasc: name) { uid _unique_name name alternate_names country{ name } }'''
 
     query_string = '{ ' + query_channel + query_country + \
-        query_dataset + query_archive + query_subunit + query_multinational + ' }'
+        query_dataset + query_archive + query_subunit + query_multinational + query_language + ' }'
 
     # Use async query here because a lot of data is retrieved
     query_future = dgraph.connection.txn().async_query(query_string)
@@ -28,7 +29,6 @@ async def generate_fieldoptions():
     res = dgraph.connection.txn(read_only=True).query(query_string)
     data = json.loads(res.json, object_hook=dgraph.datetime_hook)
 
-    data['language'] = icu_codes_list
 
     return data
 

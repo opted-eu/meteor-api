@@ -135,7 +135,7 @@ class DGraph(object):
         Generic Query Methods 
     """
 
-    def query(self, query_string: Union[dql.DQLQuery, str], variables: dict=None) -> list:
+    def query(self, query_string: Union[dql.DQLQuery, str], variables: dict=None) -> dict:
         # check if we got a DQLQuery Object
         try:
             variables = query_string.get_graphql_variables()
