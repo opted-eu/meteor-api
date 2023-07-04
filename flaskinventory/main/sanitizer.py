@@ -489,7 +489,7 @@ class Sanitizer:
                 if entry['uid'] == author: break
             author_name = entry['name']
         else:
-            query_string = """q(func: uid($authoruid)) { name }"""
+            query_string = """query author ($authoruid : string) { q(func: uid($authoruid)) { name } }"""
             res  = dgraph.query(query_string, variables={'$authoruid': str(author)})
             author_name = res["q"][0]['name']
         if len(self.entry['authors']) > 1:
