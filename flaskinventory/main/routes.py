@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, send_from_directory, current_app, request, url_for, make_response
+from flask import (Blueprint, render_template, 
+                   send_from_directory, current_app, request, 
+                   url_for, make_response,
+                   jsonify)
 from flaskinventory import dgraph
 from flaskinventory.misc.forms import get_country_choices
 from flaskinventory.view.forms import SimpleQuery
-from flaskinventory.main.model import Tool, NewsSource, Dataset, Archive
+from flaskinventory.main.model import Tool, NewsSource, Dataset, Archive, Schema
 
 from datetime import datetime
 
@@ -121,3 +124,45 @@ def meta_tags():
             'meta_keywords': 'News sources inventory; text as data; European Media Systems; open data; research infrastructure; Media in Europa; Political Texts; Automated Text Analysis',
             'meta_date_published': datetime.now(),
             'meta_date_modified': datetime.now()}
+
+# Schema API routes
+
+@main.route('/schema')
+def schema_types():
+    open_api = {
+            "openapi": "3.0.3",
+            "info": {
+                "title": "Meteor API",
+                "description": "API for Meteor clients",
+                "termsOfService": "http://meteor.opted.eu/about/",
+                "contact": {
+                "email": "info@opted.eu"
+                },
+                "license": {
+                    "name": "GPL-3.0",
+                },
+                "version": "0.1"
+            },
+            # "externalDocs": {
+            #     "description": "Find out more about Swagger",
+            #     "url": "http://swagger.io"
+            # },
+            # "servers": [
+            #     {
+            #     "url": "https://petstore3.swagger.io/api/v3"
+            #     }
+            # ],
+            }
+    open_api['components'] = Schema.provide_types()
+
+    paths = {}
+    
+    for rule in current_app.url_map.iter_rules():
+        if 'GET' in rule.methods and rule.endpoint.startswith('view'):
+            print('....')
+            print(rule)
+            print(rule.arguments)
+            print(rule.endpoint)
+            print(rule.defaults)
+
+    return jsonify(open_api)

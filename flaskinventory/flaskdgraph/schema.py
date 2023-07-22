@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Iterable
 from copy import deepcopy
 from datetime import datetime
 from flask_wtf import FlaskForm
@@ -6,7 +6,7 @@ from wtforms import SubmitField
 from wtforms import IntegerField
 
 from flaskinventory.users.constants import USER_ROLES
-
+from inspect import cleandoc
 
 class Schema:
 
@@ -17,6 +17,7 @@ class Schema:
     # registry of all types and which predicates they have
     # Key = Dgraph Type (string), val = dict of predicates
     __types__ = {}
+    __types_meta__ = {}
 
 
     # registry of all predicates and which types use them
@@ -69,6 +70,13 @@ class Schema:
         # reverse_relationships = {}
         # explicit reverse predicates
         reverse_predicates = {}
+
+        # register in __types_meta__
+        Schema.__types_meta__[cls.__name__] = {'private': cls.__private__}
+        try:
+            Schema.__types_meta__[cls.__name__]['description'] = cleandoc(cls.__doc__).replace('\n', '').strip()
+        except AttributeError:
+            pass
 
         for key in cls.__dict__:
             val = getattr(cls, key)
@@ -337,6 +345,41 @@ class Schema:
         schema_string += "\n".join(predicate_definitions)
 
         return schema_string
+    
+    @classmethod
+    def provide_types(cls) -> Iterable[dict]:
+        
+        schemas = {}
+        requestBodies = {}
+        for t in Schema.__types_meta__:
+            # if Schema.__types_meta__[t]['private']:
+            #     continue
+            schemas[t] = {'type': 'object',
+                          'x-private': Schema.__types_meta__[t]['private'],
+                          'properties': {}}
+            try:
+                schemas[t]['description'] = Schema.__types_meta__[t]['description']
+            except KeyError:
+                pass
+            requestBodies[t] = {"content": {
+                                    "application/json": {
+                                        "schema": {
+                                        "$ref": "#/components/schemas/" + t}
+                                        }
+                                    }
+                                }
+            
+            required_predicates = []
+            for predicate_name, predicate in Schema.get_predicates(t).items():
+                if predicate.required:
+                    required_predicates.append(predicate_name)
+                schemas[t]['properties'][predicate_name] = predicate.openapi_component
+            if len(required_predicates) > 0:
+                schemas[t]['required'] = required_predicates
+
+        return {'schemas': schemas,
+                'requestBodies': requestBodies}   
+
 
     @classmethod
     def permissions_new(cls, _cls) -> int:

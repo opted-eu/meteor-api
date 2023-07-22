@@ -21,6 +21,8 @@ import secrets
 
 class User(Schema, UserLogin):
 
+    """ Meteor User (private) """
+
     __permission_new__ = USER_ROLES.Admin
     __permission_edit__ = USER_ROLES.Admin
     # prevent any kind of editing
@@ -70,6 +72,8 @@ def load_user(user_id):
 
 
 class Entry(Schema):
+
+    """ Base Entry Type that most other types inherit from """
 
     __permission_new__ = USER_ROLES.Contributor
     __permission_edit__ = USER_ROLES.Contributor
@@ -150,7 +154,7 @@ class Entry(Schema):
 
 class PoliticalParty(Entry):
 
-    __description__ = "political parties as legally registered"
+    """ Political parties as legally registered """
 
     name_abbrev = String(label="Abbreviated Name",
                          description="Abbreviation/Acronym of the party name.",
@@ -185,7 +189,7 @@ class PoliticalParty(Entry):
 
 class Organization(Entry):
 
-    __description__ = "companies, NGOs, businesses, media organizations"
+    """companies, NGOs, businesses, media organizations"""
 
     name = String(label='Organization Name',
                   required=True,
@@ -244,7 +248,7 @@ class Organization(Entry):
 
 class JournalisticBrand(Entry):
 
-    __description__ = "A journalistic brand that encompasses different projects for distributing news"
+    """ A journalistic brand that encompasses different projects for distributing news """
 
     sources_included = ListRelationship(description="Journalistic News Sources distributed under this brand",
                                         relationship_constraint="NewsSource")
@@ -263,7 +267,10 @@ class JournalisticBrand(Entry):
 
 class NewsSource(Entry):
 
-    __description__ = "a single journalistic project; a social media channel of a political party / person / government institution, etc"
+    """ 
+        A single journalistic project; 
+        a social media channel of a political party / person / government institution, etc
+    """
 
     channel = SingleRelationship(description='Through which channel is the news source distributed?',
                                  edit=False,
@@ -443,7 +450,7 @@ class NewsSource(Entry):
 
     sources_included = ReverseListRelationship('sources_included',
                                                relationship_constraint=[
-                                                   'Archive', 'Dataset', 'Corpus', 'ScientificPublication'],
+                                                   'Archive', 'Dataset', 'ScientificPublication'],
                                                query_label='News source included in these resources',
                                                queryable=True,
                                                new=False,
@@ -458,11 +465,6 @@ class NewsSource(Entry):
                                                        relationship_constraint='Dataset',
                                                        description="Is the news source included in one or several of the following annotated media text data sets?",
                                                        label='News source included in these datasets')
-
-    corpus_sources_included = ReverseListRelationship('sources_included',
-                                                      relationship_constraint='Corpus',
-                                                      description="Is the news source included in one or several of the following corpora?",
-                                                      label='News source included in these corpora')
 
     party_affiliated = SingleChoice(description='Is the news source close to a political party?',
                                     choices={'NA': "Don't know / NA",
@@ -480,7 +482,7 @@ class NewsSource(Entry):
 
 class Government(Entry):
 
-    __description__ = "national, supranational or subnational executives"
+    """ National, supranational or subnational executives """
 
     country = SingleRelationship(relationship_constraint=["Country", "Multinational"],
                                  required=True,
@@ -506,7 +508,7 @@ class Government(Entry):
 
 class Parliament(Entry):
 
-    __description__ = "national, supranational or subnational legislative bodies"
+    """ National, supranational or subnational legislative bodies """
 
     country = SingleRelationship(relationship_constraint=["Country", "Multinational"],
                                  required=True,
@@ -530,6 +532,11 @@ class Parliament(Entry):
 
 class Person(Entry):
 
+    """ 
+        Individual (e.g., politician, business owner) to whom 
+        a resource can be attributed
+    """
+
     is_politician = Boolean(label="Politician", description="Is the person a politician?",
                             queryable=True)
 
@@ -541,6 +548,8 @@ class Person(Entry):
 
 
 class Channel(Entry):
+
+    """ Technology used to distribute texts """
 
     __permission_new__ = USER_ROLES.Admin
     __permission_edit__ = USER_ROLES.Admin
@@ -577,6 +586,8 @@ class Multinational(Entry):
 
 class Subnational(Entry):
 
+    """ Subunits of Country """
+
     __permission_new__ = USER_ROLES.Reviewer
     __permission_edit__ = USER_ROLES.Reviewer
 
@@ -597,6 +608,11 @@ class Subnational(Entry):
 
 
 class Archive(Entry):
+
+    """ 
+        Digital storages for full-text data 
+        that are regularly updated and can be queried on demand 
+    """
 
     name = String(
         description="What is the name of the archive?", required=True)
@@ -688,6 +704,8 @@ class Archive(Entry):
 
 
 class Dataset(Entry):
+
+    """ Results of text analysis; or static collections of full-text data """
 
     name = String(
         description="What is the name of the dataset?", required=True)
@@ -818,6 +836,8 @@ class Dataset(Entry):
 
 
 class Tool(Entry):
+
+    """ Digital resource for implementing a research method (software packages, dictionaries, etc) """
 
     name = String(description="What is the name of the tool?", required=True)
 
@@ -959,9 +979,9 @@ class Tool(Entry):
                                              'no': 'No, not reported'},
                                     queryable=True)
 
-    validation_corpus = ListRelationship(description="Which corpus was used to validate the tool?",
+    validation_dataset = ListRelationship(description="Which corpus or dataset was used to validate the tool?",
                                          autoload_choices=True,
-                                         relationship_constraint="Corpus",
+                                         relationship_constraint="Dataset",
                                          queryable=True)
 
     documentation = ListString(description="Is there additional documentation for the tool? (e.g., FAQ, Tutorials, Website, etc)",
@@ -980,6 +1000,8 @@ class Tool(Entry):
 
 
 class ScientificPublication(Entry):
+
+    """ Research output; scholarly documents like journal articles, books, and theses. """
 
     name = String(new=False, edit=False, hidden=True)
     alternate_names = ListString(
@@ -1108,6 +1130,9 @@ class ScientificPublication(Entry):
 
 
 class Author(Entry):
+
+    """ Authors are people who create datasets, archives, tools or scientific publications. """
+
     orcid = String(label="ORCID", directives=["@index(hash)"])
     url = String(label="URL", description="Website of author")
     openalex = ListString(label="OpenAlex ID",
@@ -1143,32 +1168,65 @@ class ProgrammingLanguage(Entry):
 
 class Operation(Entry):
 
+    """ 
+        Methodology, technique or action that is used/presented in a Scientific Publication, 
+        or that has been used to produce a Dataset, or that can be performed with a Tool. 
+        Operations cover both actual text analysis methodologies (as abstract as 
+        supervised classification) and techniques (like random forests or clustering), 
+        and more specific actions often conducted as preparation or alongside scietific 
+        analyses (e.g., stop word removal, n-gram extraction or key-word in context).
+    """
+
     pass
 
 
 class FileFormat(Entry):
+
+    """ File type and format used to store a resource """
 
     mime_type = String(label="MIME type")
 
 
 class MetaVariable(Entry):
 
+    """ 
+        Meta variables as provided in resources, they are exogenous: 
+        e.g., party, publication date, page number, or section. 
+    """
+
     pass
 
 
 class ConceptVariable(Entry):
+
+    """ 
+        Concept variables are measurements of theoretical constructs, 
+        such as sentiment, populism, or toxic language. 
+        Unlike meta variables, concept variables may not be directly compatible with each other.
+    """
 
     pass
 
 
 class TextType(Entry):
 
-    __description__ = "Genre of text such as parliamentary debates, speeches, Tweets, news articles, manifestos"
+    """ 
+        Genre of text such as parliamentary debates, 
+        speeches, Tweets, news articles, manifestos
+    """
 
     pass
 
 
 class UnitOfAnalysis(Entry):
+
+    '''
+        "Decontextualized but information-bearing textual wholes that 
+        are distinguished within an otherwise undifferentiated continuum 
+        and thereafter considered separate from their context and independent 
+        of each other" (Krippendorff, 2018). 
+        E.g., pargarphs, sentences, images, tweets
+    '''
 
     pass
 
@@ -1179,6 +1237,12 @@ class UnitOfAnalysis(Entry):
 
 
 class Collection(Entry):
+
+    """ A collection of entities by users 
+        (e.g. list of right-wing populist parties in Europe; 
+        Christian Baden's favourite tools for topic modelling in Hebrew; 
+        Banducci's list of most important media outlets in the UK)
+    """
 
     name = String(required=True, description="How do you want to call your new collection?")
 
@@ -1228,6 +1292,11 @@ class Collection(Entry):
 
 
 class LearningMaterial(Entry):
+
+    """ 
+        A reference to a learning resource. Teaches how to perform text analysis, 
+        work with specific datasets, deal with specific languages and so forth. 
+    """
 
     authors = AuthorList(allow_new=True,
                          relationship_constraint="Author")
@@ -1307,6 +1376,8 @@ class Comment(Schema):
 
 
 class Rejected(Schema):
+
+    """ Represent entries that were rejected by reviewers """
 
     __permission_new__ = 99
     __permission_edit__ = 99

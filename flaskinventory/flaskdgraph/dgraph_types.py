@@ -337,6 +337,7 @@ class _PrimitivePredicate:
 
         # WTF Forms
         self.required = required
+        self.description = description
         self.form_description = description
         self.tom_select = tom_select
         self.render_kw = render_kw or {}
@@ -519,6 +520,14 @@ class _PrimitivePredicate:
                      fetch=["count(uid)"])
 
         return query
+    
+    """ OpenAPI stuff """
+
+    @property
+    def openapi_component(self) -> dict:
+        """ base property that represents this dgraph predicate as an openapi component """
+        return {'type': "string"}
+        
 
 class Predicate(_PrimitivePredicate):
 
@@ -580,7 +589,6 @@ class Predicate(_PrimitivePredicate):
         if self.large_textfield:
             return TextAreaField(label=self.label, validators=validators, description=self.form_description, render_kw=self.render_kw)
         return StringField(label=self.label, validators=validators, description=self.form_description, render_kw=self.render_kw)
-
 
 class Scalar:
 
@@ -812,6 +820,18 @@ class ReverseRelationship(_PrimitivePredicate):
 
         return f'{{ {self._predicate}(func: has({self.predicate})) {filt} {{ count(uid) }} }}'
 
+    @property
+    def openapi_component(self) -> dict:
+        o =  {}
+        if self.description:
+            o['description'] =  self.description
+        if self.relationship_constraint:
+            if len(self.relationship_constraint) > 1:
+                o['oneOf'] = [{'$ref': '#/components/schemas/' + constraint} for constraint in self.relationship_constraint]
+            else:
+                o['$ref'] = '#/components/schemas/' + self.relationship_constraint[0]
+
+        return o
 
 
 class ReverseListRelationship(ReverseRelationship):
@@ -865,6 +885,18 @@ class ReverseListRelationship(ReverseRelationship):
             self.get_choices()
         return TomSelectMultipleField(label=self.label, description=self.form_description, choices=self.choices_tuples, render_kw=self.render_kw)
 
+    @property
+    def openapi_component(self) -> dict:
+        o =  {'type': "array"}
+        if self.description:
+            o['description'] =  self.description
+        if self.relationship_constraint:
+            if len(self.relationship_constraint) > 1:
+                o['items'] = {'anyOf': [{'$ref': '#/components/schemas/' + constraint} for constraint in self.relationship_constraint]}
+            else:
+                o['items'] = {'$ref': '#/components/schemas/' + self.relationship_constraint[0]}
+
+        return o
 
 class MutualRelationship(_PrimitivePredicate):
 
@@ -962,6 +994,18 @@ class MutualRelationship(_PrimitivePredicate):
             self.get_choices()
         return TomSelectField(label=self.label, description=self.form_description, choices=self.choices_tuples, render_kw=self.render_kw)
 
+    @property
+    def openapi_component(self) -> dict:
+        o =  {}
+        if self.description:
+            o['description'] =  self.description
+        if self.relationship_constraint:
+            if len(self.relationship_constraint) > 1:
+                o['oneOf'] = [{'$ref': '#/components/schemas/' + constraint} for constraint in self.relationship_constraint]
+            else:
+                o['$ref'] = '#/components/schemas/' + self.relationship_constraint[0]
+
+        return o
 
 class MutualListRelationship(MutualRelationship):
 
@@ -995,6 +1039,18 @@ class MutualListRelationship(MutualRelationship):
             self.get_choices()
         return TomSelectMultipleField(label=self.label, description=self.form_description, choices=self.choices_tuples, render_kw=self.render_kw)
 
+    @property
+    def openapi_component(self) -> dict:
+        o =  {'type': "array"}
+        if self.description:
+            o['description'] =  self.description
+        if self.relationship_constraint:
+            if len(self.relationship_constraint) > 1:
+                o['items'] = {'anyOf': [{'$ref': '#/components/schemas/' + constraint} for constraint in self.relationship_constraint]}
+            else:
+                o['items'] = {'$ref': '#/components/schemas/' + self.relationship_constraint[0]}
+
+        return o
 
 """
     Predicate Classes
@@ -1009,6 +1065,13 @@ class String(Predicate):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "string"}
+        if self.description:
+            o['description'] =  self.description
+        return o
 
 class UIDPredicate(Predicate):
 
@@ -1017,7 +1080,7 @@ class UIDPredicate(Predicate):
         Not to be confused with relationships!        
     """
 
-    dgraph_predicate_type = 'uid'
+    dgraph_predicate_type = '_uid'
     is_list_predicate = False
     default_operator = uid_in # maybe needs to be changed
 
@@ -1041,7 +1104,14 @@ class UIDPredicate(Predicate):
             return query
         
         return DQLQuery(func=uid(var), fetch=["uid", "expand(_all_)"])
+    
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "string"}
+        o['description'] =  "unique UID of object (hex value)"
+        return o
 
+    
 class Integer(Predicate):
 
     dgraph_predicate_type = 'int'
@@ -1065,6 +1135,15 @@ class Integer(Predicate):
     def query_field(self) -> IntegerField:
         self._prepare_query_field()
         return IntegerField(label=self.query_label, render_kw=self.render_kw)
+    
+
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "integer"}
+        if self.description:
+            o['description'] =  self.description
+        return o
+
 
 
 class ListString(String):
@@ -1085,6 +1164,15 @@ class ListString(String):
             data = data.split(self.delimiter)
         return [item.strip() for item in data if item.strip() != '']
 
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "array",
+             "items": {
+              "type": "string"}}
+        if self.description:
+            o['description'] =  self.description
+        return o
+
 
 class Password(Predicate):
 
@@ -1102,6 +1190,13 @@ class Password(Predicate):
             validators = [Optional()]
         return PasswordField(label=self.label, validators=validators, description=self.form_description)
 
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "string",
+             'format': 'password'}
+        if self.description:
+            o['description'] =  self.description
+        return o
 
 
 class UniqueName(String):
@@ -1178,6 +1273,19 @@ class SingleChoice(String):
         self._prepare_query_field()
         return TomSelectMultipleField(label=self.query_label, choices=self.choices_tuples, render_kw=self.render_kw)
 
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "string",
+             'enum': list(self.choices.keys())}
+        o['description'] = ''
+        if self.description:
+            o['description'] += self.description + "\n  "
+        o['description'] += 'Allowed choices:\n'        
+        for k, v in self.choices.items():
+            o['description'] += f' * `{k}` - {v}\n'
+
+        return o
+
 
 class MultipleChoice(SingleChoice):
 
@@ -1218,6 +1326,22 @@ class MultipleChoice(SingleChoice):
         self._prepare_query_field()
         return TomSelectMultipleField(label=self.query_label, choices=self.choices_tuples, render_kw=self.render_kw)
 
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "array",
+             'items': {
+                'type': 'string',
+                'enum': list(self.choices.keys())
+                }
+             }
+        o['description'] = ''
+        if self.description:
+            o['description'] += self.description + "\n  "
+        o['description'] += 'Allowed choices:\n'        
+        for k, v in self.choices.items():
+            o['description'] += f' * `{k}` - {v}\n'
+
+        return o
 
 class DateTime(Predicate):
 
@@ -1290,6 +1414,13 @@ class DateTime(Predicate):
         except:
             return f'{has(self.predicate)}'
 
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "string",
+             'format': "date-time"}
+        if self.description:
+            o['description'] =  self.description
+        return o
 
 class Year(DateTime):
 
@@ -1316,9 +1447,31 @@ class Year(DateTime):
             validators = [Optional(strip_whitespace=True)]
         return IntegerField(label=self.label, description=self.form_description, render_kw=render_kw, validators=validators)
 
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "integer",
+             'minimum': 1500,
+             'maximum': 2100}
+        if self.description:
+            o['description'] =  self.description
+        return o
+
 class ListYear(Year):
 
     dgraph_predicate_type = "[datetime]"
+
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "array",
+             'items': {
+                'type': 'integer',
+                'minimum': 1500,
+                'maximum': 2100
+                } 
+             }
+        if self.description:
+            o['description'] =  self.description
+        return o
 
 class Boolean(Predicate):
 
@@ -1397,6 +1550,13 @@ class Boolean(Predicate):
                      fetch=["count(uid)"])
 
         return query
+    
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "boolean"}
+        if self.description:
+            o['description'] =  self.description
+        return o
 
 class Geo(Predicate):
 
@@ -1546,6 +1706,18 @@ class SingleRelationship(Predicate):
 
         return f'{{ {self.predicate}(func: uid({uid})) {{ count({self.predicate} {filt}) }} }}'
 
+    @property
+    def openapi_component(self) -> dict:
+        o =  {}
+        if self.description:
+            o['description'] =  self.description
+        if self.relationship_constraint:
+            if len(self.relationship_constraint) > 1:
+                o['oneOf'] = [{'$ref': '#/components/schemas/' + constraint} for constraint in self.relationship_constraint]
+            else:
+                o['$ref'] = '#/components/schemas/' + self.relationship_constraint[0]
+
+        return o
 
 class ListRelationship(SingleRelationship):
 
@@ -1584,6 +1756,18 @@ class ListRelationship(SingleRelationship):
                                        choices=self.choices_tuples,
                                        render_kw=self.render_kw)
 
+    @property
+    def openapi_component(self) -> dict:
+        o =  {'type': "array"}
+        if self.description:
+            o['description'] =  self.description
+        if self.relationship_constraint:
+            if len(self.relationship_constraint) > 1:
+                o['items'] = {'oneOf': [{'$ref': '#/components/schemas/' + constraint} for constraint in self.relationship_constraint]}
+            else:
+                o['items'] = {'$ref': '#/components/schemas/' + self.relationship_constraint[0]}
+
+        return o
 
 """ Functions for making nquad statements """
 
