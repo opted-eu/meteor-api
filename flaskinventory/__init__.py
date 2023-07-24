@@ -26,7 +26,6 @@ from flaskinventory.flaskdgraph import DGraph
 
 dgraph = DGraph()
 
-
 class AnonymousUser(AnonymousUserMixin):
     _role = 0
 
@@ -99,6 +98,9 @@ def create_app(config_class=Config, config_json=None):
     csrf = CSRFProtect(app)
 
     limiter.init_app(app)
+
+    from flaskinventory.api.routes import api
+    app.register_blueprint(api, url_prefix='/api')
 
     Markdown(app, extensions=[TocExtension(baselevel=3, anchorlink=True), 'fenced_code'])
 
