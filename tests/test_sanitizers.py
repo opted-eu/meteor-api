@@ -18,7 +18,7 @@ if __name__ == "__main__":
     from flaskinventory.flaskdgraph import Schema
     from flaskinventory.flaskdgraph.dgraph_types import UID, Scalar
     from flaskinventory.main.model import Entry, Organization, NewsSource, User, ScientificPublication
-    from flaskinventory.main.sanitizer import Sanitizer, make_sanitizer
+    from flaskinventory.main.sanitizer import Sanitizer
     from flaskinventory.errors import InventoryValidationError, InventoryPermissionError
     from flaskinventory import create_app, dgraph
     from flaskinventory.users.constants import USER_ROLES
