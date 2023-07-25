@@ -175,7 +175,7 @@ for k, v in languages_term_mapping.items():
     df.languages = df.languages.str.replace(k, v)
 
 query_string = '''query language($language: string) {
-    q(func: match(name, $language, 2)) @filter(type(Language)) { uid _unique_name name } 
+    q(func: type(Language)) @filter(match(name, $language, 2) OR eq(alternate_names, $language)) { uid _unique_name name } 
 }'''
 
 languages = list(set(df.languages.apply(lambda x: [y.strip() for y in x.split(';')]).explode().unique().tolist()))
@@ -183,14 +183,17 @@ languages.remove('')
 
 language_uid_mapping = {}
 
+failed = []
+
 for language_name in languages:
     language = client.txn(read_only=True).query(
-        query_string, variables={'$language': language_name})
+        query_string, variables={'$language': language_name.strip()})
     try:
         j = json.loads(language.json)
-        language_uid_mapping[language_name] = j['q'][0]['uid']
+        language_uid_mapping[language_name.strip()] = j['q'][0]['uid']
     except:
         print('Could not find language:', language_name)
+        failed.append(language_name)
 
 """ Channels """
 
