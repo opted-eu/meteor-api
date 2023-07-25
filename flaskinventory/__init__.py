@@ -13,7 +13,7 @@ from flask_login import LoginManager, AnonymousUserMixin
 # E-Mail Extension
 from flask_mail import Mail
 # Forms Extension
-from flask_wtf.csrf import CSRFProtect
+# from flask_wtf.csrf import CSRFProtect
 # Rate Limiting
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -95,7 +95,7 @@ def create_app(config_class=Config, config_json=None):
     login_manager.init_app(app)
     mail.init_app(app)
 
-    csrf = CSRFProtect(app)
+    # csrf = CSRFProtect(app)
 
     limiter.init_app(app)
 

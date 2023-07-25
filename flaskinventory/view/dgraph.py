@@ -2,14 +2,14 @@ from flaskinventory import dgraph
 from flaskinventory.flaskdgraph import Schema
 from flaskinventory.main.model import *
 
-from typing import Union
+import typing as t
 from flaskinventory.flaskdgraph.utils import restore_sequence, validate_uid
 
 """
     Inventory Detail View Functions
 """
 
-def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, Schema] = None) -> Union[dict, None]:
+def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str, Schema] = None) -> t.Union[dict, None]:
     query_var = 'query get_entry($value: string) '
     if unique_name:
         uid = dgraph.get_uid("_unique_name", unique_name)
@@ -132,10 +132,6 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
         num_sources = dgraph.query(Dataset.sources_included.count(uid, entry_review_status="accepted"))
         data['num_sources'] = num_sources['sources_included'][0]['count(sources_included)']
 
-    elif dgraph_type == 'Corpus':
-        num_sources = dgraph.query(Corpus.sources_included.count(uid, entry_review_status="accepted"))
-        data['num_sources'] = num_sources['sources_included'][0]['count(sources_included)']
-
     elif dgraph_type == 'Country':
         num_sources = dgraph.query(NewsSource.countries.count(uid, _reverse=True, entry_review_status="accepted"))
         data['num_sources'] = num_sources['countries'][0]['count']
@@ -152,6 +148,25 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: Union[str, 
 
     return data
 
+def get_comments(uid: str) -> t.List[dict]:
+
+    uid = validate_uid(uid)
+    if not uid:
+        raise ValueError
+    
+    query_string = '''query getComment($entry_uid : string) {
+        q(func: type("Comment"), orderasc: _comment_date) 
+            @filter(uid_in(_comment_on, $entry_uid)) {
+                uid expand(_all_) { uid display_name }
+            }
+        }  
+    '''
+    data = dgraph.query(query_string, variables={'$entry_uid': uid})
+
+    if len(data['q']) == 0:
+        return []
+
+    return data['q']
 
 
 def get_rejected(uid):

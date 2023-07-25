@@ -5,7 +5,7 @@
     May later be used for automatic query building
 """
 
-from typing import Union, Any, Literal
+from typing import Union, Any, Literal, get_args
 import datetime
 import json
 from copy import deepcopy
@@ -123,6 +123,8 @@ class Facet:
                  queryable=False,
                  coerce=None,
                  query_label=None,
+                 description=None,
+                 example=None,
                  comparison_operators=None,
                  render_kw=None,
                  choices=None) -> None:
@@ -135,6 +137,9 @@ class Facet:
             comparison_operators = [(k, v)
                                     for k, v in comparison_operators.items()]
             comparison_operators.insert(0, ('', ''))
+
+        self.description = description or ''
+        self.example = example or 'some string'
         self.operators = comparison_operators
         self.render_kw = render_kw or {}
 
@@ -263,6 +268,31 @@ class Facet:
         else:
             return StringField(label=self.query_label, render_kw=self.render_kw)
 
+    @property
+    def openapi_query_parameter(self) -> dict:
+        qp = {'name': self.__str__(),
+                'in': 'query',
+                'description': self.description,
+                'required': False,
+                'schema': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string'
+                    },
+                    'examples': self.example
+                }}
+        connector = {'name': self.__str__() + '*connector',
+                     'in': 'query',
+                     'description': 'Logical connectors for combining an array',
+                     'required': False,
+                     'schema': {
+                         'type': 'string',
+                         'enum': [c.func for c in get_args(AvailableOperators)],
+                         'default': self.default_operator.func
+                     }
+                     }
+        return {self.__str__() + 'QueryParam': qp,
+                self.__str__() + 'QueryConnector': connector}
 
 class _PrimitivePredicate:
 
@@ -291,6 +321,7 @@ class _PrimitivePredicate:
                  read_only=False,
                  hidden=False,
                  description='',
+                 example=None,
                  query_label=None,
                  query_description=None,
                  tom_select=False,
@@ -308,6 +339,8 @@ class _PrimitivePredicate:
         self.hidden = hidden
         self.new = new
         self.edit = edit
+
+        self.example = example or "some string"
         self.queryable = queryable
         self.query_label = query_label or label
         self.query_description = query_description
@@ -527,6 +560,33 @@ class _PrimitivePredicate:
     def openapi_component(self) -> dict:
         """ base property that represents this dgraph predicate as an openapi component """
         return {'type': "string"}
+    
+    @property
+    def openapi_query_parameter(self) -> dict:
+        qp = {'name': self.predicate,
+                'in': 'query',
+                'description': self.description,
+                'required': False,
+                'example': self.example,
+                'schema': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string'
+                    },
+                    
+                }}
+        connector = {'name': self.predicate + '*connector',
+                     'in': 'query',
+                     'description': 'Logical connectors for combining an array',
+                     'required': False,
+                     'schema': {
+                         'type': 'string',
+                         'enum': [c for c in get_args(AvailableConnectors)],
+                         'default': self.default_connector
+                     }
+                     }
+        return {self.predicate + 'QueryParam': qp,
+                self.predicate + 'QueryConnector': connector}
         
 
 class Predicate(_PrimitivePredicate):
@@ -708,9 +768,12 @@ class ReverseRelationship(_PrimitivePredicate):
                  relationship_constraint=None,
                  overwrite=False,
                  default_predicates=None,
+                 example="0x123",
                  *args, **kwargs) -> None:
 
-        super().__init__(overwrite=overwrite, *args, **kwargs)
+        super().__init__(overwrite=overwrite,
+                         example=example, 
+                         *args, **kwargs)
 
         if isinstance(relationship_constraint, str):
             relationship_constraint = [relationship_constraint]
@@ -832,8 +895,35 @@ class ReverseRelationship(_PrimitivePredicate):
                 o['$ref'] = '#/components/schemas/' + self.relationship_constraint[0]
 
         return o
-
-
+    
+    @property
+    def openapi_query_parameter(self) -> dict:
+        qp = {'name': self.predicate,
+                'in': 'query',
+                'description': self.description,
+                'required': False,
+                'example': self.example,
+                'schema': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string',
+                        'format': 'uid'
+                    },
+                    
+                }}
+        connector = {'name': self.predicate + '*connector',
+                     'in': 'query',
+                     'description': 'Logical connectors for combining an array',
+                     'required': False,
+                     'schema': {
+                         'type': 'string',
+                         'enum': [c for c in get_args(AvailableConnectors)],
+                         'default': self.default_connector
+                     }
+                     }
+        return {self.predicate + 'QueryParam': qp,
+                self.predicate + 'QueryConnector': connector}
+    
 class ReverseListRelationship(ReverseRelationship):
 
     is_list_predicate = True
@@ -910,9 +1000,12 @@ class MutualRelationship(_PrimitivePredicate):
                  autoload_choices=True,
                  relationship_constraint=None,
                  overwrite=True,
+                 example="0x123",
                  *args, **kwargs) -> None:
 
-        super().__init__(overwrite=overwrite, *args, **kwargs)
+        super().__init__(overwrite=overwrite, 
+                         example=example,
+                         *args, **kwargs)
 
         if isinstance(relationship_constraint, str):
             relationship_constraint = [relationship_constraint]
@@ -1006,6 +1099,34 @@ class MutualRelationship(_PrimitivePredicate):
                 o['$ref'] = '#/components/schemas/' + self.relationship_constraint[0]
 
         return o
+    
+    @property
+    def openapi_query_parameter(self) -> dict:
+        qp = {'name': self.predicate,
+                'in': 'query',
+                'description': self.description,
+                'required': False,
+                'example': self.example,
+                'schema': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string',
+                        'format': 'uid'
+                    },
+                    
+                }}
+        connector = {'name': self.predicate + '*connector',
+                     'in': 'query',
+                     'description': 'Logical connectors for combining an array',
+                     'required': False,
+                     'schema': {
+                         'type': 'string',
+                         'enum': [c for c in get_args(AvailableConnectors)],
+                         'default': self.default_connector
+                     }
+                     }
+        return {self.predicate + 'QueryParam': qp,
+                self.predicate + 'QueryConnector': connector}
 
 class MutualListRelationship(MutualRelationship):
 
@@ -1117,8 +1238,8 @@ class Integer(Predicate):
     dgraph_predicate_type = 'int'
     is_list_predicate = False
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, example=7, *args, **kwargs) -> None:
+        super().__init__(*args, example=example, **kwargs)
 
     def validation_hook(self, data):
         return int(data)
@@ -1285,7 +1406,23 @@ class SingleChoice(String):
             o['description'] += f' * `{k}` - {v}\n'
 
         return o
-
+  
+    @property
+    def openapi_query_parameter(self) -> dict:
+        qp = {'name': self.predicate,
+                'in': 'query',
+                'description': self.description,
+                'required': False,
+                'schema': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string',
+                        'enum': list(self.choices.keys())
+                        }
+                    }
+                }
+        
+        return {self.predicate + 'QueryParam': qp}
 
 class MultipleChoice(SingleChoice):
 
@@ -1342,6 +1479,35 @@ class MultipleChoice(SingleChoice):
             o['description'] += f' * `{k}` - {v}\n'
 
         return o
+    
+      
+    @property
+    def openapi_query_parameter(self) -> dict:
+        qp = {'name': self.predicate,
+                'in': 'query',
+                'description': self.description,
+                'required': False,
+                'schema': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string',
+                        'enum': list(self.choices.keys())
+                        }
+                    }
+                }
+        connector = {'name': self.predicate + '*connector',
+                     'in': 'query',
+                     'description': 'Logical connectors for combining an array',
+                     'required': False,
+                     'schema': {
+                         'type': 'string',
+                         'enum': [c for c in get_args(AvailableConnectors)],
+                         'default': self.default_connector
+                     }
+                     }
+        return {self.predicate + 'QueryParam': qp,
+                self.predicate + 'QueryConnector': connector}
+
 
 class DateTime(Predicate):
 
@@ -1557,6 +1723,20 @@ class Boolean(Predicate):
         if self.description:
             o['description'] =  self.description
         return o
+    
+
+    @property
+    def openapi_query_parameter(self) -> dict:
+        qp = {'name': self.predicate,
+                'in': 'query',
+                'description': self.description,
+                'required': False,
+                'schema': {
+                    'type': 'boolean'
+                    }
+                }
+        
+        return {self.predicate + 'QueryParam': qp}
 
 class Geo(Predicate):
 
@@ -1595,6 +1775,7 @@ class SingleRelationship(Predicate):
                  relationship_constraint=None,
                  allow_new=False,
                  autoload_choices=False,
+                 example="0x123",
                  *args, **kwargs) -> None:
 
         if isinstance(relationship_constraint, str):
@@ -1607,7 +1788,7 @@ class SingleRelationship(Predicate):
         self.choices = {}
         self.choices_tuples = []
 
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, example=example, **kwargs)
         
         # hook for Tom-Select to decide whether new entries should be allowed
         self.render_kw.update({'data-ts-create': allow_new})
@@ -1718,6 +1899,34 @@ class SingleRelationship(Predicate):
                 o['$ref'] = '#/components/schemas/' + self.relationship_constraint[0]
 
         return o
+    
+    @property
+    def openapi_query_parameter(self) -> dict:
+        qp = {'name': self.predicate,
+                'in': 'query',
+                'description': self.description,
+                'required': False,
+                'example': self.example,
+                'schema': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string',
+                        'format': 'uid'
+                    },
+                    
+                }}
+        connector = {'name': self.predicate + '*connector',
+                     'in': 'query',
+                     'description': 'Logical connectors for combining an array',
+                     'required': False,
+                     'schema': {
+                         'type': 'string',
+                         'enum': [c for c in get_args(AvailableConnectors)],
+                         'default': self.default_connector
+                     }
+                     }
+        return {self.predicate + 'QueryParam': qp,
+                self.predicate + 'QueryConnector': connector}
 
 class ListRelationship(SingleRelationship):
 

@@ -185,8 +185,10 @@ def query():
                 variables = None
 
             result = dgraph.query(query_string, variables=variables)
-            total = result['total'][0]['count']
-
+            
+            count_query_string = build_query_string(r, count=True)
+            count_result = dgraph.query(count_query_string, variables=variables)
+            total = count_result['total'][0]['count']
             max_results = int(request.args.get('_max_results', 25))
             # make sure no random values are passed in as parameters
             if not max_results in [10, 25, 50]:

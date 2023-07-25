@@ -1,4 +1,4 @@
-from typing import Any, Iterable
+from typing import Any, Iterable, Union
 from copy import deepcopy
 from datetime import datetime
 from flask_wtf import FlaskForm
@@ -191,7 +191,7 @@ class Schema:
         return list(cls.__types__.keys())
 
     @classmethod
-    def get_type(cls, dgraph_type: str) -> str:
+    def get_type(cls, dgraph_type: str) -> Union[str, None]:
         """
             Get the correct name of a DGraph Type
             Helpful when input is all lower case
@@ -348,6 +348,7 @@ class Schema:
     
     @classmethod
     def provide_types(cls) -> Iterable[dict]:
+        """ Provide all dgraph types in a format usable for Open API 3"""
         
         schemas = {}
         requestBodies = {}
@@ -378,8 +379,15 @@ class Schema:
                 schemas[t]['required'] = required_predicates
 
         return {'schemas': schemas,
-                'requestBodies': requestBodies}   
+                'requestBodies': requestBodies}
 
+    @classmethod
+    def provide_queryable_predicates(cls) -> Iterable[dict]:
+        queryable = {}
+        for predicate_name, predicate in Schema.get_queryable_predicates().items():
+            queryable.update(predicate.openapi_query_parameter)
+
+        return queryable
 
     @classmethod
     def permissions_new(cls, _cls) -> int:

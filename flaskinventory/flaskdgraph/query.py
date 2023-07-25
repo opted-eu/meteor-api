@@ -4,6 +4,7 @@ from wtforms import SubmitField, SelectField, StringField, RadioField
 from flask_wtf import FlaskForm
 from .customformfields import TomSelectMultipleField
 
+from copy import deepcopy
 
 # Default Behaviour:
 # different predicates are combined with AND operators
@@ -16,13 +17,15 @@ from .customformfields import TomSelectMultipleField
 # checking for equality
 
 
-def build_query_string(query: dict, public=True) -> str:
+def build_query_string(query: dict, public=True, count=False) -> str:
     """
         Construct a query string from a dictionary of filters.
         Returns a dql query string with two queries: `total` and `q`
     """
 
     from flaskinventory.flaskdgraph.dgraph_types import Facet, MutualRelationship, SingleRelationship
+
+    query = deepcopy(query)
 
     # get parameter: maximum results per page
     try:
@@ -205,23 +208,28 @@ def build_query_string(query: dict, public=True) -> str:
     else:
         variables_declaration = ''
 
-    query_string = f"""
-        {variables_declaration}
-        {{
-        total(func: has(dgraph.type)) 
-            @filter({filters}) {cascade} {{
-                {" ".join(query_parts_total)}
+    if count:
+        query_string = f"""
+            {variables_declaration}
+            {{
+            total(func: has(dgraph.type)) 
+                @filter({filters}) {cascade} {{
+                    {" ".join(query_parts_total)}
+                }}
             }}
-
-        q(func: has(dgraph.type), orderasc: name, first: {max_results}, offset: {page * max_results}) 
-            @filter({filters}) {cascade} {{
-                {" ".join(query_parts)}
+        """
+    else:
+        query_string = f"""
+            {variables_declaration}
+            {{
+            q(func: has(dgraph.type), orderasc: name, first: {max_results}, offset: {page * max_results}) 
+                @filter({filters}) {cascade} {{
+                    {" ".join(query_parts)}
+                }}
             }}
-        }}
-    """
+        """
 
     return query_string
-
 
 def generate_query_forms(dgraph_types: list = None, populate_obj: dict = None) -> FlaskForm:
 
