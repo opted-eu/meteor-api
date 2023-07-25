@@ -785,38 +785,3 @@ class Sanitizer:
             self.entry['identifier'] = profile.get('telegram_id')
         if profile.get('joined'):
             self.entry['date_founded'] = profile.get('joined')
-
-
-class OrganizationSanitizer(Sanitizer):
-
-    def __init__(self, data, **kwargs):
-
-        fields = Organization.predicates()
-
-        super().__init__(data, fields=fields, **kwargs)
-
-        if not self.is_upsert:
-            self.entry['dgraph.type'].append('Organization')
-
-
-def make_sanitizer(data: dict, dgraph_type, edit=False):
-
-    if not isinstance(dgraph_type, str):
-        dgraph_type = dgraph_type.__name__
-
-    fields = Schema.get_predicates(dgraph_type)
-    if Schema.get_reverse_predicates(dgraph_type):
-        fields.update(Schema.get_reverse_predicates(dgraph_type))
-
-    class S(Sanitizer):
-
-        def __init__(self, d, dtype='Entry', *args, **kwargs):
-
-            super().__init__(d, *args, **kwargs)
-
-            if not self.is_upsert:
-                self.entry['dgraph.type'].append(dtype)
-
-    if edit:
-        return S.edit(data, fields=fields, dtype=dgraph_type)
-    return S(data, fields=fields, dtype=dgraph_type)
