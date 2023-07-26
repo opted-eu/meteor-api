@@ -1,5 +1,6 @@
 from typing import Any, Iterable, Union
 from copy import deepcopy
+import json
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import SubmitField
@@ -182,6 +183,42 @@ class Schema:
             # the generic constructor just assigns **kwargs as attributes
             cls.__init__ = _declarative_constructor
 
+    """ ORM Methods """
+    @staticmethod
+    def _normalize_dict_vals(val):
+        if isinstance(val, datetime):
+            return val.isoformat()
+        else:
+            return str(val)
+
+    def as_dict(self) -> dict:
+        """ 
+            Provides the instance as a dict so it can be passed on to dgraph as a set object 
+
+            The dict is a copy of the instance's attributes. So, if the returned dict is changed,
+            the instance is not affected.
+        """
+        from .dgraph_types import (_PrimitivePredicate, Facet, 
+                                   SingleRelationship, MutualRelationship, ReverseRelationship, 
+                                   ListRelationship, MutualListRelationship, ReverseListRelationship)
+        
+        d = {}
+        for k, v in self.__dict__.items():
+            if isinstance(self.predicates()[k], (ListRelationship, MutualListRelationship, ReverseListRelationship)):
+                if type(v) == list:
+                    d[k] = [{'uid': u} for u in v]
+                else:
+                    d[k] = [{'uid': v}]
+            elif isinstance(self.predicates()[k], (SingleRelationship, MutualRelationship, ReverseRelationship)):
+                d[k] = {'uid': v}
+            elif isinstance(self.predicates()[k], (_PrimitivePredicate, Facet)):
+                d[k] = v
+
+        d['dgraph.type'] = self.resolve_inheritance(type(self).__name__)
+        d = json.loads(json.dumps(d, default=self._normalize_dict_vals))      
+
+        return d
+
     @classmethod
     def get_types(cls) -> list:
         """
@@ -309,6 +346,7 @@ class Schema:
     
     @classmethod
     def generate_dgraph_schema(cls) -> str:
+        """ Produces a schema that can be read by DGraph """
 
         # The Schema first defines all types and their predicates
         type_definitions = []
@@ -554,7 +592,7 @@ class Schema:
     Maybe we will keep this for implementing ORM style queries
 """
 
-def _declarative_constructor(self: Any, **kwargs: Any) -> None:
+def _declarative_constructor(self: Schema, **kwargs: Any) -> None:
     """A simple constructor that allows initialization from kwargs.
     Sets attributes on the constructed instance using the names and
     values in ``kwargs``.
@@ -563,6 +601,13 @@ def _declarative_constructor(self: Any, **kwargs: Any) -> None:
     for example, any mapped columns or relationships.
     """
     cls_ = type(self)
+    for k, v in self.predicates().items():
+        if v.default:
+            setattr(self, k, v.default)
+        if v.required and k not in kwargs:
+            raise TypeError(
+                f'Predicate <{k}> is required!'
+            )
     for k in kwargs:
         if not hasattr(cls_, k):
             raise TypeError(
