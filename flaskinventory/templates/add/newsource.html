@@ -954,7 +954,6 @@
 
 <script>
 $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-const csrftoken = "{{ csrf_token() }}";
 
 {% include 'add/newsource.js' %}
 

@@ -8,7 +8,6 @@
 <script>
 
     $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-    const csrftoken = "{{ csrf_token() }}";
     const data = { uid: "{{ entry.uid }}" };
     $ENDPOINT = "{{ url_for( 'endpoint.ownership' ) }}"
 

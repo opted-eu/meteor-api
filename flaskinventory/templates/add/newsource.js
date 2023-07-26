@@ -1451,7 +1451,7 @@ function submitForm(endpoint, form, callback) {
     var url = endpoint;
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+    // xhr.setRequestHeader("X-CSRFToken", csrftoken);
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {

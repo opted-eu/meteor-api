@@ -173,7 +173,10 @@ def new(dgraph_type=None, draft=None, populate_form: dict = None):
 
     fields = list(form.data.keys())
     fields.remove('submit')
-    fields.remove('csrf_token')
+    try:
+        fields.remove('csrf_token')
+    except:
+        pass
 
     if dgraph_type in ['Tool', 'ScientificPublication', 'Dataset', 'Corpus']:
         show_sidebar = True

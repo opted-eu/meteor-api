@@ -318,7 +318,7 @@ function MakeNetworkPlot(uid, endpoint, divId) {
         fetch(endpoint, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': csrftoken,
+                // 'X-CSRFToken': csrftoken,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(uid),
