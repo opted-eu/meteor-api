@@ -1,4 +1,4 @@
-__version__ = "2.0.0.beta1"
+__version__ = "2.0.0.beta2"
 
 import logging
 import json
