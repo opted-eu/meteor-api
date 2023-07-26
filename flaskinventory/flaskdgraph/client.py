@@ -193,7 +193,7 @@ class DGraph(object):
             return None
         return data['q'][0]['_unique_name']
 
-    def get_dgraphtype(self, uid: str, clean: list = ['Entry', 'Resource']):
+    def get_dgraphtype(self, uid: str, clean: list = ['Entry', 'Resource']) -> Union[str, list]:
         query_string = f'''query get_dgraphtype($value: string)
                             {{ q(func: uid($value)) @filter(has(dgraph.type)) {{  dgraph.type  }} }}'''
 
@@ -215,7 +215,7 @@ class DGraph(object):
         New Entries
     """
 
-    def mutation(self, data):
+    def mutation(self, data: Union[list, dict]) -> Union[bool, str]:
         # if type(data) is not dict or type(data) is not list:
         #     raise TypeError()
 
