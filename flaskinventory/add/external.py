@@ -715,8 +715,6 @@ def cran(pkg) -> Union[dict, bool]:
 
         result['url'] = url.split(',')[0].strip()
         
-
-
     if 'License' in data.keys():
         result['license'] = data['License']
 
@@ -740,8 +738,8 @@ def cran(pkg) -> Union[dict, bool]:
             authors_split = authors_raw.split(',')
         authors = [a.strip() for a in authors_split]
 
-    if len(authors) > 0:
-        result['authors'] = ";".join(authors)
+    result['_authors_fallback'] = authors
+    result['_authors_fallback|sequence'] = {str(i): str(i) for i in range(len(authors))}
 
     return result
 
