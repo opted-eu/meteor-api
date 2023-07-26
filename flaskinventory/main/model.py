@@ -1330,9 +1330,12 @@ class File(Schema):
 
     uid = UIDPredicate()
 
-    _download_url = String(description="location of the resource")
-    _path = String(description="location on local disk")
-    file_formats = SingleRelationship(relationship_constraint="FileFormat")
+    _download_url = String(description="location of the resource",
+                                  edit=False)
+    _path = String(description="location on local disk",
+                                  edit=False)
+    file_formats = SingleRelationship(relationship_constraint="FileFormat",
+                                  edit=False)
 
 
 class Notification(Schema):
@@ -1344,14 +1347,19 @@ class Notification(Schema):
     uid = UIDPredicate()
 
     _notification_date = DateTime(default=datetime.datetime.now,
-                                  directives=['@index(hour)'])
-    _read = Boolean(default=False)
+                                  directives=['@index(hour)'],
+                                  edit=False)
+    _read = Boolean(default=False,
+                    edit=False)
     _notify = SingleRelationship(relationship_constraint="User",
-                                 required=True)
+                                 required=True,
+                                  edit=False)
 
-    _title = String(default="Notification")
-    _content = String()
-    _email_dispatched = Boolean(default=False)
+    _title = String(default="Notification",
+                                  edit=False)
+    _content = String(edit=False)
+    _email_dispatched = Boolean(default=False,
+                                  edit=False)
 
 
 class Comment(Schema):
@@ -1363,15 +1371,20 @@ class Comment(Schema):
     uid = UIDPredicate()
 
     _creator = SingleRelationship(relationship_constraint='User',
-                                  required=True)
+                                  required=True,
+                                  edit=False)
 
     _comment_date = DateTime(default=datetime.datetime.now,
-                             directives=['@index(hour)'])
+                             directives=['@index(hour)'],
+                                  edit=False)
 
     _comment_edited = DateTime(default=datetime.datetime.now,
-                               directives=['@index(hour)'])
+                               directives=['@index(hour)'],
+                                  edit=False)
 
-    _comment_on = SingleRelationship(relationship_constraint="Entry")
+    _comment_on = SingleRelationship(relationship_constraint="Entry",
+                                     required=True,
+                                     edit=False)
     content = String()
 
 
@@ -1401,6 +1414,7 @@ class Rejected(Schema):
                                       edit=False,
                                       read_only=True,
                                       hidden=True)
+    
     _edited_by = SingleRelationship(label="Edited by",
                                     relationship_constraint="User",
                                     new=False,
@@ -1408,6 +1422,6 @@ class Rejected(Schema):
                                     read_only=True,
                                     hidden=True)
 
-    _former_types = ListString()
+    _former_types = ListString(edit=False)
 
     entry_review_status = String(default="rejected")
