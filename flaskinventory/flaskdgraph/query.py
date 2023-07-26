@@ -6,21 +6,27 @@ from .customformfields import TomSelectMultipleField
 
 from copy import deepcopy
 
-# Default Behaviour:
-# different predicates are combined with AND operators
-# e.g., publication_kind == "newspaper" AND geographic_scope == "national"
-# same Scalar predicates are combined with OR operators
-# e.g., payment_model == "free" OR payment_model == "partly free"
-# same List predicates are combined with AND operators
-# e.g., languages == "en" AND languages == "de"
-# default comparator is eq or uid_in
-# checking for equality
-
 
 def build_query_string(query: dict, public=True, count=False) -> str:
     """
         Construct a query string from a dictionary of filters.
-        Returns a dql query string with two queries: `total` and `q`
+        Returns a dql query string with either: `total` or `q`
+
+
+        Default Behaviour:
+
+        different predicates are combined with AND connectors
+        e.g., publication_kind == "newspaper" AND geographic_scope == "national"
+
+        same Scalar predicates are combined with OR connectors
+        e.g., payment_model == "free" OR payment_model == "partly free"
+
+        same List predicates are combined with AND connectors
+        e.g., languages == "en" AND languages == "de"
+
+        default comparator is eq or uid_in
+        checking for equality
+
     """
 
     from flaskinventory.flaskdgraph.dgraph_types import Facet, MutualRelationship, SingleRelationship
