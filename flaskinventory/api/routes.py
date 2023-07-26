@@ -1,9 +1,50 @@
+__doc__ = """
+
+API for Meteor clients.
+
+General Notes:
+- UIDs are DGraphs internal unique ids for entries. 
+    They are always represented as hex values (e.g., `0x12a`). 
+    The API expects UIDs formatted as strings. Therefore, just treat UIDs as strings.
+- `_unique_name` is the externally used unique id for entries.
+    Unique names are human-readable and assigned by the system automatically.
+    They generally follow the pattern: `dgraph type` + `country` + `name` + `date added`.
+    Unique names are all lowercase and also do not contain spaces, only ascii characters, and
+    are separated by an underscore.
+- Predicates (you could also call them "variables", "fields", or "attributes") starting with an
+    underscore are system-managed (e.g., `_date_created`) and cannot be edited by users.
+
+
+Currently work in progress.
+
+Implemented:
+- View
+- External
+- Lookup
+- Query
+- Quicksearch
+- Schema
+
+Semi-Implemented (because login not implemented):
+- Add
+- Edit
+- Review
+
+Not Implemented:
+- Login routine. We will most probably implement a login procedure that leverages external identity providers. (see: https://github.com/opted-eu/meteor-dev/issues/31)
+- User
+- Admin
+- Follow
+- Notifications
+
+"""
+
 import typing as t
 from functools import wraps
 import inspect
 import re
+import collections
 
-from werkzeug.routing import parse_rule
 from flask import Blueprint, jsonify, current_app, request, abort, url_for, render_template
 from flask.scaffold import F
 
@@ -12,16 +53,48 @@ from flask_login import current_user, login_required
 from flaskinventory.flaskdgraph import dql
 from flaskinventory.flaskdgraph import build_query_string
 from flaskinventory.flaskdgraph.utils import validate_uid, restore_sequence
-from flaskinventory.view.dgraph import get_entry, get_comments, get_rejected
+from flaskinventory.view.dgraph import get_entry, get_rejected
 from flaskinventory.view.utils import can_view
 
 from flaskinventory.main.model import *
 
 from flaskinventory.api.sanitizer import Sanitizer
+from flaskinventory.api.comments import get_comments, post_comment
+from flaskinventory.api.responses import SuccessfulAPIOperation
+
+#: Maps Flask/Werkzeug rooting types to Swagger ones
+PATH_TYPES = {
+    'int': 'integer',
+    'float': 'number',
+    'string': 'string',
+    'default': 'string',
+    str: 'string',
+    int: 'integer',
+    dict: 'object',
+    bool: 'boolean',
+    list: 'array',
+    t.Any: 'object'
+}
+
+def safe_issubclass(
+    __cls: type,
+    __class_or_tuple: t.Union[type, tuple]) -> bool:
+    """ 
+        Regular `issubclass` raises an error when first
+        argument is not a class but an instance. 
+        This is a wrapper that just tries
+    """
+    try:
+        return issubclass(__cls, __class_or_tuple)
+    except TypeError:
+        return False
+
 
 """ Blueprint Class Declaration """
 
 class API(Blueprint):
+
+    REGEX_RULE_PATH_PARAM = re.compile(r"<(?:[a-zA-Z_][a-zA-Z0-9_]*\:)?([^/].*?)>")
 
     routes = {}
 
@@ -34,6 +107,163 @@ class API(Blueprint):
         response.status_code = status_code
         return response
 
+    @staticmethod
+    def annotation_to_response(annotation, 
+                                content_type='application/json'):
+        
+        content = collections.defaultdict(dict)
+
+        if t.get_origin(annotation) is t.Union:
+            oneOf = []
+            for r in annotation.__args__:
+                if safe_issubclass(r, Schema):
+                    r_type = r.__name__
+                else:
+                    r_type = PATH_TYPES[r]
+                oneOf.append({'$ref': "#/components/schemas/" + r_type})
+            content[content_type]["schema"] = {
+                'type': 'object',
+                'oneOf': oneOf
+                }
+        elif t.get_origin(annotation) is list:
+            r = annotation.__args__[0]
+            if safe_issubclass(r, Schema):
+                r_type = r.__name__
+                content[content_type]["schema"] = {
+                    'type': 'array',
+                    'items': {
+                        '$ref': "#/components/schemas/" + r_type
+                        }
+                    }
+            else:
+                r_type = PATH_TYPES[r]
+        else:
+            r = annotation
+            if safe_issubclass(r, Schema):
+                content[content_type]["schema"] = {
+                    '$ref': "#/components/schemas/" + r.__name__
+                }
+            elif type(r) == t._TypedDictMeta:
+                content[content_type]["schema"] = {
+                        'type': 'object',
+                        'properties': {}
+                    }
+                for key, val in r.__annotations__.items():
+                    content[content_type][
+                        "schema"][
+                            'properties'][key] = {'type': PATH_TYPES[val]}
+                    if val is list:
+                        content[content_type][
+                        "schema"][
+                            'properties'][key]['items'] = {'type': 'string'}
+                    
+            else:
+                content[content_type]["schema"] = {
+                    'type': PATH_TYPES[r]
+                }
+       
+        return content
+    
+    @staticmethod
+    def annotation_to_request_params(annotations: list) -> dict:
+    
+        content = {
+            'application/json': {
+                'schema': {
+                    'properties': {},
+                    'required': []
+                }
+            },
+            'application/x-www-form-urlencoded': {
+                'schema': {
+                    'properties': {},
+                    'required': []
+                }
+            }
+        }
+
+        for a in annotations:
+            if safe_issubclass(a.annotation, Schema):
+                p_param_val_pair = {a.name: {
+                    '$ref': "#/components/schemas/" + a.annotation.__name__
+                }}
+            elif type(a.annotation) == t._TypedDictMeta:
+                _p_param_val_pair = {}          
+                for key, val in a.annotation.__annotations__.items():
+                    _p_param_val_pair[key] = {'type': PATH_TYPES[val]}
+                    if val is list:
+                        _p_param_val_pair[key]['items'] = {'type': 'string'}
+                p_param_val_pair = {a.name: {
+                                    'type': 'object',
+                                    'properties': _p_param_val_pair
+                                    }
+                                }
+                                        
+            elif t.get_origin(a.annotation) is t.Union:
+                p_param_val_pair = {}
+                oneOf = []
+                for r in a.annotation.__args__:
+                    if safe_issubclass(r, Schema):
+                        r_type = r.__name__
+                        oneOf.append({'$ref': "#/components/schemas/" + r_type})
+                    elif type(r) == t._TypedDictMeta:
+                        r_type = {
+                            'type': 'object',
+                            'properties': {}
+                            }
+                            
+                        
+                        for key, val in r.__annotations__.items():
+                            r_type['properties'][key] = {'type': PATH_TYPES[val]}
+                            if val is list:
+                                r_type['properties'][key]['items'] = {'type': 'string'}
+                        oneOf.append(r_type)
+                                
+                    else:
+                        r_type = PATH_TYPES[r]
+                    
+                content['application/json']["schema"]['type'] = 'object'
+                content['application/json']["schema"]['oneOf'] = oneOf
+                content['application/x-www-form-urlencoded']["schema"]['type'] = 'object'
+                content['application/x-www-form-urlencoded']["schema"]['oneOf'] = oneOf
+            elif t.get_origin(a.annotation) is t.Literal:
+                p_param_val_pair = {a.name: {
+                    'type': 'string',
+                    'enum':  list(a.annotation.__args__)
+                    }
+                }
+            elif t.get_origin(a.annotation) is list:
+                r = a.annotation.__args__[0]
+                if safe_issubclass(r, Schema):
+                    r_type = r.__name__
+                    p_param_val_pair = {
+                        a.name: {
+                            '$ref': '#/components/schemas/' + a.annotation.__name__
+                            }
+                        }
+                else:
+                    r_type = PATH_TYPES[r]
+                    p_param_val_pair = {
+                        a.name: {
+                            'type': 'array',
+                            'items': {
+                                'type': r_type
+                            }
+                            
+                        }
+                    }
+                
+            else:
+                post_param_type = PATH_TYPES[a.annotation]
+                p_param_val_pair = {a.name: {'type': post_param_type}}
+            if a.annotation is t.Any:
+                p_param_val_pair[a.name]['additionalProperties'] = True
+            content['application/json']['schema']['properties'].update(p_param_val_pair)
+            content['application/json']['schema']['required'].append(a.name)
+            content['application/x-www-form-urlencoded']['schema']['properties'].update(p_param_val_pair)
+            content['application/x-www-form-urlencoded']['schema']['required'].append(a.name)
+
+        return content
 
     def query_params(self, f):
         """
@@ -56,9 +286,17 @@ class API(Blueprint):
                                 p = [par.annotation.__args__[0](p)]
                         else:
                             p = par.annotation(p)
+
                     except ValueError:
                         abort(400)
                     params[parameter_name] = p
+                if parameter_name in request.form.keys():
+                    p = request.form.get(parameter_name)
+                    params[parameter_name] = p
+                if request.is_json:
+                    if parameter_name in request.json:
+                        p = request.json.get(parameter_name)
+                        params[parameter_name] = p
 
             return f(**params)
         return logic
@@ -83,8 +321,7 @@ class API(Blueprint):
             path_parameters = []
             query_parameters = []
             request_body_params = []
-            for triple in parse_rule(rule):
-                _, _, v = triple
+            for v in self.REGEX_RULE_PATH_PARAM.findall(rule):
                 path_parameters.append(v)
 
             # print('*'* 80)
@@ -92,12 +329,9 @@ class API(Blueprint):
             sig = inspect.signature(f)
             # print(sig.return_annotation)
             for arg, par in sig.parameters.items():
-                # print('arg', arg)
-                # print(arg, par)
-                # print(t.get_origin(par.annotation))
+            
                 # if NoneType in par.annotation -> optional
-                # print(par.default, par.annotation, par.name)
-                # print('par default', type(par.default), par.default)
+          
                 # here we check whether the argument should 
                 # be treated as a query parameter
                 if par.name not in path_parameters:
@@ -138,19 +372,6 @@ api = API('api', __name__)
 
 """ Schema API routes """
 
-#: Maps Flask/Werkzeug rooting types to Swagger ones
-PATH_TYPES = {
-    'int': 'integer',
-    'float': 'number',
-    'string': 'string',
-    'default': 'string',
-    str: 'string',
-    int: 'integer',
-    dict: 'object',
-    bool: 'boolean'
-}
-
-
 @api.route('/swagger')
 def swagger():
     """ Serves the Swagger UI """
@@ -163,7 +384,7 @@ def schema() -> dict:
             "openapi": "3.0.3",
             "info": {
                 "title": "Meteor API",
-                "description": "API for Meteor clients",
+                "description": __doc__,
                 "termsOfService": "http://meteor.opted.eu/about/",
                 "contact": {
                 "email": "info@opted.eu"
@@ -215,11 +436,18 @@ def schema() -> dict:
                                    'type': PATH_TYPES[param_type.annotation.__args__[0]]
                                    }
                                 }
+            elif t.get_origin(param_type.annotation) is t.Literal:
+                p['schema'] = {
+                    'type': 'string',
+                    'enum':  list(param_type.annotation.__args__)
+                    }
+                # p['type'] = 'string',
+                # p['enum'] = list(param_type.annotation.__args__)
             else:
                 p['schema'] = {'type': PATH_TYPES[param_type.annotation]}
 
             if not param_type.default is param_type.empty:
-                p['default'] = param_type.default
+                p['schema']['default'] = param_type.default
             parameters.append(p)
         
         # very unelegant solution
@@ -234,45 +462,12 @@ def schema() -> dict:
                 }
             }       
         }
-
-        if t.get_origin(details['responses']) is t.Union:
-            oneOf = []
-            for r in details['responses'].__args__:
-                if issubclass(r, Schema):
-                    r_type = r.__name__
-                else:
-                    r_type = PATH_TYPES[r]
-                oneOf.append({'$ref': "#/components/schemas/" + r_type})
-            responses["content"]["application/json"]["schema"] = {
-                'type': 'object',
-                'oneOf': oneOf
-                }
-        elif t.get_origin(details['responses']) is list:
-            r = details['responses'].__args__[0]
-            if issubclass(r, Schema):
-                r_type = r.__name__
-            else:
-                r_type = PATH_TYPES[r]
-            responses["content"]["application/json"]["schema"] = {
-                'type': 'array',
-                'items': {
-                    '$ref': "#/components/schemas/" + r_type
-                    }
-                }
-        
-        else:
-            r = details['responses']
-            if issubclass(r, Schema):
-                responses["content"]["application/json"]["schema"] = {
-                    '$ref': "#/components/schemas/" + r.__name__
-                }
-            else:
-                responses["content"]["application/json"]["schema"] = {
-                    'type': PATH_TYPES[r]
-                }
+        content = api.annotation_to_response(details['responses'])
+        responses['content'] = content
 
         for method in details['methods']:
             open_api['paths'][path][method.lower()] = {
+                'tags': [path.split('/')[1]],
                 'description': details['description'],
                 # 'operationId': details['func'],
                 'parameters': parameters,
@@ -284,45 +479,106 @@ def schema() -> dict:
                     'required': True,
                     'content': {
                         'application/json': {
-                            'schema': {}
-
-                        }
+                            'schema': {
+                                'type': 'object',
+                                'properties': {
+                                    # key-value pairs go here
+                                },
+                                'required': [
+                                    # keys go here
+                                ]
+                            }
+                        },
+                        'application/x-www-form-urlencoded': {
+                            'schema': {
+                                'type': 'object',
+                                'properties': {
+                                    # key-value pairs go here
+                                },
+                                'required': [
+                                    # keys go here
+                                ]
+                            }
+                        },
+                        } 
                     }
-                }
+                post_params = [details['parameters'][p] for p in details['request_body_params']]
+                content = api.annotation_to_request_params(post_params)
+                open_api['paths'][path][method.lower()]['requestBody']['content'] = content
+                # for post_param in details['request_body_params']:
+                #     post_param_type = PATH_TYPES[details['parameters'][post_param].annotation]
+                #     p_param_val_pair = {post_param: {'type': post_param_type}}
+                #     if details['parameters'][post_param].annotation is t.Any:
+                #         p_param_val_pair[post_param]['additionalProperties'] = True
+                #     open_api['paths'][
+                #         path][
+                #             method.lower()][
+                #                 'requestBody']['content'][
+                #                     'application/json']['schema'][
+                #                         'properties'].update(p_param_val_pair)
+                #     open_api['paths'][
+                #         path][
+                #             method.lower()][
+                #                 'requestBody']['content'][
+                #                     'application/json']['schema'][
+                #                         'required'].append(post_param)
+                #     open_api['paths'][  
+                #         path][
+                #             method.lower()][
+                #                 'requestBody']['content'][
+                #                     'application/x-www-form-urlencoded']['schema'][
+                #                         'properties'].update(p_param_val_pair)
+                #     open_api['paths'][
+                #         path][
+                #             method.lower()][
+                #                 'requestBody']['content'][
+                #                     'application/x-www-form-urlencoded']['schema'][
+                #                         'required'].append(post_param)
             
     return jsonify(open_api)
 
 @api.route('/schema/type/<dgraph_type>')
-def get_dgraph_type(dgraph_type: str, new: bool = False) -> dict:
+def get_dgraph_type(dgraph_type: str, new: bool = False, edit: bool = False) -> dict:
     """ 
         Get all predicates of given type alongside a description.
+
         This route is practically a subset of the entire schema.
-        Intended as utility for form generation.
+        
+        _Intended as utility for form generation._
 
         With parameter `new=True` this route does not return system managed predicates.
+        Using `edit=True` the route only returns editable predicates.
         (only returns the predicates for prompting the user).
     """
+
+    #TODO: add permission check
+
     dgraph_type = Schema.get_type(dgraph_type)
     if not dgraph_type:
-        api.abort(404)
+        return api.abort(404)
     if new:
         result = {k: v.openapi_component for k, v in Schema.get_predicates(dgraph_type).items() if v.new}
+    elif edit:
+        result = {k: v.openapi_component for k, v in Schema.get_predicates(dgraph_type).items() if v.edit}
     else:
         result = {k: v.openapi_component for k, v in Schema.get_predicates(dgraph_type).items()}
     return jsonify(result)
     
 
 @api.route('/schema/predicate/<predicate>')
-def get_predicate(predicate: str) -> dict:
+def get_predicate(predicate: str) -> t.TypedDict('Predicate', uid=str):
     """ 
         Get choices for given predicate. 
-        This route is intended as a utility for form generation.
-        For example, the country selection menu.
+
+        Returns key-value-pairs of UIDs and Names for pretty printing.
+
+        _This route is intended as a utility for form generation._
+        _For example, the country selection menu._
     """
     try:
         predicate = Schema.predicates()[predicate]
     except KeyError:
-        api.abort(404)
+        return api.abort(404)
 
     if not hasattr(predicate, 'choices'):
         return jsonify({'warning': f'Predicate <{predicate}> has no available choices'})
@@ -342,7 +598,13 @@ def get_predicate(predicate: str) -> dict:
 
 @api.route('/view/recent')
 def view_recent(limit: int = 5) -> t.List[Entry]:
-    """ get the most recent entries. Default 5. Max: 50 """
+    """ 
+    
+    Get the most recent entries. 
+    
+    Default 5. Max: 50 
+    
+    """
     if limit > 50:
         limit = 50
     if limit < 1:
@@ -390,7 +652,11 @@ def view_uid(uid: str) -> t.Union[Entry, PoliticalParty,
                                   UnitOfAnalysis,
                                   Collection,
                                   LearningMaterial]:
-    """ detail view of a single entry by UID (hex value) """
+    """ 
+    
+    detail view of a single entry by UID
+    
+    """
     uid = validate_uid(uid)
     if not uid:
         return api.abort(404, message="Invalid UID")
@@ -512,7 +778,9 @@ def view_rejected(uid: str) -> Rejected:
 
 @api.route('/quicksearch')
 def quicksearch(term: str = None, limit: int = 10) -> t.List[Entry]:
-    """ perform text search in name fields of entries. 
+    """ 
+        perform text search in name fields of entries. 
+        
         Also searches for unique identifiers such as DOI
     """
     if term is None:
@@ -560,10 +828,34 @@ def quicksearch(term: str = None, limit: int = 10) -> t.List[Entry]:
     return jsonify(result['data'])
 
 
-
+# TODO: Add sorting parameter
 @api.route("/query")
-def query(_max_results: int = 25, _page: int = 1) -> t.List[Entry]:
-    """ perform query based on dgraph query parameters """
+def query(_max_results: int = 25, _page: int = 1, _terms: str = None) -> t.List[Entry]:
+    """ 
+        Perform query based on dgraph query parameters.
+
+        Provides many options to query the database. Special query parameters are 
+        pre-fixed with an underscore: 
+        
+        - `_max_results`: maximum entries per page (limit: 50)
+        - `_page`: current page
+        - `_terms`: free-text search (searches various text fields)
+
+        Default Behaviour for other query parameters:
+
+        - Most comparators check for equality by default.
+            e.g., `paper_kind == "journal"`
+        - different predicates are combined with AND connectors.
+            e.g., `publication_kind == "newspaper" AND geographic_scope == "national"`
+        - same Scalar predicates are combined with OR connectors
+            e.g., `payment_model == "free" OR payment_model == "partly free"`
+        - same List predicates are combined with AND connectors
+            e.g., `languages == "en" AND languages == "de"`
+        - Query parameters with an asterisk indicate how same List predicates should
+            be combined. So queries such as `languages == "en" OR languages == "de"`
+            are also possible
+        
+    """
 
     r = {k: v for k, v in request.args.to_dict(
         flat=False).items() if v[0] != ''}
@@ -571,7 +863,7 @@ def query(_max_results: int = 25, _page: int = 1) -> t.List[Entry]:
     if len(r) > 0:
         query_string = build_query_string(r)
         if query_string:
-            search_terms = request.args.get('_terms', '')
+            search_terms = _terms
             if not search_terms == '':
                 variables = {'$searchTerms': search_terms}
             else:
@@ -594,7 +886,7 @@ def query(_max_results: int = 25, _page: int = 1) -> t.List[Entry]:
 
 
 @api.route("/query/count")
-def query_count() -> int:
+def query_count(_terms: str = None) -> int:
     """ get total number of hits for query """
 
     r = {k: v for k, v in request.args.to_dict(
@@ -603,7 +895,7 @@ def query_count() -> int:
     if len(r) > 0:
         query_string = build_query_string(r, count=True)
         if query_string:
-            search_terms = request.args.get('_terms', '')
+            search_terms = _terms
             if not search_terms == '':
                 variables = {'$searchTerms': search_terms}
             else:
@@ -723,11 +1015,12 @@ def duplicate_check(name: str = None, dgraph_type: str = None) -> t.List[Entry]:
         If entries with similar name (or DOI) are found then it returns list of potential duplicates 
     """
     if not name or not dgraph_type:
-        api.abort(400)
+        return api.abort(400)
 
     dgraph_type = Schema.get_type(dgraph_type)
+
     if not dgraph_type:
-        api.abort(400, message='Invalid DGraph type')
+        return api.abort(400, message='Invalid DGraph type')
 
     query = name.replace('https://', '').replace('http://', '').replace('www.', '')
     query = strip_query(query)
@@ -759,9 +1052,11 @@ def duplicate_check(name: str = None, dgraph_type: str = None) -> t.List[Entry]:
     
 
 @api.route('/add/<dgraph_type>', methods=['POST'])
-def add_new_entry(dgraph_type: str) -> dict:
+def add_new_entry(dgraph_type: str, data: t.Any = None) -> SuccessfulAPIOperation:
     """
-        Send data for new entry. Data has to be in JSON format.
+        Send data for new entry.
+
+        Use the path `/schema/type/{dgraph_type}` to retrieve a list of required predicates.
 
         If the new entry was added successfully, the JSON response includes a `redirect` 
         key which shows the link to view the new entry.
@@ -807,7 +1102,9 @@ def add_new_entry(dgraph_type: str) -> dict:
         else:
             newuids = dict(result.uids)
             uid = newuids[str(sanitizer.entry_uid).replace('_:', '')]
-        response = {'redirect': url_for('api.view_uid', uid=uid),
+        response = {'status': 'success',
+                    'message': 'New entry added!',
+                    'redirect': url_for('api.view_uid', uid=uid),
                     'uid': uid}
 
         return jsonify(response)
@@ -815,32 +1112,331 @@ def add_new_entry(dgraph_type: str) -> dict:
         current_app.logger.error(f'DGraph Error - Could not perform mutation: {sanitizer.set_nquads}')
         return api.abort(500, message='DGraph Error - Could not perform mutation')
 
+""" Edit entries """
+
+#TODO: refactor dgraph functions
+from flaskinventory.review.dgraph import check_entry
+from flaskinventory.edit.utils import can_delete, can_edit, channel_filter
+
+from flaskinventory.api.requests import EditablePredicates
+
+@api.route('/edit/<uid>', methods=['POST'])
+def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
+    """ 
+        Edit an entry by its UID
+
+        Use the path `/schema/type/{dgraph_type}` to retrieve a list
+        of editable predicates for a given type.
+        
+    """
+    check = check_entry(uid=uid)
+    
+    if not check:
+        return api.abort(404)
+
+    if not can_edit(check, current_user):
+        return api.abort(403)
+    
+    for dgraph_type in check['dgraph.type']:
+        if Schema.is_private(dgraph_type):
+            return api.abort(403, message='You cannot edit entries of this type')
+        if current_user._role < Schema.permissions_edit(dgraph_type):
+            return api.abort(403)
+    
+    if 'uid' not in data:
+        data['uid'] = uid
+
+    skip_fields = []
+    # manually filter out fields depending on channel
+    if dgraph_type == 'NewsSource':
+        skip_fields = channel_filter(check['channel']['_unique_name'])
+    
+    for skip_f in skip_fields:
+        try:
+            _ = data.pop(skip_f)
+        except:
+            continue
+
+
+    try:
+        sanitizer = Sanitizer.edit(data, dgraph_type=dgraph_type)
+    except Exception as e:
+        if current_app.debug:
+            current_app.logger.error(f'<{uid}> ({dgraph_type}) could not be updated: {e}', exc_info=True)
+        return api.abort(400, f'<{uid}> could not be updated: {e}')
+    
+    try:
+        result = dgraph.upsert(
+            sanitizer.upsert_query, del_nquads=sanitizer.delete_nquads, set_nquads=sanitizer.set_nquads)
+        return jsonify({'status': 'success',
+                        'message': f'<{uid}> has been edited and accepted',
+                        'uid': uid})
+    except Exception as e:
+        current_app.logger.warning(f'<{uid}> ({dgraph_type}) could not be updated: {e}', exc_info=True)
+        return api.abort(500, f'<{uid}> could not be updated: {e}')
+
+""" Delete Drafts """
+
+from flaskinventory.edit.dgraph import draft_delete
+
+@api.route('/delete/draft', methods=['POST'])
+def delete_draft(uid: str) -> SuccessfulAPIOperation:
+    check = check_entry(uid=uid)
+    if not check:
+        return abort(404)
+    if not can_delete(check):
+        return abort(403)
+
+    draft_delete(check['uid'])
+
+    return jsonify({'status': 'success',
+                    'message': 'Draft deleted!',
+                    'uid': uid})
+
+""" Review Entries """
+
+from flaskinventory.api import review
+from flaskinventory.review.dgraph import accept_entry, reject_entry, send_acceptance_notification
+
+@api.route('/review')
+def overview(dgraph_type: str = None, 
+             country: str = None, 
+             text_type: str = None,
+             user: str = None) -> t.List[Entry]:
+
+    if dgraph_type:
+        dgraph_type = Schema.get_type(dgraph_type)
+
+    overview = review.get_overview(dgraph_type,
+                            country=country,
+                            user=user,
+                            text_type=text_type)
+
+    return jsonify(overview)
+
+@api.route('/review/submit', methods=['POST'])
+def submit_review(uid: str, status: t.Literal['accepted', 'rejected', 'revise']) -> SuccessfulAPIOperation:
+    if status == 'accepted':
+        try:
+            review.accept_entry(uid, current_user)
+            # send_acceptance_notification(uid)
+            return jsonify({'status': 'success',
+                            'message': 'Entry has been accepted!',
+                            'uid': uid})
+        except Exception as e:
+            current_app.logger.exception(f'Could not accept entry with uid {uid}: {e}')
+            return api.abort(400, message=f'Reviewing entry failed! Error: {e}')
+    
+    elif status == 'rejected':
+        try:
+            review.reject_entry(uid, current_user)
+            return jsonify({'status': 'success',
+                            'message': 'Entry has been rejected!',
+                            'uid': uid})
+        except Exception as e:
+            current_app.logger.error(f'Could not reject entry with uid {uid}: {e}')
+            return api.abort(400, message=f'Reviewing entry failed! Error: {e}')
+    
+    elif status == 'revise':
+        # TODO: send notification to user that entry should be revised
+        return jsonify({'status': 'not implemented',
+                        'message': 'Feature not ready yet!',
+                        'uid': uid})
+    else:
+        return abort(404)
+
+@api.route('/review/<uid>/comment', methods=['POST'])
+def leave_comment(uid: str, message: str) -> SuccessfulAPIOperation:
+    """
+        Post a new comment for this entry.
+
+        If successfull, then the `uid` key is the UID of the new comment.
+    """
+
+    try:
+        result = post_comment(uid, message)
+        uid_return = list(result.values())[0]
+        return jsonify({'status': 'success',
+                        'message': f'Comment posted on <{uid}>.',
+                        'uid': uid_return})
+    except Exception as e:
+        api.abort(400, message=f"Could not post comment on <{uid}>: {e}")
+
+
+""" User Related """
+
+from flaskinventory.api.responses import LoginToken
+
+@api.route('/user/login', methods=['POST'])
+def login(email: str, password: str) -> LoginToken:
+    """ login to account, get a token back """
+    return api.abort(501)
+
+
+@api.route('/user/logout')
+def logout() -> SuccessfulAPIOperation:
+    """ logout; invalidates token """
+    return api.abort(501)
+
+
+@api.route('/user/register', methods=['POST'])
+def register(email: str, password: str) -> SuccessfulAPIOperation:
+    """ create a new account; sends a verification email to the user """
+    return api.abort(501)
+
+
+@api.route('/user/register/verify/<token>')
+def verify_email(token: str) -> SuccessfulAPIOperation:
+    """ verify user's email address """
+    return api.abort(501)
+
+@api.route('/user/register/resend', methods=['POST'])
+def resend_verify_email(email: str) -> SuccessfulAPIOperation:
+    """ resend verification email """
+    return api.abort(501)
+
+@api.route('/user/password/reset', methods=['POST'])
+def reset_password(email: str) -> SuccessfulAPIOperation:
+    """ send password reset request """
+    return api.abort(501)
+
+@api.route('/user/password/reset/<token>')
+def confirm_password_reset(token: str) -> SuccessfulAPIOperation:
+    """ confirm password reset """
+    return api.abort(501)
+
+@api.route('/user/password/change', methods=['POST'])
+def change_password(old_pw: str, new_pw: str) -> SuccessfulAPIOperation:
+    """ send password reset request """
+    return api.abort(501)
+
+
+@api.route('/user/profile')
+def profile() -> User:
+    """ view current user's profile """
+    return api.abort(501)
+
+@api.route('/user/profile/update', methods=['POST'])
+def update_profile(display_name: str, 
+                    affiliation: str, 
+                    orcid: str, 
+                    notifications: bool) -> SuccessfulAPIOperation:
+    """ update current user's profile """
+    return api.abort(501)
+
+
+@api.route('/user/profile/delete', methods=['POST'])
+def delete_account(email: str) -> SuccessfulAPIOperation:
+    """ delete current user's account """
+    return api.abort(501)
+
+
+@api.route('/user/<uid>/entries')
+def show_user_entries(uid: str) -> t.List[Entry]:
+    """ 
+        show all entries of a given user 
+        
+        Results vary depending on permission; e.g., drafts are only visible to oneself and admins 
+    """
+
+    return api.abort(501)
+
+""" Administer Users """
+
+@api.route('/admin/users')
+def show_all_users() -> t.List[User]:
+    """ 
+        lists all users with their roles
+    """
+    
+    return api.abort(501)
+
+
+@api.route('/admin/users/<uid>')
+def change_user(uid: str, role: int) -> SuccessfulAPIOperation:
+    """ 
+        change user role
+    """
+    
+    return api.abort(501)
+
+
+
+""" Follow Entries """
+
+@api.route('/follow')
+def show_follow() -> t.List[Entry]:
+    """ lists all entries that the current user is following """
+    return abort(501)
+
+@api.route('/follow/<uid>', methods=['POST'])
+def follow_entry(uid: str, status: t.Literal['follow', 'unfollow']) -> SuccessfulAPIOperation:
+    """ (un)follow new entries related to this entry. """
+    return abort(501)
+
+
+@api.route('/follow/<dgraph_type>', methods=['POST'])
+def follow_type(dgraph_type: str, status: t.Literal['follow', 'unfollow']) -> SuccessfulAPIOperation:
+    """ (un)follow new entries related to this dgraph.type. Status: "follow", "unfollow" """
+    return abort(501)
+
+""" Notifications """
+
+@api.route('/notifications')
+def show_notifications() -> t.List[Notification]:
+    """ lists all notifications for the current user """
+    return abort(501)
+
+@api.route('/notifications/dismiss', methods=['POST'])
+def dismiss_notifications(uids: t.List[str]) -> SuccessfulAPIOperation:
+    """ mark notification(s) as read; dismiss them """
+    return abort(501)
+
+
 
 """ External APIs """
 
-@api.route('/external/cran/<package>')
-def cran(package: str) -> dict:
+from flaskinventory.add.external import (instagram, twitter, get_wikidata, telegram, vkontakte,
+                                         parse_meta, siterankdata, find_sitemaps, find_feeds,
+                                         build_url, cran)
+
+from flaskinventory.api.responses import PublicationLike
+
+@api.route('/external/cran', methods=['POST'])
+def fetch_cran(package: str) -> PublicationLike:
     """ 
     Make an API call to CRAN. Get meta data on a CRAN package. 
+
+    (CRAN's cors policy requires this workaround)
+
+    Authors are returned as a list of strings `_authors_fallback` with the literal names as they are listed on CRAN.
+    This means that the resulting authors list has to be checked against existing authors in 
+    Meteor or on OpenAlex.
+
+    Programming languages are returned as UIDs and do not need any further processing. 
     
-    (CRAN's cors policy requires this workaround) 
     """
     package = package.strip()
-    from flaskinventory.add.external import cran
 
     result = cran(package)
     if result:
+        r_uid = dgraph.get_uid('_unique_name', 'programming_language_r')
+        result['programming_languages'] = [r_uid]
         return jsonify(result)
     else:
         return api.abort(404, message=f'Package <{package}> not found. Check the spelling?')
 
-
-from flaskinventory.add.external import (instagram, twitter, get_wikidata, telegram, vkontakte,
-                                         parse_meta, siterankdata, find_sitemaps, find_feeds,
-                                         build_url)
-
+from flaskinventory.api.responses import SocialMediaProfile
+      
 @api.route('/external/twitter', methods=['POST'])
-def fetch_twitter(handle: str) -> dict:
+def fetch_twitter(handle: str) -> SocialMediaProfile:
+    """ 
+        Get metadata about a Twitter user from the Twitter API.
+
+        Meteor acts here as a middle-man that takes the request and forwards it to the
+        Twitter API. It parses the result and provides it in the right format.
+        
+    """
     try:
         profile = twitter(handle.replace('@', ''))
     except Exception as e:
@@ -861,202 +1457,193 @@ def fetch_twitter(handle: str) -> dict:
     if profile.get('joined'):
         result['date_founded'] = profile.get('joined').isoformat()
     result['verified_account'] = profile.get('verified')
+
     return jsonify(result)
 
-def parse_wikidata(self):
-    predicates = Schema.get_predicates(self.dgraph_type)
-    if not self.is_upsert:
-        wikidata = get_wikidata(self.data.get('name'))
-        if wikidata:
-            for key, val in wikidata.items():
-                if val is None:
-                    continue
-                if key not in predicates.keys():
-                    continue
-                if key not in self.entry.keys():
-                    self.entry[key] = val
-                elif key == 'alternate_names':
-                    if 'alternate_names' not in self.entry.keys():
-                        self.entry['alternate_names'] = []
-                    self.entry[key] += val
+@api.route('/external/instagram', methods=['POST'])
+def fetch_instagram(handle: str) -> SocialMediaProfile:
+    """ 
+        Get metadata about a Instagram user from the Instagram API.
 
-def process_source(self, channel):
-    if channel == 'website':
-        self.resolve_website()
-        self.fetch_siterankdata()
-        self.fetch_feeds()
-    elif channel == 'instagram':
-        self.fetch_instagram()
-    elif channel == 'twitter':
-        self.fetch_twitter()
-    elif channel == 'vkontakte':
-        self.fetch_vk()
-    elif channel == 'telegram':
-        self.fetch_telegram()
-    elif channel == 'facebook':
-        self.entry['identifier'] = self.entry['name']
+        Meteor acts here as a middle-man that takes the request and forwards it to the
+        Instagram API. It parses the result and provides it in the right format.
+        
+    """
+    profile = instagram(handle.replace('@', ''))
+    result = {}
+    if profile:
+        result['name'] = handle.lower().replace('@', '')
+        result['identifier'] = handle.lower().replace('@', '')
+    else:
+        return api.abort(404, message=f"Instagram profile not found: {handle}")
 
+    if profile.get('fullname'):
+        try:
+            result['alternate_names'].append(profile['fullname'])
+        except KeyError:
+            result['alternate_names'] = [profile['fullname']]
+    if profile.get('followers'):
+        result['audience_size'] = str(datetime.date.today())
+        result['audience_size|count'] = int(profile['followers'])
+        result['audience_size|unit'] = 'followers'
+    result['verified_account'] = profile['verified']
+    print(result)
+    return jsonify(result)
 
-def resolve_website(self):
-    # first check if website exists
-    entry_name = str(self.entry['name'])
+@api.route("/external/vk", methods=['POST'])
+def fetch_vk(handle: str) -> SocialMediaProfile:
+    """ 
+        Get metadata about a VK user from the VK API.
+
+        Meteor acts here as a middle-man that takes the request and forwards it to the
+        VK API. It parses the result and provides it in the right format.
+        
+    """
+    result = {
+        'identifier': handle.replace('@', '')
+    }
     try:
-        result = parse_meta(entry_name)
-        names = result['names']
-        urls = result['urls']
+        profile = vkontakte(handle.replace('@', ''))
+    except Exception as e:
+        return api.abort(404, message=f"VKontakte profile not found: {handle}. {e}")
+
+    result['name'] = handle.lower().replace('@', '')
+
+    if profile.get('fullname'):
+        try:
+            result['alternate_names'].append(profile['fullname'])
+        except KeyError:
+            result['alternate_names'] = [profile['fullname']]
+    if profile.get('followers'):
+        result['audience_size'] = str(datetime.date.today())
+        result['audience_size|count'] = int(profile['followers'])
+        result['audience_size|unit'] = 'followers'
+        
+    result['verified_account'] = profile.get('verified')
+    if profile.get('description'):
+        result['description'] = profile.get('description')
+
+    return result
+
+@api.route('/external/telegram', methods=['POST'])
+def fetch_telegram(handle: str) -> SocialMediaProfile:
+    """ 
+        Get metadata about a Telegram bot or channel from the Telegram API.
+
+        Meteor acts here as a middle-man that takes the request and forwards it to the
+        Telegram API. It parses the result and provides it in the right format.
+        
+    """
+    result = {'identifier': handle.replace('@', '')}
+    try:
+        profile = telegram(handle.replace('@', ''))
+    except Exception as e:
+        current_app.logger.error(
+            f'Telegram could not be resolved. username: {handle}. Exception: {e}')
+        api.abort(404, message=f"""Telegram user or channel not found: {handle}. 
+                Please check whether you typed the username correctly. 
+                If the issue persists, please contact us and we will look into this issue.""")
+
+    if profile == False:
+        api.abort(404, f"""Telegram user or channel not found: {handle}. 
+                Please check whether you typed the username correctly. 
+                If the issue persists, please contact us and we will look into this issue.""")
+
+    result['name'] = handle.lower().replace('@', '')
+
+    if profile.get('fullname'):
+        try:
+            result['alternate_names'].append(profile['fullname'])
+        except KeyError:
+            result['alternate_names'] = [profile['fullname']]
+    if profile.get('followers'):
+        result['audience_size'] = str(datetime.date.today())
+        result['audience_size|count'] = int(profile['followers'])
+        result['audience_size|unit'] = 'followers'
+        
+    result['verified_account'] = profile.get('verified', False)
+    if profile.get('telegram_id'):
+        result['identifier'] = profile.get('telegram_id')
+    if profile.get('joined'):
+        result['date_founded'] = profile.get('joined')
+
+    return result
+
+@api.route('/external/website', methods=['POST'])
+def resolve_website(url: str) -> SocialMediaProfile:
+    # first check if website exists
+    result = {'alternate_names': []}
+    try:
+        parsing_result = parse_meta(url)
+        names = parsing_result['names']
+        urls = parsing_result['urls']
     except:
-        raise InventoryValidationError(
-            f"Could not resolve website! URL provided does not exist: {self.data.get('name')}")
+        api.abort(404, f"Could not resolve website! URL provided does not exist: {url}")
 
     if urls == False:
-        raise InventoryValidationError(
-            f"Could not resolve website! URL provided does not exist: {self.data.get('name')}")
+        api.abort(404, f"Could not resolve website! URL provided does not exist: {url}")
 
     # clean up the display name of the website
-    entry_name = entry_name.replace(
+    entry_name = url.replace(
         'http://', '').replace('https://', '').lower()
 
     if entry_name.endswith('/'):
         entry_name = entry_name[:-1]
 
+    result['name'] = entry_name
+
     # append automatically retrieved names to alternate_names
-    if len(names) > 0:
-        if 'alternate_names' not in self.entry.keys():
-            self.entry['alternate_names'] = []
-        for name in names:
-            if name.strip() == '':
-                continue
-            if name not in self.entry['alternate_names']:
-                self.entry['alternate_names'].append(name.strip())
+    for name in names:
+        if name.strip() == '':
+            continue
+        if name not in result['alternate_names']:
+            result['alternate_names'].append(name.strip())
 
-    if len(urls) > 0:
-        if 'alternate_names' not in self.entry.keys():
-            self.entry['alternate_names'] = []
-        for url in urls:
-            if url.strip() == '':
-                continue
-            if url not in self.entry['alternate_names']:
-                self.entry['alternate_names'].append(url.strip())
+    for url in urls:
+        if url.strip() == '':
+            continue
+        if url not in result['alternate_names']:
+            result['alternate_names'].append(url.strip())
 
-    self.entry['name'] = Scalar(entry_name)
-    self.entry['identifier'] = build_url(
-        self.data['name'])
+    result['identifier'] = build_url(url)
 
-def fetch_siterankdata(self):
+    # siterank data
     try:
-        daily_visitors = siterankdata(self.entry['name'])
+        daily_visitors = siterankdata(url)
     except Exception as e:
         current_app.logger.warning(
-            f'Could not fetch siterankdata for {self.entry["name"]}! Exception: {e}')
+            f'Could not fetch siterankdata for {url}! Exception: {e}')
         daily_visitors = None
 
     if daily_visitors:
-        self.entry['audience_size'] = Scalar(datetime.date.today(), facets={
-            'count': daily_visitors,
-            'unit': "daily visitors",
-            'data_from': f"https://siterankdata.com/{str(self.entry['name']).replace('www.', '')}"})
+        result['audience_size'] = str(datetime.date.today())
+        result['audience_size|count'] = int(daily_visitors)
+        result['audience_size|unit'] = "daily visitors"
+        result['audience_size|data_from'] = f"https://siterankdata.com/{str(result['name']).replace('www.', '')}"
 
-def fetch_feeds(self):
-    self.entry['channel_feeds'] = []
-    sitemaps = find_sitemaps(self.entry['name'])
-    if len(sitemaps) > 0:
-        for sitemap in sitemaps:
-            self.entry['channel_feeds'].append(
-                Scalar(sitemap, facets={'kind': 'sitemap'}))
+    # RSS and XML feeds
+    result['channel_feeds'] = []
+    result['channel_feeds|kind'] = {}
+    kinds = []
+    sitemaps = find_sitemaps(url)
+    for sitemap in sitemaps:
+        result['channel_feeds'].append(sitemap)
+        kinds.append('sitemap')
 
-    feeds = find_feeds(self.entry['name'])
+    feeds = find_feeds(url)
 
-    if len(feeds) > 0:
-        for feed in feeds:
-            self.entry['channel_feeds'].append(
-                Scalar(feed, facets={'kind': 'rss'}))
+    for feed in feeds:
+        result['channel_feeds'].append(feed)
+        kinds.append('rss')
+    
+    for i, kind in enumerate(kinds):
+        result['channel_feeds|kind'][str(i)] = kind
+    
+    return result
 
-def fetch_instagram(self):
-    profile = instagram(self.data['name'].replace('@', ''))
-    if profile:
-        self.entry['name'] = self.data[
-            'name'].lower().replace('@', '')
-        self.entry['identifier'] = self.data[
-            'name'].lower().replace('@', '')
-    else:
-        raise InventoryValidationError(
-            f"Instagram profile not found: {self.data['name']}")
 
-    if profile.get('fullname'):
-        try:
-            self.entry['alternate_names'].append(profile['fullname'])
-        except KeyError:
-            self.entry['alternate_names'] = [profile['fullname']]
-    if profile.get('followers'):
-        facets = {'count': int(
-            profile['followers']),
-            'unit': 'followers'}
-        self.entry['audience_size'] = Scalar(
-            str(datetime.date.today()), facets=facets)
-    self.entry['verified_account'] = profile['verified']
+#TODO: resolve_doi
+@api.route('/external/doi', methods=['POST'])
+def resolve_doi(identifier: str) -> PublicationLike:
+    return jsonify({'error': 'not implemented'})
 
-def fetch_vk(self):
-    self.entry['identifier'] = self.data[
-        'name'].replace('@', '')
-    try:
-        profile = vkontakte(self.data['name'].replace('@', ''))
-    except Exception as e:
-        raise InventoryValidationError(
-            f"VKontakte profile not found: {self.data['name']}. {e}")
-
-    self.entry['name'] = self.data[
-        'name'].lower().replace('@', '')
-
-    if profile.get('fullname'):
-        try:
-            self.entry['alternate_names'].append(profile['fullname'])
-        except KeyError:
-            self.entry['alternate_names'] = [profile['fullname']]
-    if profile.get('followers'):
-        facets = {'count': int(
-            profile['followers']),
-            'unit': 'followers'}
-        self.entry['audience_size'] = Scalar(
-            str(datetime.date.today()), facets=facets)
-    self.entry['verified_account'] = profile.get('verified')
-    if profile.get('description'):
-        self.entry['description'] = profile.get('description')
-
-def fetch_telegram(self):
-    self.entry['identifier'] = self.data[
-        'name'].replace('@', '')
-    try:
-        profile = telegram(self.data['name'].replace('@', ''))
-    except Exception as e:
-        current_app.logger.error(
-            f'Telegram could not be resolved. username: {self.data["name"]}. Exception: {e}')
-        raise InventoryValidationError(
-            f"""Telegram user or channel not found: {self.data['name']}. 
-                Please check whether you typed the username correctly. 
-                If the issue persists, please contact us and we will look into this issue.""")
-
-    if profile == False:
-        raise InventoryValidationError(
-            f"""Telegram user or channel not found: {self.data['name']}. 
-                Please check whether you typed the username correctly. 
-                If the issue persists, please contact us and we will look into this issue.""")
-
-    self.entry['name'] = self.data[
-        'name'].lower().replace('@', '')
-
-    if profile.get('fullname'):
-        try:
-            self.entry['alternate_names'].append(profile['fullname'])
-        except KeyError:
-            self.entry['alternate_names'] = [profile['fullname']]
-    if profile.get('followers'):
-        facets = {'count': int(
-            profile['followers']),
-            'unit': 'followers'}
-        self.entry['audience_size'] = Scalar(
-            str(datetime.date.today()), facets=facets)
-    self.entry['verified_account'] = profile.get('verified', False)
-    if profile.get('telegram_id'):
-        self.entry['identifier'] = profile.get('telegram_id')
-    if profile.get('joined'):
-        self.entry['date_founded'] = profile.get('joined')

@@ -278,9 +278,10 @@ class Facet:
                     'type': 'array',
                     'items': {
                         'type': 'string'
+                        }
                     },
-                    'examples': self.example
-                }}
+                'example': self.example
+                }
         connector = {'name': self.__str__() + '*connector',
                      'in': 'query',
                      'description': 'Logical connectors for combining an array',
@@ -291,8 +292,8 @@ class Facet:
                          'default': self.default_operator.func
                      }
                      }
-        return {self.__str__() + 'QueryParam': qp,
-                self.__str__() + 'QueryConnector': connector}
+        return {self.__str__().replace('|', '_') + 'QueryParam': qp,
+                self.__str__().replace('|', '_') + 'QueryConnector': connector}
 
 class _PrimitivePredicate:
 
@@ -302,6 +303,7 @@ class _PrimitivePredicate:
     """
 
     dgraph_predicate_type = 'string'
+    _type = str
     dgraph_directives = None
     is_list_predicate = False
     default_operator = eq
@@ -1131,6 +1133,7 @@ class MutualRelationship(_PrimitivePredicate):
 class MutualListRelationship(MutualRelationship):
 
     dgraph_predicate_type = '[uid]'
+    _type = list
     is_list_predicate = True
     default_connector = "AND"
 
@@ -1206,7 +1209,7 @@ class UIDPredicate(Predicate):
     default_operator = uid_in # maybe needs to be changed
 
     def __init__(self, *args, **kwargs) -> None:
-        super().__init__(read_only=True, hidden=True, new=False,
+        super().__init__(read_only=True, hidden=True, new=False, edit=False,
                          default=NewID('_:newentry'), *args, **kwargs)
 
     def validate(self, uid, **kwargs):
@@ -1236,6 +1239,7 @@ class UIDPredicate(Predicate):
 class Integer(Predicate):
 
     dgraph_predicate_type = 'int'
+    _type = int
     is_list_predicate = False
 
     def __init__(self, example=7, *args, **kwargs) -> None:
@@ -1270,6 +1274,7 @@ class Integer(Predicate):
 class ListString(String):
 
     dgraph_predicate_type = '[string]'
+    _type = list
     is_list_predicate = True
     default_connector = "AND"
 
@@ -1427,6 +1432,7 @@ class SingleChoice(String):
 class MultipleChoice(SingleChoice):
 
     dgraph_predicate_type = '[string]'
+    _type = list
     is_list_predicate = True
     default_connector = "AND"
 
@@ -1591,6 +1597,7 @@ class DateTime(Predicate):
 class Year(DateTime):
 
     dgraph_predicate_type = 'datetime'
+    _type = int
 
     def validation_hook(self, data):
         if type(data) in [datetime.date, datetime.datetime]:
@@ -1625,6 +1632,7 @@ class Year(DateTime):
 class ListYear(Year):
 
     dgraph_predicate_type = "[datetime]"
+    _type = list
 
     @property
     def openapi_component(self) -> dict:
@@ -1656,6 +1664,7 @@ class Boolean(Predicate):
     """
 
     dgraph_predicate_type = 'bool'
+    _type = bool
     is_list_predicate = False
 
     def __init__(self, label: str = None, default=False, overwrite=True, **kwargs) -> None:
@@ -1767,6 +1776,7 @@ class Geo(Predicate):
 class SingleRelationship(Predicate):
 
     dgraph_predicate_type = 'uid'
+    _type = str
     dgraph_directives = ['@reverse']
     is_list_predicate = False
     default_operator = uid_in
@@ -1931,6 +1941,7 @@ class SingleRelationship(Predicate):
 class ListRelationship(SingleRelationship):
 
     dgraph_predicate_type = '[uid]'
+    _type = list
     dgraph_directives = ['@reverse']
     is_list_predicate = True
     default_connector = "AND"
