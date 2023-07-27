@@ -631,7 +631,7 @@ def view_recent(limit: int = 5) -> t.List[Entry]:
         if 'Resource' in entry['dgraph.type']:
             entry['dgraph.type'].remove('Resource')
 
-    return jsonify(result)
+    return jsonify(result['data'])
 
 @api.route('/view/uid/<uid>')
 def view_uid(uid: str) -> t.Union[Entry, PoliticalParty,
