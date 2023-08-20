@@ -87,6 +87,46 @@ def fetch_instagram(username: str, L=Loader) -> dict:
 
     # return {'followers': followers, 'fullname': fullname, 'verified': verified}
 
+""" Wikidata Helpers """
+
+wikidata_cache_file = p / "data" / "wikidata_cache.json"
+
+try:
+    with open(wikidata_cache_file) as f:
+        wikidata_cache = json.load(f)
+except:
+    wikidata_cache = {}
+
+def get_names(wikidata_id: str) -> dict:
+    """ Gets canonical names from wikidata 
+        name: native name
+        name@en: english name
+        name_abbrev: abbreviated name
+    """
+    if wikidata_id in wikidata_cache:
+        wikidata = wikidata_cache[wikidata_id]
+    else:
+        api = 'https://www.wikidata.org/w/api.php'
+        params = {'action': 'wbgetentities', #'languages': 'en',
+                'format': 'json',
+                'ids': wikidata_id}
+        r = requests.get(api, params=params)
+        wikidata = r.json()
+        wikidata_cache[wikidata_id] = wikidata
+    result = {}
+    try:
+        result['name@en'] = wikidata['entities'][wikidata_id]['labels']['en']['value']
+    except:
+        print('Problem getting English name at', wikidata_id)
+    try:        
+        result["name"] = wikidata['entities'][wikidata_id]['claims']['P1705'][0]['mainsnak']['datavalue']['value']['text']
+    except:
+        print('Problem getting native name at', wikidata_id)
+    try:
+        result['name_abbrev'] = wikidata['entities'][wikidata_id]['claims']['P1813'][0]['mainsnak']['datavalue']['value']['text']
+    except:
+        print('Problem getting short name at', wikidata_id)
+    return result
 
 client_stub = pydgraph.DgraphClientStub('localhost:9080')
 client = pydgraph.DgraphClient(client_stub)
@@ -116,6 +156,14 @@ df[df_strings.columns] = df_strings.apply(lambda x: x.str.strip())
 
 parties_manual = pd.read_excel(
     xlsx, sheet_name="Parties Manual Reconciliation")
+
+# get final wikidata ID
+
+parties_manual.wikidata_id = parties_manual.wikidata_id.fillna(parties_manual.wp4_wikidata_id)
+parties_manual.wp4_wikidata_id = parties_manual.wp4_wikidata_id.fillna(parties_manual.wikidata_id)
+parties_manual.wikidata_final = parties_manual.wikidata_final.fillna(parties_manual.wikidata_id)
+
+parties_manual.wikidata_id = parties_manual.wikidata_final
 
 # drop missing wikidata ids
 parties_manual = parties_manual[~parties_manual.wikidata_id.isna()].reset_index(drop=True)
@@ -172,6 +220,7 @@ filt = df.wikidata_id.isna()
 # Drop all without id
 
 df_parties = df[~filt].reset_index(drop=True)
+
 
 party_template = {
     'dgraph.type': ['Entry', 'PoliticalParty'],
@@ -317,13 +366,20 @@ for wikidata_id, party in parties_duplicated.items():
         remove_none(v)
     new_party = {**party_template}
     new_party['wikidata_id'] = wikidata_id
+    wikidata_names = get_names(wikidata_id)
     # reformat `alternate_names` to lists, drop `original.name`
-    if len(party['name']) > 0:
-        new_party['name'] = party['name'][0]
+    if 'name' in wikidata_names:
+        new_party['name'] = wikidata_names['name']
     else:
-        new_party['name'] = party['original.name'][0]
+        if len(party['name']) > 0:
+            new_party['name'] = party['name'][0]
+        else:
+            new_party['name'] = party['original.name'][0]
     names = party['name'] + party['original.name'] + party['alternate_names']
-    names.remove(new_party['name'])
+    try:
+        names.remove(new_party['name'])
+    except:
+        pass
     try:
         names.remove(party['abbrev_name'][0])
     except:
@@ -343,10 +399,16 @@ for wikidata_id, party in parties_duplicated.items():
     # Step 5: reformat `country` to dicts
     new_party['country'] = {'uid': party['country'][0]}
     new_party['country']['_tmp_country_code'] = party['country_code'][0]
-    if len(party['abbrev_name']) > 0:
-        new_party['name_abbrev'] = party['abbrev_name'][0]
-    if len(party['name@en']) > 0:
-        new_party['name@en'] = party['name@en'][0]
+    if 'name_abbrev' in wikidata_names:
+        new_party['name_abbrev'] = wikidata_names['name_abbrev']
+    else:
+        if len(party['abbrev_name']) > 0:
+            new_party['name_abbrev'] = party['abbrev_name'][0]
+    if 'name@en' in wikidata_names:
+        new_party['name@en'] = wikidata_names['name@en']
+    else:
+        if len(party['name@en']) > 0:
+            new_party['name@en'] = party['name@en'][0]
     if len(party['description']) > 0:
         new_party['description'] = party['description'][0]
     if len(party['partyfacts_id']) > 0:
@@ -431,10 +493,17 @@ parties = df_parties[~df_parties.wikidata_id.duplicated(keep=False)].fillna(
 for party in parties:
     new_party = {**party_template}
     new_party['wikidata_id'] = party['wikidata_id']
-    new_party['name'] = party['name'] if party['name'] != '' else party['original.name']
+    wikidata_names = get_names(new_party['wikidata_id'])
+    if 'name' in wikidata_names:
+        new_party['name'] = wikidata_names['name']
+    else:
+        new_party['name'] = party['name'] if party['name'] != '' else party['original.name']
     names = list(
         set([party['name'], party['original.name'], party['alternate_names']]))
-    names.remove(new_party['name'])
+    try:
+        names.remove(new_party['name'])
+    except:
+        pass
     remove_none(names)
     if len(names) > 0:
         new_party['alternate_names'] = names
@@ -450,10 +519,16 @@ for party in parties:
     # Step 5: reformat `country` to dicts
     new_party['country'] = {'uid': party['country']}
     new_party['country']['country_code'] = party['country_code']
-    if party['abbrev_name'] != '':
-        new_party['name_abbrev'] = party['abbrev_name']
-    if party['name@en'] != '':
-        new_party['name@en'] = party['name@en']
+    if 'name_abbrev' in wikidata_names:
+        new_party['name_abbrev'] = wikidata_names['name_abbrev']
+    else:
+        if party['abbrev_name'] != '':
+            new_party['name_abbrev'] = party['abbrev_name']
+    if 'name@en' in wikidata_names:
+        new_party['name@en'] = wikidata_names['name@en']
+    else:
+        if party['name@en'] != '':
+            new_party['name@en'] = party['name@en']
     if party['description'] != '':
         new_party['description'] = party['description']
     if party['url'] != '':
@@ -539,7 +614,11 @@ missing_manifesto_parties = manifesto_parties[~filt].to_dict(orient="records")
 for party in missing_manifesto_parties:
     new_party = {**party_template}
     new_party['wikidata_id'] = party['wikidata_id']
-    new_party['name'] = party['name']
+    wikidata_names = get_names(new_party['wikidata_id'])
+    if 'name' in wikidata_names:
+        new_party['name'] = wikidata_names['name']
+    else:
+        new_party['name'] = party['name']
     new_party['alternate_names'] = party.get('name_other')
     new_party['_unique_name'] = 'politicalparty_' + \
         party['country_code'] + '_' + slugify(new_party['name'], separator="")
@@ -549,10 +628,16 @@ for party in missing_manifesto_parties:
     manifesto_parties_uids.append(new_party['uid'])
     if new_party['wikidata_id'] in polidoc_parties.wikidata_id.tolist():
         polidoc_parties_uids.append(new_party['uid'])
-    if party['name_short'] != '':
-        new_party['name_abbrev'] = party['name_short']
-    if party['name_english'] != '':
-        new_party['name@en'] = party['name_english']
+    if 'abbrev_name' in wikidata_names:
+        new_party['name_abbrev'] = wikidata_names['name_abbrev']
+    else:
+        if party['name_short'] != '':
+            new_party['name_abbrev'] = party['name_short']
+    if 'name@en' in wikidata_names:
+        new_party['name@en'] = wikidata_names['name@en']
+    else:
+        if party['name_english'] != '':
+            new_party['name@en'] = party['name_english']
     if party['partyfacts_id'] != '':
         new_party['partyfacts_id'] = int(party['partyfacts_id'])
     canonical_parties.append(new_party)
@@ -577,6 +662,8 @@ with open(output_file, 'w') as f:
 with open(p / 'data' / 'twitter_cache.json', "w") as f:
     json.dump(TWITTER_CACHE, f, default=str)
 
+with open(wikidata_cache_file, "w") as f:
+    json.dump(wikidata_cache, f, default=str)
 
 # txn = client.txn()
 
