@@ -234,7 +234,7 @@ def parse_meta(url: str) -> dict:
     return {'names': list(set(names)), 'urls': list(set(urls))}
 
 
-def opengraph(soup: str) -> Tuple[str, str]:
+def opengraph(soup: bs4) -> Tuple[str, str]:
     if soup.find('meta', property='og:title'):
         title = soup.find('meta', property='og:title')['content']
     else:
@@ -248,7 +248,7 @@ def opengraph(soup: str) -> Tuple[str, str]:
     return title, url
 
 
-def schemaorg(soup: str) -> Tuple[str, str]:
+def schemaorg(soup: bs4) -> Tuple[str, str]:
     schemas = soup.find_all('script', type=re.compile(r'json'))
     if len(schemas) == 0:
         return False, False
