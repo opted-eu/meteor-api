@@ -720,13 +720,22 @@ def cran(pkg) -> Union[dict, bool]:
 
     # try extracting Author information
 
-    authors = []
+    authors_fallback = []
+    authors_tmp = []
     if "Authors@R" in data.keys():
         authors_r = data['Authors@R'].split('person')
-        for a in authors_r[1:]:
+        for i, a in enumerate(authors_r[1:]):
             mtch = re.findall(r'[\"\'](.*?)[\"\']', a)
-            author = [mtch[1], mtch[0]] if len(mtch) > 1 else [mtch[0]]
-            authors.append(", ".join(author))
+            author_name = [mtch[1], mtch[0]] if len(mtch) > 1 else [mtch[0]]
+            authors_fallback.append(", ".join(author_name))
+            author = {'name': author_name}
+            try:
+                orcid = re.search(r'(\d{4}-\d{4}-\d{4}-\d{4})', a)[0]
+                author['orcid'] = orcid
+            except:
+                pass
+            author['authors|sequence'] = i
+        result['_authors_tmp'] = authors_tmp
     elif "Author" in data.keys():
         authors_raw = data['Author']
         authors_raw = re.sub(r"\[.*?\]", "", authors_raw)
@@ -736,10 +745,10 @@ def cran(pkg) -> Union[dict, bool]:
             authors_split = authors_raw.split("and")
         else:
             authors_split = authors_raw.split(',')
-        authors = [a.strip() for a in authors_split]
+        authors_fallback = [a.strip() for a in authors_split]
 
-    result['_authors_fallback'] = authors
-    result['_authors_fallback|sequence'] = {str(i): str(i) for i in range(len(authors))}
+    result['_authors_fallback'] = authors_fallback
+    result['_authors_fallback|sequence'] = {str(i): str(i) for i in range(len(authors_fallback))}
 
     return result
 
