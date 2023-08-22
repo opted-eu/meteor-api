@@ -26,7 +26,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                              follow_redirects=True)
 
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(request.path, url_for('main.home'))
+            self.assertEqual(response.request.path, url_for('main.home'))
 
             response = c.get('/search', query_string={'query': 'bla'},
                              follow_redirects=True)
@@ -37,7 +37,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                              follow_redirects=True)
 
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(request.path, url_for('view.view_generic',
+            self.assertEqual(response.request.path, url_for('view.view_generic',
                                                    unique_name='derstandard_facebook',
                                                    dgraph_type='NewsSource'))
 
@@ -56,7 +56,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             response = c.get('/view',
                              query_string={'uid': self.derstandard_instagram},
                              follow_redirects=True)
-            self.assertEqual(request.path, url_for('view.view_generic',
+            self.assertEqual(response.request.path, url_for('view.view_generic',
                                                    unique_name='derstandard_instagram',
                                                    dgraph_type='NewsSource'))
             self.assertEqual(response.status_code, 200)
@@ -65,7 +65,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                              follow_redirects=True)
 
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(request.path, url_for('view.view_generic',
+            self.assertEqual(response.request.path, url_for('view.view_generic',
                                                    unique_name='derstandard_mbh',
                                                    dgraph_type='Organization'))
 
@@ -109,7 +109,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                 self.assertEqual(response.status_code, 200)
             else:
                 self.assertEqual(response.status_code, 200)
-                self.assertEqual(request.path, url_for(
+                self.assertEqual(response.request.path, url_for(
                     'view.view_generic', unique_name="derstandard_print", dgraph_type='NewsSource'))
 
             # view one's own entry
@@ -131,7 +131,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                 self.assertEqual(response.status_code, 200)
             else:
                 self.assertEqual(response.status_code, 200)
-                self.assertEqual(request.path, url_for(
+                self.assertEqual(response.request.path, url_for(
                     'view.view_generic', unique_name="derstandard_print", dgraph_type='NewsSource'))
 
             mutation = dgraph.mutation(
@@ -163,7 +163,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                 self.assertEqual(response.status_code, 403)
             else:
                 self.assertEqual(response.status_code, 200)
-                self.assertEqual(request.path, url_for(
+                self.assertEqual(response.request.path, url_for(
                     'view.view_generic', unique_name="derstandard_print", dgraph_type='NewsSource'))
 
             # view one's own entry
@@ -185,7 +185,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
                 self.assertEqual(response.status_code, 403)
             else:
                 self.assertEqual(response.status_code, 200)
-                self.assertEqual(request.path, url_for(
+                self.assertEqual(response.request.path, url_for(
                     'view.view_generic', unique_name="derstandard_print", dgraph_type='NewsSource'))
 
             mutation = dgraph.mutation(
@@ -318,7 +318,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             if not self.logged_in:
                 # redirect to login page
                 self.assertEqual(response.status_code, 200)
-                self.assertEqual(request.path, url_for('users.login'))
+                self.assertEqual(response.request.path, url_for('users.login'))
             elif self.logged_in == 'contributor':
                 self.assertEqual(response.status_code, 403)
             else:
@@ -342,7 +342,7 @@ class TestRoutesLoggedOut(BasicTestSetup):
             if not self.logged_in:
                 # redirect to login page
                 self.assertEqual(response.status_code, 200)
-                self.assertEqual(request.path, url_for('users.login'))
+                self.assertEqual(response.request.path, url_for('users.login'))
             elif self.logged_in == 'contributor':
                 self.assertEqual(response.status_code, 403)
             else:
