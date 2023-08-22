@@ -10,7 +10,7 @@ Flask-Email
 Flask-Login
 Flask-Mail
 Flask-WTF
-Flask-Limiter
+Flask-Limiter==3.3.1
 Flask-Markdown
 grpcio
 idna
@@ -38,3 +38,4 @@ pandas
 openpyxl
 pyarrow
 tqdm
+thefuzz
