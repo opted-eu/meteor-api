@@ -241,12 +241,12 @@ class Sanitizer:
         # UID validation
         if self.data.get('uid'):
             uid = self.data.pop('uid')
-            self.entry_uid = self.fields['uid'].validate(uid)
+            self.entry_uid = validate_uid(uid)
         else:
-            self.entry_uid = self.fields['uid'].default
+            self.entry_uid = NewID('_:newentry')
 
         self.entry['uid'] = self.entry_uid
-        self.skip_keys.append(self.fields['uid'].predicate)
+        self.skip_keys.append('uid')
 
         # unpack facets from input dict (JSON)
         self._preprocess_facets()
