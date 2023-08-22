@@ -17,7 +17,7 @@ import feedparser
 from bs4 import BeautifulSoup as bs4
 import instaloader
 import tweepy
-from telethon import TelegramClient
+from telethon.sync import TelegramClient
 
 # flask
 from flask import current_app
@@ -520,22 +520,19 @@ def vkontakte(screen_name):
 
 def telegram(username):
 
-    async def get_profile(username):
-        bot = await TelegramClient('bot', current_app.config['TELEGRAM_APP_ID'], current_app.config['TELEGRAM_APP_HASH']).start(
-            bot_token=current_app.config['TELEGRAM_BOT_TOKEN'])
-        try:
-            profile = await bot.get_entity(username)
+    bot = TelegramClient('bot', current_app.config['TELEGRAM_APP_ID'], current_app.config['TELEGRAM_APP_HASH']).start(
+        bot_token=current_app.config['TELEGRAM_BOT_TOKEN'])
+    try:
+        profile = bot.get_entity(username)
+    except ValueError as e:
+        profile = False
+        try: 
+            profile = bot.get_entity(username + '_bot')
         except ValueError as e:
             profile = False
-            try: 
-                profile = await bot.get_entity(username + '_bot')
-            except ValueError as e:
-                profile = False
 
-        await bot.disconnect()
-        return profile
+    bot.disconnect()
 
-    profile = asyncio.new_event_loop().run_until_complete(get_profile(username))
     if not hasattr(profile, 'to_dict') or profile == False:
         return False
     profile = profile.to_dict()
