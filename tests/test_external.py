@@ -73,12 +73,25 @@ class TestSanitizers(unittest.TestCase):
             self.assertNotEqual(publication, False)
 
     def test_cran(self):
-        cran = "corpustools"
+        cran1 = "corpustools"
+        cran2 = "oolong"
         with self.app.app_context():
-            package = external.cran(cran)
+            package = external.cran(cran1)
             self.assertNotEqual(package, False)
-            self.assertCountEqual(list(package.keys()), ['programming_languages', 'platform', 'conditions_of_access',
-                                  'open_source', 'name', 'cran', 'description', 'alternate_names', 'github', 'url', 'license', 'authors'])
+            self.assertCountEqual(list(package.keys()), ['programming_languages', 
+                                    'platform', 'conditions_of_access',
+                                    'open_source', 'name', 'cran', 'description', 
+                                    'alternate_names', 'github', 'url', 'license', 
+                                    '_authors_fallback', '_authors_fallback|sequence'])
+            self.assertEqual(package['programming_languages'], ['r'])
+
+            package = external.cran(cran2)
+            self.assertNotEqual(package, False)
+            self.assertCountEqual(list(package.keys()), ['programming_languages', 
+                                    'platform', 'conditions_of_access',
+                                    'open_source', 'name', 'cran', 'description', 
+                                    'alternate_names', 'github', 'url', 'license', 
+                                    '_authors_fallback', '_authors_fallback|sequence', '_authors_tmp'])
             self.assertEqual(package['programming_languages'], ['r'])
 
     def test_vkontakte(self):
