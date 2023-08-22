@@ -348,7 +348,7 @@ def instagram(username):
 
 
 def generate_twitter_api():
-    twitter_auth = tweepy.OAuthHandler(current_app.config["TWITTER_CONSUMER_KEY"],
+    twitter_auth = tweepy.OAuth1UserHandler(current_app.config["TWITTER_CONSUMER_KEY"],
                                        current_app.config["TWITTER_CONSUMER_SECRET"])
     twitter_auth.set_access_token(current_app.config["TWITTER_ACCESS_TOKEN"],
                                   current_app.config["TWITTER_ACCESS_SECRET"])
@@ -628,7 +628,7 @@ def arxiv(arxiv: str) -> Union[dict, bool]:
     if r.status_code != 200:
         return False
 
-    soup = bs4(r.content, 'lxml')
+    soup = bs4(r.content, 'xml')
 
     try:
         total_results = soup.find('opensearch:totalresults').text
