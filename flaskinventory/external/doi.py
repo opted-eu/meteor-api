@@ -1,7 +1,15 @@
 import requests
-from typing import Union
+import typing
 from dateutil import parser as dateparser
-from thefuzz import fuzz
+import datetime
+import lxml
+from flaskinventory.external.openalex import OpenAlex
+from flaskinventory.external.orcid import ORCID
+import logging
+
+logger = logging.getLogger(__name__)
+
+ARXIV_PREFIX = "10.48550/arxiv."
 
 def clean_doi(doi: str) -> str:
     """ strips unwanted stuff from DOI strings """
@@ -11,27 +19,33 @@ def clean_doi(doi: str) -> str:
     return doi
 
 
-def crossref(doi: str) -> Union[dict, bool]:
+def clean_orcid(orcid: str) -> str:
+    """ strips unwanted stuff from ORCID strings """
+    orcid = orcid.replace("https://orcid.org/", "")
+    orcid = orcid.replace("http://orcid.org/", "")
+    orcid = orcid.replace("orcid.org/", "")
+    return orcid
+
+
+def crossref(doi: str) -> dict:
 
     api = 'https://api.crossref.org/works/'
 
     r = requests.get(api + doi)
-
-    if r.status_code != 200:
-        return False
+    r.raise_for_status()
 
     publication = r.json()
 
     if publication['status'] != 'ok':
-        return False
+        raise requests.exceptions.HTTPError(f'Publication with DOI <{doi}> was not found! {publication["status"]}')
 
     publication = publication['message']
-
     result = {'doi': doi}
 
     result['venue'] = publication.get('container-title')
     if isinstance(result['venue'], list):
         result['venue'] = result['venue'][0]
+
     result['title'] = publication.get('title')
 
     if isinstance(result['title'], list):
@@ -39,59 +53,55 @@ def crossref(doi: str) -> Union[dict, bool]:
 
     result['paper_kind'] = publication.get('type')
 
-    if publication.get('created'):
+    try:
         result['date_published'] = dateparser.parse(publication['created']['date-time'])
+    except:
+        pass
 
-    if publication.get('link'):
+    try:
         result['url'] = publication['link'][0]['URL']
+    except:
+        pass
 
-    if publication.get('author'):
+    try:
+        result['description'] = publication['abstract']
+    except:
+        pass
+
+    result['_authors_fallback'] = []
+    result['_authors_fallback|sequence'] = {}
+    result['_authors_tmp'] = [] 
+    try:
         authors = []
         for i, author in enumerate(publication['author']):
             author_name = f"{author.get('family', '')}, {author.get('given')}"
-            # authors.append(Scalar(author_name, facets={'sequence': i}))
+            result['_authors_fallback'].append(author_name)
+            result['_authors_fallback|sequence'][str(i)] = i
+            parsed_author = {'authors|sequence': i}
+            try:
+                parsed_author['given_name'] = author['given']
+            except:
+                pass
+            try:
+                parsed_author['family_name'] = author['family']
+            except:
+                pass
+            try:
+                parsed_author['orcid'] = author['ORCID']
+            except:
+                pass
+            try:
+                parsed_author['affiliation'] = author['affiliation']['name']
+            except:
+                pass
+            result['_authors_tmp'].append(parsed_author)
 
         result['authors'] = authors
+    except:
+        pass
 
     
     return result
-
-
-
-def openalex_getauthorname(author_id: str) -> dict:
-    api = "https://api.openalex.org/people/"
-    r = requests.get(api + author_id, params={'mailto': "info@opted.eu"})
-    j = r.json()
-    result = {'openalex': author_id}
-    if 'display_name' in j:
-        result['name'] = j['display_name']
-    if 'orcid' in j:
-        result['orcid'] = j['orcid']
-    if 'last_known_institution' in j:
-        try:
-            # prevent circular imports
-            from flaskinventory.flaskdgraph.dgraph_types import Scalar
-            institution = Scalar(j['last_known_institution']['display_name'],
-                                facets={'openalex': j['last_known_institution']['id']})
-            result['last_known_institution'] = institution
-        except:
-            pass
-    return result
-
-def openalex_getauthor_ids(query: str) -> list:
-    api = "https://api.openalex.org/authors"
-
-    query = query.replace(",", " ")
-    query = query.replace(";", " ")
-
-    params = {"search": query,
-              'mailto': "info@opted.eu"}
-
-    r = requests.get(api, params=params)
-
-    r.raise_for_status()
-
-    return r.json()['results']
 
 
 def doi_org(doi: str) -> dict:
@@ -157,14 +167,97 @@ def datacite(doi: str) -> dict:
 
     result['url'] = j['url']
 
-    for author in j['creators']:
-        # print(author)
-        pass
+    result['_authors_fallback'] = []
+    result['_authors_fallback|sequence'] = {}
+    result['_authors_tmp'] = []
+
+    for i, author in enumerate(j['creators']):
+        result['_authors_fallback'].append(author['name'])
+        result['_authors_fallback|sequence'][str(i)] = i
+        if author['nameType'].lower() == 'organizational':
+            continue
+        parsed_author = {'authors|sequence': i}
+        try:
+            parsed_author['given_name'] = author['givenName']
+            parsed_author['family_name'] = author['familyName']
+        except:
+            parsed_author['name'] = author['name']
+        try:
+            for identifier in author['nameIdentifiers']:
+                if identifier['nameIdentifierScheme'].lower() == 'orcid':
+                    parsed_author['orcid'] = identifier['nameIdentifier']
+        except:
+            pass
+        try:
+            parsed_author['affiliation'] = author['affiliation']['name']
+        except:
+            pass
+        result['_authors_tmp'].append(parsed_author)
+
 
     return result
 
 def zenodo(doi: str) -> dict:
-    pass
+    """ 
+        Get DOI meta data from Zenodo.org 
+        Returns Authors as fallback (list of strings)
+            and also as _authors_tmp (list of dicts)    
+    """
+    api = "https://zenodo.org/api/records"
+
+    params = f'q=doi:"{doi}"'
+    r = requests.get(api, params=params)
+
+    r.raise_for_status()
+
+    j = r.json()['hits']
+    if j['total'] == 0:
+        raise requests.HTTPError(f'No records found with doi <{doi}>')
+    
+    hit = j['hits'][0]
+
+    result = {'doi': hit['doi'],
+              'url': hit['links']['html']}
+
+    result['_authors_fallback'] = []
+    result['_authors_fallback|sequence'] = {}
+    result['_authors_tmp'] = []
+    for i, author in enumerate(hit['metadata']['creators']):
+        result['_authors_fallback'].append(author['name'])
+        result['_authors_fallback|sequence'][str(i)] = i
+        author['authors|sequence'] = i
+        result['_authors_tmp'].append(author)
+
+    try:
+        description = lxml.html.fromstring(hit['metadata']['description']).text_content().strip()
+        result['description'] = description
+    except:
+        pass
+
+    # One could here parse the language tag and get the corresponding data entry from DGraph...
+
+    try:
+        result['license'] = hit['metadata']['license']['id']
+    except:
+        pass
+
+    try:
+        result['date_publised'] = hit['metadata']['publication_date']
+    except:
+        pass
+
+    try:
+        result['date_modified'] = datetime.datetime.fromisoformat(hit['updated'])
+    except:
+        pass
+
+    try:
+        result['title'] = hit['metadata']['title']
+    except:
+        pass
+
+    return result
+
 
 def orcid_search(name: str=None, family: str= None, given: str=None, affiliation: str = None) -> dict:
     """ Fallback to orcid as last ressort"""
@@ -177,86 +270,70 @@ def resolve_doi(doi: str) -> dict:
         1. OpenAlex (most convenient)
         2. Crossref
         3. Datacite
-        4. DOI.org
+        4. DOI.org (has least useful metainfo)
 
         - Zenodo DOIs are handled by zenodo directly
-        - Tries to get canonical Author IDs
     """
     doi = clean_doi(doi)
+    logger.debug(f'Got DOI <{doi}>')
 
     if 'zenodo' in doi.lower():
-        result = zenodo(doi)
+        logger.debug('Using Zenodo')
+        return zenodo(doi)
 
-if __name__ == '__main__':
+    try:
+        openalex = OpenAlex()
+        return openalex.resolve_doi(doi)
+    except requests.HTTPError:
+        logger.debug(f'Could not resolve <{doi}> at openalex')
+        pass
 
-    doi = '10.25522/manifesto.mpdssa.2020b'
-    import json
-    with open('flaskinventory/config.json') as f:
-        config = json.load(f)
+    try:
+        return crossref(doi)
+    except requests.HTTPError:
+        logger.debug(f'Could not resolve <{doi}> at crossref')
+        pass
 
-    headers = {}
+    try:
+        return datacite(doi)
+    except requests.HTTPError:
+        logger.debug(f'Could not resolve <{doi}> at datacite')
+        pass
 
-    api = "https://pub.orcid.org/"
+def resolve_authors(authors_tmp: typing.List[dict]) -> typing.List[dict]:
+    """ 
+        Try to get canonical IDs for authors 
+        1. Check if there is an ORCID ID provided and try to get OpenAlex ID
+        2. Try to query ORCID API to find author candidates
+            Only adds ORCID ID to cases that are very sure
+    """
+    openalex = OpenAlex()
+    orcid = ORCID()
+    for author in authors_tmp:
+        if 'openalex' in author:
+            continue
 
-    author = "Krause, Werner"
-
-    headers = {
-            "Authorization type": "Bearer",
-            "Access token": config['ORCID_ACCESS_TOKEN'],
-            "Content-type": "application/json",
-            "scope": "/read-public"
-            }
-
-    r = requests.get(api + 'v3.0/expanded-search/', params={'q': 'given-and-family-names:' + author}, headers=headers)
-    # r = requests.get(api + 'v3.0/expanded-search/', params={'q': 'digital-object-ids:"' + doi + '"'}, headers=headers)
-
-    print(r.json())
-    print(r.json()['expanded-result'][:5])
-
-    # take top 10 results
-    candidates = r.json()['expanded-result'][:10]
-    for c in candidates:
-        name = c['given-names'] + ' ' + c['family-names']
-        score = fuzz.partial_token_sort_ratio(name, author)
-        c['name'] = name
-        c['score'] = score
-        # print(name, c['orcid-id'], score)
-
-    highest_score = max(candidates, key=lambda x: x['score'])
-    print('highest', highest_score)
-
-    # check if there are other candidates with same score
-    other_candidates = [c for c in candidates if c['score'] == highest_score]
-    if len(other_candidates) > 0:
-        print(other_candidates) 
-
-    # result = datacite(doi)
-
-    # print(result)
-
-    # affiliation = "WZB Berlin Social Science Center"
-
-
-    # candidates = openalex_getauthor_ids(author)
-
-    # # print(candidates)
-    
-    # for c in candidates:
-    #     c['x_concepts'] = None
-    #     score = 0
-    #     if not 'relevance_score' in c:
-    #         c['relevance_score'] = 1
-    #     try:
-    #         score = fuzz.partial_token_sort_ratio(c['last_known_institution']['display_name'], affiliation)
-    #         c['institution_match'] = score
-    #         c['overall_score'] = c['relevance_score'] * score
-    #         if c['orcid']:
-    #             c['overall_score'] = c['overall_score'] * 2
-    #     except:
-    #         c['overall_score'] = 0
-
-    # from pprint import pprint
-
-    # pprint(candidates)
-
-    # print(sorted(candidates, key=lambda x: x['overall_score'], reverse=True)[0])
+        if 'orcid' in author:
+            orcid_id = clean_orcid(author['orcid'])
+            author['orcid'] = orcid_id
+            try:
+                openalex_id = openalex.get_author_by_orcid(orcid_id)['id'].replace('https://openalex.org/', '')
+                author['openalex'] = openalex_id
+            except requests.HTTPError:
+                pass
+        else:
+            try:
+                orcid_details = orcid.resolve_author(name=author.get('name'),
+                                                    family_name=author.get('family_name'),
+                                                    given_name=author.get('given_name'),
+                                                    affiliation=author.get('affiliation'))
+                if orcid_details:
+                    author['orcid'] = orcid_details['orcid-id']
+                    try:
+                        openalex_id = openalex.get_author_by_orcid(orcid_details['orcid-id'])['id'].replace('https://openalex.org/', '')
+                        author['openalex'] = openalex_id
+                    except requests.HTTPError:
+                        pass
+            except requests.HTTPError:
+                pass
+    return authors_tmp
