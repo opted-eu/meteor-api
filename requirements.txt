@@ -9,7 +9,6 @@ Flask-Babel
 Flask-Email
 Flask-Login
 Flask-Mail
-Flask-Table
 Flask-WTF
 Flask-Limiter
 Flask-Markdown
