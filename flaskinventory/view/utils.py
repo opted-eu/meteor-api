@@ -1,28 +1,5 @@
-from flask_table import create_table, Col, DateCol, LinkCol
-from flask_table.html import element
 from dateutil import parser as dateparser
 from flask import url_for
-
-class ExternalURLCol(Col):
-    def __init__(self, name, url_attr, **kwargs):
-        self.url_attr = url_attr
-        super(ExternalURLCol, self).__init__(name, **kwargs)
-
-    def td_contents(self, item, attr_list):
-        url = self.from_attr_list(item, [self.url_attr])
-        return element('a', {'href': url, 'target': '_blank'}, content="source")
-
-class InternalURLCol(Col):
-    def __init__(self, name, url_attr, **kwargs):
-        self.url_attr = url_attr
-        super(InternalURLCol, self).__init__(name, **kwargs)
-
-    def td_contents(self, item, attr_list):
-        text = self.from_attr_list(item, attr_list)
-        url = self.from_attr_list(item, [self.url_attr])
-        url = url_for('')
-        return element('a', {'href': url}, content=text)
-
 
 """
 Helper function to evaluate viewing permissions
