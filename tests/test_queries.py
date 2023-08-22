@@ -158,7 +158,7 @@ class TestQueries(BasicTestSetup):
             # Free or partly for free IN Germany, but in English
             query = {"languages": [self.lang_english],
                      "payment_model": ["free", "partly free"],
-                     "country": self.germany_uid,
+                     "countries": self.germany_uid,
                      "json": True
                      }
 
@@ -290,7 +290,7 @@ class TestQueries(BasicTestSetup):
 
         with self.client as c:
             query = {"dgraph.type": "NewsSource",
-                     "country": self.germany_uid,
+                     "countries": self.germany_uid,
                      "json": True}
 
             response = c.get('/query',
@@ -298,7 +298,7 @@ class TestQueries(BasicTestSetup):
             self.assertEqual(len(response.json['result']), 1)
 
             query = {"dgraph.type": ["NewsSource", "Organization"],
-                     "country": self.austria_uid,
+                     "countries": self.austria_uid,
                      "json": True}
 
             response = c.get('/query',
