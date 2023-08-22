@@ -241,7 +241,7 @@ class Sanitizer:
         # UID validation
         if self.data.get('uid'):
             uid = self.data.pop('uid')
-            self.entry_uid = validate_uid(uid)
+            self.entry_uid = UID(validate_uid(uid))
         else:
             self.entry_uid = NewID('_:newentry')
 
