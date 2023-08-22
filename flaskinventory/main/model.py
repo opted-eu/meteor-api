@@ -1092,7 +1092,7 @@ class ScientificPublication(Entry):
     
     text_types = ListRelationship(description="Text Genres investigated in publication",
                                  relationship_constraint="TextType",
-                                 required=True,
+                                #  required=True,
                                  autoload_choices=True,
                                  queryable=True)
 
