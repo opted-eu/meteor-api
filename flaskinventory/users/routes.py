@@ -1,7 +1,8 @@
 from datetime import datetime
 import secrets
 from flask import (Blueprint, render_template, url_for,
-                   flash, redirect, request, abort, Markup)
+                   flash, redirect, request, abort)
+from markupsafe import Markup
 from flask_login import login_user, current_user, logout_user, login_required
 from flaskinventory import dgraph
 from flaskinventory.flaskdgraph.utils import validate_uid
