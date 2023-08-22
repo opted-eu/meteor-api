@@ -1,7 +1,7 @@
 from typing import Union
 import json
 from dateutil.parser import isoparse
-from flask import current_app, _app_ctx_stack
+from flask import current_app, g
 import pydgraph
 import logging
 from . import dql
@@ -59,7 +59,7 @@ class DGraph(object):
         self.client_stub.close()
 
     def teardown(self, exception):
-        ctx = _app_ctx_stack.top
+        ctx = g
         if hasattr(ctx, 'dgraph'):
             self.logger.info(
                 f"Closing Connection: {current_app.config['DGRAPH_ENDPOINT']}")
