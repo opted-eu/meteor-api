@@ -208,6 +208,7 @@ class type_(_FuncPrimitive):
 
     def __init__(self, val) -> None:
         self.value = val
+        self.predicate = 'dgraph.type'
 
     def __str__(self) -> str:
         return f'{self.func}({self.value})'
@@ -240,14 +241,14 @@ class QueryBlock:
                  query_filter: Union[list, _FuncPrimitive] = None,
                  filter_connector="AND") -> None:
 
-        self.graphql_variables = []
+        self.graphql_variables = {}
 
         self.func = func
         if isinstance(func.value, GraphQLVariable):
-            self.graphql_variables.append(func.value)
+            self.graphql_variables[func.value.name] = func.value
         try:
             if isinstance(func.value2, GraphQLVariable):
-                self.graphql_variables.append(func.value)
+                self.graphql_variables[func.value2.name] = func.value
         except:
             pass
 
@@ -266,10 +267,10 @@ class QueryBlock:
         try:
             for f in query_filter:
                 if isinstance(f.value, GraphQLVariable):
-                    self.graphql_variables.append(f.value)
+                    self.graphql_variables[f.value.name] = f.value
                 try:
                     if isinstance(f.value2, GraphQLVariable):
-                        self.graphql_variables.append(f.value)
+                        self.graphql_variables[f.value2.name] = f.value
                 except:
                     pass
         except:
@@ -301,7 +302,7 @@ class DQLQuery:
 
     def __init__(self, query_name="q", blocks: list = None, **kwargs) -> None:
 
-        self.graphql_variable_declarations = []
+        self.graphql_variable_declarations = {}
         self.query_name = query_name
         if blocks:
             self.query_blocks = blocks
@@ -309,8 +310,7 @@ class DQLQuery:
             self.query_blocks = [QueryBlock(**kwargs)]
 
         for q in self.query_blocks:
-            self.graphql_variable_declarations += q.graphql_variables
-            self.graphql_variable_declarations = list(set(self.graphql_variable_declarations))
+            self.graphql_variable_declarations.update(q.graphql_variables)
 
     def __str__(self) -> str:
         return self.render()
@@ -318,12 +318,11 @@ class DQLQuery:
     
     def render(self) -> str:
         query_string = ""
-        if len(self.graphql_variable_declarations) > 0:
+        if len(self.graphql_variable_declarations.keys()) > 0:
             query_string += f"query {self.query_name} "
-            if len(self.graphql_variable_declarations) > 0:
-                var_declarations = [f'{v.name} : {v.dtype}' for v in self.graphql_variable_declarations]
-                var_declarations = ", ".join(var_declarations)
-                query_string += '(' + var_declarations + ') '
+            var_declarations = [f'{v.name} : {v.dtype}' for v in self.graphql_variable_declarations.values()]
+            var_declarations = ", ".join(var_declarations)
+            query_string += '(' + var_declarations + ') '
         
         for block in self.query_blocks:
             query_string += str(block)
@@ -331,7 +330,11 @@ class DQLQuery:
         return query_string
     
     def get_graphql_variables(self) -> dict:
-        return {var.name: var.value for var in self.graphql_variable_declarations}
+        return {var.name: var.value for var in self.graphql_variable_declarations.values()}
+    
+    def set_graphql_variables(self, **kwargs) -> None:
+        for k, v in kwargs.items():
+            self.graphql_variable_declarations['$' + k].value = v
     
     def fetch(self, predicates: list) -> None:
         for query_block in self.query_blocks:
