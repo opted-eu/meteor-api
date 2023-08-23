@@ -91,7 +91,7 @@
         {%endif%}
     {% endfor %} 
     {% if publication.fulltext_available %}
-        <i data-bs-toggle="tooltip" data-bs-placement="top" title="Fulltexts are available" class="fas fa-check text-success" alt="Fulltext Available"></i>
+    <span class="badge rounded-pill text-bg-success mx-2">Fulltexts</span>
     {% endif %}
     </span>
     {% if publication.entry_review_status == 'pending' %}
