@@ -303,7 +303,10 @@ def resolve_doi(doi: str) -> dict:
         logger.debug(f'Could not resolve <{doi}> at datacite')
         pass
 
-def resolve_authors(authors_tmp: typing.List[dict]) -> typing.List[dict]:
+    raise requests.HTTPError(f'Could not resolve DOI: <{doi}> at all.')
+
+def resolve_authors(authors_tmp: typing.List[dict], 
+                    orcid_token: str=None) -> typing.List[dict]:
     """ 
         Try to get canonical IDs for authors 
         1. Check if there is an ORCID ID provided and try to get OpenAlex ID
@@ -311,7 +314,7 @@ def resolve_authors(authors_tmp: typing.List[dict]) -> typing.List[dict]:
             Only adds ORCID ID to cases that are very sure
     """
     openalex = OpenAlex()
-    orcid = ORCID()
+    orcid = ORCID(token=orcid_token)
     for author in authors_tmp:
         if 'openalex' in author:
             continue
@@ -321,7 +324,7 @@ def resolve_authors(authors_tmp: typing.List[dict]) -> typing.List[dict]:
             author['orcid'] = orcid_id
             try:
                 openalex_id = openalex.get_author_by_orcid(orcid_id)['id'].replace('https://openalex.org/', '')
-                author['openalex'] = openalex_id
+                author['openalex'] = [openalex_id]
             except requests.HTTPError:
                 pass
         else:
@@ -334,7 +337,7 @@ def resolve_authors(authors_tmp: typing.List[dict]) -> typing.List[dict]:
                     author['orcid'] = orcid_details['orcid-id']
                     try:
                         openalex_id = openalex.get_author_by_orcid(orcid_details['orcid-id'])['id'].replace('https://openalex.org/', '')
-                        author['openalex'] = openalex_id
+                        author['openalex'] = [openalex_id]
                     except requests.HTTPError:
                         pass
             except requests.HTTPError:
