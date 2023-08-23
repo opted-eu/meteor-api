@@ -38,7 +38,7 @@ class User(Schema, UserLogin):
     _pw_reset = String(hidden=True, edit=False, facets=[
                        Facet('used', dtype=bool)])
     
-    orcid = String('ORCID')
+    orcid = String(label="ORCID", directives=["@index(hash)"])
     _date_joined = DateTime(label="Date joined", description='Date when this account was created',
                             read_only=True, edit=False)
     role = SingleChoiceInt(label="User Role", edit=False, read_only=True,
@@ -177,7 +177,7 @@ class PoliticalParty(Entry):
                                      'placeholder': 'Select a country...'},
                                  predicate_alias=["countries"])
 
-    url = String(label='URL', description='Official website of party')
+    url = String(label='URL', description='Official website of party', directives=["@index(hash)"])
 
     color_hex = String()
 
@@ -291,7 +291,8 @@ class NewsSource(Entry):
 
     identifier = String(label='URL of Channel',
                         description="What is the url or social media handle of the news source?",
-                        facets=[Facet("kind")])
+                        facets=[Facet("kind")],
+                        directives=["@index(hash)"])
 
     verified_account = Boolean(new=False, edit=False, queryable=True)
 
@@ -503,7 +504,9 @@ class Government(Entry):
 
     subnational = SingleRelationship(relationship_constraint="Subnational")
 
-    url = String(label="URL", description="Official website of the government")
+    url = String(label="URL", 
+                 description="Official website of the government",
+                 directives=["@index(hash)"])
 
 
 class Parliament(Entry):
@@ -527,7 +530,9 @@ class Parliament(Entry):
                                     radio_field=True,
                                     queryable=True)
 
-    url = String(label="URL", description="Official website of the parliament")
+    url = String(label="URL", 
+                 description="Official website of the parliament",
+                 directives=["@index(hash)"])
 
 
 class Person(Entry):
@@ -544,7 +549,8 @@ class Person(Entry):
                                  predicate_alias=["countries"])
 
     url = String(
-        label="URL", description="Website related_news_sources to the person")
+        label="URL", description="Website related_news_sources to the person",
+        directives=["@index(hash)"])
 
 
 class Channel(Entry):
@@ -624,7 +630,7 @@ class Archive(Entry):
 
     description = String(large_textfield=True)
 
-    url = String()
+    url = String(directives=["@index(hash)"])
 
     authors = AuthorList(allow_new=True,
                          relationship_constraint="Author")
@@ -730,7 +736,7 @@ class Dataset(Entry):
     date_modified = String(
         description="When was the dataset last updated?", new=False)
 
-    url = String(label="URL", description="Link to the dataset", required=True)
+    url = String(label="URL", description="Link to the dataset", required=True, directives=["@index(hash)"])
     doi = String(label='DOI', directives=['@index(hash)'])
     arxiv = String(label="arXiv", directives=['@index(hash)'])
     github = GitHubAuto(label="Github", description="Github repository",
@@ -863,7 +869,7 @@ class Tool(Entry):
     date_modified = String(
         description="When was the tool last updated?", new=False)
 
-    url = String(label="URL", description="Link to the tool", required=True)
+    url = String(label="URL", description="Link to the tool", required=True, directives=["@index(hash)"])
 
     doi = String(label='DOI',
                  overwrite=True,
@@ -1060,7 +1066,7 @@ class ScientificPublication(Entry):
                    directives=["@index(term, trigram)"])
 
     url = String(
-        label="URL", description="Link to the publication", required=True)
+        label="URL", description="Link to the publication", required=True, directives=["@index(hash)"])
     doi = String(label='DOI', directives=["@index(hash)"])
     openalex = String(label='OpenAlex ID', directives=["@index(hash)"])
     arxiv = String(label='arXiv', directives=["@index(hash)"])
@@ -1134,7 +1140,7 @@ class Author(Entry):
     """ Authors are people who create datasets, archives, tools or scientific publications. """
 
     orcid = String(label="ORCID", directives=["@index(hash)"])
-    url = String(label="URL", description="Website of author")
+    url = String(label="URL", description="Website of author", directives=["@index(hash)"])
     openalex = ListString(label="OpenAlex ID",
                           description="ID(s) of the author on OpenAlex")
     
@@ -1301,7 +1307,7 @@ class LearningMaterial(Entry):
     authors = AuthorList(allow_new=True,
                          relationship_constraint="Author")
 
-    urls = ListString(required=True)
+    urls = ListString(required=True, directives=["@index(hash)"])
 
     concept_variables = ListRelationship(description="Is this learning material about concepts or related to theoretical constructs?",
                                          relationship_constraint=["ConceptVariable"])
@@ -1331,9 +1337,11 @@ class File(Schema):
     uid = UIDPredicate()
 
     _download_url = String(description="location of the resource",
-                                  edit=False)
+                                  edit=False,
+                                  directives=["@index(hash)"])
     _path = String(description="location on local disk",
-                                  edit=False)
+                                  edit=False,
+                                  directives=["@index(hash)"])
     file_formats = SingleRelationship(relationship_constraint="FileFormat",
                                   edit=False)
 
