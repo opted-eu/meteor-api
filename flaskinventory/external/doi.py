@@ -159,7 +159,7 @@ def datacite(doi: str) -> dict:
             result['description'] = desc['description']
     
     result['doi'] = doi
-    result['date_published'] = dateparser.parse(j['published'])
+    result['date_published'] = dateparser.parse(j['published']).isoformat()
 
     try:
         for t in j['titles']:
@@ -250,7 +250,7 @@ def zenodo(doi: str) -> dict:
         pass
 
     try:
-        result['date_modified'] = datetime.datetime.fromisoformat(hit['updated'])
+        result['date_modified'] = datetime.datetime.fromisoformat(hit['updated']).isoformat()
     except:
         pass
 
