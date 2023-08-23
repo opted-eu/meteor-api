@@ -115,7 +115,7 @@ def doi_org(doi: str) -> dict:
 
     j = r.json()
 
-    result = {'doi': j['DOI'],
+    result = {'doi': doi,
             'url': j['URL'],
             'title': j.get('title'),
             'description': j.get('abstract'),
@@ -158,7 +158,7 @@ def datacite(doi: str) -> dict:
         if desc['descriptionType'] == 'Abstract':
             result['description'] = desc['description']
     
-    result['doi'] = j['doi']
+    result['doi'] = doi
     result['date_published'] = dateparser.parse(j['published'])
 
     try:
@@ -219,7 +219,7 @@ def zenodo(doi: str) -> dict:
     
     hit = j['hits'][0]
 
-    result = {'doi': hit['doi'],
+    result = {'doi': doi,
               'url': hit['links']['html']}
 
     result['_authors_fallback'] = []
