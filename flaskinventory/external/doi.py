@@ -208,7 +208,7 @@ def zenodo(doi: str) -> dict:
     """
     api = "https://zenodo.org/api/records"
 
-    params = f'q=doi:"{doi}"'
+    params = f'q=doi:"{doi.lower()}"'
     r = requests.get(api, params=params)
 
     r.raise_for_status()
