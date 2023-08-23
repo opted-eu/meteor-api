@@ -757,8 +757,8 @@ cap_start = cap_df.groupby("countries_uid").agg(list).temporal_coverage_start.ap
 cap_end = cap_df.groupby("countries_uid").agg(list).temporal_coverage_end.apply(max).to_dict()
 
 for k in cap_countries:
-    cap_countries[k]['countries|temporal_coverage_start'] = cap_start[k]
-    cap_countries[k]['countries|temporal_coverage_end'] = cap_end[k]
+    cap_countries[k]['countries|temporal_coverage_start'] = datetime.strptime(str(cap_start[k]), "%Y").isoformat()
+    cap_countries[k]['countries|temporal_coverage_end'] = datetime.strptime(str(cap_end[k]), "%Y").isoformat()
 
 cap_df.loc[cap_df.parties.isna(), 'parties'] = "" 
 cap_parties_tmp_names = cap_df.parties.apply(lambda x: [y.strip().lower() for y in x.split(';')]).explode().unique().tolist()
@@ -783,13 +783,13 @@ cap_parties = []
 
 for index, row in cap_df[filt].iterrows():
     parties = [p.lower().strip() for p in row['parties'].split(';')]
-    temporal_coverage_start = row['temporal_coverage_start']
-    temporal_coverage_end = row['temporal_coverage_end']
+    temporal_coverage_start = str(row['temporal_coverage_start'])
+    temporal_coverage_end = str(row['temporal_coverage_end'])
     for p in parties:
         try:
             party = {'uid': parties_lookup[p],
-                    'sources_included|temporal_coverage_start': temporal_coverage_start,
-                    'sources_included|temporal_coverage_end': temporal_coverage_end}
+                    'sources_included|temporal_coverage_start': datetime.strptime(temporal_coverage_start, "%Y").isoformat(),
+                    'sources_included|temporal_coverage_end': datetime.strptime(temporal_coverage_end, "%Y").isoformat()}
             cap_parties.append(party)
         except:
             continue
