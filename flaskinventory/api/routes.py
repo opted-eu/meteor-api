@@ -57,6 +57,7 @@ from flaskinventory.view.dgraph import get_entry, get_rejected
 from flaskinventory.view.utils import can_view
 
 from flaskinventory.external.dgraph import dgraph_resolve_doi
+from flaskinventory.external.doi import clean_doi
 
 from flaskinventory.main.model import *
 
@@ -915,7 +916,10 @@ def query_count(_terms: str = None) -> int:
 @api.route('/lookup')
 def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] = ['Entry']) -> t.List[Entry]:
     """
-        Generic Lookup Endpoint. Search entries by names (i.e., strings)
+        Generic Lookup Endpoint. Search entries by names (i.e., strings).
+        
+        *For autocomplete / search ahead kind of queries use the `quicksearch` endpoint!*
+
         Can perform the following
 
         - `query`: your search query (default uses equality matching)
@@ -925,6 +929,16 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
         Filters:
 
         - `dgraph_types`: provide a list of types to filter
+
+        Examples:
+
+        - Main intention of this endpoint is to have live search for form fields. When a user adds a new entry, 
+            then the form fields can lazily load the the available options. For example, searching for a political party:
+            `query=spd&predicate=name&dgraph_types=PoliticalParty`
+        - Search Entries based on a `name: query=autnes&predicate=name&dgraph_types=Entry`
+        - You can lookup authors by their ORCID / OpenAlex ID, by providing `query=0000-0000-0000-0000&predicate=orcid`
+        - Find a publication / dataset by DOI: `10.4232%2F1.12698&predicate=doi`. Watch out to URL encode / escape forward slashes `/`!
+        - Find all News Sources that use a specific social media handle: `query=bild&predicate=identifier&dgraph_types=NewsSource`
     """
     if not query or not predicate:
         return api.abort(400, message='Incorrect request parameters provided.')
@@ -964,7 +978,10 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
         data = dql.QueryBlock(dql.uid("field1, field2, field3, field4"),
                             fetch=['uid', 
                                    '_unique_name', 
-                                   'name', 
+                                   'name',
+                                   'name@*',
+                                   'name_abbrev',
+                                   'name_abbrev@*',
                                    'title',
                                    'dgraph.type',
                                    'alternate_names',
@@ -983,6 +1000,9 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
         fetch = ['uid', 
                 '_unique_name', 
                 'name', 
+                'name@*',
+                'name_abbrev',
+                'name_abbrev@*',
                 'doi',
                 'arxiv',
                 'openalex',
@@ -1412,6 +1432,8 @@ def fetch_cran(package: str) -> PublicationLike:
     (CRAN's cors policy requires this workaround)
 
     Authors are returned as a list of strings `_authors_fallback` with the literal names as they are listed on CRAN.
+    In some cases, CRAN provides machine-readable authors, in this case there is also the key `authors` that includes
+    their information in a structured way.
     This means that the resulting authors list has to be checked against existing authors in 
     Meteor or on OpenAlex.
 
@@ -1525,7 +1547,7 @@ def fetch_vk(handle: str) -> SocialMediaProfile:
     if profile.get('description'):
         result['description'] = profile.get('description')
 
-    return result
+    return jsonify(result)
 
 @api.route('/external/telegram', methods=['POST'])
 def fetch_telegram(handle: str) -> SocialMediaProfile:
@@ -1569,7 +1591,7 @@ def fetch_telegram(handle: str) -> SocialMediaProfile:
     if profile.get('joined'):
         result['date_founded'] = profile.get('joined')
 
-    return result
+    return jsonify(result)
 
 @api.route('/external/website', methods=['POST'])
 def resolve_website(url: str) -> SocialMediaProfile:
@@ -1644,9 +1666,25 @@ def resolve_website(url: str) -> SocialMediaProfile:
     return jsonify(result)
 
 
-#TODO: resolve_doi
 @api.route('/external/doi', methods=['POST'])
-def resolve_doi(identifier: str) -> PublicationLike:
+def resolve_doi(identifier: str, fresh: bool=False) -> PublicationLike:
+    """ 
+        Automatically resolve meta data for a DOI.
+
+        If the DOI is already listed in Meteor, it will return the UID for the provided DOI.
+        You can overwrite this behaviour by setting the `fresh` parameter to `true`
+
+        Meteor tries different APIs to find the best meta-information for a
+        DOI. It also tries to resolve author unique IDs (ORCID). The route returns 
+        cleaned metadata, and if the author's were already found in Meteor, it will include
+        their UIDs as well.   
+        
+    """
+    if not fresh:
+        doi = clean_doi(identifier)
+        uid = dgraph.get_uid(field="doi", value=doi)
+        if uid:
+            return jsonify({'uid': uid})
     try:
         return jsonify(dgraph_resolve_doi(identifier))
     except Exception as e:
