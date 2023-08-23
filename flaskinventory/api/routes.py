@@ -56,6 +56,8 @@ from flaskinventory.flaskdgraph.utils import validate_uid, restore_sequence
 from flaskinventory.view.dgraph import get_entry, get_rejected
 from flaskinventory.view.utils import can_view
 
+from flaskinventory.external.dgraph import dgraph_resolve_doi
+
 from flaskinventory.main.model import *
 
 from flaskinventory.api.sanitizer import Sanitizer
@@ -1639,11 +1641,14 @@ def resolve_website(url: str) -> SocialMediaProfile:
     for i, kind in enumerate(kinds):
         result['channel_feeds|kind'][str(i)] = kind
     
-    return result
+    return jsonify(result)
 
 
 #TODO: resolve_doi
 @api.route('/external/doi', methods=['POST'])
 def resolve_doi(identifier: str) -> PublicationLike:
-    return jsonify({'error': 'not implemented'})
+    try:
+        return jsonify(dgraph_resolve_doi(identifier))
+    except Exception as e:
+        return api.abort(404, f'Could not resolve DOI <{identifier}>. Please verify that the DOI is correct. {e}')
 
