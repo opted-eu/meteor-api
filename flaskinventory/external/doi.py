@@ -16,7 +16,7 @@ def clean_doi(doi: str) -> str:
     doi = doi.replace("https://doi.org/", "")
     doi = doi.replace("http://doi.org/", "")
     doi = doi.replace("doi.org/", "")
-    return doi
+    return doi.upper()
 
 
 def clean_orcid(orcid: str) -> str:
