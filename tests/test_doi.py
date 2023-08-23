@@ -69,7 +69,7 @@ class TestDOI(BasicTestSetup):
 
     def test_resolve_doi(self):
         r = resolve_doi(self.manifesto_doi)
-        self.assertEqual(r['doi'], self.manifesto_doi)
+        self.assertEqual(r['doi'], self.manifesto_doi.upper())
         with self.app.app_context():
             resolved = resolve_authors(r['_authors_tmp'])
         self.assertEqual(resolved[0]['orcid'], '0000-0002-9348-706X')
@@ -85,7 +85,8 @@ class TestDOI(BasicTestSetup):
             resolved = resolve_authors(r['_authors_tmp'])
 
         r = resolve_doi(self.aussda_doi)
-        print(r)
+        with self.app.app_context():
+            resolved = resolve_authors(r['_authors_tmp'])
 
     def test_dgraph(self):
         from flaskinventory.external.dgraph import dgraph_resolve_doi
