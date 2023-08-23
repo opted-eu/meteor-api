@@ -161,9 +161,12 @@ def datacite(doi: str) -> dict:
     result['doi'] = j['doi']
     result['date_published'] = dateparser.parse(j['published'])
 
-    for t in j['titles']:
-        if t['lang'] == 'en':
-            result['title'] = t['title']
+    try:
+        for t in j['titles']:
+            if t['lang'] == 'en':
+                result['title'] = t['title']
+    except KeyError:
+        result['title'] = j['titles'][0]['title']
 
     result['url'] = j['url']
 

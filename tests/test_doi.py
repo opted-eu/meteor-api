@@ -23,6 +23,7 @@ class TestDOI(BasicTestSetup):
     manifesto_doi = '10.25522/manifesto.mpdssa.2020b'
     zenodo_doi = '10.5281/zenodo.3611246'
     arxiv_doi = '10.48550/arXiv.2001.08435'
+    aussda_doi = 'https://doi.org/10.11587/XJZPCU'
 
     config_json = "config.json"
 
@@ -82,6 +83,9 @@ class TestDOI(BasicTestSetup):
 
         with self.app.app_context():
             resolved = resolve_authors(r['_authors_tmp'])
+
+        r = resolve_doi(self.aussda_doi)
+        print(r)
 
     def test_dgraph(self):
         from flaskinventory.external.dgraph import dgraph_resolve_doi
