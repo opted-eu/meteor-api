@@ -18,48 +18,16 @@ import secrets
 
 from tools.countries_language_mapping import get_country_language_mapping, get_country_wikidata_mapping
 
+from tools.migration_helpers import (PUBLICATION_CACHE, WIKIDATA_CACHE, 
+                                     client, ADMIN_UID, process_doi, 
+                                     save_publication_cache, save_wikidata_cache,
+                                     remove_none, safe_clean_doi,
+                                     get_duplicated_authors, deduplicate_author)
+
+
 ENTRY_REVIEW_STATUS = 'accepted'
 
 p = Path.cwd()
-
-client_stub = pydgraph.DgraphClientStub('localhost:9080')
-client = pydgraph.DgraphClient(client_stub)
-
-""" Get UID of Admin User """
-
-query_string = '{ q(func: eq(email, "wp3@opted.eu")) { uid } }'
-
-res = client.txn().query(query_string)
-
-j = json.loads(res.json)['q']
-
-ADMIN_UID = j[0]['uid']
-
-""" Cache files """
-
-
-author_cache_file = p / "data" / "author_cache.json"
-crossref_cache_file = p / "data" / "crossref_cache.json"
-wikidata_cache_file = p / "data" / "wikidata_cache.json"
-
-try:
-    with open(author_cache_file) as f:
-        author_cache = json.load(f)
-except:
-    author_cache = {}
-
-try:
-    with open(crossref_cache_file) as f:
-        crossref_cache = json.load(f)
-except:
-    crossref_cache = {}
-
-
-try:
-    with open(wikidata_cache_file) as f:
-        wikidata_cache = json.load(f)
-except:
-    wikidata_cache = {}
 
 # Load Data from Excel sheet
 xlsx = p / 'data' / 'OPTED Taxonomy.xlsx'
@@ -106,8 +74,8 @@ parliament_template = {
 }
 
 for wikidata_id in parliaments_wikidata_ids:
-    if wikidata_id in wikidata_cache:
-        wikidata = wikidata_cache[wikidata_id]
+    if wikidata_id in WIKIDATA_CACHE:
+        wikidata = WIKIDATA_CACHE[wikidata_id]
     else:
         api = 'https://www.wikidata.org/w/api.php'
         params = {'action': 'wbgetentities', #'languages': 'en',
@@ -115,7 +83,7 @@ for wikidata_id in parliaments_wikidata_ids:
         params['ids'] = wikidata_id 
         r = requests.get(api, params=params)
         wikidata = r.json()['entities'][wikidata_id]
-        wikidata_cache[wikidata_id] = wikidata
+        WIKIDATA_CACHE[wikidata_id] = wikidata
     new_parliament = {**parliament_template, 'wikidata_id': wikidata_id}
     # try to get native label first
     try:
@@ -195,8 +163,8 @@ government_template = {
 
 
 for wikidata_id in governments_wikidata_ids:
-    if wikidata_id in wikidata_cache:
-        wikidata = wikidata_cache[wikidata_id]
+    if wikidata_id in WIKIDATA_CACHE:
+        wikidata = WIKIDATA_CACHE[wikidata_id]
     else:
         api = 'https://www.wikidata.org/w/api.php'
         params = {'action': 'wbgetentities', #'languages': 'en',
@@ -204,7 +172,7 @@ for wikidata_id in governments_wikidata_ids:
         params['ids'] = wikidata_id 
         r = requests.get(api, params=params)
         wikidata = r.json()['entities'][wikidata_id]
-        wikidata_cache[wikidata_id] = wikidata
+        WIKIDATA_CACHE[wikidata_id] = wikidata
     new_government = {**government_template, 'wikidata_id': wikidata_id}
     # try to get native label first
     try:
@@ -404,112 +372,9 @@ for country_name in countries:
 """ Resolve DOIs """
 
 
-""" Authors: Check OpenAlex """
-
-""" Unfortunately this does not work well at the moment
-    because OpenAlex does not include DOIs registered by
-    datacite.org
-"""
-
-
-
-def resolve_openalex(doi, cache):
-    if doi in cache:
-        j = cache[doi]
-    else:
-        api = "https://api.openalex.org/works/doi:"
-        r = requests.get(api + doi, params={'mailto': "info@opted.eu"})
-        j = r.json()
-        cache[doi] = j
-    authors = []
-    for i, author in enumerate(j['authorships']):
-        a_name = author['author']['display_name']
-        open_alex = author['author']['id'].replace('https://openalex.org/', "")
-        query_string = """query lookupAuthor ($openalex: string) 
-        {
-            q(func: eq(openalex, $openalex)) {
-                    uid
-            }
-        }"""
-        res = client.txn(read_only=True).query(query_string, variables={'$openalex': open_alex})
-        j = json.loads(res.json)
-        if len(j['q']) == 0:
-            if open_alex in cache:
-                author_details = cache[open_alex]
-            else:
-                api = "https://api.openalex.org/people/"
-                r = requests.get(api + open_alex, params={'mailto': "info@opted.eu"})
-                author_details = r.json()
-                cache[open_alex] = author_details
-            author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
-                            '_unique_name': 'author_' + slugify(open_alex, separator=""),
-                            'entry_review_status': ENTRY_REVIEW_STATUS,
-                            'openalex': open_alex,
-                            'name': a_name,
-                            '_date_created': datetime.now().isoformat(),
-                            'authors|sequence': i,
-                            '_added_by': {
-                                'uid': ADMIN_UID,
-                                '_added_by|timestamp': datetime.now().isoformat()},
-                            'dgraph.type': ['Entry', 'Author']
-                            }
-            if author['author'].get("orcid"):
-                author_entry['orcid'] = author['author']['orcid'].replace('https://orcid.org/', '')
-            try:
-                author_entry['last_known_institution'] = author_details['last_known_institution']['display_name']
-                author_entry['last_known_institution|openalex'] = author_details['last_known_institution']['id']
-            except:
-                pass
-        else:
-            author_entry = {'uid': j['q'][0]['uid']}
-        authors.append(author_entry)
-    return authors
-
-
-def crossref(doi: str, cache):
-    # clean input string
-    doi = doi.replace("https://doi.org/", "")
-    doi = doi.replace("http://doi.org/", "")
-    doi = doi.replace("doi.org/", "")
-
-    if doi in cache:
-        publication = cache[doi]
-    else:
-        api = 'https://api.crossref.org/works/'
-        r = requests.get(api + doi)
-        if r.status_code != 200:
-            r.raise_for_status()
-        publication = r.json()
-
-        if publication['status'] != 'ok':
-            raise Exception
-        publication = publication['message']
-        cache[doi] = publication
-
-    result = {'doi': doi}
-
-    result['venue'] = publication.get('container-title')
-    if isinstance(result['venue'], list):
-        result['venue'] = result['venue'][0]
-    result['title'] = publication.get('title')
-
-    if isinstance(result['title'], list):
-        result['title'] = result['title'][0]
-
-    result['paper_kind'] = publication.get('type')
-
-    if publication.get('created'):
-        result['date_published'] = dateparser.parse(publication['created']['date-time']).isoformat()
-
-    if publication.get('link'):
-        result['url'] = publication['link'][0]['URL']
-    
-    return result
-
-
 # get all entries with DOI
 
-df.doi = df.doi.str.replace('https://doi.org/', '', regex=False)
+df.doi = df.doi.apply(safe_clean_doi)
 
 dois = df[~df.doi.isna()].doi.unique()
 
@@ -517,33 +382,19 @@ authors = {}
 publication_info = {}
 failed = []
 
-print('Retrieving Authors from OpenAlex ...')
+print('Resolving DOIs and retrieving author information ...')
 
 for doi in dois:
     try:
-        authors[doi] = resolve_openalex(doi, author_cache)
+        publication_info[doi] = process_doi(doi, PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS)
+        authors[doi] = publication_info[doi]['authors']
         # publication_info[doi] = crossref(doi, crossref_cache)
     except Exception as e:
         print(doi, e)
         failed.append(doi)
 
-
+save_publication_cache()
 """ Dataframe to json """
-
-def remove_none(l: list):
-    # helper to remove None and NA values from lists
-    try:
-        l.remove(None)
-    except:
-        pass
-    try:
-        l.remove(np.nan)
-    except:
-        pass
-    try:
-        l.remove('')
-    except:
-        pass
 
 sample_dataset = {
     'dgraph.type': ['Entry', 'Dataset'], # or Archive -> entity
@@ -717,13 +568,13 @@ for i, open_alex in enumerate(cap_authors_ids):
     res = client.txn(read_only=True).query(query_string, variables={'$openalex': open_alex})
     j = json.loads(res.json)
     if len(j['q']) == 0:
-        if open_alex in author_cache:
-            author_details = author_cache[open_alex]
+        if open_alex in PUBLICATION_CACHE:
+            author_details = PUBLICATION_CACHE[open_alex]
         else:
             api = "https://api.openalex.org/people/"
             r = requests.get(api + open_alex, params={'mailto': "info@opted.eu"})
             author_details = r.json()
-            author_cache[open_alex] = author_details
+            PUBLICATION_CACHE[open_alex] = author_details
         author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
                         '_unique_name': 'author_' + slugify(open_alex, separator=""),
                         'entry_review_status': ENTRY_REVIEW_STATUS,
@@ -739,8 +590,8 @@ for i, open_alex in enumerate(cap_authors_ids):
         if author_details['ids'].get("orcid"):
             author_entry['orcid'] = author_details['ids']['orcid'].replace('https://orcid.org/', '')
         try:
-            author_entry['last_known_institution'] = author_details['last_known_institution']['display_name']
-            author_entry['last_known_institution|openalex'] = author_details['last_known_institution']['id']
+            author_entry['affiliations'] = author_details['last_known_institution']['display_name']
+            author_entry['affiliations|openalex'] = author_details['last_known_institution']['id']
         except:
             pass
     else:
@@ -842,13 +693,14 @@ with open(wp5_mutation_json, 'w') as f:
     json.dump(mutation_obj, f, indent=1)
 
 
-with open(author_cache_file, "w") as f:
-    json.dump(author_cache, f)
+save_publication_cache()
 
+save_wikidata_cache()
 
-with open(crossref_cache_file, "w") as f:
-    json.dump(crossref_cache, f)
+# Deduplicate authors by name
 
-
-with open(wikidata_cache_file, "w") as f:
-    json.dump(wikidata_cache, f)
+duplicated = get_duplicated_authors()
+print('Got', len(duplicated), 'duplicated authors:')
+for a in duplicated:
+    print('Deduplicating:', a)
+    deduplicate_author(a)
