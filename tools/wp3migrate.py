@@ -13,22 +13,11 @@ from datetime import datetime
 from slugify import slugify
 import requests
 from pathlib import Path
-
-client_stub = pydgraph.DgraphClientStub('localhost:9080')
-client = pydgraph.DgraphClient(client_stub)
+from tools.migration_helpers import PUBLICATION_CACHE, client, ADMIN_UID, process_doi, save_publication_cache
 
 ENTRY_REVIEW_STATUS = "accepted"
 
 p = Path.cwd()
-
-
-author_cache_file = p / "data" / "author_cache.json"
-
-try:
-    with open(author_cache_file) as f:
-        author_cache = json.load(f)
-except:
-    author_cache = {}
 
 new_channels_file = p / "data" / "channels.json"
 
@@ -153,17 +142,6 @@ txn = client.txn()
 mutation = txn.create_mutation(del_nquads=delete)
 request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
 txn.do_request(request)
-
-""" Get UID of Admin User """
-
-query_string = '{ q(func: eq(email, "wp3@opted.eu")) { uid } }'
-
-
-res = client.txn().query(query_string)
-
-j = json.loads(res.json)['q']
-
-ADMIN_UID = j[0]['uid']
 
 
 """ Migrate Types """
@@ -607,94 +585,149 @@ txn.discard()
 
 """ Authors """
 
-print('Migrating Authors ...')
-
-def resolve_openalex(entry, cache):
-    doi = entry['doi']
-    if doi in cache:
-        j = cache[doi]
-    else:
-        api = "https://api.openalex.org/works/doi:"
-        r = requests.get(api + doi)
-        j = r.json()
-        cache[doi] = j
-    output = {'uid': entry['uid'],
-              '_date_modified': datetime.now().isoformat()}
-    authors = []
-    for i, author in enumerate(j['authorships']):
-        a_name = author['author']['display_name']
-        open_alex = author['author']['id'].replace('https://openalex.org/', "")
-        if open_alex in cache:
-            author_details = cache[open_alex]
-        else:
-            api = "https://api.openalex.org/people/"
-            r = requests.get(api + open_alex, params={'mailto': "info@opted.eu"})
-            author_details = r.json()
-            cache[open_alex] = author_details
-        author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
-                        '_unique_name': 'author_' + slugify(open_alex, separator=""),
-                        'entry_review_status': ENTRY_REVIEW_STATUS,
-                        'openalex': open_alex,
-                        'name': a_name,
-                        '_date_created': datetime.now().isoformat(),
-                        'authors|sequence': i,
-                        '_added_by': {
-                            'uid': ADMIN_UID,
-                            '_added_by|timestamp': datetime.now().isoformat()},
-                        'dgraph.type': ['Entry', 'Author']
-                        }
-        if author['author'].get("orcid"):
-            author_entry['orcid'] = author['author']['orcid'].replace('https://orcid.org/', '')
-        try:
-            author_entry['last_known_institution'] = author_details['last_known_institution']['display_name']
-            author_entry['last_known_institution|openalex'] = author_details['last_known_institution']['id']
-        except:
-            pass
-        authors.append(author_entry)
-    output['authors'] = authors
-    return output
+print('Refreshing entries with DOI ...')
 
 # get all entries with DOI
 
 query = """{
-	q(func: has(_authors_fallback)) @filter(has(doi))  {
+	doi(func: has(_authors_fallback)) @filter(has(doi))  {
 		uid name doi _authors_fallback
+        }
+    arxiv(func: has(arxiv)) @filter(not has(doi)) {
+        uid name arxiv _authors_fallback
+        }
+    }
+"""
+from flaskinventory.external.doi import arxiv2doi
+
+res = client.txn().query(query)
+
+entries_with_doi = json.loads(res.json)['doi']
+entries_with_arxiv = json.loads(res.json)['arxiv']
+for e in entries_with_arxiv:
+    e['doi'] = arxiv2doi("https://arxiv.org/abs/" + e['arxiv'])
+
+entries_with_doi += entries_with_arxiv
+updated_entries_with_doi = []
+failed = []
+delete_nquads = []
+
+remove_keys = ['_entry_added', 'description', 'name', 'title', 'url', 'date_published']
+
+for entry in entries_with_doi:
+    try:
+        updated_entry = process_doi(entry['doi'], PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS)
+        updated_entry['uid'] = entry['uid']
+        for k in remove_keys:
+            try:
+                _ = updated_entry.pop(k)
+            except:
+                pass
+        updated_entries_with_doi.append(updated_entry)
+        delete_nquads.append(f"<{entry['uid']}> <_authors_fallback> * .")
+    except Exception as e:
+        print('Could not process entry:', entry['doi'], e)
+        failed.append(entry)
+
+txn = client.txn()
+res = txn.mutate(set_obj=updated_entries_with_doi, 
+                 del_nquads="\n".join(delete_nquads), 
+                 commit_now=True)
+
+save_publication_cache()
+
+# Delete _authors_fallback
+
+txn = client.txn()
+res = txn.mutate(del_nquads="\n".join(delete_nquads), commit_now=True)
+
+# Deduplicate authors by name
+
+duplicate_check_query = """{
+    q(func: type(Author)) @groupby(name) {
+        number: count(uid)
         }
     }
 """
 
-res = client.txn().query(query)
+res = client.txn(read_only=True).query(duplicate_check_query)
 
-entries_with_doi = json.loads(res.json)['q']
-authors = []
-failed = []
-delete_nquads = []
+check = json.loads(res.json)['q'][0]['@groupby']
 
-print('Retrieving Authors from OpenAlex ...')
+duplicated_names = list(filter(lambda x: x['number'] > 1, check))
 
-for entry in entries_with_doi:
+query_string = """query duplicated($name: string) {
+  q(func: type(Author)) @filter(eq(name, $name)) {
+    uid expand(_all_) 
+    ~authors @facets { uid }
+  }
+}"""
+
+for name in duplicated_names:
+    assert name['number'] == 2, name['number']
+    res = client.txn(read_only=True).query(query_string, variables={'$name': name['name']})
+    authors = json.loads(res.json)['q']
+
+    # merge both authors
     try:
-        authors.append(resolve_openalex(entry, author_cache))
-        delete_nquads.append(f"<{entry['uid']}> <_authors_fallback> * .")
+        affiliations_a = authors[0].pop('affiliations')
     except:
-        failed.append(entry)
+        affiliations_a = []
 
-txn = client.txn()
-res = txn.mutate(set_obj=authors, 
-                 del_nquads="\n".join(delete_nquads), 
-                 commit_now=True)
+    try:
+        affiliations_b = authors[1].pop('affiliations')
+    except:
+        affiliations_b = []
 
-with open(author_cache_file, "w") as f:
-    json.dump(author_cache, f)
+    affiliations = affiliations_a + affiliations_b
 
-# Delete _authors_fallback
+    try:
+        openalex_a = authors[0].pop('openalex')
+    except:
+        openalex_a = []
 
-uids = [a['uid'] for a in authors]
+    try:
+        openalex_b = authors[1].pop('openalex')
+    except:
+        openalex_b = []
 
-delete_nquads = [f'<{uid}> <_authors_fallback> * .' for uid in uids]
+    openalex = openalex_a + openalex_b
 
-txn = client.txn()
-res = txn.mutate(del_nquads="\n".join(delete_nquads), commit_now=True)
+    # delete relationships of author B
+    for authorship in authors[1]['~authors']:
+        del_obj = [
+                {
+                    "uid": authorship['uid'],
+                    "authors": {"uid": authors[1]['uid']}
+                }
+            ]
+        client.txn().mutate(del_obj=del_obj, commit_now=True)
+        set_obj = {
+            "set": [
+                {
+                    "uid": authorship['uid'],
+                    "authors": {
+                        "uid": authors[0]['uid'],
+                        'authors|sequence': authorship['~authors|sequence']
+                    }
+                }
+            ]
+        }
+        client.txn().mutate(set_obj=set_obj, commit_now=True)
+
+    # delete author b
+    client.txn().mutate(del_obj=[{'uid': authors[1]['uid']}], commit_now=True)
+
+    merged_author = authors[1]
+    _ = merged_author.pop('~authors')
+    _ = authors[0].pop('~authors')
+    merged_author.update(authors[0])
+    merged_author['affilations'] = affiliations
+    merged_author['openalex'] = openalex
+
+    # update author A
+    client.txn().mutate(set_obj={'set': [merged_author]}, commit_now=True)
+
 
 """ Languages """
 
@@ -957,4 +990,4 @@ txn = client.txn()
 res = txn.mutate(set_obj=new_channels, commit_now=True)
 
 
-client_stub.close()
+# client_stub.close()
