@@ -32,7 +32,7 @@ class OpenAlex:
         # result['name'] = j['title']
         result['title'] = j['title']
         result['paper_kind'] = j['type']
-        result['date_published'] = j['publication_year']
+        result['date_published'] = str(j['publication_year'])
         result['_authors_tmp'] = []
         result['_authors_fallback'] = []
         result['_authors_fallback|sequence'] = {}
