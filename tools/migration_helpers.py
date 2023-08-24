@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import requests
 import pydgraph
+import numpy as np
 
 client_stub = pydgraph.DgraphClientStub('localhost:9080')
 client = pydgraph.DgraphClient(client_stub)
@@ -80,13 +81,12 @@ def dgraph_check_author(orcid: str = None, openalex: typing.Union[str, list] = N
     if not isinstance(openalex, list):
         openalex = [openalex]
 
-    if isinstance(openalex, list):
-        for o in openalex:
-            res = client.txn(read_only=True).query(dgraph_author_query, variables={'$orcid': str(orcid), '$openalex': str(o)})
-            j = json.loads(res.json)
-            if len(j['q']) > 0:
-                return j['q'][0]
-        return None
+    for o in openalex:
+        res = client.txn(read_only=True).query(dgraph_author_query, variables={'$orcid': str(orcid), '$openalex': str(o)})
+        j = json.loads(res.json)
+        if len(j['q']) > 0:
+            return j['q'][0]
+    return None
 
 def process_doi(doi, cache, entry_review_status='accepted'):
     doi = clean_doi(doi)
@@ -122,6 +122,7 @@ def process_doi(doi, cache, entry_review_status='accepted'):
                 author_details['openalex'] = openalex
             authors_new.append(author_details)
             continue
+        # build author name
         if 'family_name' in author:
             a_name = author['given_name'] + " " + author['family_name']
         else:
@@ -129,6 +130,7 @@ def process_doi(doi, cache, entry_review_status='accepted'):
         # And whether we've seen the ORCID before
         if orcid and orcid in cache:
             author_details = cache[orcid]
+            author_details['authors|sequence'] = author['authors|sequence']
             # we want the openalex IDs to point to ORCIDs
             # openalex are less reliable and there are many duplicates
             if openalex and 'openalex' in author_details:
@@ -144,6 +146,10 @@ def process_doi(doi, cache, entry_review_status='accepted'):
                 for o in openalex:
                     cache[o] = orcid
             author_details.update(author_template)
+            # update caache
+            _copied_author = deepcopy(author_details)
+            _ = _copied_author.pop('authors|sequence')
+            cache[orcid] = _copied_author
         # If the ORCID is new, then we create a new author
         elif orcid:
             author_details = {**author,
@@ -153,7 +159,9 @@ def process_doi(doi, cache, entry_review_status='accepted'):
                                 **author_template
                              }
             author_details['name'] = a_name
-            cache[orcid] = deepcopy(author_details)
+            _copied_author = deepcopy(author_details)
+            _ = _copied_author.pop('authors|sequence')
+            cache[orcid] = _copied_author
         # If we only have an OpenAlex ID, we use this instead
         elif openalex and len(set(openalex) & set(cache.keys())) > 1:
             # get the orcid via the openalex
@@ -179,3 +187,148 @@ def process_doi(doi, cache, entry_review_status='accepted'):
         authors_new.append(author_details)
     output['authors'] = authors_new
     return output
+
+
+""" Wikidata Helpers """
+
+
+wikidata_cache_file = p / "data" / "wikidata_cache.json"
+WIKIDATA_CACHE = {}
+try:
+    with open(wikidata_cache_file) as f:
+        WIKIDATA_CACHE = json.load(f)
+except:
+    WIKIDATA_CACHE = {}
+
+
+def save_wikidata_cache():
+    with open(wikidata_cache_file, "w") as f:
+        json.dump(WIKIDATA_CACHE, f) 
+
+
+""" Misc """
+
+
+def remove_none(l: list):
+    # helper to remove None and NA values from lists
+    try:
+        l.remove(None)
+    except:
+        pass
+    try:
+        l.remove(np.nan)
+    except:
+        pass
+    try:
+        l.remove('')
+    except:
+        pass
+
+
+def safe_clean_doi(x):
+    try:
+        return clean_doi(x)
+    except:
+        return x
+    
+
+
+
+
+
+
+
+
+
+
+""" Author deduplication """
+
+def get_duplicated_authors() -> list():
+    duplicate_check_query = """{
+        q(func: type(Author)) @groupby(name) {
+            number: count(uid)
+            }
+        }
+    """
+
+    res = client.txn(read_only=True).query(duplicate_check_query)
+
+    check = json.loads(res.json)['q'][0]['@groupby']
+
+    duplicated_names = list(filter(lambda x: x['number'] > 1, check))
+    return [n['name'] for n in duplicated_names]
+
+def deduplicate_author(name: str) -> None:
+    query_string = """query duplicated($name: string) {
+    q(func: type(Author)) @filter(eq(name, $name)) {
+        uid expand(_all_) 
+        ~authors @facets { uid }
+        }
+    }"""
+
+    res = client.txn(read_only=True).query(query_string, variables={'$name': name})
+    authors = json.loads(res.json)['q']
+
+    try:
+        orcid = list(filter(lambda x: 'orcid' in x, authors))[0]['orcid']
+    except:
+        orcid = None
+
+    # find entry with richest information
+    richest = max([len(d.keys()) for d in authors])
+    main_author = list(filter(lambda x: len(x.keys()) == richest, authors))[0]
+    authors.remove(main_author)
+
+    affiliations = []
+    openalex = []
+    for author in authors:
+        try:
+            a = author.pop('openalex')
+            affiliations += a
+        except:
+            pass
+        try:
+            o = author.pop('affiliations')
+            openalex += o
+        except:
+            pass
+        # transfer relationships to main author
+        for authorship in author['~authors']:
+            del_obj = [
+                {
+                    "uid": authorship['uid'],
+                    "authors": {"uid": author['uid']}
+                }
+            ]
+            client.txn().mutate(del_obj=del_obj, commit_now=True)
+            set_obj = {
+                "set": [
+                    {
+                        "uid": authorship['uid'],
+                        "authors": {
+                            "uid": main_author['uid'],
+                            'authors|sequence': authorship['~authors|sequence']
+                        }
+                    }
+                ]
+            }
+            client.txn().mutate(set_obj=set_obj, commit_now=True)
+
+        client.txn().mutate(del_obj=[{'uid': author['uid']}], commit_now=True)
+
+    # merge them into one
+    merged_author = authors[0]
+    for author in authors:
+        merged_author.update(author)
+
+    _ = merged_author.pop('~authors')
+    _ = main_author.pop('~authors')
+    merged_author.update(main_author)
+    merged_author['affilations'] = affiliations
+    merged_author['openalex'] = openalex
+    if orcid:
+        merged_author['orcid'] = orcid
+
+    # update main author
+    client.txn().mutate(set_obj={'set': [merged_author]}, commit_now=True)
+

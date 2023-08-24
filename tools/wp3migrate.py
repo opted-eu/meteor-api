@@ -13,7 +13,9 @@ from datetime import datetime
 from slugify import slugify
 import requests
 from pathlib import Path
-from tools.migration_helpers import PUBLICATION_CACHE, client, ADMIN_UID, process_doi, save_publication_cache
+from tools.migration_helpers import (PUBLICATION_CACHE, client, ADMIN_UID, 
+                                     process_doi, save_publication_cache,
+                                     deduplicate_author, get_duplicated_authors)
 
 ENTRY_REVIEW_STATUS = "accepted"
 
@@ -643,91 +645,11 @@ res = txn.mutate(del_nquads="\n".join(delete_nquads), commit_now=True)
 
 # Deduplicate authors by name
 
-duplicate_check_query = """{
-    q(func: type(Author)) @groupby(name) {
-        number: count(uid)
-        }
-    }
-"""
-
-res = client.txn(read_only=True).query(duplicate_check_query)
-
-check = json.loads(res.json)['q'][0]['@groupby']
-
-duplicated_names = list(filter(lambda x: x['number'] > 1, check))
-
-query_string = """query duplicated($name: string) {
-  q(func: type(Author)) @filter(eq(name, $name)) {
-    uid expand(_all_) 
-    ~authors @facets { uid }
-  }
-}"""
-
-for name in duplicated_names:
-    assert name['number'] == 2, name['number']
-    res = client.txn(read_only=True).query(query_string, variables={'$name': name['name']})
-    authors = json.loads(res.json)['q']
-
-    # merge both authors
-    try:
-        affiliations_a = authors[0].pop('affiliations')
-    except:
-        affiliations_a = []
-
-    try:
-        affiliations_b = authors[1].pop('affiliations')
-    except:
-        affiliations_b = []
-
-    affiliations = affiliations_a + affiliations_b
-
-    try:
-        openalex_a = authors[0].pop('openalex')
-    except:
-        openalex_a = []
-
-    try:
-        openalex_b = authors[1].pop('openalex')
-    except:
-        openalex_b = []
-
-    openalex = openalex_a + openalex_b
-
-    # delete relationships of author B
-    for authorship in authors[1]['~authors']:
-        del_obj = [
-                {
-                    "uid": authorship['uid'],
-                    "authors": {"uid": authors[1]['uid']}
-                }
-            ]
-        client.txn().mutate(del_obj=del_obj, commit_now=True)
-        set_obj = {
-            "set": [
-                {
-                    "uid": authorship['uid'],
-                    "authors": {
-                        "uid": authors[0]['uid'],
-                        'authors|sequence': authorship['~authors|sequence']
-                    }
-                }
-            ]
-        }
-        client.txn().mutate(set_obj=set_obj, commit_now=True)
-
-    # delete author b
-    client.txn().mutate(del_obj=[{'uid': authors[1]['uid']}], commit_now=True)
-
-    merged_author = authors[1]
-    _ = merged_author.pop('~authors')
-    _ = authors[0].pop('~authors')
-    merged_author.update(authors[0])
-    merged_author['affilations'] = affiliations
-    merged_author['openalex'] = openalex
-
-    # update author A
-    client.txn().mutate(set_obj={'set': [merged_author]}, commit_now=True)
-
+duplicated = get_duplicated_authors()
+print('Got', len(duplicated), 'duplicated authors:')
+for a in duplicated:
+    print('Deduplicating:', a)
+    deduplicate_author(a)
 
 """ Languages """
 
