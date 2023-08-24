@@ -23,6 +23,8 @@ class TestDOI(BasicTestSetup):
     zenodo_doi = '10.5281/zenodo.3611246'
     zenodo_doi2 = '10.5281/ZENODO.4724125'
     arxiv_doi = '10.48550/arXiv.2001.08435'
+    arxiv_link = "https://arxiv.org/abs/1103.2903"
+    arxiv_versioned = "https://arxiv.org/abs/1103.2903v1"
     aussda_doi = 'https://doi.org/10.11587/XJZPCU'
     japanese_doi = "10.11218/ojjams.19.101"
 
@@ -98,6 +100,17 @@ class TestDOI(BasicTestSetup):
 
         r = resolve_doi(self.japanese_doi)
         self.assertEqual(r['title'], "Quantitative Analysis of Textual Data : Differentiation and Coordination of Two Approaches")
+
+    def test_arxiv(self):
+        r = resolve_doi(self.arxiv_link)
+        self.assertEqual(r['url'], 'https://arxiv.org/abs/1103.2903')
+        r = resolve_doi(self.arxiv_versioned)
+        self.assertEqual(r['url'], 'https://arxiv.org/abs/1103.2903')
+
+        with self.app.app_context():
+            authors = resolve_authors(r['_authors_tmp'])
+        
+        self.assertEqual(authors[0]['orcid'], '0000-0001-6128-3356')
 
     def test_dgraph(self):
         from flaskinventory.external.dgraph import dgraph_resolve_doi

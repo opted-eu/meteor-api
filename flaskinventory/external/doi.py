@@ -6,6 +6,7 @@ import lxml.html
 from flaskinventory.external.openalex import OpenAlex
 from flaskinventory.external.orcid import ORCID
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +20,27 @@ class Publication(typing.TypedDict):
 
 def clean_doi(doi: str) -> str:
     """ strips unwanted stuff from DOI strings """
+    doi = doi.strip()
     doi = doi.replace("https://doi.org/", "")
     doi = doi.replace("http://doi.org/", "")
     doi = doi.replace("doi.org/", "")
     return doi.upper()
 
+def arxiv2doi(arxiv: str) -> str:
+    arxiv = arxiv.lower().strip()
+    arxiv = arxiv.replace('https://arxiv.org/abs/', '')
+    arxiv = arxiv.replace('http://arxiv.org/abs/', '')
+    arxiv = arxiv.replace('https://arxiv.org/pdf/', '')
+    arxiv = arxiv.replace('http://arxiv.org/pdf/', '')
+    if arxiv.endswith('.pdf'):
+        arxiv = arxiv[:-4]
+    if not arxiv.startswith(ARXIV_PREFIX):
+        arxiv = ARXIV_PREFIX + arxiv
+    # strip version number at the end
+    arxiv = re.sub(r'v\d*$', "", arxiv)
+    return arxiv.upper()
+
+    
 
 def clean_orcid(orcid: str) -> str:
     """ strips unwanted stuff from ORCID strings """
@@ -371,6 +388,9 @@ def resolve_doi(doi: str) -> dict:
         logger.debug('Using Zenodo')
         return zenodo(doi)
     
+    if 'arxiv' in doi.lower():
+        doi = arxiv2doi(doi)
+
     openalex = OpenAlex()
 
     services = (openalex.resolve_doi, crossref, datacite, jalc, doi_org)
