@@ -288,7 +288,7 @@ def zenodo(doi: str) -> dict:
         pass
 
     try:
-        result['date_publised'] = j['metadata']['publication_date']
+        result['date_published'] = j['metadata']['publication_date']
     except:
         pass
 
@@ -382,7 +382,6 @@ def resolve_doi(doi: str) -> dict:
         - Zenodo DOIs are handled by zenodo directly
     """
     doi = clean_doi(doi)
-    logger.debug(f'Got DOI <{doi}>')
 
     if 'zenodo' in doi.lower():
         logger.debug('Using Zenodo')
