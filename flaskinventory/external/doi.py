@@ -288,6 +288,70 @@ def zenodo(doi: str) -> dict:
     return result
 
 
+def jalc(doi: str) -> dict:
+    api = "https://api.japanlinkcenter.org/dois/"
+
+    headers = {"Accept": "application/json"}
+
+    r = requests.get(api + doi, headers=headers)
+
+    r.raise_for_status()
+
+    j = r.json()['data']
+
+    result = {'doi': doi}
+
+    # this API returns results with multiple languages
+    # fastest way to get the right keys, is with `filter()`
+    en_filter = lambda x: x['lang'] == 'en'
+
+    try:
+        en_info = list(filter(en_filter, j['title_list']))[0]
+        result['title'] = en_info['title'] + " " + en_info['subtitle']
+    except:
+        info = j['title_list'][0]
+        result['title'] = info['title'] + " " + info['subtitle']
+
+    try:
+        result['date_published'] = j['publication_date']['publication_year']
+    except:
+        pass
+
+    try:
+        result['date_modified'] = j['updated_date']
+    except:
+        pass
+
+    try:
+        result['url'] = j['relation_list'][0]['content']
+    except:
+        pass
+
+    try:
+        journal = list(filter(en_filter, j["journal_title_name_list"]))[0]
+        result['venue'] = journal['journal_title_name']
+    except:
+        result['venue'] = j["journal_title_name_list"][0]['journal_title_name']
+
+    result['_authors_fallback'] = []
+    result['_authors_fallback|sequence'] = {}
+    result['_authors_tmp'] = []
+    for i, author in enumerate(j['creator_list']):
+        try:
+            _names = list(filter(en_filter, author['names']))[0]
+        except:
+            _names = author['names'][0]
+        name = _names['first_name'] + ' ' + _names['last_name']
+        result['_authors_fallback'].append(name)
+        result['_authors_fallback|sequence'][str(i)] = int(author['sequence']) - 1
+        result['_authors_tmp'].append({'name': name,
+                                       'family_name': _names['last_name'],
+                                       'given_name': _names['first_name'],
+                                       'authors|sequence': int(author['sequence']) - 1})
+        
+    return result
+
+
 def resolve_doi(doi: str) -> dict:
     """ 
         query a series of APIs and return clean data 
@@ -295,7 +359,8 @@ def resolve_doi(doi: str) -> dict:
         1. OpenAlex (most convenient)
         2. Crossref
         3. Datacite
-        4. DOI.org (has least useful metainfo)
+        4. JaLC
+        5. DOI.org (has least useful metainfo)
 
         - Zenodo DOIs are handled by zenodo directly
     """
@@ -308,7 +373,7 @@ def resolve_doi(doi: str) -> dict:
     
     openalex = OpenAlex()
 
-    services = (openalex.resolve_doi, crossref, datacite, doi_org)
+    services = (openalex.resolve_doi, crossref, datacite, jalc, doi_org)
 
     for service in services:
         try:
