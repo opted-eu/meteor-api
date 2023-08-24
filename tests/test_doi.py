@@ -4,7 +4,6 @@
 if __name__ == "__main__":
     from sys import path
     from os.path import dirname
-    from flask import request, url_for
     from requests import HTTPError
     import unittest
 
@@ -29,46 +28,46 @@ class TestDOI(BasicTestSetup):
 
     config_json = "config.json"
 
-    # def test_openalex(self):
-    #     openalex = OpenAlex()
-    #     self.assertRaises(HTTPError, openalex.resolve_doi, self.manifesto_doi)
-    #     self.assertEqual(openalex.resolve_doi('10.14361/9783839463321')['openalex'], 'W4286475882')
+    def test_openalex(self):
+        openalex = OpenAlex()
+        self.assertRaises(HTTPError, openalex.resolve_doi, self.manifesto_doi)
+        self.assertEqual(openalex.resolve_doi('10.14361/9783839463321')['openalex'], 'W4286475882')
 
-    # def test_crossref(self):
-    #     self.assertRaises(HTTPError, crossref, self.manifesto_doi)
+    def test_crossref(self):
+        self.assertRaises(HTTPError, crossref, self.manifesto_doi)
 
-    # def test_datacite(self):
-    #     r = datacite(self.manifesto_doi)
-    #     self.assertEqual(r['doi'].lower(), self.manifesto_doi.lower())
+    def test_datacite(self):
+        r = datacite(self.manifesto_doi)
+        self.assertEqual(r['doi'].lower(), self.manifesto_doi.lower())
 
-    # def test_doi_org(self):
-    #     self.assertEqual(doi_org(self.manifesto_doi)['doi'].lower(), self.manifesto_doi.lower())
+    def test_doi_org(self):
+        self.assertEqual(doi_org(self.manifesto_doi)['doi'].lower(), self.manifesto_doi.lower())
 
-    # def test_orcid(self):
-    #     orcid = ORCID(token=config['ORCID_ACCESS_TOKEN'])
-    #     r = orcid.search_authors(given_name='Werner', family_name='Krause', affiliation='WZB Berlin Social Science Center')
-    #     self.assertEqual(r['num-found'], 0)
+    def test_orcid(self):
+        orcid = ORCID(token=config['ORCID_ACCESS_TOKEN'])
+        r = orcid.search_authors(given_name='Werner', family_name='Krause', affiliation='WZB Berlin Social Science Center')
+        self.assertEqual(r['num-found'], 0)
 
-    #     r = orcid.search_authors(given_name='Werner', family_name='Krause', doi="10.1080/17457289.2020.1866584")
-    #     self.assertEqual(r['num-found'], 1)
+        r = orcid.search_authors(given_name='Werner', family_name='Krause', doi="10.1080/17457289.2020.1866584")
+        self.assertEqual(r['num-found'], 1)
 
-    #     r = orcid.search_authors(given_name='Pola', family_name='Lehmann', affiliation='WZB Berlin Social Science Center')
-    #     self.assertEqual(r['num-found'], 0)
+        r = orcid.search_authors(given_name='Pola', family_name='Lehmann', affiliation='WZB Berlin Social Science Center')
+        self.assertEqual(r['num-found'], 0)
 
-    #     r = orcid.search_authors(given_name='Pola', family_name='Lehmann')
-    #     self.assertEqual(r['num-found'], 1)
+        r = orcid.search_authors(given_name='Pola', family_name='Lehmann')
+        self.assertEqual(r['num-found'], 1)
 
-    #     r = orcid.resolve_author(given_name='Werner', family_name='Krause', affiliation='WZB Berlin Social Science Center')
-    #     self.assertIsNone(r)
-    #     r = orcid.resolve_author(given_name="Chung-hong", family_name="Chan", affiliation="University of Mannheim")
-    #     self.assertEqual(r['orcid-id'], '0000-0002-6232-7530')
+        r = orcid.resolve_author(given_name='Werner', family_name='Krause', affiliation='WZB Berlin Social Science Center')
+        self.assertIsNone(r)
+        r = orcid.resolve_author(given_name="Chung-hong", family_name="Chan", affiliation="University of Mannheim")
+        self.assertEqual(r['orcid-id'], '0000-0002-6232-7530')
 
-    #     r = orcid.resolve_author(given_name='Pola', family_name='Lehmann', affiliation='WZB Berlin Social Science Center')
-    #     self.assertEqual(r['orcid-id'], '0000-0001-5267-3299')
+        r = orcid.resolve_author(given_name='Pola', family_name='Lehmann', affiliation='WZB Berlin Social Science Center')
+        self.assertEqual(r['orcid-id'], '0000-0001-5267-3299')
 
-    # def test_zenodo(self):
-    #     r = zenodo(self.zenodo_doi)
-    #     r = zenodo(self.zenodo_doi2)
+    def test_zenodo(self):
+        r = zenodo(self.zenodo_doi)
+        r = zenodo(self.zenodo_doi2)
 
     def test_jalc(self):
         r = jalc(self.japanese_doi.upper())
