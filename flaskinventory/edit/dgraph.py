@@ -5,6 +5,10 @@ from flask import current_app
 from flaskinventory.flaskdgraph import Schema
 from flaskinventory.flaskdgraph.dgraph_types import UID, Variable, Scalar, make_nquad, dict_to_nquad
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def get_entry(unique_name=None, uid=None):
     query_string = 'query get_entry($query: string) {'
     if unique_name:
@@ -18,6 +22,20 @@ def get_entry(unique_name=None, uid=None):
     query_string += '{ uid expand(_all_) { name _unique_name uid display_name } } }'
 
     result = dgraph.query(query_string, variables=variables)
+    if 'authors' in result['q'][0]:
+        authors_query = """query get_entry($query: string) { 
+            q(func: uid($query)) { 
+                uid dgraph.type
+                authors @facets(orderasc: sequence) { uid _unique_name name  }
+                } 
+            }
+        """
+        authors = dgraph.query(authors_query, variables=variables)
+        try:
+            result['q'][0]['authors'] = authors['q'][0]['authors']
+        except Exception as e:
+            logger.debug(f'Could not append authors: {e}')
+
     return result
 
 def get_audience(uid):

@@ -5,6 +5,10 @@ from flaskinventory.main.model import *
 import typing as t
 from flaskinventory.flaskdgraph.utils import restore_sequence, validate_uid
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 """
     Inventory Detail View Functions
 """
@@ -33,8 +37,8 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
     query_fields = '''{ uid dgraph.type 
                         expand(_all_) { 
                             uid _unique_name name entry_review_status display_name 
-                            authors @facets { uid _unique_name name } 
-                            _authors_fallback @facets title 
+                            authors @facets(orderasc: sequence) { uid _unique_name name } 
+                            _authors_fallback @facets(orderasc: sequence) title 
                             channel { uid name _unique_name }
                             }
                         '''
@@ -42,8 +46,8 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
     if dgraph_type == 'NewsSource':
         query_fields += '''published_by: ~publishes @facets @filter(type("Organization")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
                             archives: ~sources_included @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
-                            datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets }
-                            papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets } 
+                            datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) }
+                            papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) } 
                         } }'''
 
     elif dgraph_type == 'Organization':
@@ -51,59 +55,59 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
 
     elif dgraph_type == 'Dataset':
         query_fields += '''
-                        papers: ~datasets_used @facets @filter(type("ScientificPublication")) (orderasc: name) { uid title date_published name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets } 
+                        papers: ~datasets_used @facets @filter(type("ScientificPublication")) (orderasc: name) { uid title date_published name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) } 
                         } }
                         '''
 
     elif dgraph_type == 'PoliticalParty':
-        query_fields += '''archives: ~sources_included @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status fulltext_available authors @facets { uid _unique_name name } _authors_fallback @facets temporal_coverage_start temporal_coverage_end } 
-                           datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name) { name _unique_name uid entry_review_status fulltext_available authors @facets { uid _unique_name name } _authors_fallback @facets temporal_coverage_start temporal_coverage_end }
-                           papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status fulltext_available authors @facets { uid _unique_name name } _authors_fallback @facets temporal_coverage_start temporal_coverage_end } 
+        query_fields += '''archives: ~sources_included @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status fulltext_available authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) temporal_coverage_start temporal_coverage_end } 
+                           datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name) { name _unique_name uid entry_review_status fulltext_available authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) temporal_coverage_start temporal_coverage_end }
+                           papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status fulltext_available authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) temporal_coverage_start temporal_coverage_end } 
                         } }'''
         
     elif dgraph_type == 'Author':
-        query_fields += '''tools: ~authors @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published programming_languages platform } 
-                           archives: ~authors @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
-                           datasets: ~authors @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets }
-                           publications: ~authors @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets } 
+        query_fields += '''tools: ~authors @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published programming_languages platform } 
+                           archives: ~authors @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
+                           datasets: ~authors @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) }
+                           publications: ~authors @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) } 
                         } }'''
 
     elif dgraph_type == 'Operation':
         query_fields += '''
-                        tools: ~used_for @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published programming_languages platform } } }
+                        tools: ~used_for @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published programming_languages platform } } }
                         '''
 
     elif dgraph_type == 'FileFormat':
         query_fields += '''
-                        tools_input: ~input_file_format @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published programming_languages platform } 
-                        tools_output: ~output_file_format @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published programming_languages platform }
-                        datasets: ~file_formats @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
+                        tools_input: ~input_file_format @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published programming_languages platform } 
+                        tools_output: ~output_file_format @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published programming_languages platform }
+                        datasets: ~file_formats @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published }
                         } }
                         '''
 
     elif dgraph_type == 'MetaVariable':
         query_fields += '''
-                        datasets: ~meta_variables @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
+                        datasets: ~meta_variables @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published }
                         } }
                         '''
     
     elif dgraph_type == 'ConceptVariable':
         query_fields += '''
-                        datasets: ~concept_variables @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
-                        tools: ~concept_variables @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published programming_languages platform }
+                        datasets: ~concept_variables @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published }
+                        tools: ~concept_variables @filter(type("Tool")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published programming_languages platform }
                         } }
                         '''
 
     elif dgraph_type == 'UnitOfAnalysis':
         query_fields += '''
-                        dataset: ~text_units @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
+                        dataset: ~text_units @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published }
                         } }
                         '''
     elif dgraph_type == 'TextType':
         query_fields += '''
-                        datasets: ~text_types @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
-                        archives: ~text_types @filter(type("Archive")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
-                        publications: ~text_types @filter(type("ScientificPublication")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets { uid _unique_name name } _authors_fallback @facets date_published }
+                        datasets: ~text_types @filter(type("Dataset")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published }
+                        archives: ~text_types @filter(type("Archive")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published }
+                        publications: ~text_types @filter(type("ScientificPublication")) (orderasc: _unique_name) { uid name _unique_name entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) date_published }
                         } }
                         '''
     else:
@@ -118,7 +122,21 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
 
     data = data['entry'][0]
 
-    restore_sequence(data)
+    # restore_sequence(data)
+    # Get authors again, in right order
+    if 'authors' in data:
+        authors_query = """query get_entry($value: string) { 
+            q(func: uid($value)) { 
+                uid dgraph.type
+                authors @facets(orderasc: sequence) { uid _unique_name name  }
+                } 
+            }
+        """
+        authors = dgraph.query(authors_query, variables={'$value': var})
+        try:
+            data['authors'] = authors['q'][0]['authors']
+        except Exception as e:
+            logger.debug(f'Could not append authors: {e}')
 
     if dgraph_type == 'Channel':
         num_sources = dgraph.query(NewsSource.channel.count(uid, _reverse=True, entry_review_status="accepted"))
@@ -230,7 +248,7 @@ def list_by_type(typename, filt=None, fields=None, normalize=False):
                                 ''' 
         if typename == 'ScientificPublication':
             normalize = False   
-            query_fields = ''' uid title authors @facets { uid _unique_name name } _authors_fallback @facets 
+            query_fields = ''' uid title authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) 
                                 date_published venue
                                 sources_included: count(sources_included)
                                 '''
@@ -240,7 +258,7 @@ def list_by_type(typename, filt=None, fields=None, normalize=False):
         
         if typename == 'Tool':
             normalize = False
-            query_fields = ''' uid name authors @facets { uid _unique_name name } _authors_fallback @facets 
+            query_fields = ''' uid name authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) 
                                 date_published venue
                                 '''
 
@@ -258,8 +276,8 @@ def list_by_type(typename, filt=None, fields=None, normalize=False):
         return False
 
     data = data['q']
-    if typename in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']:
-        for paper in data:
-            restore_sequence(paper)
+    # if typename in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']:
+    #     for paper in data:
+    #         restore_sequence(paper)
 
     return data

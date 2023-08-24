@@ -146,7 +146,7 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
 
     try:
         entry = get_entry(uid=uid)
-        restore_sequence(entry['q'][0])
+        # restore_sequence(entry['q'][0])
     except Exception as e:
         current_app.logger.error(
             f'Could not populate form for <{uid}>: {e}', stack_info=True)
@@ -172,6 +172,8 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
         for k, v in additional_fields.items():
             if k not in data.keys():
                 data[k] = v
+        if 'uid' not in data:
+            data['uid'] = uid
         try:
             sanitizer = Sanitizer.edit(data, dgraph_type=dgraph_type)
         except Exception as e:

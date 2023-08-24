@@ -880,8 +880,8 @@ def query(_max_results: int = 25, _page: int = 1, _terms: str = None) -> t.List[
                 for item in result:
                     if 'Entry' in item['dgraph.type']:
                         item['dgraph.type'].remove('Entry')
-                    if any(t in item['dgraph.type'] for t in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']):
-                        restore_sequence(item)
+                    # if any(t in item['dgraph.type'] for t in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']):
+                    #     restore_sequence(item)
 
         return jsonify(result)
     else:

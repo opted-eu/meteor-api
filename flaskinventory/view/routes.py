@@ -204,8 +204,8 @@ def query():
                 for item in result:
                     if 'Entry' in item['dgraph.type']:
                         item['dgraph.type'].remove('Entry')
-                    if any(t in item['dgraph.type'] for t in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']):
-                        restore_sequence(item)
+                    # if any(t in item['dgraph.type'] for t in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']):
+                    #     restore_sequence(item)
 
     r_args = {k: v for k, v in request.args.to_dict(
         flat=False).items() if v[0] != ''}
