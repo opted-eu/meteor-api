@@ -905,7 +905,6 @@ class Tool(Entry):
                               choices={'windows': 'Windows',
                                        'linux': 'Linux',
                                        'macos': 'macOS'},
-                              required=True,
                               tom_select=True,
                               queryable=True)
 
