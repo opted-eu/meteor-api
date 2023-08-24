@@ -2,7 +2,7 @@ import requests
 import typing
 from dateutil import parser as dateparser
 import datetime
-import lxml
+import lxml.html
 from flaskinventory.external.openalex import OpenAlex
 from flaskinventory.external.orcid import ORCID
 import logging
@@ -10,6 +10,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 ARXIV_PREFIX = "10.48550/arxiv."
+
+class Publication(typing.TypedDict):
+    doi: str
+    url: typing.Optional[str]
+    arxiv: typing.Optional[str]
+
 
 def clean_doi(doi: str) -> str:
     """ strips unwanted stuff from DOI strings """
@@ -116,10 +122,23 @@ def doi_org(doi: str) -> dict:
     j = r.json()
 
     result = {'doi': doi,
-            'url': j['URL'],
-            'title': j.get('title'),
-            'description': j.get('abstract'),
+            'url': j['URL']
             }
+
+    try:
+        result['title'] = j['title']
+    except:
+        pass
+
+    try:
+        result['description'] = j['abstract']
+    except:
+        pass
+
+    try:
+        result['venue'] = j['container-title']
+    except:
+        pass
 
     try:
         result['date_published'] = j['issued']['date-parts'][0][0]
@@ -128,12 +147,17 @@ def doi_org(doi: str) -> dict:
 
     result['_authors_fallback'] = []
     result['_authors_fallback|sequence'] = {}
+    result['_authors_tmp'] = []
 
     for i, author in enumerate(j['author']):
         try:
             name = author['family'] + ', ' + author['given']
             result['_authors_fallback'].append(name)
             result['_authors_fallback|sequence'][str(i)] = i 
+            result['_authors_tmp'].append({'name': name, 
+                                           'authors|sequence': i, 
+                                           'given_name': author['given'],
+                                           'family_name': author['family']})
         except KeyError:
             continue
 
@@ -206,33 +230,35 @@ def zenodo(doi: str) -> dict:
         Returns Authors as fallback (list of strings)
             and also as _authors_tmp (list of dicts)    
     """
-    api = "https://zenodo.org/api/records"
+    api = "https://zenodo.org/api/records/"
 
-    params = f'q=doi:"{doi.lower()}"'
-    r = requests.get(api, params=params)
+    record = doi.split('.')[-1]
+
+    r = requests.get(api + record)
 
     r.raise_for_status()
 
-    j = r.json()['hits']
-    if j['total'] == 0:
-        raise requests.HTTPError(f'No records found with doi <{doi}>')
+    j = r.json()
+    # j = r.json()['hits']
+    # if j['total'] == 0:
+    #     raise requests.HTTPError(f'No records found with doi <{doi}>')
     
-    hit = j['hits'][0]
+    # hit = j['hits'][0]
 
     result = {'doi': doi,
-              'url': hit['links']['html']}
+              'url': j['links']['html']}
 
     result['_authors_fallback'] = []
     result['_authors_fallback|sequence'] = {}
     result['_authors_tmp'] = []
-    for i, author in enumerate(hit['metadata']['creators']):
+    for i, author in enumerate(j['metadata']['creators']):
         result['_authors_fallback'].append(author['name'])
         result['_authors_fallback|sequence'][str(i)] = i
         author['authors|sequence'] = i
         result['_authors_tmp'].append(author)
 
     try:
-        description = lxml.html.fromstring(hit['metadata']['description']).text_content().strip()
+        description = lxml.html.fromstring(j['metadata']['description']).text_content().strip()
         result['description'] = description
     except:
         pass
@@ -240,31 +266,27 @@ def zenodo(doi: str) -> dict:
     # One could here parse the language tag and get the corresponding data entry from DGraph...
 
     try:
-        result['license'] = hit['metadata']['license']['id']
+        result['license'] = j['metadata']['license']['id']
     except:
         pass
 
     try:
-        result['date_publised'] = hit['metadata']['publication_date']
+        result['date_publised'] = j['metadata']['publication_date']
     except:
         pass
 
     try:
-        result['date_modified'] = datetime.datetime.fromisoformat(hit['updated']).isoformat()
+        result['date_modified'] = datetime.datetime.fromisoformat(j['updated']).isoformat()
     except:
         pass
 
     try:
-        result['title'] = hit['metadata']['title']
+        result['title'] = j['metadata']['title']
     except:
         pass
 
     return result
 
-
-def orcid_search(name: str=None, family: str= None, given: str=None, affiliation: str = None) -> dict:
-    """ Fallback to orcid as last ressort"""
-    pass
 
 def resolve_doi(doi: str) -> dict:
     """ 
@@ -283,25 +305,16 @@ def resolve_doi(doi: str) -> dict:
     if 'zenodo' in doi.lower():
         logger.debug('Using Zenodo')
         return zenodo(doi)
+    
+    openalex = OpenAlex()
 
-    try:
-        openalex = OpenAlex()
-        return openalex.resolve_doi(doi)
-    except requests.HTTPError:
-        logger.debug(f'Could not resolve <{doi}> at openalex')
-        pass
+    services = (openalex.resolve_doi, crossref, datacite, doi_org)
 
-    try:
-        return crossref(doi)
-    except requests.HTTPError:
-        logger.debug(f'Could not resolve <{doi}> at crossref')
-        pass
-
-    try:
-        return datacite(doi)
-    except requests.HTTPError:
-        logger.debug(f'Could not resolve <{doi}> at datacite')
-        pass
+    for service in services:
+        try:
+            return service(doi)
+        except:
+            logger.debug(f'Could not resolve <{doi}> with {service.__name__}')
 
     raise requests.HTTPError(f'Could not resolve DOI: <{doi}> at all.')
 
