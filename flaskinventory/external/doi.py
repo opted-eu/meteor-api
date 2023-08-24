@@ -114,7 +114,7 @@ def crossref(doi: str) -> dict:
             except:
                 pass
             try:
-                parsed_author['affiliation'] = author['affiliation']['name']
+                parsed_author['affiliations'] = author['affiliation']['name']
             except:
                 pass
             result['_authors_tmp'].append(parsed_author)
@@ -233,7 +233,7 @@ def datacite(doi: str) -> dict:
         except:
             pass
         try:
-            parsed_author['affiliation'] = author['affiliation']['name']
+            parsed_author['affiliations'] = author['affiliation']['name']
         except:
             pass
         result['_authors_tmp'].append(parsed_author)
@@ -430,7 +430,7 @@ def resolve_authors(authors_tmp: typing.List[dict],
                 orcid_details = orcid.resolve_author(name=author.get('name'),
                                                     family_name=author.get('family_name'),
                                                     given_name=author.get('given_name'),
-                                                    affiliation=author.get('affiliation'))
+                                                    affiliation=author.get('affiliations'))
                 if orcid_details:
                     author['orcid'] = orcid_details['orcid-id']
                     try:

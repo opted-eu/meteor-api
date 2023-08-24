@@ -193,14 +193,17 @@
         {% endif %}
         {% if entry.openalex %}
             <dt class="col-sm-3">OpenAlex</dt>
-            <dd class="col-sm-9">
-                <a href="https://explore.openalex.org/authors/{{ entry.openalex }}" target="_blank" class="external-link">{{ entry.openalex }}</a>
+            <dd class="col-sm-9">{% for o in entry.openalex %}
+                <a href="https://explore.openalex.org/authors/{{ o }}" target="_blank" class="external-link">{{ o }}</a>
+                {{ ", " if not loop.last }}
+            {% endfor %}
             </dd>
         {% endif %}
-        {% if entry.last_known_institution %}
-            <dt class="col-sm-3">Last known institution</dt>
-            <dd class="col-sm-9">
-                <a href="{{ entry.get('last_known_institution|openalex') }}" target="_blank" class="external-link">{{ entry.last_known_institution }}</a>
+        {% if entry.affiliations %}
+            <dt class="col-sm-3">Affiliations</dt>
+            <dd class="col-sm-9">{% for affiliation in entry.affiliations %}
+                {{ affiliation }}
+                {% endfor %}
             </dd>
         {% endif %}
     </dl>

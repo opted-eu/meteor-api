@@ -1068,7 +1068,7 @@ class ScientificPublication(Entry):
     url = String(
         label="URL", description="Link to the publication", required=True, directives=["@index(hash)"])
     doi = String(label='DOI', directives=["@index(hash)"])
-    openalex = String(label='OpenAlex ID', directives=["@index(hash)"])
+    openalex = ListString(label='OpenAlex ID', directives=["@index(hash)"])
     arxiv = String(label='arXiv', directives=["@index(hash)"])
 
     description = String(
@@ -1144,7 +1144,8 @@ class Author(Entry):
     openalex = ListString(label="OpenAlex ID",
                           description="ID(s) of the author on OpenAlex")
     
-    last_known_institution = String(description="Affiliation of author")
+    # last_known_institution = String(description="Affiliation of author")
+    affiliations = ListString(description="Affiliations of author")
 
 
 """

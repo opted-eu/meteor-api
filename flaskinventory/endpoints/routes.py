@@ -184,7 +184,7 @@ def lookup():
                                    'title',
                                    'dgraph.type',
                                    'alternate_names',
-                                   'last_known_institution',
+                                   'affiliations',
                                    'countries { name uid _unique_name }',
                                    'country { name uid _unique_name }',
                                    'channel { name uid _unique_name }',

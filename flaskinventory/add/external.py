@@ -765,7 +765,7 @@ def openalex_getauthorname(author_id: str) -> dict:
             from flaskinventory.flaskdgraph.dgraph_types import Scalar
             institution = Scalar(j['last_known_institution']['display_name'],
                                 facets={'openalex': j['last_known_institution']['id']})
-            result['last_known_institution'] = institution
+            result['affiliations'] = institution
         except:
             pass
     return result

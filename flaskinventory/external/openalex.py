@@ -71,8 +71,8 @@ class OpenAlex:
             result['orcid'] = j['orcid']
         if 'last_known_institution' in j:
             try:
-                result['last_known_institution'] = j['last_known_institution']['display_name']
-                result['last_known_institution|openalex'] = j['last_known_institution']['id']
+                result['affiliations'] = j['last_known_institution']['display_name']
+                result['affiliations|openalex'] = j['last_known_institution']['id']
             except:
                 pass
         return result
