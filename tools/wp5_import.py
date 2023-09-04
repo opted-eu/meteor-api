@@ -7,10 +7,8 @@ sys.path.append('.')
 import itertools
 import json
 import pandas as pd
-import numpy as np
 from pathlib import Path
-from datetime import date, datetime
-import pydgraph
+from datetime import datetime
 from slugify import slugify
 import requests
 from dateutil import parser as dateparser
@@ -394,6 +392,7 @@ for doi in dois:
         failed.append(doi)
 
 save_publication_cache()
+
 """ Dataframe to json """
 
 sample_dataset = {
@@ -679,7 +678,7 @@ cap_entry = {
         '_added_by|timestamp': datetime.now().isoformat()},
 }
 
-mutation_obj = list(canonical_parliaments.values()) + clean_wp5 + wp5_texttypes
+mutation_obj = list(canonical_parliaments.values()) + clean_wp5 + wp5_texttypes + list(canonical_governments.values())
 mutation_obj.append(cap_entry)
 
 txn = client.txn()
