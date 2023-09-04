@@ -3162,6 +3162,200 @@
       "_unique_name": "language_waray",
       "dgraph.type": ["Language", "Entry"],
       "uid": "_:language_waray"
+    },
+    {
+      "description": "Athabaskan language of Na-Dené stock spoken in the southwestern United States",
+      "wikidata_id": "Q13310",
+      "name": "Navajo",
+      "alternate_names": ["Diné bizaad"],
+      "name@en": "Navajo",
+      "name@nv": "Diné bizaad",
+      "iso_639_2": "nv",
+      "iso_639_3": "nav",
+      "icu_code": "nv",
+      "_unique_name": "language_navajo",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_navajo"
+    },
+    {
+      "wikidata_id": "Q178440",
+      "description": "dialect of the Persian language spoken in Afghanistan",
+      "icu_code": "fa",
+      "name@en": "Dari",
+      "iso_639_2": "prs",
+      "iso_639_3": "prs",
+      "name": "Dari",
+      "alternate_names": [
+        "Eastern Farsi",
+        "fa_AF"
+      ],
+      "_unique_name": "language_dari",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_dari"
+    },
+    {
+      "wikidata_id": "Q33295",
+      "description": "Austronesian language of the Malayo-Polynesian family spoken in Fiji",
+      "icu_code": "fj",
+      "name@en": "Fijian",
+      "name@fj": "Na vosa vaka-Viti",
+      "iso_639_2": "fj",
+      "iso_639_3": "fij",
+      "name": "Fijian",
+      "_unique_name": "language_fijian",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_fijian"
+    },
+    {
+      "wikidata_id": "Q6445968",
+      "description": "Kuria is a Bantu language spoken by the Kuria people of Northern Tanzania, with some speakers also residing in Kenya.",
+      "name@en": "Kuria",
+      "iso_639_3": "kuj",
+      "name": "Kuria",
+      "_unique_name": "language_kuria",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_kuria"
+    },
+    {
+      "wikidata_id": "Q33537",
+      "description": "Siouan language spoken by the Lakota people of the Sioux tribes",
+      "name@en": "Lakota",
+      "iso_639_3": "lkt",
+      "name": "Lakota",
+      "_unique_name": "language_lakota",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_lakota"
+    },
+    {
+      "wikidata_id": "Q56590",
+      "description": "Algonquian language",
+      "name@en": "Atikamekw",
+      "iso_639_3": "atj",
+      "name": "Atikamekw",
+      "_unique_name": "language_atikamekw",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_atikamekw"
+    },
+    {
+      "wikidata_id": "Q33070",
+      "description": "Malayo-Polynesian language spoken on the island of Bali",
+      "name@en": "Balinese",
+      "iso_639_3": "ban",
+      "name": "Balinese",
+      "_unique_name": "language_balinese",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_balinese"
+    },
+    {
+      "wikidata_id": "Q35452",
+      "description": "English-based creole language of Vanuatu",
+      "name@en": "Bislama",
+      "iso_639_3": "bis",
+      "name": "Bislama",
+      "_unique_name": "language_bislama",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_bislama"
+    },
+    {
+      "wikidata_id": "Q33190",
+      "description": "South Sulawesi language predominantly spoken by the Bugis ethnic group",
+      "name@en": "Bugis",
+      "iso_639_3": "bug",
+      "name": "Bugis",
+      "_unique_name": "language_bugis",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_bugis"
+    },
+    {
+      "wikidata_id": "Q35746",
+      "description": "creole language spoken in Central Africa",
+      "name@en": "Kituba",
+      "iso_639_3": "ktu",
+      "name": "Kituba",
+      "_unique_name": "language_kituba",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_kituba"
+    },
+    {
+      "wikidata_id": "Q33661",
+      "description": "Creole language",
+      "name@en": "Mauritian Creole",
+      "iso_639_3": "mfe",
+      "name": "Mauritian Creole",
+      "_unique_name": "language_mauritian_creole",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_mauritian_creole"
+    },
+    {
+      "wikidata_id": "Q8821",
+      "description": "normative variety of Serbo-Croatian in Montenegro",
+      "name@en": "Montenegrin",
+      "iso_639_3": "cnr",
+      "name": "Montenegrin",
+      "_unique_name": "language_montenegrin",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_montenegrin"
+    },
+    {
+      "wikidata_id": "Q7984262",
+      "description": "creole language",
+      "name@en": "West African Pidgin English",
+      "name": "West African Pidgin English",
+      "_unique_name": "language_west_african_pidgin_english",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_west_african_pidgin_english"
+    },
+    {
+      "wikidata_id": "Q3241177",
+      "description": "Eastern Indo-Aryan language",
+      "iso_639_3": "rhg",
+      "name@en": "Rohingya",
+      "name": "Rohingya",
+      "_unique_name": "language_rohingya",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_rohingya"
+    },
+    {
+      "wikidata_id": "Q13201",
+      "description": "language of the Romani people belonging to the Indo-Aryan branch of the Indo-European language family",
+      "iso_639_3": "rom",
+      "name@en": "Romani",
+      "name": "Romani",
+      "_unique_name": "language_romani",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_romani"
+    },
+    {
+      "wikidata_id": "Q36660",
+      "description": "Mande language spoken in West Africa",
+      "iso_639_3": "snk",
+      "name@en": "Soninke",
+      "name": "Soninke",
+      "_unique_name": "language_soninke",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_soninke"
+    },
+    {
+      "wikidata_id": "Q56240",
+      "description": "arabic dialect spoken in Tunisia",
+      "iso_639_3": "aeb",
+      "name@en": "Tunisian Arabic",
+      "name": "Tunisian Arabic",
+      "_unique_name": "language_tunisian",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_tunisian"
+    },
+    {
+      "wikidata_id": "Q34257",
+      "description": "arabic dialect spoken in Tunisia",
+      "iso_639_3": "wol",
+      "icu_code": "wo",
+      "name@en": "Wolof",
+      "name": "Wolof",
+      "_unique_name": "language_wolof",
+      "dgraph.type": ["Language", "Entry"],
+      "uid": "_:language_wolof"
     }
+
   ]
 }
