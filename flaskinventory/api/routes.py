@@ -52,7 +52,7 @@ from flask_login import current_user, login_required
 
 from flaskinventory.flaskdgraph import dql
 from flaskinventory.flaskdgraph import build_query_string
-from flaskinventory.flaskdgraph.utils import validate_uid, restore_sequence
+from flaskinventory.flaskdgraph.utils import validate_uid, recursive_restore_sequence
 from flaskinventory.view.dgraph import get_entry, get_rejected
 from flaskinventory.view.utils import can_view
 
@@ -880,8 +880,7 @@ def query(_max_results: int = 25, _page: int = 1, _terms: str = None) -> t.List[
                 for item in result:
                     if 'Entry' in item['dgraph.type']:
                         item['dgraph.type'].remove('Entry')
-                    # if any(t in item['dgraph.type'] for t in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']):
-                    #     restore_sequence(item)
+            recursive_restore_sequence(result)
 
         return jsonify(result)
     else:

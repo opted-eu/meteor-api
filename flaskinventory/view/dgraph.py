@@ -3,7 +3,7 @@ from flaskinventory.flaskdgraph import Schema
 from flaskinventory.main.model import *
 
 import typing as t
-from flaskinventory.flaskdgraph.utils import restore_sequence, validate_uid
+from flaskinventory.flaskdgraph.utils import recursive_restore_sequence, validate_uid
 
 import logging
 
@@ -44,7 +44,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
                         '''
 
     if dgraph_type == 'NewsSource':
-        query_fields += '''published_by: ~publishes @facets @filter(type("Organization")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
+        query_fields += '''published_by: ~publishes @facets(orderasc: _unique_name) { name _unique_name uid entry_review_status dgraph.type } 
                             archives: ~sources_included @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
                             datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) }
                             papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) } 
@@ -120,9 +120,9 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
     if len(data['entry']) == 0:
         return None
 
+    recursive_restore_sequence(data['entry'])
     data = data['entry'][0]
 
-    # restore_sequence(data)
     # Get authors again, in right order
     if 'authors' in data:
         authors_query = """query get_entry($value: string) { 
@@ -157,8 +157,8 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
         data['num_orgs'] = num_orgs['country'][0]['count']
     
     elif dgraph_type == 'Multinational':
-        num_sources = dgraph.query(NewsSource.country.count(uid, _reverse=True, entry_review_status="accepted"))
-        data['num_sources'] = num_sources['country'][0]['count']
+        num_sources = dgraph.query(NewsSource.countries.count(uid, _reverse=True, entry_review_status="accepted"))
+        data['num_sources'] = num_sources['countries'][0]['count']
 
     elif dgraph_type == 'Subnational':
         num_sources = dgraph.query(NewsSource.subnational_scope.count(uid, _reverse=True, entry_review_status="accepted"))
@@ -276,8 +276,6 @@ def list_by_type(typename, filt=None, fields=None, normalize=False):
         return False
 
     data = data['q']
-    # if typename in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']:
-    #     for paper in data:
-    #         restore_sequence(paper)
+    recursive_restore_sequence(data)
 
     return data

@@ -4,6 +4,7 @@ from flaskinventory import dgraph
 from flask import current_app
 from flaskinventory.flaskdgraph import Schema
 from flaskinventory.flaskdgraph.dgraph_types import UID, Variable, Scalar, make_nquad, dict_to_nquad
+from flaskinventory.flaskdgraph.utils import recursive_restore_sequence
 
 import logging
 
@@ -35,6 +36,8 @@ def get_entry(unique_name=None, uid=None):
             result['q'][0]['authors'] = authors['q'][0]['authors']
         except Exception as e:
             logger.debug(f'Could not append authors: {e}')
+
+    recursive_restore_sequence(result['q'])
 
     return result
 

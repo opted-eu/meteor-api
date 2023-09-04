@@ -3,7 +3,6 @@ from flask import (current_app, Blueprint, render_template, url_for,
 from flask_login import current_user, login_required
 from flaskinventory import dgraph
 from flaskinventory.flaskdgraph import Schema
-from flaskinventory.flaskdgraph.utils import restore_sequence, validate_uid
 
 from flaskinventory.main.sanitizer import Sanitizer
 from flaskinventory.add.external import fetch_wikidata
@@ -146,7 +145,6 @@ def entry(dgraph_type=None, unique_name=None, uid=None):
 
     try:
         entry = get_entry(uid=uid)
-        # restore_sequence(entry['q'][0])
     except Exception as e:
         current_app.logger.error(
             f'Could not populate form for <{uid}>: {e}', stack_info=True)

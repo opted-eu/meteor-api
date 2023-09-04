@@ -9,7 +9,7 @@ from flaskinventory.users.constants import USER_ROLES
 from flaskinventory.users.utils import requires_access_level
 from flaskinventory.view.dgraph import (get_entry, get_rejected)
 from flaskinventory.view.utils import can_view
-from flaskinventory.flaskdgraph.utils import validate_uid, restore_sequence
+from flaskinventory.flaskdgraph.utils import validate_uid, recursive_restore_sequence
 from flaskinventory.review.utils import create_review_actions
 from flaskinventory.misc.utils import validate_doi
 
@@ -204,8 +204,8 @@ def query():
                 for item in result:
                     if 'Entry' in item['dgraph.type']:
                         item['dgraph.type'].remove('Entry')
-                    # if any(t in item['dgraph.type'] for t in ['ScientificPublication', 'Tool', 'Corpus', 'Dataset']):
-                    #     restore_sequence(item)
+          
+            recursive_restore_sequence(result)
 
     r_args = {k: v for k, v in request.args.to_dict(
         flat=False).items() if v[0] != ''}

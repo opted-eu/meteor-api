@@ -38,17 +38,21 @@ def validate_uid(uid: Any) -> Union[str, bool]:
     else:
         return False
 
-def restore_sequence(d: dict, sequence_key='sequence'):
-    for predicate, val in d.items():
-        if isinstance(val, dict):
-            restore_sequence(val, sequence_key=sequence_key)
-        if isinstance(val, list):
-            if isinstance(val[0], dict) and predicate + "|" + sequence_key in val[0].keys():
-                ordered_sequence = {int(subval[predicate + "|" + sequence_key]): subval for subval in val}
-                d[predicate] = [ordered_sequence[i] for i in sorted(ordered_sequence.keys())]
-            for subval in val:
-                if isinstance(subval, dict):
-                    restore_sequence(subval, sequence_key=sequence_key)      
-        if predicate + "|" + sequence_key in d.keys():
-            ordered_sequence = {int(k): v for k, v in sorted(d[predicate + "|" + sequence_key].items(), key=lambda item: item[1])}
-            d[predicate] = [d[predicate][k] for k, _ in ordered_sequence.items()]
+def restore_sequence(d: dict, sortkey = 'sequence') -> None:
+    sortable_keys = list(filter(lambda x: x.endswith('|' + sortkey), d.keys()))
+    print('found the following predicates', sortable_keys)
+    for facet in sortable_keys:
+        predicate = facet.replace('|' + sortkey, '')
+        if predicate not in d:
+            # skip over edge attributes
+            continue
+        print('restoring sequence for', predicate)
+        correct_sequence = [d[predicate][d[facet][k]] for k, v in d[facet].items()]
+        d[predicate] = correct_sequence
+
+def recursive_restore_sequence(l: list, sortkey = 'sequence') -> None:
+    for item in l:
+        if type(item) == list:
+            recursive_restore_sequence(item, sortkey=sortkey)
+        if type(item) == dict:
+            restore_sequence(item, sortkey=sortkey)
