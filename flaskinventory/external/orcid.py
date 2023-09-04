@@ -34,6 +34,8 @@ class ORCID:
         
         query = []
         if name:
+            # wrap the name parts in quotation marks to preserve hyphens
+            name = " ".join([f'"{n}"' for n in name.replace(',', ' ').split()])
             query.append('given-and-family-names:' + name)
         if given_name:
             query.append('given-names:' + given_name)
@@ -96,7 +98,11 @@ class ORCID:
                          affiliation: str = None) -> typing.Union[dict, None]:
         
         for c in candidates:
-            name = c['given-names'] + ' ' + c['family-names']
+            try:
+                name = c['given-names'] + ' ' + c['family-names']
+            except TypeError:
+                c['score'] = 0
+                continue
             score = fuzz.partial_token_sort_ratio(name, author)
             if affiliation:
                 for institution in c['institution-name']:
