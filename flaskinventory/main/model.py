@@ -690,6 +690,12 @@ class Archive(Entry):
                                      'placeholder': 'Select multiple...'},
                                  autoload_choices=True,
                                  queryable=True)
+    
+    file_formats = ListRelationship(description="In which file format(s) can text data be retrieved from this Archive?",
+                                    autoload_choices=True,
+                                    allow_new=True,
+                                    relationship_constraint="FileFormat",
+                                    render_kw={'placeholder': 'Select multiple...'})
 
     date_modified = String()
 

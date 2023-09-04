@@ -396,7 +396,7 @@ def ownership():
                                 }
                                 q(func: uid(uid(u))) 
                                     @filter(eq(entry_review_status, "accepted") AND 
-                                        eq(dgraph.type,["Organization", "NewsSource"]))  {
+                                        eq(dgraph.type,["Organization", "NewsSource", "PoliticalParty", "Government", "Parliament"]))  {
 			                        name uid dgraph.type
                                     channel { _unique_name }
                                     publishes @filter(eq(entry_review_status, "accepted")) { uid }
