@@ -15,6 +15,7 @@ import requests
 from pathlib import Path
 from tools.migration_helpers import (PUBLICATION_CACHE, client, ADMIN_UID, 
                                      process_doi, save_publication_cache,
+                                     process_cran,
                                      deduplicate_author, get_duplicated_authors)
 
 ENTRY_REVIEW_STATUS = "accepted"
@@ -642,6 +643,51 @@ save_publication_cache()
 
 txn = client.txn()
 res = txn.mutate(del_nquads="\n".join(delete_nquads), commit_now=True)
+
+# Get all entries with CRAN
+
+from flaskinventory.external.orcid import ORCID
+
+query = """{
+	doi(func: has(cran)) @filter(NOT has(doi) AND NOT has(arxiv))  {
+		uid name cran _authors_fallback
+        }
+    }
+"""
+
+res = client.txn().query(query)
+
+cran_entries = json.loads(res.json)['doi']
+
+updated_cran_entries = []
+failed = []
+delete_nquads = []
+
+remove_keys = ['_entry_added', 'description', 'name', 'title', 'url', 'date_published']
+
+for entry in cran_entries:
+    try:
+        authors = process_cran(entry['cran'], PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS)
+        updated_entry = {'uid': entry['uid'], "authors": authors}
+        updated_cran_entries.append(updated_entry)
+        delete_nquads.append(f"<{entry['uid']}> <_authors_fallback> * .")
+    except Exception as e:
+        print('Could not process entry:', entry['cran'], e)
+        failed.append(entry)
+
+txn = client.txn()
+res = txn.mutate(set_obj=updated_cran_entries, 
+                 del_nquads="\n".join(delete_nquads), 
+                 commit_now=True)
+
+save_publication_cache()
+
+# Delete _authors_fallback
+
+txn = client.txn()
+res = txn.mutate(del_nquads="\n".join(delete_nquads), commit_now=True)
+
+
 
 # Deduplicate authors by name
 
