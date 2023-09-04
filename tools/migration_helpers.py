@@ -4,6 +4,7 @@ import sys
 from os.path import dirname
 sys.path.append(dirname(sys.path[0]))
 
+import re
 import typing
 
 import json
@@ -54,6 +55,7 @@ def save_publication_cache():
 
 
 from flaskinventory.external.doi import resolve_doi, resolve_authors, clean_doi
+from flaskinventory.external.cran import cran
 import datetime
 import secrets
 from slugify import slugify
@@ -88,21 +90,8 @@ def dgraph_check_author(orcid: str = None, openalex: typing.Union[str, list] = N
             return j['q'][0]
     return None
 
-def process_doi(doi, cache, entry_review_status='accepted'):
-    doi = clean_doi(doi)
-    if doi in cache:
-        publication = deepcopy(cache[doi])
-    else:
-        publication = resolve_doi(doi)
-        cache[doi] = deepcopy(publication)
-    authors_tmp = publication.pop('_authors_tmp')
+def process_authors(authors_tmp: list, cache, entry_review_status='accepted') -> list:
     authors = resolve_authors(authors_tmp, orcid_token=CONFIG['ORCID_ACCESS_TOKEN'])
-
-    output = {**publication,
-              '_date_modified': datetime.datetime.now().isoformat(),
-              'entry_review_status': entry_review_status,
-              'doi': doi}
-    
     authors_new = []
     for author in authors:
         # First we check if we have an ORCID
@@ -185,8 +174,33 @@ def process_doi(doi, cache, entry_review_status='accepted'):
                                 **author_template
                              }
         authors_new.append(author_details)
-    output['authors'] = authors_new
+    return authors_new
+
+DOI_PATTERN = re.compile(r"10.\d{4,9}/[-._;()/:A-Z0-9]+")
+
+def process_doi(doi, cache, entry_review_status='accepted'):
+    doi = clean_doi(doi)
+    if doi in cache:
+        publication = deepcopy(cache[doi])
+    else:
+        publication = resolve_doi(doi)
+        cache[doi] = deepcopy(publication)
+    authors_tmp = publication.pop('_authors_tmp')
+    authors = process_authors(authors_tmp, cache, entry_review_status=entry_review_status)
+
+    output = {**publication,
+              '_date_modified': datetime.datetime.now().isoformat(),
+              'entry_review_status': entry_review_status,
+              'doi': doi}
+    
+    output['authors'] = authors
     return output
+
+def process_cran(pkg: str, cache, entry_review_status='accepted') -> list:
+    package_meta = cran(pkg)
+    authors_tmp = package_meta.pop('_authors_tmp')
+    authors = process_authors(authors_tmp, cache, entry_review_status=entry_review_status)
+    return authors
 
 
 """ Wikidata Helpers """
