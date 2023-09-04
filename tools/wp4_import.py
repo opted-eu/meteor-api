@@ -191,6 +191,9 @@ polidoc_parties = pd.read_csv(polidoc_file)
 polidoc_parties = polidoc_parties.rename(columns={'CMP code': 'cmp_code'})
 polidoc_parties = polidoc_parties.merge(manifesto_parties, on="cmp_code")
 
+# Fix MLPD
+polidoc_parties.loc[polidoc_parties.cmp_code == 41220, 'wikidata_id'] = "Q499632"
+
 polidoc_parties_uids = []
 
 partyfacts_strings = partyfacts.select_dtypes(['object'])
@@ -327,6 +330,14 @@ df_parties = df_parties.rename(columns={'name_english': 'name@en',
 
 # df_parties = df_parties.drop(columns=['country_unique_name'])
 
+# Query to find entries that have the same Wikidata ID (already added by WP3)
+
+query_string_wikidata = """query wiki($wikidata: string) {
+    q(func: eq(wikidata_id, $wikidata)) {
+        uid
+    }
+}"""
+
 # clean original.name
 
 df_parties['original.name'] = df_parties['original.name'].str.replace(r"\([A-Z]+\)", "", regex=True).str.strip()
@@ -367,7 +378,13 @@ for wikidata_id, party in parties_duplicated.items():
     new_party['_unique_name'] = 'politicalparty_' + \
         party['country_code'][0] + '_' + \
         slugify(new_party['name'], separator="")
-    new_party['uid'] = '_:' + new_party['_unique_name']
+    res = client.txn(read_only=True).query(query_string_wikidata, variables={'$wikidata': new_party['wikidata_id']})
+    res = json.loads(res.json)
+    if len(res['q']) > 0:
+        uid = res['q'][0]['uid']
+    else:
+        uid = '_:' + new_party['_unique_name']
+    new_party['uid'] = uid
     if wikidata_id in manifesto_parties.wikidata_id.tolist():
         manifesto_parties_uids.append(new_party['uid'])
     if wikidata_id in polidoc_parties.wikidata_id.tolist():
@@ -488,7 +505,13 @@ for party in parties:
         new_party['alternate_names'] = names
     new_party['_unique_name'] = 'politicalparty_' + \
         party['country_code'] + '_' + slugify(new_party['name'], separator="")
-    new_party['uid'] = '_:' + new_party['_unique_name']
+    res = client.txn(read_only=True).query(query_string_wikidata, variables={'$wikidata': new_party['wikidata_id']})
+    res = json.loads(res.json)
+    if len(res['q']) > 0:
+        uid = res['q'][0]['uid']
+    else:
+        uid = '_:' + new_party['_unique_name']
+    new_party['uid'] = uid
     if new_party['wikidata_id'] in manifesto_parties.wikidata_id.tolist():
         manifesto_parties_uids.append(new_party['uid'])
     if new_party['wikidata_id'] in polidoc_parties.wikidata_id.tolist():
@@ -601,7 +624,13 @@ for party in missing_manifesto_parties:
     new_party['alternate_names'] = party.get('name_other')
     new_party['_unique_name'] = 'politicalparty_' + \
         party['country_code'] + '_' + slugify(new_party['name'], separator="")
-    new_party['uid'] = '_:' + new_party['_unique_name']
+    res = client.txn(read_only=True).query(query_string_wikidata, variables={'$wikidata': new_party['wikidata_id']})
+    res = json.loads(res.json)
+    if len(res['q']) > 0:
+        uid = res['q'][0]['uid']
+    else:
+        uid = '_:' + new_party['_unique_name']
+    new_party['uid'] = uid
     new_party['country'] = {'uid': country_uid_mapping[party['country']]}
     new_party['country']['country_code'] = party['country_code']
     manifesto_parties_uids.append(new_party['uid'])
