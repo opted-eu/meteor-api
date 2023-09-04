@@ -12,6 +12,7 @@ if __name__ == "__main__":
     from flaskinventory.external.openalex import OpenAlex
     from flaskinventory.external.orcid import ORCID
     from flaskinventory.external.doi import *
+    from flaskinventory.external.cran import *
     import json
     with open('flaskinventory/config.json') as f:
         config = json.load(f)
@@ -61,6 +62,7 @@ class TestDOI(BasicTestSetup):
 
         r = orcid.resolve_author(given_name='Werner', family_name='Krause', affiliation='WZB Berlin Social Science Center')
         self.assertIsNone(r)
+
         r = orcid.resolve_author(given_name="Chung-hong", family_name="Chan", affiliation="University of Mannheim")
         self.assertEqual(r['orcid-id'], '0000-0002-6232-7530')
 
@@ -116,6 +118,19 @@ class TestDOI(BasicTestSetup):
         from flaskinventory.external.dgraph import dgraph_resolve_doi
         with self.app.app_context():
             r = dgraph_resolve_doi("10.11587/IEGQ1B")
+
+
+    def test_cran(self):
+        r = cran("grafzahl")
+        self.assertEqual(r['_authors_tmp'][0]['orcid'], '0000-0002-6232-7530')
+
+        r = cran("newsmap")
+        with self.app.app_context():
+            authors = resolve_authors(r['_authors_tmp'])
+
+        self.assertIsNone(authors[0].get('orcid'))
+
+
 
 
 if __name__ == "__main__":
