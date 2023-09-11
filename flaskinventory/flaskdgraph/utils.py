@@ -40,14 +40,14 @@ def validate_uid(uid: Any) -> Union[str, bool]:
 
 def restore_sequence(d: dict, sortkey = 'sequence') -> None:
     sortable_keys = list(filter(lambda x: x.endswith('|' + sortkey), d.keys()))
-    print('found the following predicates', sortable_keys)
     for facet in sortable_keys:
         predicate = facet.replace('|' + sortkey, '')
         if predicate not in d:
             # skip over edge attributes
             continue
-        print('restoring sequence for', predicate)
-        correct_sequence = [d[predicate][d[facet][k]] for k, v in d[facet].items()]
+        correct_sequence = list(range(len(d[predicate])))
+        for k, v in d[facet].items():
+            correct_sequence[int(v)] = d[predicate][int(k)]
         d[predicate] = correct_sequence
 
 def recursive_restore_sequence(l: list, sortkey = 'sequence') -> None:
