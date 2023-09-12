@@ -43,7 +43,7 @@ except:
 
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, datetime):
+        if isinstance(o, datetime.datetime):
             return o.isoformat()
 
         return json.JSONEncoder.default(self, o)
@@ -51,7 +51,7 @@ class DateTimeEncoder(json.JSONEncoder):
 
 def save_publication_cache():
     with open(_publication_cache_file, "w") as f:
-        json.dump(PUBLICATION_CACHE, f) 
+        json.dump(PUBLICATION_CACHE, f, cls=DateTimeEncoder) 
 
 
 from flaskinventory.external.doi import resolve_doi, resolve_authors, clean_doi
@@ -180,6 +180,10 @@ DOI_PATTERN = re.compile(r"10.\d{4,9}/[-._;()/:A-Z0-9]+")
 
 def process_doi(doi, cache, entry_review_status='accepted'):
     doi = clean_doi(doi)
+    try:
+        doi = DOI_PATTERN.search(doi)[0]
+    except:
+        raise ValueError
     if doi in cache:
         publication = deepcopy(cache[doi])
     else:
