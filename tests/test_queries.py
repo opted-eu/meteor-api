@@ -20,7 +20,7 @@ class TestQueries(BasicTestSetup):
                  'email': ["wp3@opted.eu"],
                  }
 
-        query_string = build_query_string(query)
+        query_string = build_query_string(query, count=True)
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 3)
 
@@ -29,7 +29,7 @@ class TestQueries(BasicTestSetup):
                  'channel': [self.channel_website],
                  }
 
-        query_string = build_query_string(query)
+        query_string = build_query_string(query, count=True)
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 2)
 
@@ -37,7 +37,7 @@ class TestQueries(BasicTestSetup):
                  'countries*connector': ['AND'],
                  }
 
-        query_string = build_query_string(query)
+        query_string = build_query_string(query, count=True)
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 1)
 
@@ -45,7 +45,7 @@ class TestQueries(BasicTestSetup):
                  'country*connector': ['OR'],
                  }
 
-        query_string = build_query_string(query)
+        query_string = build_query_string(query, count=True)
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 1)
 
@@ -54,7 +54,7 @@ class TestQueries(BasicTestSetup):
                  'date_published*operator': ['gt']
                  }
 
-        query_string = build_query_string(query)
+        query_string = build_query_string(query, count=True)
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 1)
 
@@ -63,7 +63,7 @@ class TestQueries(BasicTestSetup):
                  'audience_size|count*operator': ['lt']
                  }
 
-        query_string = build_query_string(query)
+        query_string = build_query_string(query, count=True)
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 4)
 
