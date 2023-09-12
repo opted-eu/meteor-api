@@ -1121,7 +1121,11 @@ class ScientificPublication(Entry):
     countries = ListRelationship(description="Does the publication has some sort of countries that it focuses on?",
                                  autoload_choices=True,
                                  relationship_constraint=["Country", "Multinational"])
-
+    
+    channels = ListRelationship(description="Does the publication investigate specific channels?",
+                                autoload_choices=True,
+                                relationship_constraint="Channel")
+    
     geographic_scope = MultipleChoice(description="What is the geographic scope of the publication?",
                                     choices={'multinational': 'Multinational',
                                              'national': 'National',
@@ -1133,6 +1137,10 @@ class ScientificPublication(Entry):
 
     languages = ListRelationship(autoload_choices=True, queryable=True,
                                  relationship_constraint="Language")
+    
+    _legacy_id = String(directives=["@index(hash)"],
+                        label="Legacy ID",
+                        description="Old ID used by OPTED Workpackage")
 
 
 """
