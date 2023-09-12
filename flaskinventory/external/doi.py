@@ -21,6 +21,8 @@ class Publication(typing.TypedDict):
 def clean_doi(doi: str) -> str:
     """ strips unwanted stuff from DOI strings """
     doi = doi.strip()
+    doi = doi.replace("http://dx.doi.org/", "")
+    doi = doi.replace("https://dx.doi.org/", "")
     doi = doi.replace("https://doi.org/", "")
     doi = doi.replace("http://doi.org/", "")
     doi = doi.replace("doi.org/", "")
