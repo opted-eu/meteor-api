@@ -847,7 +847,7 @@ query_string = '''{
 res = client.txn(read_only=True).query(query_string)
 j = json.loads(res.json)
 
-language_mapping = {c['icu_code']: c['uid'] for c in j['q']}
+language_mapping = {c['icu_code']: c['uid'] for c in j['q'] if 'icu_code' in c}
 
 wp4.loc[wp4.languages.isna(), 'languages'] = ""
 
