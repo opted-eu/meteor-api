@@ -713,7 +713,7 @@ for l in languages:
     l['_added_by'] = {'uid': ADMIN_UID,
                       '_added_by|timestamp': datetime.now().isoformat()}
 
-languages_lookup = {l['icu_code']: l['uid'] for l in languages}
+languages_lookup = {l['icu_code']: l['uid'] for l in languages if 'icu_code' in l}
 
 # find all entries with languages
 
