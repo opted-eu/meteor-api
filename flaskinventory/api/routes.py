@@ -1018,6 +1018,8 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
 
     else:            
         query_variable = dql.GraphQLVariable(query=query)
+        query_variable_upper = dql.GraphQLVariable(query_upper=query.upper())
+        query_variable_lower = dql.GraphQLVariable(query_lower=query.lower())
         fetch = ['uid', 
                 '_unique_name', 
                 'name', 
@@ -1038,9 +1040,10 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
                 '_authors_fallback @facets']
         if predicate not in fetch:
             fetch.append(predicate)
-        dql_query = dql.DQLQuery(block_name="data", func=dql.eq(predicate, query_variable), 
-                        query_filter=dgraph_types,
-                        fetch=fetch)
+        dql_query = dql.DQLQuery(block_name="data", 
+                                 func=dql.eq(predicate, [query_variable, query_variable_upper, query_variable_lower]), 
+                                 query_filter=dgraph_types,
+                                 fetch=fetch)
     try:
         result = dgraph.query(dql_query)
         return jsonify(result['data'])

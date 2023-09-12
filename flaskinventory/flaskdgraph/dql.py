@@ -75,7 +75,10 @@ class eq(_FuncPrimitive):
         if isinstance(self.value, GraphQLVariable):
             return f'{self.func}({self.predicate}, {self.value.name})'
         if isinstance(self.value, list):
-            values = ", ".join([f'"{v}"' for v in self.value])
+            if isinstance(self.value[0], GraphQLVariable):
+                values = ", ".join([f'{v.name}' for v in self.value])
+            else:
+                values = ", ".join([f'"{v}"' for v in self.value])
             return f'{self.func}({self.predicate}, [{values}])'
         return f'{self.func}({self.predicate}, "{self.value}")'
 
@@ -244,11 +247,19 @@ class QueryBlock:
         self.graphql_variables = {}
 
         self.func = func
-        if isinstance(func.value, GraphQLVariable):
-            self.graphql_variables[func.value.name] = func.value
         try:
-            if isinstance(func.value2, GraphQLVariable):
-                self.graphql_variables[func.value2.name] = func.value
+            self.graphql_variables[func.value.name] = func.value
+        except AttributeError:
+            pass
+
+        if isinstance(func.value, list):
+            for v in func.value:
+                try:
+                    self.graphql_variables[v.name] = v
+                except AttributeError:
+                    continue
+        try:
+            self.graphql_variables[func.value2.name] = func.value2
         except:
             pass
 
