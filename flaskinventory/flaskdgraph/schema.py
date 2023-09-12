@@ -393,6 +393,8 @@ class Schema:
         for t in Schema.__types_meta__:
             # if Schema.__types_meta__[t]['private']:
             #     continue
+            if t.startswith('_'):
+                continue
             schemas[t] = {'type': 'object',
                           'x-private': Schema.__types_meta__[t]['private'],
                           'properties': {}}

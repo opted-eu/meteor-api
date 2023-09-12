@@ -10,6 +10,8 @@ class Config:
     TESTING = False
     SECRET_KEY = os.environ.get(
         'flaskinventory_SECRETKEY', secrets.token_hex(32))
+    JWT_SECRET_KEY = SECRET_KEY
+    JWT_TOKEN_LOCATION = ["headers", "cookies"]
     DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
     MAIL_SERVER = os.environ.get('EMAIL_SERVER', 'localhost')
     MAIL_PORT = os.environ.get('EMAIL_PORT', 25)

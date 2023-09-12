@@ -50,5 +50,6 @@ SuccessfulAPIOperation = typing.TypedDict('SuccessfulAPIOperation', {
 
 LoginToken = typing.TypedDict('LoginToken', {
     "status": str,
-    "token": str
+    "access_token": str,
+    "refresh_token": str
 })

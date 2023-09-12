@@ -39,3 +39,4 @@ openpyxl
 pyarrow
 tqdm
 thefuzz
+flask-jwt-extended

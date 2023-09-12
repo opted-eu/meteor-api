@@ -101,6 +101,9 @@ class API(Blueprint):
 
     routes = {}
 
+    _jwt_required_kwargs = ['optional', 'fresh', 'refresh', 'locations', 
+                            'verify_type', 'skip_revocation_check']
+
     @staticmethod
     def abort(status_code, message=None):
         response = jsonify({
@@ -304,7 +307,7 @@ class API(Blueprint):
             return f(**params)
         return logic
 
-    def route(self, rule: str, **options: t.Any) -> t.Callable[[F], F]:
+    def route(self, rule: str, authentication: bool = False, **options: t.Any) -> t.Callable[[F], F]:
         """ Custom extension of Flask default routing / rule creation 
             This decorator extract function arguments and details and 
             stores it the blueprint class (the dict "routes")
@@ -313,6 +316,13 @@ class API(Blueprint):
         """
 
         methods = options.get('methods', ['GET'])
+        jwt_kwargs = {}
+        for k in self._jwt_required_kwargs:
+            try:
+                v = options.pop(k)
+                jwt_kwargs[k] = v
+            except:
+                continue
 
         def decorator(f: F) -> F:
             """ Custom extension """
@@ -327,10 +337,7 @@ class API(Blueprint):
             for v in self.REGEX_RULE_PATH_PARAM.findall(rule):
                 path_parameters.append(v)
 
-            # print('*'* 80)
-            # print(f.__name__)
             sig = inspect.signature(f)
-            # print(sig.return_annotation)
             for arg, par in sig.parameters.items():
             
                 # if NoneType in par.annotation -> optional
@@ -358,6 +365,12 @@ class API(Blueprint):
             self.routes[rule]['func'] = f.__name__
             self.routes[rule]['path'] = re.sub(r'<(?P<converter>[a-zA-Z_][a-zA-Z0-9_]*\:).*?>', '', rule).replace('<', '{').replace('>', '}')
             self.routes[rule]['responses'] = sig.return_annotation
+
+            # Check if we need authentication
+            if authentication:
+                self.routes[rule]['security'] = [{'BearerAuth': []}]
+                _wrapper = jwtx.jwt_required(**jwt_kwargs)
+                f = _wrapper(f)
 
             # Final step: apply @query_params to all routing funtions
             # This way, every function has request arguments handled
@@ -409,6 +422,11 @@ def schema() -> dict:
             }
     open_api['components'] = Schema.provide_types()
     open_api['components']['parameters'] = Schema.provide_queryable_predicates()
+    open_api['components']['securitySchemes'] = {'BearerAuth': {
+        'type': 'http',
+        'scheme': 'bearer',
+        'bearerFormat': 'JWT'}
+        }
     open_api['paths'] = {}
 
     query_params_references = [{'$ref': '#/components/parameters/' + k} for k in open_api['components']['parameters'].keys()]
@@ -508,6 +526,10 @@ def schema() -> dict:
                 post_params = [details['parameters'][p] for p in details['request_body_params']]
                 content = api.annotation_to_request_params(post_params)
                 open_api['paths'][path][method.lower()]['requestBody']['content'] = content
+
+            if 'security' in details:
+                open_api['paths'][path][method.lower()]['security'] = details['security']
+
                 # for post_param in details['request_body_params']:
                 #     post_param_type = PATH_TYPES[details['parameters'][post_param].annotation]
                 #     p_param_val_pair = {post_param: {'type': post_param_type}}
@@ -1287,17 +1309,96 @@ def leave_comment(uid: str, message: str) -> SuccessfulAPIOperation:
 """ User Related """
 
 from flaskinventory.api.responses import LoginToken
+import flask_jwt_extended as jwtx
+
 
 @api.route('/user/login', methods=['POST'])
 def login(email: str, password: str) -> LoginToken:
-    """ login to account, get a token back """
-    return api.abort(501)
+    """ 
+        login to account, get a session cookie back 
+
+        This route provides a JWT as a session cookie. It is
+        recommended method for the login routine, because
+        it allows Meteor to refresh tokens automatically.
+    """
+    
+    user = User.login(email, password)
+    if not user:
+        return api.abort(401, message="Wrong credentials. Make sure you have an account.")
+    
+    response = jsonify({"message": "login successful"})
+    access_token = jwtx.create_access_token(identity=user)
+    jwtx.set_access_cookies(response, access_token)
+    return response
+
+@api.route('/user/login/token', methods=['POST'])
+def login_token(email: str, password: str) -> LoginToken:
+    """ login to account, get a JWT token back """
+    
+    user = User.login(email, password)
+    if not user:
+        return api.abort(401, message="Wrong credentials. Make sure you have an account.")
+    
+    access_token = jwtx.create_access_token(identity=user)
+    refresh_token = jwtx.create_refresh_token(identity=user)
+    return jsonify(access_token=access_token,
+                   refresh_token=refresh_token, 
+                   status=200)
+
+@api.route('/user/is_logged_in', authentication=True, optional=True)
+def is_logged_in() -> SuccessfulAPIOperation:
+    if jwtx.get_jwt_identity():
+        return jsonify({'status': 200, 'message': 'Logged in',
+                        'is_logged_in': True})
+    else:
+        return jsonify({'status': 200, 'message': 'Not logged in',
+                        'is_logged_in': False})
+    
+
+@api.route('/user/login/refresh', methods=['POST'], authentication=True, refresh=True)
+def refresh_token() -> LoginToken:
+    """ login to account, get a JWT token back """
+    
+    identity = jwtx.get_jwt_identity()
+    access_token = jwtx.create_access_token(identity=identity)
+    return jsonify(access_token=access_token, status=200)
+
+@api.after_app_request
+def refresh_expiring_jwts(response):
+    """ Automatically handle refreshing of JWT (stored as session cookies) """
+    try:
+        exp_timestamp = jwtx.get_jwt()["exp"]
+        now = datetime.datetime.now(datetime.timezone.utc)
+        target_timestamp = datetime.datetime.timestamp(now + datetime.timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = jwtx.create_access_token(identity=jwtx.get_jwt_identity())
+            jwtx.set_access_cookies(response, access_token)
+            current_app.logger.debug(f'Refreshed Token for user <{jwtx.get_jwt_identity()}>')
+        return response
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original response
+        return response
 
 
-@api.route('/user/logout')
+@api.route('/user/logout', authentication=True, verify_type=False)
 def logout() -> SuccessfulAPIOperation:
-    """ logout; invalidates token """
-    return api.abort(501)
+    """ 
+        logout; invalidates session cookie and revokes current JWT 
+    
+        Ensure to call the API route twice to also invalidate the refresh token!
+
+        Implementation Details see: https://flask-jwt-extended.readthedocs.io/en/stable/blocklist_and_token_revoking.html
+    """
+
+    response = jsonify({"message": "logout successful"})
+    token = jwtx.get_jwt()
+    dgraph.mutation({'uid': '_:jwt', 
+                     'dgraph.type': '_JWT', 
+                     '_jti': token["jti"],
+                     '_token_type': token['type'], 
+                     '_revoked_timestamp': datetime.datetime.now().isoformat()})
+    jwtx.unset_jwt_cookies(response)
+    return response
 
 
 @api.route('/user/register', methods=['POST'])
@@ -1332,18 +1433,26 @@ def change_password(old_pw: str, new_pw: str) -> SuccessfulAPIOperation:
     return api.abort(501)
 
 
-@api.route('/user/profile')
+@api.route('/user/profile', authentication=True)
 def profile() -> User:
     """ view current user's profile """
-    return api.abort(501)
+    return jsonify(jwtx.current_user.json)
 
-@api.route('/user/profile/update', methods=['POST'])
-def update_profile(display_name: str, 
-                    affiliation: str, 
-                    orcid: str, 
-                    notifications: bool) -> SuccessfulAPIOperation:
+@api.route('/user/profile/update', methods=['POST'], authentication=True)
+def update_profile(display_name: str = None, 
+                    affiliation: str = None, 
+                    orcid: str = None, 
+                    notifications: bool = None) -> SuccessfulAPIOperation:
     """ update current user's profile """
-    return api.abort(501)
+    try:
+        jwtx.current_user.update_profile({'display_name': display_name,
+                                        'affiliation': affiliation,
+                                        'orcid': orcid,
+                                        'notifications': notifications})
+        return jsonify({'status': 200,
+                        'message': 'Profile updated'})
+    except Exception as e:
+        return api.abort(500, message=f'{e}')
 
 
 @api.route('/user/profile/delete', methods=['POST'])

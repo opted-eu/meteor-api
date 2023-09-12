@@ -17,6 +17,7 @@ def generate_random_username() -> str:
 class UserLogin(UserMixin):
 
     id = None
+    json = {}
 
     # Need more consistent ORM syntax
     # Currently load users like:
@@ -39,6 +40,7 @@ class UserLogin(UserMixin):
     def get_user(self, **kwargs):
         user_data = self.get_user_data(**kwargs)
         if user_data:
+            self.json = user_data
             for k, v in user_data.items():
                 if k == 'uid':
                     self.id = v
@@ -46,7 +48,7 @@ class UserLogin(UserMixin):
                     k = k.replace('|', '_')
                 setattr(self, k, v)
             # Overwrite DGraph Predicates
-            # Maye find a more elegant solution later
+            # Maybe find a more elegant solution later
             for attr in dir(self):
                 if isinstance(getattr(self, attr), _PrimitivePredicate):
                     setattr(self, attr, None)
@@ -145,9 +147,14 @@ class UserLogin(UserMixin):
 
     def update_profile(self, form_data: dict) -> bool:
         user_data = {}
-        for k, v in form_data.data.items():
+        try:
+            data = form_data.data
+        except:
+            data = form_data
+        for k, v in data.items():
             if k in ['submit', 'csrf_token']:
                 continue
+            if v is None: continue
             else:
                 user_data[k] = v
         result = dgraph.update_entry(user_data, uid=self.id)

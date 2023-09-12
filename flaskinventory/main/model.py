@@ -1439,3 +1439,16 @@ class Rejected(Schema):
     _former_types = ListString(edit=False)
 
     entry_review_status = String(default="rejected")
+
+class _JWT(Schema):
+
+    """ Block List of revoked tokens """
+
+    __permission_new__ = 99
+    __permission_edit__ = 99
+    __private__ = True
+
+    uid = UIDPredicate()
+    _jti = String(directives=['@index(hash)'])
+    _token_type = String(directives=['@index(hash)'])
+    _revoked_timestamp = DateTime()
