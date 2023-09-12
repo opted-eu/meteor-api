@@ -420,6 +420,7 @@ for index, row in wp2datasets[~filt].iterrows():
     new_entry['name'] = row['name']
     new_entry['_unique_name'] = 'dataset_' + slugify(new_entry['name'], separator="")
     new_entry['uid'] = '_:' + new_entry['_unique_name']
+    new_entry['_legacy_id'] = row['wp2_paper_id']
     wp2_datasets_canonical[row['wp2_paper_id']] = new_entry
 
 
@@ -498,7 +499,7 @@ for index, row in df.iterrows():
             valid_doi = False
     if not publication:
         new_entry['title'] = row['title']
-        new_entry['date_published'] = datetime(year=int(row['date_published']), month=1, day=1).isoformat(), 
+        new_entry['date_published'] = datetime(year=int(row['date_published']), month=1, day=1).isoformat() 
         new_entry['venue'] = row['venue']
         new_entry['_authors_fallback'] = row['authors'].split(', ')
         new_entry['_authors_fallback|sequence'] = {str(i): i for i in range(len(new_entry['_authors_fallback']))}
@@ -584,13 +585,18 @@ for index, row in df.iterrows():
         except:
             author_name = new_entry['_authors_fallback'][0]
         try:
-            title = re.match(r".*?[\?:\.!–]", str(new_entry['title']))[0]
+            title = re.search(r".*?[\?:\.!–]", str(new_entry['title']))[0]
         except:
             title = str(new_entry['title'])
         title = title.replace(':', '').replace('–', '')
-        year = datetime.fromisoformat(new_entry['date_published']).year
+        try:
+            year = datetime.fromisoformat(new_entry['date_published']).year
+        except (ValueError, TypeError):
+            year = str(new_entry['date_published'])
         name = f'{author_name} ({year}): {title}'
-    except:
+    except Exception as e:
+        print('Could not create name', row['original_id'])
+        print(e)
         name = new_entry['title']
     new_entry['name'] = name
     if valid_doi:
@@ -602,6 +608,7 @@ for index, row in df.iterrows():
         new_entry['datasets_used'] = [{'uid': wp2_datasets_canonical[row['original_id']]['uid']}]
     except:
         pass
+    new_entry['_legacy_id'] = row['original_id']
     wp2_canonical[row['original_id']] = new_entry
 
 save_publication_cache()
