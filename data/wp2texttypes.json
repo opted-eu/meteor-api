@@ -1,0 +1,113 @@
+[
+    {
+        "uid": "_:texttype_usercomment",
+        "_unique_name": "texttype_usercomment",
+        "name": "User Comment",
+        "alternate_names": ["Online Comment", "Social Media Comment", "Reply"],
+        "description": "small user-generated block of text posted under a news, blog, or social media post",
+        "wikidata_id": "Q25345994",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_socialmedia",
+        "_unique_name": "texttype_socialmedia",
+        "name": "Social Media",
+        "description": "texts from social media platforms",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_websitecontent",
+        "_unique_name": "texttype_websitecontent",
+        "name": "Website Content",
+        "description": "Texts found on websites (generic, catch-all text type)",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_blog",
+        "_unique_name": "texttype_blog",
+        "name": "Blog",
+        "wikidata_id": "Q30849",
+        "description": "discussion or informational website consisting of discrete, often informal diary-style text entries (posts)",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_internetmeme",
+        "_unique_name": "texttype_internetmeme",
+        "name": "Internet Meme",
+        "description": "concept that spreads from person to person via the Internet",
+        "wikidata_id": "Q2927074",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_surveyresponse",
+        "_unique_name": "texttype_surveyresponse",
+        "name": "Survey Response",
+        "description": "Responses to open-ended survey questions",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_instantmessaging",
+        "_unique_name": "texttype_instantmessaging",
+        "name": "Instant Messaging",
+        "alternate_names": ["chat message"],
+        "description": "form of private or public communication over the Internet",
+        "wikidata_id": "Q58199",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_onlinevideo",
+        "_unique_name": "texttype_onlinevideo",
+        "name": "Online Video",
+        "alternate_names": ["internet video", "YouTube Video"],
+        "description": "video material which is available online",
+        "wikidata_id": "Q23058567",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_lyrics",
+        "_unique_name": "texttype_lyrics",
+        "name": "Lyrics",
+        "alternate_names": ["song texts"],
+        "description": "sequence of words that make up a song",
+        "wikidata_id": "Q602446",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    },
+    {
+        "uid": "_:texttype_citizenjournalism",
+        "_unique_name": "texttype_citizenjournalism",
+        "name": "Citizen Journalism",
+        "description": "Non professional and irregular form of journalism.",
+        "wikidata_id": "Q848979",
+        "dgraph.type": [
+            "Entry",
+            "TextType"
+        ]
+    }
+]

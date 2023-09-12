@@ -14,7 +14,9 @@
         "uid": "_:texttype_socialmedia",
         "_unique_name": "texttype_socialmedia",
         "name": "Social Media",
+        "alternate_names": ["User Post", "Social Media Post"],
         "description": "texts from social media platforms",
+        "wikidata_id": "Q7216866",
         "dgraph.type": [
             "Entry",
             "TextType"
