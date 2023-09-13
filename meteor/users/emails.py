@@ -1,6 +1,7 @@
 from flask import current_app, url_for, render_template
 from meteor import mail
 from flask_mail import Message
+from meteor.users.dgraph import UserLogin
 
 def send_reset_email(token, email):
     subject = 'Password Reset Request'
@@ -17,7 +18,7 @@ def send_reset_email(token, email):
     mail.send(msg)
 
 
-def send_verification_email(user):
+def send_verification_email(user: UserLogin):
     token = user.get_invite_token()
     subject = 'OPTED Meteor: Please verify your email address'
     msg = Message(subject,
@@ -27,7 +28,7 @@ def send_verification_email(user):
 
     mail.send(msg)
 
-def send_invite_email(user):
+def send_invite_email(user: UserLogin):
     token = user.get_invite_token()
     subject = 'OPTED: Invitation to join Meteor'
     msg = Message(subject=subject,

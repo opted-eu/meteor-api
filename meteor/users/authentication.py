@@ -22,13 +22,13 @@ def user_identity_lookup(user):
 # successful lookup, or None if the lookup failed for any reason (for example
 # if the user has been deleted from the database).
 @jwt.user_lookup_loader
-def user_lookup_callback(_jwt_header, jwt_data):
+def user_lookup_callback(_jwt_header, jwt_data) -> User:
     identity = jwt_data["sub"]
     user = User(uid=identity)
     return user
 
 @jwt.token_in_blocklist_loader
-def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
+def check_if_token_is_revoked(jwt_header, jwt_payload: dict) -> bool:
     jti = jwt_payload["jti"]
-    token_in_redis = dgraph.get_uid(field="_jti", value=jti)
-    return token_in_redis is not None
+    token_in_dgraph = dgraph.get_uid(field="_jti", value=jti)
+    return token_in_dgraph is not None

@@ -1413,37 +1413,139 @@ def logout() -> SuccessfulAPIOperation:
     jwtx.unset_jwt_cookies(response)
     return response
 
+from meteor.api.users import validate_email, email_is_taken
+from meteor.users.emails import send_accept_email, send_invite_email, send_reset_email, send_verification_email
 
-@api.route('/user/register', methods=['POST'])
-def register(email: str, password: str) -> SuccessfulAPIOperation:
+@api.route('/user/register', methods=['POST'], authentication=True, optional=True)
+def register(email: str, password: str, confirm_password: str) -> SuccessfulAPIOperation:
     """ create a new account; sends a verification email to the user """
-    return api.abort(501)
+
+    if jwtx.current_user:
+        return api.abort(400, message="You are already registered")
+
+    try:
+        email_is_taken(email)
+    except Exception as e:
+        return api.abort(422, message=f'{e}')
+    
+    if len(password) < 6:
+        return api.abort(422, message=f'Password should be a minimum of 6 characters')
+
+    if password != confirm_password:
+        return api.abort(422, message=f'Passwords do not match')
+
+    new_user = {'email': email,
+                '_pw': password}
+    
+    new_uid = User.create_user(new_user)
+    user = User(uid=new_uid)
+    send_verification_email(user)
+
+    return jsonify({'status': 200,
+                    'message': f'Accounted created for {email} ({new_uid})! Please check your inbox and verify your email address!',
+                    'uid': new_uid})
 
 
-@api.route('/user/register/verify/<token>')
+@api.route('/user/register/verify/<token>', authentication=True, optional=True)
 def verify_email(token: str) -> SuccessfulAPIOperation:
     """ verify user's email address """
-    return api.abort(501)
+    if jwtx.current_user:
+        return api.abort(400, message="You are already logged in.")
 
-@api.route('/user/register/resend', methods=['POST'])
+    user = User.verify_email_token(token)
+    if user is None:
+        return api.abort(400, message='That is an invalid or expired token! Please contact us if you experiencing issues.')
+    dgraph.update_entry({'_account_status': 'active'}, uid=user.id)
+    return jsonify({'status': 200, 'message': 'Email verified! You can now try to log in'})
+
+
+@api.route('/user/register/resend', methods=['POST'], authentication=True, optional=True)
 def resend_verify_email(email: str) -> SuccessfulAPIOperation:
     """ resend verification email """
-    return api.abort(501)
+    if jwtx.current_user:
+        return api.abort(400, message="You are already logged in.")
+    
+    try:
+        validate_email(email)
+    except Exception as e:
+        return api.abort(422, message=f'{e}')
 
-@api.route('/user/password/reset', methods=['POST'])
-def reset_password(email: str) -> SuccessfulAPIOperation:
+    try:
+        user = User(email=email)
+    except ValueError:
+        return api.abort(404, message='Could not find user with this email address')
+    if user._account_status == 'active':
+        return jsonify({'status': 400, 
+                        "message": f'Your email is already verified. Please try to login. Have you forgotten your password?'})
+    
+    send_verification_email(user)
+    return jsonify({'status': 200, 'message': f'Verification email send to {email}! Please check your inbox and verify your email address!'})
+
+
+@api.route('/user/password/reset_request', methods=['POST'], authentication=True, optional=True)
+def reset_password_request(email: str) -> SuccessfulAPIOperation:
     """ send password reset request """
-    return api.abort(501)
 
-@api.route('/user/password/reset/<token>')
-def confirm_password_reset(token: str) -> SuccessfulAPIOperation:
+    if jwtx.current_user:
+        return api.abort(400, message="You are already logged in.")
+    
+    try:
+        validate_email(email)
+    except Exception as e:
+        return api.abort(422, message=f'{e}')
+
+    try:
+        user = User(email=email)
+    except ValueError:
+        return api.abort(404, message='Could not find user with this email address')
+    token = user.get_reset_token()
+    send_reset_email(token, user.email)
+
+    return jsonify(status=200, message='An email has been sent with instructions to reset your password')
+
+@api.route('/user/password/reset/<token>', methods=['POST'], authentication=True, optional=True)
+def confirm_password_reset(token: str, password: str, confirm_password: str) -> SuccessfulAPIOperation:
     """ confirm password reset """
-    return api.abort(501)
 
-@api.route('/user/password/change', methods=['POST'])
-def change_password(old_pw: str, new_pw: str) -> SuccessfulAPIOperation:
+    if jwtx.current_user:
+        return api.abort(400, message="You are already logged in.")
+    
+    user = User.verify_reset_token(token)
+    if not user:
+        return api.abort(404, message='That is an invalid or expired token')
+
+    if len(password) < 6:
+        return api.abort(422, message=f'Password should be a minimum of 6 characters')
+
+    if password != confirm_password:
+        return api.abort(422, message=f'Passwords do not match')
+
+    new_password = {'_pw': password, '_pw_reset': False}
+    change_pw = dgraph.update_entry(new_password, uid=user.id)
+    if not change_pw:
+        return api.abort(403)
+    dgraph.update_entry({'_pw_reset': user._pw_reset, '_pw_reset|used': True}, uid=user.id)
+
+    return jsonify(status=200, message=f'Password updated for {user.id}!')
+
+from meteor.api.errors import ValidationError
+
+@api.route('/user/password/change', methods=['POST'], authentication=True)
+def change_password(old_pw: str, new_pw: str, confirm_new: str) -> SuccessfulAPIOperation:
     """ send password reset request """
-    return api.abort(501)
+
+    if not User.user_verify(jwtx.current_user.uid, old_pw):
+        raise ValidationError('Old password is incorrect!')
+    
+    if len(new_pw) < 6:
+        return api.abort(422, message=f'Password should be a minimum of 6 characters')
+
+    if new_pw != confirm_new:
+        return api.abort(422, message=f'Passwords do not match')
+
+    jwtx.current_user.change_password(new_pw)
+
+    return jsonify(status=200, message=f'Your password has been changed')
 
 
 @api.route('/user/profile', authentication=True)
@@ -1468,10 +1570,40 @@ def update_profile(display_name: str = None,
         return api.abort(500, message=f'{e}')
 
 
-@api.route('/user/profile/delete', methods=['POST'])
-def delete_account(email: str) -> SuccessfulAPIOperation:
-    """ delete current user's account """
-    return api.abort(501)
+@api.route('/user/profile/delete', methods=['POST'], authentication=True)
+def delete_account() -> SuccessfulAPIOperation:
+    """ 
+        delete current user's account 
+
+    """
+    if jwtx.current_user._role == USER_ROLES.Admin:
+        return api.abort(400, message='Cannot delete admin accounts!')
+
+    mutation = {'_account_status': 'deleted', 
+                '_account_status|timestamp': datetime.datetime.now().isoformat(),
+                'display_name': 'Deleted User',
+                'email': secrets.token_urlsafe(8),
+                '_pw': secrets.token_urlsafe(8),
+                'orcid': '',
+                '_role': 1,
+                'affiliation': '',
+                'preference_emails': False}
+    
+    dgraph.update_entry(mutation, uid=jwtx.current_user.id)
+    dgraph.delete({'uid': jwtx.current_user.id,
+                   'follows_entities': None,
+                   'follows_types': None})
+
+    response = jsonify({"message": "Account deleted"})
+    token = jwtx.get_jwt()
+    dgraph.mutation({'uid': '_:jwt', 
+                     'dgraph.type': '_JWT', 
+                     '_jti': token["jti"],
+                     '_token_type': token['type'], 
+                     '_revoked_timestamp': datetime.datetime.now().isoformat()})
+    jwtx.unset_jwt_cookies(response)
+
+    return response
 
 
 @api.route('/user/<uid>/entries')

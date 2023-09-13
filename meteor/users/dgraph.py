@@ -62,7 +62,7 @@ class UserLogin(UserMixin):
                 raise AttributeError(
                     'User does not have a role! Please contact your administrator')
         else:
-            return None
+            raise ValueError('User not found!')
 
     def get_user_data(self, email=None, uid=None) -> Union[dict, None]:
 
@@ -72,7 +72,7 @@ class UserLogin(UserMixin):
             data = dgraph.query(self.uid == uid)
 
         if len(data['q']) == 0:
-            return None
+            raise ValueError('User not found!')
         data = data['q'][0]
         return data
 
@@ -165,8 +165,8 @@ class UserLogin(UserMixin):
         else:
             return False
 
-    def change_password(self, form_data: dict) -> bool:
-        user_data = {'pw': form_data.data.get('new_password')}
+    def change_password(self, password: str) -> bool:
+        user_data = {'pw': password}
         result = dgraph.update_entry(user_data, uid=self.id)
         if result:
             return True
