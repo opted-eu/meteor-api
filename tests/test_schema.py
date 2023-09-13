@@ -9,8 +9,8 @@ if __name__ == "__main__":
 
     path.append(dirname(path[0]))
     from test_setup import BasicTestSetup
-    from flaskinventory import dgraph
-    from flaskinventory.main.model import Schema, Entry, NewsSource
+    from meteor import dgraph
+    from meteor.main.model import Schema, Entry, NewsSource
 
 
 class TestSchema(BasicTestSetup):

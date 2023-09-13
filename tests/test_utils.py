@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     path.append(dirname(path[0]))
 
-from flaskinventory.flaskdgraph.utils import restore_sequence, recursive_restore_sequence
+from meteor.flaskdgraph.utils import restore_sequence, recursive_restore_sequence
 
 class TestUtils(unittest.TestCase):
     

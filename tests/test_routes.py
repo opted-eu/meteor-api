@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     path.append(dirname(path[0]))
     from test_setup import BasicTestSetup
-    from flaskinventory import dgraph
+    from meteor import dgraph
 
 
 class TestRoutesLoggedOut(BasicTestSetup):

@@ -7,8 +7,8 @@ if __name__ == "__main__":
     path.append(dirname(path[0]))
 
     from flask_login import current_user
-    from flaskinventory import create_app, AnonymousUser, dgraph
-    from flaskinventory.main.model import User
+    from meteor import create_app, AnonymousUser, dgraph
+    from meteor.main.model import User
     from test_setup import BasicTestSetup
 
 

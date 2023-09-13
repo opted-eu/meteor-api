@@ -8,21 +8,21 @@ if __name__ == "__main__":
 
     path.append(dirname(path[0]))
     from test_setup import BasicTestSetup
-    from flaskinventory import dgraph
+    from meteor import dgraph
 
     import unittest
     from unittest.mock import patch
     import copy
     import secrets
     import datetime
-    from flaskinventory.flaskdgraph import Schema
-    from flaskinventory.flaskdgraph.dgraph_types import UID, Scalar
-    from flaskinventory.main.model import Entry, Organization, NewsSource, User, ScientificPublication
-    from flaskinventory.main.sanitizer import Sanitizer
-    from flaskinventory.errors import InventoryValidationError, InventoryPermissionError
-    from flaskinventory import create_app, dgraph
-    from flaskinventory.users.constants import USER_ROLES
-    from flaskinventory import AnonymousUser
+    from meteor.flaskdgraph import Schema
+    from meteor.flaskdgraph.dgraph_types import UID, Scalar
+    from meteor.main.model import Entry, Organization, NewsSource, User, ScientificPublication
+    from meteor.main.sanitizer import Sanitizer
+    from meteor.errors import InventoryValidationError, InventoryPermissionError
+    from meteor import create_app, dgraph
+    from meteor.users.constants import USER_ROLES
+    from meteor import AnonymousUser
     from flask_login import current_user
 
 
@@ -32,7 +32,7 @@ def mock_wikidata(*args):
             'date_founded': datetime.datetime(1950, 6, 5, 0, 0), 
             'address': 'Stuttgart'}
 
-@patch('flaskinventory.main.sanitizer.get_wikidata', mock_wikidata) 
+@patch('meteor.main.sanitizer.get_wikidata', mock_wikidata) 
 class TestSanitizers(BasicTestSetup):
 
     """
@@ -359,10 +359,10 @@ class TestSanitizers(BasicTestSetup):
 
             self.client.get('/logout')
 
-    @patch('flaskinventory.main.sanitizer.parse_meta') 
-    @patch('flaskinventory.main.sanitizer.siterankdata') 
-    @patch('flaskinventory.main.sanitizer.find_sitemaps') 
-    @patch('flaskinventory.main.sanitizer.find_feeds') 
+    @patch('meteor.main.sanitizer.parse_meta') 
+    @patch('meteor.main.sanitizer.siterankdata') 
+    @patch('meteor.main.sanitizer.find_sitemaps') 
+    @patch('meteor.main.sanitizer.find_feeds') 
     def test_new_website(self, mock_find_feeds, mock_find_sitemaps, mock_siterankdata, mock_parse_meta):
         mock_parse_meta.return_value = {'names': ['Tagesthemen'], 
                                         'urls': ['https://www.tagesschau.de/']}
@@ -414,7 +414,7 @@ class TestSanitizers(BasicTestSetup):
                 
             self.client.get('/logout')
 
-    @patch('flaskinventory.main.sanitizer.twitter') 
+    @patch('meteor.main.sanitizer.twitter') 
     def test_new_twitter(self, mock_twitter):
 
         mock_twitter.return_value = {'followers': 3_000_000, 
@@ -458,7 +458,7 @@ class TestSanitizers(BasicTestSetup):
 
             self.client.get('/logout')
 
-    @patch('flaskinventory.main.sanitizer.instagram') 
+    @patch('meteor.main.sanitizer.instagram') 
     def test_new_instagram(self, mock_instagram):
 
         mock_instagram.return_value = {'followers': 3_000_000, 
@@ -502,7 +502,7 @@ class TestSanitizers(BasicTestSetup):
 
             self.client.get('/logout')
 
-    @patch('flaskinventory.main.sanitizer.telegram') 
+    @patch('meteor.main.sanitizer.telegram') 
     def test_new_telegram(self, mock_telegram):
 
         mock_telegram.return_value = {'followers': 1_000_000, 
@@ -548,7 +548,7 @@ class TestSanitizers(BasicTestSetup):
 
             self.client.get('/logout')
 
-    @patch('flaskinventory.main.sanitizer.vkontakte') 
+    @patch('meteor.main.sanitizer.vkontakte') 
     def test_new_vk(self, mock_vk):
 
         mock_vk.return_value = {'followers': 100_000, 

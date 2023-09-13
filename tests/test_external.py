@@ -6,10 +6,10 @@ if __name__ == "__main__":
 
     path.append(dirname(path[0]))
 
-from flaskinventory import create_app, dgraph
-from flaskinventory.misc.forms import get_country_choices
+from meteor import create_app, dgraph
+from meteor.misc.forms import get_country_choices
 import unittest
-from flaskinventory.add import external
+from meteor.add import external
 
 
 class TestSanitizers(unittest.TestCase):

@@ -8,9 +8,10 @@ if __name__ == "__main__":
 
     path.append(dirname(path[0]))
     from test_setup import BasicTestSetup
-    from flaskinventory.view.routes import build_query_string
-    from flaskinventory import dgraph
-    from flaskinventory.main.model import Country
+    from meteor.view.routes import build_query_string
+    from meteor import dgraph
+    from meteor.main.model import Country
+
 
 class TestQueries(BasicTestSetup):
 
@@ -42,7 +43,7 @@ class TestQueries(BasicTestSetup):
         self.assertEqual(res['total'][0]['count'], 1)
 
         query = {'country': [self.switzerland_uid, self.germany_uid],
-                 'country*connector': ['OR'],
+                 'country*connector': ['OR']
                  }
 
         query_string = build_query_string(query, count=True)
@@ -89,7 +90,8 @@ class TestQueries(BasicTestSetup):
                      'json': True
                      }
 
-            response = c.post('/query', data=query,
+            response = c.post('/query',
+                              data=query,
                               follow_redirects=True)
 
             self.assertEqual(response.json['_total_results'], 0)
@@ -141,7 +143,7 @@ class TestQueries(BasicTestSetup):
             response = c.get('/query',
                              query_string=query)
             res = [entry['_unique_name'] for entry in response.json['result']]
-            self.assertCountEqual(res, 
+            self.assertCountEqual(res,
                                   ["www.derstandard.at", "globalvoices_org_website"])
 
             # English that is free OR partly for free

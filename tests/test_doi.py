@@ -9,12 +9,12 @@ if __name__ == "__main__":
 
     path.append(dirname(path[0]))
     from test_setup import BasicTestSetup
-    from flaskinventory.external.openalex import OpenAlex
-    from flaskinventory.external.orcid import ORCID
-    from flaskinventory.external.doi import *
-    from flaskinventory.external.cran import *
+    from meteor.external.openalex import OpenAlex
+    from meteor.external.orcid import ORCID
+    from meteor.external.doi import *
+    from meteor.external.cran import *
     import json
-    with open('flaskinventory/config.json') as f:
+    with open('meteor/config.json') as f:
         config = json.load(f)
 
 
@@ -34,7 +34,8 @@ class TestDOI(BasicTestSetup):
     def test_openalex(self):
         openalex = OpenAlex()
         self.assertRaises(HTTPError, openalex.resolve_doi, self.manifesto_doi)
-        self.assertEqual(openalex.resolve_doi('10.14361/9783839463321')['openalex'], 'W4286475882')
+        self.assertEqual(openalex.resolve_doi(
+            '10.14361/9783839463321')['openalex'], 'W4286475882')
 
     def test_crossref(self):
         self.assertRaises(HTTPError, crossref, self.manifesto_doi)
@@ -44,29 +45,36 @@ class TestDOI(BasicTestSetup):
         self.assertEqual(r['doi'].lower(), self.manifesto_doi.lower())
 
     def test_doi_org(self):
-        self.assertEqual(doi_org(self.manifesto_doi)['doi'].lower(), self.manifesto_doi.lower())
+        self.assertEqual(doi_org(self.manifesto_doi)[
+                         'doi'].lower(), self.manifesto_doi.lower())
 
     def test_orcid(self):
         orcid = ORCID(token=config['ORCID_ACCESS_TOKEN'])
-        r = orcid.search_authors(given_name='Werner', family_name='Krause', affiliation='WZB Berlin Social Science Center')
-        self.assertEqual(r['num-found'], 0)
-
-        r = orcid.search_authors(given_name='Werner', family_name='Krause', doi="10.1080/17457289.2020.1866584")
+        r = orcid.search_authors(given_name='Werner', family_name='Krause',
+                                 affiliation='WZB Berlin Social Science Center')
         self.assertEqual(r['num-found'], 1)
 
-        r = orcid.search_authors(given_name='Pola', family_name='Lehmann', affiliation='WZB Berlin Social Science Center')
+        r = orcid.search_authors(
+            given_name='Werner', family_name='Krause', doi="10.1080/17457289.2020.1866584")
+        self.assertEqual(r['num-found'], 1)
+
+        r = orcid.search_authors(given_name='Pola', family_name='Lehmann',
+                                 affiliation='WZB Berlin Social Science Center')
         self.assertEqual(r['num-found'], 0)
 
         r = orcid.search_authors(given_name='Pola', family_name='Lehmann')
         self.assertEqual(r['num-found'], 1)
 
-        r = orcid.resolve_author(given_name='Werner', family_name='Krause', affiliation='WZB Berlin Social Science Center')
+        r = orcid.resolve_author(given_name='Werner', family_name='Krause',
+                                 affiliation='WZB Berlin Social Science Center')
         self.assertIsNone(r)
 
-        r = orcid.resolve_author(given_name="Chung-hong", family_name="Chan", affiliation="University of Mannheim")
+        r = orcid.resolve_author(
+            given_name="Chung-hong", family_name="Chan", affiliation="University of Mannheim")
         self.assertEqual(r['orcid-id'], '0000-0002-6232-7530')
 
-        r = orcid.resolve_author(given_name='Pola', family_name='Lehmann', affiliation='WZB Berlin Social Science Center')
+        r = orcid.resolve_author(given_name='Pola', family_name='Lehmann',
+                                 affiliation='WZB Berlin Social Science Center')
         self.assertEqual(r['orcid-id'], '0000-0001-5267-3299')
 
     def test_zenodo(self):
@@ -101,7 +109,8 @@ class TestDOI(BasicTestSetup):
             resolved = resolve_authors(r['_authors_tmp'])
 
         r = resolve_doi(self.japanese_doi)
-        self.assertEqual(r['title'], "Quantitative Analysis of Textual Data : Differentiation and Coordination of Two Approaches")
+        self.assertEqual(
+            r['title'], "Quantitative Analysis of Textual Data : Differentiation and Coordination of Two Approaches")
 
     def test_arxiv(self):
         r = resolve_doi(self.arxiv_link)
@@ -111,14 +120,13 @@ class TestDOI(BasicTestSetup):
 
         with self.app.app_context():
             authors = resolve_authors(r['_authors_tmp'])
-        
+
         self.assertEqual(authors[0]['orcid'], '0000-0001-6128-3356')
 
     def test_dgraph(self):
-        from flaskinventory.external.dgraph import dgraph_resolve_doi
+        from meteor.external.dgraph import dgraph_resolve_doi
         with self.app.app_context():
             r = dgraph_resolve_doi("10.11587/IEGQ1B")
-
 
     def test_cran(self):
         r = cran("grafzahl")
@@ -129,8 +137,6 @@ class TestDOI(BasicTestSetup):
             authors = resolve_authors(r['_authors_tmp'])
 
         self.assertIsNone(authors[0].get('orcid'))
-
-
 
 
 if __name__ == "__main__":

@@ -1,13 +1,13 @@
 
 import secrets
 import unittest
-from flaskinventory import create_app, dgraph
+from meteor import create_app, dgraph
 from sys import path
 from os.path import dirname
 
 path.append(dirname(path[0]))
 
-from flaskinventory.misc.forms import get_country_choices
+from meteor.misc.forms import get_country_choices
 
 class Config:
     TESTING = True
