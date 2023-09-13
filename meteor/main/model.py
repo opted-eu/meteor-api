@@ -151,6 +151,14 @@ class Entry(Schema):
                  description='handle.net external identifier',
                  directives=['@index(hash)'],
                  hidden=True)
+    
+    _legacy_id = ListString(directives=["@index(hash)"],
+                        label="Legacy ID",
+                        description="Old ID used by OPTED Workpackages. Preserved for backwards compatibility.",
+                        new=False,
+                        edit=False,
+                        read_only=True,
+                        hidden=True)
 
 
 class PoliticalParty(Entry):
@@ -1177,10 +1185,7 @@ class ScientificPublication(Entry):
     languages = ListRelationship(autoload_choices=True, 
                                  queryable=True,
                                  relationship_constraint="Language")
-    
-    _legacy_id = String(directives=["@index(hash)"],
-                        label="Legacy ID",
-                        description="Old ID used by OPTED Workpackage")
+
 
 
 """

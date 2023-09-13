@@ -519,6 +519,10 @@ for dataset_url, dataset in wp5_datasets.items():
         _unique_name += secrets.token_urlsafe(6)
         new_dataset['_unique_name'] = _unique_name
         _unique_names.append(_unique_name)
+    try:
+        new_dataset['_legacy_id'] = dataset['original_id']
+    except:
+        pass
 
     clean_wp5.append(new_dataset)
 
