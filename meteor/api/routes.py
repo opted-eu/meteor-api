@@ -1107,6 +1107,15 @@ def add_new_entry(dgraph_type: str, data: t.Any = None) -> SuccessfulAPIOperatio
 
         If the new entry was added successfully, the JSON response includes a `redirect` 
         key which shows the link to view the new entry.
+
+        Data for new entry should be structured as follows:
+
+        ```
+        {"name": "New Entry",
+         "alternate_names": ["A list", "of more"],
+         "country": "0x123",
+         "tools": ["0x234", "0x345"]
+         }
     """
     dgraph_type = Schema.get_type(dgraph_type)
     if not dgraph_type:
