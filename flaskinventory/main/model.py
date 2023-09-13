@@ -40,7 +40,8 @@ class User(Schema, UserLogin):
     
     orcid = String(label="ORCID", directives=["@index(hash)"])
     _date_joined = DateTime(label="Date joined", description='Date when this account was created',
-                            read_only=True, edit=False)
+                            read_only=True, edit=False,
+                            directives=['@index(hour)'])
     role = SingleChoiceInt(label="User Role", edit=False, read_only=True,
                            default=USER_ROLES.Contributor,
                            choices=USER_ROLES.dict_reverse)
@@ -243,7 +244,8 @@ class Organization(Entry):
                            'placeholder': 'Most recent figure as plain number'},
                        new=False)
 
-    date_founded = DateTime(new=False, overwrite=True, queryable=True)
+    date_founded = DateTime(new=False, overwrite=True, queryable=True,
+                            directives=['@index(day)'])
 
 
 class JournalisticBrand(Entry):
@@ -697,7 +699,9 @@ class Archive(Entry):
                                     relationship_constraint="FileFormat",
                                     render_kw={'placeholder': 'Select multiple...'})
 
-    date_modified = String()
+    date_modified = DateTime(description="Last known date when archive was updated.",
+                          directives=['@index(day)'],
+                          new=False)
 
     meta_variables = ListRelationship(description="List of meta data included in the archive (e.g., date, language, source, medium)",
                                       relationship_constraint="MetaVariable",
@@ -737,10 +741,12 @@ class Dataset(Entry):
         tom_select=True)
 
     date_published = Year(label='Year of publication',
-                          description="Which year was the dataset published?")
+                          description="Which year was the dataset published?",
+                          directives=['@index(day)'])
 
-    date_modified = String(
-        description="When was the dataset last updated?", new=False)
+    date_modified = DateTime(description="When was the dataset last updated?",
+                          directives=['@index(day)'],
+                          new=False)
 
     url = String(label="URL", description="Link to the dataset", required=True, directives=["@index(hash)"])
     doi = String(label='DOI', directives=['@index(hash)'])
@@ -792,9 +798,11 @@ class Dataset(Entry):
                                  autoload_choices=True,
                                  queryable=True)
 
-    temporal_coverage_start = DateTime(description="Start date of the dataset")
+    temporal_coverage_start = DateTime(description="Start date of the dataset",
+                                       directives=['@index(day)'])
 
-    temporal_coverage_end = DateTime(description="End date of the dataset")
+    temporal_coverage_end = DateTime(description="End date of the dataset",
+                                     directives=['@index(day)'])
 
     text_types = ListRelationship(description="Text Genres covered by dataset",
                                  relationship_constraint="TextType",
@@ -870,10 +878,18 @@ class Tool(Entry):
     date_published = Year(label='Year of publication',
                           description="Which year was the tool published?",
                           queryable=True,
+                          directives=['@index(day)'],
                           comparison_operators={'ge': 'after', 'le': 'before', 'eq': 'exact'})
 
-    date_modified = String(
-        description="When was the tool last updated?", new=False)
+    date_modified = DateTime(description="When was the tool last updated?",
+                          directives=['@index(day)'],
+                          new=False)
+    
+    last_activity = DateTime(description="Last time the repository for the tool was modified",
+                          directives=['@index(day)'],
+                          new=False)
+    
+    version = String(description='Current version of the tool')
 
     url = String(label="URL", description="Link to the tool", required=True, directives=["@index(hash)"])
 
@@ -1032,6 +1048,7 @@ class ScientificPublication(Entry):
 
     date_published = Year(label='Year of publication',
                           description="Which year was the publication published?",
+                          directives=['@index(day)'],
                           required=True)
 
     paper_kind = SingleChoice(
@@ -1159,6 +1176,9 @@ class Author(Entry):
     
     # last_known_institution = String(description="Affiliation of author")
     affiliations = ListString(description="Affiliations of author")
+
+    given_name = String(new=False)
+    family_name = String(new=False)
 
 
 """
@@ -1459,4 +1479,4 @@ class _JWT(Schema):
     uid = UIDPredicate()
     _jti = String(directives=['@index(hash)'])
     _token_type = String(directives=['@index(hash)'])
-    _revoked_timestamp = DateTime()
+    _revoked_timestamp = DateTime(directives=['@index(hour)'])
