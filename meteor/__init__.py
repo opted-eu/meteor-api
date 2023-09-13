@@ -15,9 +15,7 @@ from flask_login import LoginManager, AnonymousUserMixin
 from flask_mail import Mail
 # Forms Extension
 # from flask_wtf.csrf import CSRFProtect
-# Rate Limiting
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+
 # Markdown Rendering
 from flaskext.markdown import Markdown
 from markdown.extensions.toc import TocExtension
@@ -37,8 +35,6 @@ login_manager.anonymous_user = AnonymousUser
 
 
 mail = Mail()
-
-limiter = Limiter(key_func=get_remote_address)
 
 # JWT Extension
 from meteor.users.authentication import jwt
@@ -110,8 +106,6 @@ def create_app(config_class=Config, config_json=None):
     mail.init_app(app)
 
     # csrf = CSRFProtect(app)
-
-    limiter.init_app(app)
 
     from meteor.api.routes import api
     app.register_blueprint(api, url_prefix='/api')
