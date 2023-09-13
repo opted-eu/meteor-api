@@ -294,7 +294,7 @@ class DGraph(object):
             self.logger.debug(f'No Response')
             return False
 
-    def delete(self, mutation):
+    def delete(self, mutation: dict) -> bool:
 
         txn = self.connection.txn()
 
