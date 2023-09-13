@@ -87,4 +87,71 @@
         "Entry",
         "Channel"
     ]
+},
+{
+    "uid": "_:whatsapp",
+    "_unique_name": "whatsapp",
+    "name": "WhatsApp",
+    "description": "Meta Platforms-owned mobile instant messenger and social media service",
+    "wikidata_id": "Q1049511",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:gettr",
+    "_unique_name": "gettr",
+    "name": "Gettr",
+    "description": "social media platform",
+    "wikidata_id": "Q107392911",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:tiktok",
+    "_unique_name": "tiktok",
+    "name": "TikTok",
+    "description": "video-focused social media and social networking service owned by ByteDance",
+    "wikidata_id": "Q48938223",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:douyin",
+    "_unique_name": "douyin",
+    "name": "Douyin",
+    "name@zh": "抖音",
+    "description": "Chinese version of TikTok owned by ByteDance",
+    "wikidata_id": "Q65924658",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:parler",
+    "_unique_name": "parler",
+    "name": "Parler",
+    "description": "American alt-tech social networking service",
+    "wikidata_id": "Q64852796",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
+},
+{
+    "uid": "_:threads",
+    "_unique_name": "threads",
+    "name": "Threads",
+    "description": "social networking site owned by Meta Platforms",
+    "wikidata_id": "Q120281745",
+    "dgraph.type": [
+        "Entry",
+        "Channel"
+    ]
 }]
