@@ -446,7 +446,7 @@ for dataset_url, dataset in wp5_datasets.items():
         doi = dataset['doi'][0] if dataset['doi'][0].strip() != '' else None
         new_dataset['doi'] = doi
         if doi in publication_info:
-            new_dataset['date_published'] = publication_info[doi]['date_published']
+            new_dataset['date_published'] = str(publication_info[doi]['date_published'])
             new_dataset['venue'] = publication_info[doi]['venue']
             new_dataset['paper_kind'] = publication_info[doi]['paper_kind']
     except:
