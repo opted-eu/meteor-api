@@ -42,7 +42,7 @@ PublicationLike = typing.TypedDict('PublicationLike', {
 )
 
 SuccessfulAPIOperation = typing.TypedDict('SuccessfulAPIOperation', {
-    "status": str,
+    "status": int,
     "message": str,
     "redirect": str,
     "uid": str
