@@ -24,18 +24,19 @@ Implemented:
 - Query
 - Quicksearch
 - Schema
+- Login Routine
 
 Semi-Implemented (because login not implemented):
 - Add
 - Edit
 - Review
+- User actions
 
 Not Implemented:
-- Login routine. We will most probably implement a login procedure that leverages external identity providers. (see: https://github.com/opted-eu/meteor-dev/issues/31)
-- User
-- Admin
+- Admin actions
 - Follow
 - Notifications
+- Recommender system
 
 """
 
@@ -403,12 +404,12 @@ def schema() -> dict:
                 "description": __doc__,
                 "termsOfService": "http://meteor.opted.eu/about/",
                 "contact": {
-                "email": "info@opted.eu"
+                    "email": "info@opted.eu"
                 },
                 "license": {
                     "name": "GPL-3.0",
                 },
-                "version": "0.1"
+                "version": current_app.config['APP_VERSION']
             },
             # "externalDocs": {
             #     "description": "Find out more about Swagger",

@@ -1,4 +1,4 @@
-__version__ = "2.0.0.beta3"
+__version__ = "2.0.0"
 
 import logging
 import json
@@ -62,6 +62,16 @@ def create_app(config_class=Config, config_json=None):
 
     if app.config.get('DEBUG_MODE'):
         app.debug = True
+        try:
+            with open('.git/HEAD') as f:
+                git = f.read()
+            branch =  git.split('/')[-1].strip()
+            with open('.git/' + git[5:-1]) as f:
+                commit = f.read()
+            global __version__ 
+            __version__ += '-' + branch + '-' + commit[:7]
+        except:
+            pass 
     
     if app.debug:
         app.logger.setLevel(logging.DEBUG)
