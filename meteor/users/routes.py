@@ -125,7 +125,7 @@ def update_profile():
 def change_password():
     form = UpdatePasswordForm()
     if form.validate_on_submit():
-        current_user.change_password(form)
+        current_user.change_password(form.data.get('new_password'))
         flash(f'Your password has been changed', 'success')
         return redirect(url_for('users.profile'))
 
