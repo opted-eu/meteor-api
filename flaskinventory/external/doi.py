@@ -79,7 +79,7 @@ def crossref(doi: str) -> dict:
     result['paper_kind'] = publication.get('type')
 
     try:
-        result['date_published'] = dateparser.parse(publication['created']['date-time'])
+        result['date_published'] = dateparser.parse(publication['created']['date-time']).isoformat()
     except:
         pass
 
@@ -160,7 +160,7 @@ def doi_org(doi: str) -> dict:
         pass
 
     try:
-        result['date_published'] = j['issued']['date-parts'][0][0]
+        result['date_published'] = str(j['issued']['date-parts'][0][0])
     except:
         pass
 
