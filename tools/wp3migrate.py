@@ -6,7 +6,7 @@ from os.path import dirname
 sys.path.append(dirname(sys.path[0]))
 
 import pydgraph
-from flaskinventory.main.model import Schema
+from meteor.main.model import Schema
 import json
 import math
 from datetime import datetime
@@ -601,7 +601,7 @@ query = """{
         }
     }
 """
-from flaskinventory.external.doi import arxiv2doi
+from meteor.external.doi import arxiv2doi
 
 res = client.txn().query(query)
 
@@ -646,7 +646,7 @@ res = txn.mutate(del_nquads="\n".join(delete_nquads), commit_now=True)
 
 # Get all entries with CRAN
 
-from flaskinventory.external.orcid import ORCID
+from meteor.external.orcid import ORCID
 
 query = """{
 	doi(func: has(cran)) @filter(NOT has(doi) AND NOT has(arxiv))  {

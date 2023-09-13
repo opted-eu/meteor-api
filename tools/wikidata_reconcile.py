@@ -1,5 +1,5 @@
 import pandas as pd
-from flaskinventory.auxiliary import icu_codes, programming_languages
+from meteor.auxiliary import icu_codes, programming_languages
 from reconciler import reconcile
 import requests
 import json

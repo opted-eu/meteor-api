@@ -81,7 +81,7 @@ python -m pip install wheel waitress
 python -m pip install -r requirements.txt
 
 # set app secret key
-export flaskinventory_SECRETKEY=123456789
+export meteor_SECRETKEY=123456789
 
 # setup dgraph schema
 python tools/setschema.py
@@ -90,21 +90,21 @@ python tools/setschema.py
 python tools/sample_data.py
 
 # Run flask with waitress to test installation
-waitress-serve --call --listen "*:5000" 'flaskinventory:create_app'
+waitress-serve --call --listen "*:5000" 'meteor:create_app'
 
 ## this command only uses ip4
-waitress-serve --call --listen "0.0.0.0:5000" 'flaskinventory:create_app'
+waitress-serve --call --listen "0.0.0.0:5000" 'meteor:create_app'
 
 
 # run flask as systemd service
 # requires root access
-sudo nano /etc/systemd/system/flaskinventory.service
-sudo systemctl enable flaskinventory
-sudo service flaskinventory start
+sudo nano /etc/systemd/system/meteor.service
+sudo systemctl enable meteor
+sudo service meteor start
 
 # nginx config:
 
-/etc/nginx/sites-available/flaskinventory
+/etc/nginx/sites-available/meteor
 
 ```
 server {
@@ -138,16 +138,16 @@ server {
 
         location / {
                 include proxy_params;
-                proxy_pass http://unix:/home/ava/wp3inventory/flaskinventory.sock;
+                proxy_pass http://unix:/home/ava/wp3inventory/meteor.sock;
         }
 
         location ^~ /static/ {
                 include /etc/nginx/mime.types;
-                root /home/ava/wp3inventory/flaskinventory;
+                root /home/ava/wp3inventory/meteor;
         }
 
         location /favicon.ico {
-                alias /home/ava/wp3inventory/flaskinventory/static/favicon.ico;
+                alias /home/ava/wp3inventory/meteor/static/favicon.ico;
         }
 
 }

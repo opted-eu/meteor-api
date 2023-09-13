@@ -54,8 +54,8 @@ def save_publication_cache():
         json.dump(PUBLICATION_CACHE, f, cls=DateTimeEncoder) 
 
 
-from flaskinventory.external.doi import resolve_doi, resolve_authors, clean_doi
-from flaskinventory.external.cran import cran
+from meteor.external.doi import resolve_doi, resolve_authors, clean_doi
+from meteor.external.cran import cran
 import datetime
 import secrets
 from slugify import slugify
@@ -69,7 +69,7 @@ author_template = {'_date_created': datetime.datetime.now().isoformat(),
                     'dgraph.type': ['Entry', 'Author']
                     }
 
-with open(p / 'flaskinventory' / 'config.json') as f:
+with open(p / 'meteor' / 'config.json') as f:
     CONFIG = json.load(f)
 
 

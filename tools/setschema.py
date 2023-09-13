@@ -5,7 +5,7 @@ sys.path.append(dirname(sys.path[0]))
 import pydgraph
 import colorama
 from colorama import Fore, Style
-from flaskinventory.main.model import Schema
+from meteor.main.model import Schema
 
 def main():
     colorama.init()

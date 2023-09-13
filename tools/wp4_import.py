@@ -37,7 +37,7 @@ p = Path.cwd()
 
 """ Twitter Helper functions """
 
-config_path = p / "flaskinventory" / "config.json"
+config_path = p / "meteor" / "config.json"
 
 with open(config_path) as f:
     api_keys = json.load(f)
