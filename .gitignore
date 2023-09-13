@@ -128,11 +128,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-flaskinventory/config.json
-flaskinventory/test_config.json
-flaskinventory/static/icons
-flaskinventory/static/labels
-flaskinventory/static/profile_pics
+meteor/config.json
+meteor/test_config.json
+meteor/static/icons
+meteor/static/labels
+meteor/static/profile_pics
 
 tools/secrets.md
 tools/backup.json
@@ -142,8 +142,6 @@ logs/
 bot.session-journal
 graph_d3js.json
 data/fieldoptions.rds
-flaskinventory/test_sanitizer.py
-flaskinventory/add/sanitize.py
 
 tools/*.csv
 tools/*.json

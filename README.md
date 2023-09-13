@@ -29,7 +29,7 @@ This is the code repository for *Meteor* (the WP3 Inventory), which will contain
 
 ```
 ├── data                  # contains sample data in various formats and the dgraph schem
-├── flaskinventory        # root folder for flask
+├── meteor        # root folder for flask
 ├── README.md             # this file
 ├── requirements.txt      # python requirements
 ├── run.py                # Flask launcher

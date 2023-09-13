@@ -1,4 +1,4 @@
-from flaskinventory import create_app
+from meteor import create_app
 import argparse
 parser = argparse.ArgumentParser(description='Specify config file (json)')
 parser.add_argument('--config', type=str)
