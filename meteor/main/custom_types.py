@@ -467,6 +467,8 @@ class GitHubAuto(String):
             data = data.replace('github.com/', '')
             if data.startswith('/'):
                 data = data[1:]
+            if data.endswith('/'):
+                data = data[:-1]
         
         return data
     
