@@ -50,6 +50,9 @@ from flask import Blueprint, jsonify, current_app, request, abort, url_for, rend
 from flask.scaffold import F
 
 from flask_login import current_user, login_required
+import flask_jwt_extended as jwtx
+# TODO: reimplement this class for jwtx!
+from meteor import AnonymousUser
 
 from meteor.flaskdgraph import dql
 from meteor.flaskdgraph import build_query_string
@@ -291,6 +294,9 @@ class API(Blueprint):
                                 p = [par.annotation.__args__[0](x) for x in p]
                             else:
                                 p = [par.annotation.__args__[0](p)]
+                        elif t.get_origin(par.annotation) == t.Literal:
+                            if not p in t.get_args(par.annotation):
+                                raise ValueError
                         else:
                             p = par.annotation(p)
 
@@ -659,7 +665,7 @@ def view_recent(limit: int = 5) -> t.List[Entry]:
 
     return jsonify(result['data'])
 
-@api.route('/view/uid/<uid>')
+@api.route('/view/uid/<uid>', authentication=True, optional=True)
 def view_uid(uid: str) -> t.Union[Entry, PoliticalParty,
                                   Organization, JournalisticBrand, 
                                   NewsSource, Government, 
@@ -692,21 +698,18 @@ def view_uid(uid: str) -> t.Union[Entry, PoliticalParty,
     if not data:
         return api.abort(404, message=f'The requested entry <{uid}> could not be found!')
 
+    current_user = jwtx.current_user or AnonymousUser()
     if not can_view(data, current_user):
         if current_user.is_authenticated:
-            response = jsonify({
-                'status': 403,
-                'message': "You do not have the permissions to view this entry."})
-            response.status_code = 403
             return api.abort(403, message="You do not have the permissions to view this entry.")
         else:
-            return api.abort(403, message="You do not have the permissions to view this entry. Try to login?")
+            return api.abort(401, message="You do not have the permissions to view this entry. Try to login?")
         
     return jsonify(data)
 
 
 
-@api.route('/view/entry/<unique_name>')
+@api.route('/view/entry/<unique_name>', authentication=True, optional=True)
 def view_unique_name(unique_name: str) -> t.Union[Entry, PoliticalParty,
                                   Organization, JournalisticBrand, 
                                   NewsSource, Government, 
@@ -746,9 +749,13 @@ def view_unique_name(unique_name: str) -> t.Union[Entry, PoliticalParty,
 
 # TODO: add permission validation
 @login_required
-@api.route('/view/comments/<uid>')
+@api.route('/view/comments/<uid>', authentication=True)
 def view_comments(uid: str) -> t.List[Comment]:
-    """ list all comments for this entry """
+    """ 
+        list all comments for this entry 
+    
+        Comments are sorted by date (oldest first)
+    """
     
     try:
         data = get_comments(uid)
@@ -782,7 +789,7 @@ def view_ownership(uid: str) -> t.List[Entry]:
 
 
 @login_required
-@api.route("/view/rejected/<uid>")
+@api.route("/view/rejected/<uid>", authentication=True)
 def view_rejected(uid: str) -> Rejected:
     """ detail view of a rejected entry """
     uid = validate_uid(uid)
@@ -793,8 +800,8 @@ def view_rejected(uid: str) -> Rejected:
 
     if not data:
         return api.abort(404)
-
-    if not can_view(data, current_user):
+    
+    if not can_view(data, jwtx.current_user):
         return api.abort(403, message='You tried to view a rejected entry. Make sure you are logged in and have the right permissions.')
 
     return jsonify(data)
@@ -1174,7 +1181,7 @@ def add_new_entry(dgraph_type: str, data: t.Any = None) -> SuccessfulAPIOperatio
 from meteor.review.dgraph import check_entry
 from meteor.edit.utils import can_delete, can_edit, channel_filter
 
-from meteor.api.requests import EditablePredicates
+from meteor.api.requests import EditablePredicates, PublicDgraphTypes
 
 @api.route('/edit/<uid>', methods=['POST'])
 def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
@@ -1322,8 +1329,6 @@ def leave_comment(uid: str, message: str) -> SuccessfulAPIOperation:
 """ User Related """
 
 from meteor.api.responses import LoginToken
-import flask_jwt_extended as jwtx
-
 
 @api.route('/user/login', methods=['POST'])
 def login(email: str, password: str) -> LoginToken:
@@ -1606,15 +1611,47 @@ def delete_account() -> SuccessfulAPIOperation:
     return response
 
 
-@api.route('/user/<uid>/entries')
-def show_user_entries(uid: str) -> t.List[Entry]:
+@api.route('/user/<uid>/entries', authentication=True, optional=True)
+def show_user_entries(uid: str, 
+                      dgraph_type: PublicDgraphTypes = None, 
+                      entry_review_status: t.Literal['accepted',
+                                                     'revise',
+                                                     'pending',
+                                                     'draft',
+                                                     'rejected'] = None,
+                      page: int = 0) -> t.List[Entry]:
     """ 
         show all entries of a given user 
         
-        Results vary depending on permission; e.g., drafts are only visible to oneself and admins 
-    """
+        Results vary depending on permission; e.g., drafts are only visible to oneself and admins.
 
-    return api.abort(501)
+        Shows a maximum of 100 entries per page, use the `page` parameter to scroll. 
+    """
+    try:
+        user = User(uid=uid)
+        print(user)
+    except:
+        return api.abort(404, message='User not found')
+    
+    current_user = jwtx.current_user or AnonymousUser()
+
+    if current_user.uid == user.uid:
+        entries = user.my_entries(dgraph_type=dgraph_type, 
+                                  entry_review_status=entry_review_status,
+                                  page=page)
+        return jsonify(entries)
+
+    # Anonymous Users and contributors can onle see accepted entries
+    if current_user._role <= USER_ROLES.Contributor:
+        entry_review_status = 'accepted'
+    else:
+        if entry_review_status == 'draft':
+            return abort(403, message='You cannot view draft entries of other users')
+    
+    entries = user.my_entries(dgraph_type=dgraph_type, 
+                              entry_review_status=entry_review_status,
+                              )
+    return jsonify(entries)
 
 """ Administer Users """
 

@@ -200,9 +200,31 @@ class UserLogin(UserMixin):
             algorithm="HS256"
         )
         return reset_token
+    
+    def my_entries(self, 
+                   dgraph_type: str = None, 
+                   entry_review_status: str = None,
+                   page=0) -> list:
+        """ 
+            List all entries of the user, sorted by `_date_created (newest first).
+            
+        """
+        offset = page * 100
+        query_string = """query MyEntries($user: string, $offset: int)
+            { q(func: has(_added_by), orderdesc: _date_created, first: 100, offset: $offset)
+        """
 
-    def my_entries(self, onlydrafts=False) -> list:
-        return self.list_entries(self.uid, onlydrafts=onlydrafts)
+        filters = ["uid_in(_added_by, $user)"]
+        if dgraph_type:
+            filters.append(f"type({dgraph_type})")
+        if entry_review_status:
+            filters.append(f"eq(entry_review_status, {entry_review_status})")
+        
+        query_string += "@filter(" + " AND ".join(filters) + ")"
+        query_string += " { uid _unique_name name dgraph.type _date_created entry_review_status channel { name _unique_name uid }  } }"
+
+        entries = dgraph.query(query_string, variables={'$user': self.uid, '$offset': str(offset)})
+        return entries['q']
 
     """
         Static Methods
@@ -265,7 +287,13 @@ class UserLogin(UserMixin):
             return False
 
     @staticmethod
-    def list_entries(user, onlydrafts=False) -> Union[bool, list]:
+    def list_entries(user, 
+                     onlydrafts=False) -> Union[bool, list]:
+        """ 
+            DEPRECATED
+        
+            use: `user.my_entries()` instead
+        """
         query_string = f"""{{ q(func: uid({user})) {{
             drafts: ~_added_by @facets(orderdesc: timestamp) @filter(eq(entry_review_status, "draft"))
             {{ uid _unique_name name dgraph.type entry_review_status channel {{ name }} }} 

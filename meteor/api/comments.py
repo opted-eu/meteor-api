@@ -17,9 +17,6 @@ def get_comments(uid: str) -> t.List[dict]:
     '''
     data = dgraph.query(query_string, variables={'$entry_uid': uid})
 
-    if len(data['q']) == 0:
-        return []
-
     return data['q']
 
 from meteor.main.model import Comment
