@@ -26,7 +26,7 @@ Implemented:
 - Schema
 - Login Routine
 
-Semi-Implemented (because login not implemented):
+Semi-Implemented:
 - Add
 - Edit
 - Review
