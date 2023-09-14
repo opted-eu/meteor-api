@@ -13,7 +13,7 @@ Flask-WTF
 Flask-Markdown
 grpcio
 idna
-pyjwt
+PyJWT
 Jinja2
 MarkupSafe
 Pillow
