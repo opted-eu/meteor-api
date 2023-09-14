@@ -102,6 +102,19 @@ def main():
     request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
     txn.do_request(request)    
 
+    # add created date to all entries
+    txn = client.txn()
+    query = """{
+        s(func: type(Entry)) @filter(NOT has(_date_created)) { u as uid } }"""
+    import datetime
+    now = datetime.datetime.now().isoformat()
+    nquad = f"""
+        uid(u) <_date_created> "{now}" .
+        """
+    mutation = txn.create_mutation(set_nquads=nquad)
+    request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
+    txn.do_request(request)   
+
     # fine tune some entries
     txn = client.txn()
 
