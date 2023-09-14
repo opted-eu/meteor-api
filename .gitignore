@@ -160,15 +160,11 @@ data/g01.rdf
 data/g01.rdf.gz
 data/g01.schema
 data/g01.schema.gz
-data/parties.json
 data/partyfacts.feather
 data/publication_cache.json
-data/parties.json
 data/twitter_cache.json
 data/wikidata_cache.json
 data/wp2_failed_dois.json
 data/wp2_mutation.json
 data/wp4mutation.json
 data/wp5_mutation.json
-data/parties.json
-data/parties.json
