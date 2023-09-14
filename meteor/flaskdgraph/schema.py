@@ -1,4 +1,4 @@
-from typing import Any, Iterable, Union
+import typing as t
 from copy import deepcopy
 import json
 from datetime import datetime
@@ -220,15 +220,20 @@ class Schema:
         return d
 
     @classmethod
-    def get_types(cls) -> list:
+    def get_types(cls, private: bool = True) -> t.List[str]:
         """
             Get all types registered in the Schema.
-            `Schema.get_types()` -> Returns a list of strings
+            
+            By default returns private types as well.
+            Change behaviour by calling method with `private=False`
         """
-        return list(cls.__types__.keys())
+        if private:
+            return list(cls.__types__.keys())
+        return [k for k in cls.__types__.keys() if k not in cls.__private_types__]
+
 
     @classmethod
-    def get_type(cls, dgraph_type: str) -> Union[str, None]:
+    def get_type(cls, dgraph_type: str) -> t.Union[str, None]:
         """
             Get the correct name of a DGraph Type
             Helpful when input is all lower case
@@ -385,7 +390,7 @@ class Schema:
         return schema_string
     
     @classmethod
-    def provide_types(cls) -> Iterable[dict]:
+    def provide_types(cls) -> t.Iterable[dict]:
         """ Provide all dgraph types in a format usable for Open API 3"""
         
         schemas = {}
@@ -422,7 +427,7 @@ class Schema:
                 'requestBodies': requestBodies}
 
     @classmethod
-    def provide_queryable_predicates(cls) -> Iterable[dict]:
+    def provide_queryable_predicates(cls) -> t.Iterable[dict]:
         queryable = {}
         for predicate_name, predicate in Schema.get_queryable_predicates().items():
             queryable.update(predicate.openapi_query_parameter)
@@ -594,7 +599,7 @@ class Schema:
     Maybe we will keep this for implementing ORM style queries
 """
 
-def _declarative_constructor(self: Schema, **kwargs: Any) -> None:
+def _declarative_constructor(self: Schema, **kwargs: t.Any) -> None:
     """A simple constructor that allows initialization from kwargs.
     Sets attributes on the constructed instance using the names and
     values in ``kwargs``.

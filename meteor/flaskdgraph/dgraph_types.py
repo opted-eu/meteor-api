@@ -1224,6 +1224,7 @@ class UIDPredicate(Predicate):
         if self.bound_dgraph_type:
             query = DQLQuery(query_name=self.bound_dgraph_type.lower(), 
                      func=uid(var),
+                     query_filter=type_(self.bound_dgraph_type),
                      fetch=["uid", "expand(_all_)"])
             return query
         
