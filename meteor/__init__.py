@@ -27,6 +27,7 @@ dgraph = DGraph()
 
 class AnonymousUser(AnonymousUserMixin):
     _role = 0
+    uid = None
 
 login_manager = LoginManager()
 login_manager.login_view = 'users.login'
@@ -39,12 +40,23 @@ mail = Mail()
 # JWT Extension
 from meteor.users.authentication import jwt
 
+from flask.json.provider import DefaultJSONProvider
+import datetime
+
+class UpdatedJSONProvider(DefaultJSONProvider):
+    def default(self, o):
+        if isinstance(o, (datetime.date, datetime.datetime)):
+            return o.isoformat()
+        return super().default(o)
+
+
 def create_app(config_class=Config, config_json=None):
     # assert versions
     import wtforms
     assert wtforms.__version__.startswith('3.'), 'WTForms Version 3.X.X is required!'
 
     app = Flask(__name__)
+    app.json = UpdatedJSONProvider(app)
 
     app.logger.addHandler(create_filehandler())
 
