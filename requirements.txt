@@ -39,3 +39,4 @@ pyarrow
 tqdm
 thefuzz
 flask-jwt-extended
+flask-cors

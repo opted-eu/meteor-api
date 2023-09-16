@@ -11,6 +11,9 @@ from meteor.config import Config
 # Login Extension
 from flask_login import LoginManager, AnonymousUserMixin
 
+from flask_cors import CORS
+
+
 # E-Mail Extension
 from flask_mail import Mail
 # Forms Extension
@@ -93,6 +96,11 @@ def create_app(config_class=Config, config_json=None):
             app.logger.error(f'Slack Logging not working: {e}')
 
     app.config['APP_VERSION'] = __version__
+    if app.debug:
+        cors = CORS(app , resources={r"/*": {"origins": "*", "allow_headers": "*", "expose_headers": "*"}})
+    else:
+        CORS(app)
+    
 
     from meteor.users.routes import users
     from meteor.view.routes import view
