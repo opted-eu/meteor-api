@@ -78,6 +78,8 @@ class ORCID:
                 return self._find_best_match(r['expanded-result'][:10], _name)
         
         if affiliation:
+            if type(affiliation) == list:
+                affiliation = affiliation[0]
             r = self.search_authors(name=name, given_name=given_name, affiliation=affiliation)
             if r['num-found'] == 1:
                 return r['expanded-result'][0]
@@ -119,3 +121,34 @@ class ORCID:
             return None 
         else:
             return highest_score
+
+    def get_author_affiliations(self, orcid: str) -> typing.List[str]:
+        r = requests.get(self.api + 'v3.0/' + orcid + '/employments', 
+                         headers=self.headers)
+        
+        r.raise_for_status()
+
+        j = r.json()
+        affiliations = []
+        try:
+            department = j['affiliation-group'][0]['summaries'][0]['employment-summary']['department-name']
+            organization = j['affiliation-group'][0]['summaries'][0]['employment-summary']['organization']['name']
+            affil = department + ', ' + organization
+            affiliations.append(affil)
+        except:
+            pass
+
+        r = requests.get(self.api + 'v3.0/' + orcid + '/educations', 
+                         headers=self.headers)
+        
+        r.raise_for_status()
+        j = r.json()
+        try:
+            department = j['affiliation-group'][0]['summaries'][0]['education-summary']['department-name']
+            organization = j['affiliation-group'][0]['summaries'][0]['education-summary']['organization']['name']
+            affil = department + ', ' + organization
+            affiliations.append(affil)
+        except:
+            pass
+
+        return affiliations

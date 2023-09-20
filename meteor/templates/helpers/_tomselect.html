@@ -590,9 +590,9 @@ function renderAuthors(data) {
                                             e.name = e.display_name
                                             e.openalex = e.id
                                             e.uid = e.id.replace("https://openalex.org/", "")
-                                            e.last_known_institution = e.hint
+                                            e.affiliations = [e.hint]
                                             if (e.external_id) {
-                                                e.last_known_institution += e.external_id.replace('https://orcid.org/', ' (ORCID: ') + ')'
+                                                e.affiliations.push(e.external_id.replace('https://orcid.org/', ' (ORCID: ') + ')')
                                             }
                                             e.origin = "openalex"
                                             newArray.push(e)
@@ -610,7 +610,7 @@ function renderAuthors(data) {
                     option: function(data, escape) {
                         return '<div>' +
                                 '<span class="title">' + escape(data.name) + '</span> ' +
-                                '<small class="text-muted">' + escape(data.last_known_institution) + '</small>' +
+                                '<small class="text-muted">' + escape(data.affiliations.join('; ')) + '</small>' +
                             '</div>';
                     },
                     item: function(data, escape) {

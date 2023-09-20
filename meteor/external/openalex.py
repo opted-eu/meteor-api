@@ -1,3 +1,4 @@
+import typing
 import requests
 from thefuzz import fuzz
 
@@ -39,7 +40,7 @@ class OpenAlex:
 
         for i, author in enumerate(j['authorships']):
             parsed_author = {'authors|sequence': i}
-            parsed_author['openalex'] = author['author']['id'].replace('https://openalex.org/', '')
+            parsed_author['openalex'] = [author['author']['id'].replace('https://openalex.org/', '')]
             parsed_author['name'] = author['author']['display_name']
             result['_authors_fallback'].append(author['author']['display_name'])
             result['_authors_fallback|sequence'][str(i)] = str(i)
@@ -97,3 +98,13 @@ class OpenAlex:
         r.raise_for_status()
 
         return r.json()
+    
+    def get_author_affiliations(self, author_id: str) -> list:
+        """ Retrieve the name of an author based on OpenAlex ID 
+        
+            Raises: HTTP Error, KeyError
+        """
+        r = requests.get(self.api + 'people/' + author_id, params=self.params)
+        r.raise_for_status()
+        j = r.json()
+        return j['last_known_institution']['display_name']

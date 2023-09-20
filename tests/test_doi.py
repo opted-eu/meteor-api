@@ -35,7 +35,7 @@ class TestDOI(BasicTestSetup):
         openalex = OpenAlex()
         self.assertRaises(HTTPError, openalex.resolve_doi, self.manifesto_doi)
         self.assertEqual(openalex.resolve_doi(
-            '10.14361/9783839463321')['openalex'], 'W4286475882')
+            '10.14361/9783839463321')['openalex'], 'W4286475882') # Die Ampelkoalition, Lehmann, 2022
 
     def test_crossref(self):
         self.assertRaises(HTTPError, crossref, self.manifesto_doi)
@@ -67,7 +67,8 @@ class TestDOI(BasicTestSetup):
 
         r = orcid.resolve_author(given_name='Werner', family_name='Krause',
                                  affiliation='WZB Berlin Social Science Center')
-        self.assertIsNone(r)
+        
+        self.assertEqual(r['orcid-id'], '0000-0002-5069-7964')
 
         r = orcid.resolve_author(
             given_name="Chung-hong", family_name="Chan", affiliation="University of Mannheim")
@@ -114,6 +115,7 @@ class TestDOI(BasicTestSetup):
 
     def test_arxiv(self):
         r = resolve_doi(self.arxiv_link)
+        # ANEW Sentiment dict
         self.assertEqual(r['url'], 'https://arxiv.org/abs/1103.2903')
         r = resolve_doi(self.arxiv_versioned)
         self.assertEqual(r['url'], 'https://arxiv.org/abs/1103.2903')
@@ -126,7 +128,7 @@ class TestDOI(BasicTestSetup):
     def test_dgraph(self):
         from meteor.external.dgraph import dgraph_resolve_doi
         with self.app.app_context():
-            r = dgraph_resolve_doi("10.11587/IEGQ1B")
+            r = dgraph_resolve_doi("10.11587/IEGQ1B") # REMINDER dataset
 
     def test_cran(self):
         r = cran("grafzahl")
@@ -137,6 +139,42 @@ class TestDOI(BasicTestSetup):
             authors = resolve_authors(r['_authors_tmp'])
 
         self.assertIsNone(authors[0].get('orcid'))
+
+    def test_affiliations(self):
+        with self.app.app_context():
+            r = get_author_affiliations({'orcid': '0000-0002-0866-064X'})
+        self.assertEqual(len(r), 1)
+
+        with self.app.app_context():
+            r = get_author_affiliations({'orcid': '0000-0002-2968-2557'})
+
+        self.assertEqual(len(r), 2)
+
+        with self.app.app_context():
+            r = get_author_affiliations({'orcid': '0000-0002-1485-4264'})
+
+        self.assertEqual(len(r), 1)
+
+        with self.app.app_context():
+            r = get_author_affiliations({'orcid': '0000-0002-4559-2439'})
+
+        self.assertEqual(len(r), 2)
+
+        with self.app.app_context():
+            r = get_author_affiliations({'openalex': 'A5054422803'})
+        self.assertEqual(len(r), 1)
+
+        with self.app.app_context():
+            r = get_author_affiliations({'openalex': 'A5088108453'})
+        self.assertEqual(len(r), 1)
+
+        with self.app.app_context():
+            r = get_author_affiliations({'openalex': 'A5004752671'})
+        self.assertEqual(len(r), 1)
+
+        with self.app.app_context():
+            r = get_author_affiliations({'openalex': 'A5075267289'})
+        self.assertEqual(len(r), 1)
 
 
 if __name__ == "__main__":

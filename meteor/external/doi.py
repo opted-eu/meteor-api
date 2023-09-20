@@ -273,6 +273,11 @@ def zenodo(doi: str) -> dict:
     for i, author in enumerate(j['metadata']['creators']):
         result['_authors_fallback'].append(author['name'])
         result['_authors_fallback|sequence'][str(i)] = i
+        try:
+            affiliations = author.pop('affiliation')
+            author['affiliations'] = [affiliations]
+        except:
+            pass
         author['authors|sequence'] = i
         result['_authors_tmp'].append(author)
 
@@ -404,6 +409,32 @@ def resolve_doi(doi: str) -> dict:
 
     raise requests.HTTPError(f'Could not resolve DOI: <{doi}> at all.')
 
+
+def get_author_affiliations(author: dict,
+                           orcid_token: str = None) -> typing.List[str]:
+    """
+        Get the affiliations of an author
+    """
+    affiliations = []
+    if 'openalex' in author:
+        openalex = OpenAlex()
+        try:
+            if isinstance(author['openalex'], list):
+                for author_id in author['openalex']:
+                    affiliations.append(openalex.get_author_affiliations(author_id))
+            else:
+                affiliations.append(openalex.get_author_affiliations(author['openalex']))
+        except Exception as e:
+            logger.debug(f"Could not get affiliation from openalex <{author['openalex']}>: {e}")
+    if 'orcid' in author:
+        orcid = ORCID(token=orcid_token)
+        try:
+            affiliations += orcid.get_author_affiliations(author['orcid'])
+        except Exception as e:
+            logger.debug(f"Could not get affiliation from orcid <{author['orcid']}>: {e}")
+    return list(set(affiliations))
+
+
 def resolve_authors(authors_tmp: typing.List[dict], 
                     orcid_token: str=None) -> typing.List[dict]:
     """ 
@@ -415,15 +446,15 @@ def resolve_authors(authors_tmp: typing.List[dict],
     openalex = OpenAlex()
     orcid = ORCID(token=orcid_token)
     for author in authors_tmp:
-        if 'openalex' in author:
-            continue
-
         if 'orcid' in author:
             orcid_id = clean_orcid(author['orcid'])
             author['orcid'] = orcid_id
             try:
                 openalex_id = openalex.get_author_by_orcid(orcid_id)['id'].replace('https://openalex.org/', '')
-                author['openalex'] = [openalex_id]
+                try:
+                    author['openalex'].append(openalex_id)
+                except:
+                    author['openalex'] = [openalex_id]
             except requests.HTTPError:
                 pass
         else:
@@ -436,9 +467,15 @@ def resolve_authors(authors_tmp: typing.List[dict],
                     author['orcid'] = orcid_details['orcid-id']
                     try:
                         openalex_id = openalex.get_author_by_orcid(orcid_details['orcid-id'])['id'].replace('https://openalex.org/', '')
-                        author['openalex'] = [openalex_id]
+                        try:
+                            author['openalex'].append(openalex_id)
+                        except:
+                            author['openalex'] = [openalex_id]
                     except requests.HTTPError:
                         pass
             except requests.HTTPError:
                 pass
+
+        if not 'affiliations' in author:
+            author['affiliations'] = get_author_affiliations(author, orcid_token=orcid_token)
     return authors_tmp

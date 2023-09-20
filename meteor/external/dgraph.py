@@ -16,7 +16,13 @@ def dgraph_resolve_doi(doi: str) -> dict:
 
     for author in authors:
         query.set_graphql_variables(orcid=author.get('orcid', 'None'))
-        query.set_graphql_variables(openalex=author.get('openalex', 'None'))
+        if 'openalex' in author:
+            assert type(author['openalex']) == list, doi
+            openalex = ", ".join(author['openalex'])
+            openalex = f'"[{openalex}]"'
+            query.set_graphql_variables(openalex=openalex)
+        else:
+            query.set_graphql_variables(openalex='None')
         res = dgraph.query(query)
         if len(res['q']) > 0:
             author['uid'] = res['q'][0]['uid']

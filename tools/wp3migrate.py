@@ -4,6 +4,7 @@
 import sys
 from os.path import dirname
 sys.path.append(dirname(sys.path[0]))
+import traceback
 
 import pydgraph
 from meteor.main.model import Schema
@@ -630,6 +631,7 @@ for entry in entries_with_doi:
         delete_nquads.append(f"<{entry['uid']}> <_authors_fallback> * .")
     except Exception as e:
         print('Could not process entry:', entry['doi'], e)
+        traceback.print_exc()
         failed.append(entry)
 
 txn = client.txn()
