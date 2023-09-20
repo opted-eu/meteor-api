@@ -73,21 +73,34 @@ with open(p / 'meteor' / 'config.json') as f:
     CONFIG = json.load(f)
 
 
-def dgraph_check_author(orcid: str = None, openalex: typing.Union[str, list] = None) -> dict:
+def dgraph_check_author(orcid: str = None, openalex: typing.Union[str, list] = None) -> typing.Union[dict, None]:
+
     dgraph_author_query = """query checkAuthor ( $orcid: string, $openalex: string ) {
         q(func: type(Author)) @filter(eq(orcid, $orcid) OR eq(openalex, $openalex)) {
             uid openalex orcid
             }
         }
     """
-    if not isinstance(openalex, list):
-        openalex = [openalex]
+    variables = {'$orcid': str(orcid)}
+    if openalex is None:
+        variables['$openalex'] = 'None'
+    elif isinstance(openalex, list):
+        _openalex = ", ".join(openalex)
+        variables['$openalex'] = f'"[{_openalex}]"'
+    else:
+        variables['$openalex'] = str(openalex)
 
-    for o in openalex:
-        res = client.txn(read_only=True).query(dgraph_author_query, variables={'$orcid': str(orcid), '$openalex': str(o)})
-        j = json.loads(res.json)
-        if len(j['q']) > 0:
-            return j['q'][0]
+    txn = client.txn(read_only=True)
+    res = txn.query(dgraph_author_query, 
+                variables=variables,
+                timeout=10)
+    txn.discard()
+
+    j = json.loads(res.json)
+    
+    if len(j['q']) > 0:
+        return j['q'][0]
+   
     return None
 
 def process_authors(authors_tmp: list, cache, entry_review_status='accepted') -> list:
