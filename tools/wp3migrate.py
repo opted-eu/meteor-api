@@ -5,7 +5,6 @@ import sys
 from os.path import dirname
 sys.path.append(dirname(sys.path[0]))
 import traceback
-from multiprocessing import Pool
 
 import pydgraph
 from meteor.main.model import Schema
@@ -13,7 +12,6 @@ import json
 import math
 from datetime import datetime
 from slugify import slugify
-import requests
 from pathlib import Path
 from tools.migration_helpers import (PUBLICATION_CACHE, client, ADMIN_UID, 
                                      process_doi, save_publication_cache,
@@ -619,31 +617,20 @@ delete_nquads = []
 
 remove_keys = ['_entry_added', 'description', 'name', 'title', 'url', 'date_published']
 
-
-def retrieve_doi(entry, cache=PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS):
+for entry in entries_with_doi:
     try:
-        print(entry['doi'])
-        updated_entry = process_doi(entry['doi'], cache, entry_review_status=entry_review_status)
+        updated_entry = process_doi(entry['doi'], PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS)
         updated_entry['uid'] = entry['uid']
         for k in remove_keys:
             try:
                 _ = updated_entry.pop(k)
             except:
                 pass
-        return updated_entry
-    except:
-        print('Could not process entry:', entry['doi'], e)
-        traceback.print_exc()
-
-with Pool(processes=8) as pool:
-    results = pool.map(retrieve_doi, entries_with_doi)
-
-for entry in results:
-    try:
-        updated_entries_with_doi.append(entry)
+        updated_entries_with_doi.append(updated_entry)
         delete_nquads.append(f"<{entry['uid']}> <_authors_fallback> * .")
     except Exception as e:
-        failed.append(entry)
+        print('Could not process entry:', entry['doi'], e)
+        traceback.print_exc()
 
 txn = client.txn()
 res = txn.mutate(set_obj=updated_entries_with_doi, 
@@ -677,23 +664,14 @@ delete_nquads = []
 
 remove_keys = ['_entry_added', 'description', 'name', 'title', 'url', 'date_published']
 
-def retrieve_cran(entry, publication_cache=PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS):
+for entry in cran_entries:
     try:
-        authors = process_cran(entry['cran'], publication_cache, entry_review_status=entry_review_status)
+        authors = process_cran(entry['cran'], PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS)
         updated_entry = {'uid': entry['uid'], "authors": authors}
-        return updated_entry
-    except Exception as e:
-        print('Could not process entry:', entry['cran'], e)
-
-with Pool(processes=8) as pool:
-    results = pool.map(retrieve_cran, cran_entries)
-
-for entry in results:
-    try:
-        print(entry['cran'])
-        updated_cran_entries.append(entry)
+        updated_cran_entries.append(updated_entry)
         delete_nquads.append(f"<{entry['uid']}> <_authors_fallback> * .")
     except Exception as e:
+        print('Could not process entry:', entry['cran'], e)
         failed.append(entry)
 
 txn = client.txn()

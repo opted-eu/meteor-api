@@ -7,7 +7,7 @@
 import sys
 from os.path import dirname
 sys.path.append(dirname(sys.path[0]))
-from multiprocessing import Pool
+
 
 import itertools
 import json
@@ -873,22 +873,10 @@ failed = []
 
 print('Retrieving Authors and DOI Metadata ...')
 
-def retrieve_doi(doi, cache=PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS):
+for doi in dois:
     try:
-        print(doi)
-        publication = process_doi(doi, cache, entry_review_status=entry_review_status)
-        return publication
-    except Exception as e:
-        print(doi, e)
-
-with Pool(processes=8) as pool:
-    results = pool.map(retrieve_doi, dois)
-
-for publication in results:
-    try:
-        doi = publication['doi']
-        authors[doi] = publication['authors']
-        publication_info[doi] = publication
+        publication_info[doi] = process_doi(doi, PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS)
+        authors[doi] = publication_info[doi]['authors']
     except Exception as e:
         print(doi, e)
         failed.append(doi)
