@@ -41,7 +41,7 @@ function renderAuthors(data) {
     
     {% set field = form.get_field(f) %}
 
-    {% if field.name == 'alternate_names' %}
+    {% if field.name in ['alternate_names', 'urls'] %}
 
         var TomSelectOtherNamesConfig = {
             plugins: ['remove_button'],
@@ -53,7 +53,7 @@ function renderAuthors(data) {
             }
             }
         };
-        new TomSelect('#alternate_names', TomSelectOtherNamesConfig)
+        new TomSelect("#{{ field.id }}", TomSelectOtherNamesConfig)
     
     {% elif field.name == 'publishes' %}
 
