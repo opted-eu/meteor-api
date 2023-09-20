@@ -1389,6 +1389,26 @@ class LearningMaterial(Entry):
 
     datasets_used = ListRelationship(description="Does the learning material use a specific dataset?",
                                      relationship_constraint="Dataset")
+    
+    languages = ListRelationship(description="Does the learning material focus on a specific language?",
+                                 relationship_constraint="Language",
+                                 required=True,
+                                 tom_select=True,
+                                 queryable=True,
+                                 autoload_choices=True)
+    
+    programming_languages = ListRelationship(label="Programming Languages",
+                                             description="Is the learning material for a specific programming language?",
+                                             required=False,
+                                             relationship_constraint="ProgrammingLanguage",
+                                             tom_select=True,
+                                             queryable=True,
+                                             autoload_choices=True)
+    
+    channels = ListRelationship(description="Is the learning material covering specific channels?",
+                                autoload_choices=True,
+                                queryable=True,
+                                relationship_constraint="Channel")
 
 
 """
