@@ -646,7 +646,6 @@ res = txn.mutate(del_nquads="\n".join(delete_nquads), commit_now=True)
 
 # Get all entries with CRAN
 
-from meteor.external.orcid import ORCID
 
 query = """{
 	doi(func: has(cran)) @filter(NOT has(doi) AND NOT has(arxiv))  {
@@ -814,6 +813,45 @@ mutation = txn.create_mutation(del_nquads=delete)
 request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
 txn.do_request(request)
 
+""" Modalities """
+
+print('Adding Modalities ...')
+
+modalities_json = p / 'data' / 'modalities.json'
+
+with open(modalities_json, 'r') as f:
+    modalities = json.load(f)
+
+modalities = modalities['set']
+
+for l in modalities:
+    l['entry_review_status'] = 'accepted'
+    l['_added_by'] = {'uid': ADMIN_UID,
+                    '_added_by|timestamp': datetime.now().isoformat()}
+
+
+# find all tools
+
+query_string = """{
+	q(func: type(Tool)) {
+		uid
+  }
+}"""
+
+res = client.txn().query(query_string)
+
+j = json.loads(res.json)['q']
+
+updated_entries = []
+
+for entry in j: 
+    updated = {'uid': entry['uid'],
+               'modalities': [{'uid': '_:modality_text'}]}
+    updated_entries.append(updated)
+
+updated_entries += modalities
+
+res = client.txn().mutate(set_obj=updated_entries, commit_now=True)
 
 """ Generate new unique names """
 

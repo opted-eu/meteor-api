@@ -705,6 +705,12 @@ class Archive(Entry):
                                   autoload_choices=True,
                                   allow_new=True,
                                   queryable=True)
+    
+    modalities = ListRelationship(description="What type of content is included in the archive?",
+                                         relationship_constraint="Modality",
+                                         autoload_choices=True,
+                                         allow_new=True,
+                                         queryable=True)
 
     languages = ListRelationship(description="Which languages are covered in the archive?",
                                  tom_select=True,
@@ -831,6 +837,12 @@ class Dataset(Entry):
                                  allow_new=True,
                                  autoload_choices=True,
                                  queryable=True)
+    
+    modalities = ListRelationship(description="What type of content is included in the dataset?",
+                                         relationship_constraint="Modality",
+                                         autoload_choices=True,
+                                         allow_new=True,
+                                         queryable=True)
 
     file_formats = ListRelationship(description="In which file format(s) is the dataset stored?",
                                     autoload_choices=True,
@@ -989,6 +1001,12 @@ class Tool(Entry):
                                          allow_new=True,
                                          queryable=True,
                                          query_label='Concept Variables')
+    
+    modalities = ListRelationship(description="What type of content can be analyzed with the tool?",
+                                         relationship_constraint="Modality",
+                                         autoload_choices=True,
+                                         allow_new=True,
+                                         queryable=True)
 
     graphical_user_interface = Boolean(description="Does the tool have a graphical user interface?",
                                        label="Yes, it does have a GUI",
@@ -1142,6 +1160,12 @@ class ScientificPublication(Entry):
                                                                  "Person",
                                                                  "Government",
                                                                  "Parliament"])
+    
+    modalities = ListRelationship(description="Does the publication focus on a specific modality?",
+                                         relationship_constraint="Modality",
+                                         autoload_choices=True,
+                                         allow_new=True,
+                                         queryable=True)
     
     text_types = ListRelationship(description="Text Genres investigated in publication",
                                  relationship_constraint="TextType",
@@ -1298,6 +1322,17 @@ class UnitOfAnalysis(Entry):
 
     pass
 
+class Modality(Entry):
+
+    """
+        Modality refers to the interdisciplinary study of how people communicate and interact in 
+        social settings by analyzing various semiotic resources beyond traditional language, 
+        such as text, images, sound, video (or even typography, color, gesture, and more). 
+        It encompasses both a theoretical framework in social semiotics and a broader exploration 
+        of the ways in which individuals create meaning through the combination of different modes of 
+        communication in various contexts. (see: Poulsen, 2015)
+    """
+
 
 """
     Collections / User Curated Entries
@@ -1360,6 +1395,12 @@ class Collection(Entry):
     concept_variables = ListRelationship(description="Is this collection about concepts or related to theoretical constructs?",
                                          relationship_constraint=["ConceptVariable"],
                                          autoload_choices=True)
+    
+    modalities = ListRelationship(description="Does the collection for any specific modality?",
+                                         relationship_constraint="Modality",
+                                         autoload_choices=True,
+                                         allow_new=True,
+                                         queryable=True)
 
 
 class LearningMaterial(Entry):
@@ -1409,6 +1450,18 @@ class LearningMaterial(Entry):
                                 autoload_choices=True,
                                 queryable=True,
                                 relationship_constraint="Channel")
+    
+    text_types = ListRelationship(description="Text Genres covered by this learning material",
+                                 relationship_constraint="TextType",
+                                 required=True,
+                                 autoload_choices=True,
+                                 queryable=True)
+    
+    modalities = ListRelationship(description="Does the learning material cover specific modalities?",
+                                         relationship_constraint="Modality",
+                                         autoload_choices=True,
+                                         allow_new=True,
+                                         queryable=True)
 
 
 """
