@@ -589,11 +589,16 @@ def get_dgraph_type(dgraph_type: str, new: bool = False, edit: bool = False) -> 
     if not dgraph_type:
         return api.abort(404)
     if new:
-        result = {k: v.openapi_component for k, v in Schema.get_predicates(dgraph_type).items() if v.new}
+        predicates = {k: v.openapi_component for k, v in Schema.get_predicates(dgraph_type).items() if v.new}
     elif edit:
-        result = {k: v.openapi_component for k, v in Schema.get_predicates(dgraph_type).items() if v.edit}
+        predicates = {k: v.openapi_component for k, v in Schema.get_predicates(dgraph_type).items() if v.edit}
     else:
-        result = {k: v.openapi_component for k, v in Schema.get_predicates(dgraph_type).items()}
+        predicates = {k: v.openapi_component for k, v in Schema.get_predicates(dgraph_type).items()}
+    
+    result = {'dgraph.type': dgraph_type,
+              'description': Schema.get_type_description(dgraph_type),
+              'predicates': predicates}
+    
     return jsonify(result)
     
 

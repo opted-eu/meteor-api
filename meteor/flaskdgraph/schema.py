@@ -246,6 +246,16 @@ class Schema:
             if t.lower() == dgraph_type.lower():
                 return t
         return None
+    
+    @classmethod
+    def get_type_description(cls, dgraph_type: str) -> t.Union[str, None]:
+        """
+            Get the documentation / description (i.e. docstring) of a dgraph type
+        """
+        dgraph_type = cls.get_type(dgraph_type)
+        if not dgraph_type:
+            return None
+        return cls.__types_meta__[dgraph_type]['description']
 
     @classmethod
     def get_predicates(cls, _cls) -> dict:
