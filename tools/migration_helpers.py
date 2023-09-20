@@ -302,12 +302,12 @@ def deduplicate_author(name: str) -> None:
     for author in authors:
         try:
             a = author.pop('openalex')
-            affiliations += a
+            openalex += a
         except:
             pass
         try:
             o = author.pop('affiliations')
-            openalex += o
+            affiliations += o
         except:
             pass
         # transfer relationships to main author
@@ -342,7 +342,7 @@ def deduplicate_author(name: str) -> None:
     _ = merged_author.pop('~authors')
     _ = main_author.pop('~authors')
     merged_author.update(main_author)
-    merged_author['affilations'] = affiliations
+    merged_author['affiliations'] = affiliations
     merged_author['openalex'] = openalex
     if orcid:
         merged_author['orcid'] = orcid
