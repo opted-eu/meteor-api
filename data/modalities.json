@@ -1,0 +1,41 @@
+{
+  "set": [
+    {
+      "name": "Text",
+      "description": "written text",
+      "_unique_name": "modality_text",
+      "dgraph.type": [
+        "Modality",
+        "Entry"
+      ],
+      "uid": "_:modality_text"
+    },
+    {
+        "name": "Image",
+        "_unique_name": "modality_image",
+        "dgraph.type": [
+          "Modality",
+          "Entry"
+        ],
+        "uid": "_:modality_image"
+    },
+    {
+        "name": "Video",
+        "_unique_name": "modality_video",
+        "dgraph.type": [
+          "Modality",
+          "Entry"
+        ],
+        "uid": "_:modality_video"
+    },
+    {
+        "name": "Audio",
+        "_unique_name": "modality_audio",
+        "dgraph.type": [
+          "Modality",
+          "Entry"
+        ],
+        "uid": "_:modality_audio"
+    }
+  ]
+}
