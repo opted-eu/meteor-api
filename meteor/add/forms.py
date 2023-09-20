@@ -20,7 +20,8 @@ class NewEntry(FlaskForm):
                              ('PoliticalParty', 'Political Party'),
                              ('Government', 'Government'),
                              ('Parliament', 'Parliament'),
-                             ('Organization', 'Organization')
+                             ('Organization', 'Organization'),
+                             ('LearningMaterial', 'Learning Material')
                          ],
                          validators=[DataRequired()])
 

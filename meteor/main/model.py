@@ -1417,12 +1417,13 @@ class LearningMaterial(Entry):
         A reference to a learning resource. Teaches how to perform text analysis, 
         work with specific datasets, deal with specific languages and so forth. 
     """
+    
+    urls = ListString(required=True, directives=["@index(hash)"])
 
     authors = AuthorList(allow_new=True,
                          queryable=True,
                          relationship_constraint="Author")
 
-    urls = ListString(required=True, directives=["@index(hash)"])
 
     concept_variables = ListRelationship(description="Is this learning material about concepts or related to theoretical constructs?",
                                          queryable=True,
@@ -1444,7 +1445,6 @@ class LearningMaterial(Entry):
 
     languages = ListRelationship(description="Does the learning material focus on a specific language?",
                                  relationship_constraint="Language",
-                                 required=True,
                                  tom_select=True,
                                  queryable=True,
                                  autoload_choices=True)
