@@ -630,7 +630,7 @@ function renderAuthors(data) {
             };
         new TomSelect('#authors', TomSelectAuthorsConfig);
 
-    {% elif field.name == 'initial_source' %}
+    {% elif field.name in ['initial_source', 'datasets_used'] %}
     
     var TomSelectInitialSourceConfig = {
                 plugins: ['remove_button'],
@@ -670,7 +670,7 @@ function renderAuthors(data) {
                     callback(returnData);
                 },
             };
-        new TomSelect('#initial_source', TomSelectInitialSourceConfig);
+        new TomSelect("#{{ field.id }}", TomSelectInitialSourceConfig);
 
     {% elif field.name == 'documentation' %}
 
