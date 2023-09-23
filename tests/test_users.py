@@ -1,15 +1,14 @@
 
-if __name__ == "__main__":
-    from sys import path
-    from os.path import dirname
-    import unittest
+from sys import path
+from os.path import dirname
+import unittest
 
-    path.append(dirname(path[0]))
+path.append(dirname(path[0]))
 
-    from flask_login import current_user
-    from meteor import create_app, AnonymousUser, dgraph
-    from meteor.main.model import User
-    from test_setup import BasicTestSetup
+from flask_login import current_user
+from meteor import AnonymousUser, dgraph
+from meteor.main.model import User
+from test_setup import BasicTestSetup
 
 
 class TestUsers(BasicTestSetup):

@@ -1,16 +1,15 @@
-#  Ugly hack to allow absolute import from the root folder
+# Ugly hack to allow absolute import from the root folder
 # whatever its name is. Please forgive the heresy.
 
-if __name__ == "__main__":
-    import unittest
-    from sys import path
-    from os.path import dirname
+import unittest
+from sys import path
+from os.path import dirname
 
-    path.append(dirname(path[0]))
-    from test_setup import BasicTestSetup
-    from meteor.view.routes import build_query_string
-    from meteor import dgraph
-    from meteor.main.model import Country
+path.append(dirname(path[0]))
+from test_setup import BasicTestSetup
+from meteor.view.routes import build_query_string
+from meteor import dgraph
+from meteor.main.model import Country
 
 
 class TestQueries(BasicTestSetup):

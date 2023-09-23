@@ -1,16 +1,15 @@
 # Ugly hack to allow absolute import from the root folder
 # whatever its name is. Please forgive the heresy.
 
-if __name__ == "__main__":
-    from sys import path
-    from os.path import dirname
-    from flask import request, url_for
-    import unittest
+from sys import path
+from os.path import dirname
+from flask import request, url_for
+import unittest
 
-    path.append(dirname(path[0]))
-    from test_setup import BasicTestSetup
-    from meteor import dgraph
-    from meteor.main.model import Schema, Entry, NewsSource
+path.append(dirname(path[0]))
+from test_setup import BasicTestSetup
+from meteor import dgraph
+from meteor.main.model import Schema, Entry, NewsSource
 
 
 class TestSchema(BasicTestSetup):

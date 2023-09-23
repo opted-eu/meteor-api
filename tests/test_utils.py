@@ -1,12 +1,10 @@
 import unittest
 
-if __name__ == "__main__":
-    from sys import path
-    from os.path import dirname
-    from requests import HTTPError
-    import unittest
+from sys import path
+from os.path import dirname
+from requests import HTTPError
 
-    path.append(dirname(path[0]))
+path.append(dirname(path[0]))
 
 from meteor.flaskdgraph.utils import restore_sequence, recursive_restore_sequence
 

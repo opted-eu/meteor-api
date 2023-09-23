@@ -2,28 +2,27 @@
 #  Ugly hack to allow absolute import from the root folder
 # whatever its name is. Please forgive the heresy.
 
-if __name__ == "__main__":
-    from sys import path
-    from os.path import dirname
+from sys import path
+from os.path import dirname
 
-    path.append(dirname(path[0]))
-    from test_setup import BasicTestSetup
-    from meteor import dgraph
+path.append(dirname(path[0]))
+from test_setup import BasicTestSetup
+from meteor import dgraph
 
-    import unittest
-    from unittest.mock import patch
-    import copy
-    import secrets
-    import datetime
-    from meteor.flaskdgraph import Schema
-    from meteor.flaskdgraph.dgraph_types import UID, Scalar
-    from meteor.main.model import Entry, Organization, NewsSource, User, ScientificPublication
-    from meteor.main.sanitizer import Sanitizer
-    from meteor.errors import InventoryValidationError, InventoryPermissionError
-    from meteor import create_app, dgraph
-    from meteor.users.constants import USER_ROLES
-    from meteor import AnonymousUser
-    from flask_login import current_user
+import unittest
+from unittest.mock import patch
+import copy
+import secrets
+import datetime
+from meteor.flaskdgraph import Schema
+from meteor.flaskdgraph.dgraph_types import UID, Scalar
+from meteor.main.model import Entry, Organization, NewsSource, User, ScientificPublication
+from meteor.main.sanitizer import Sanitizer
+from meteor.errors import InventoryValidationError, InventoryPermissionError
+from meteor import create_app, dgraph
+from meteor.users.constants import USER_ROLES
+from meteor import AnonymousUser
+from flask_login import current_user
 
 
 def mock_wikidata(*args):
@@ -619,7 +618,7 @@ class TestSanitizers(BasicTestSetup):
 
     def test_newscientificpublication(self):
         sample_data =  {
-                        "authors": ["A4356501006", "A261564576", "A4356539172"],
+                        "authors": ["A5039380414", "A5034823602", "A5055204791"],
                         "conditions_of_access": "free",
                         "countries": [self.spain_uid],
                         "date_published": "2015",
@@ -644,9 +643,24 @@ class TestSanitizers(BasicTestSetup):
             with self.app.app_context():
                 sanitizer = Sanitizer(sample_data, dgraph_type=ScientificPublication)
                 self.assertEqual(type(sanitizer.set_nquads), str)
-                self.assertEqual(sanitizer.entry['_unique_name'], "mike_thelwall_et_al_2015_the_megaphone_of_the_people")
+                self.assertEqual(sanitizer.entry['_unique_name'], "david_vilares_et_al_2015_the_megaphone_of_the_people")
 
             self.client.get('/logout')
+
+        # test empty orderedlistrelationship
+        # authors are required, so empty list should raise an error
+        sample_data['authors'] = []
+        with self.client:
+            response = self.client.post(
+                '/login', data={'email': 'reviewer@opted.eu', 'password': 'reviewer123'})
+            self.assertEqual(current_user.display_name, 'Reviewer')
+
+            with self.app.app_context():
+                with self.assertRaises(InventoryValidationError):
+                    Sanitizer(sample_data, dgraph_type=ScientificPublication)
+
+            self.client.get('/logout')
+
 
 
 if __name__ == "__main__":

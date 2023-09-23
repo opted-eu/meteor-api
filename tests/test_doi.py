@@ -1,21 +1,20 @@
 # Ugly hack to allow absolute import from the root folder
 # whatever its name is. Please forgive the heresy.
 
-if __name__ == "__main__":
-    from sys import path
-    from os.path import dirname
-    from requests import HTTPError
-    import unittest
+from sys import path
+from os.path import dirname
+from requests import HTTPError
+import unittest
 
-    path.append(dirname(path[0]))
-    from test_setup import BasicTestSetup
-    from meteor.external.openalex import OpenAlex
-    from meteor.external.orcid import ORCID
-    from meteor.external.doi import *
-    from meteor.external.cran import *
-    import json
-    with open('meteor/config.json') as f:
-        config = json.load(f)
+path.append(dirname(path[0]))
+from test_setup import BasicTestSetup
+from meteor.external.openalex import OpenAlex
+from meteor.external.orcid import ORCID
+from meteor.external.doi import *
+from meteor.external.cran import *
+import json
+with open('meteor/config.json') as f:
+    config = json.load(f)
 
 
 class TestDOI(BasicTestSetup):
