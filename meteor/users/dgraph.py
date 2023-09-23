@@ -14,6 +14,17 @@ def generate_random_username() -> str:
     return secrets.token_urlsafe(6)
 
 
+class AnonymousUser:
+    _role = 0
+    uid = None
+    is_authenticated = False
+    is_active = False
+    is_anonymous = True
+
+    def get_id(self):
+        return
+
+
 class UserLogin(UserMixin):
 
     id = None

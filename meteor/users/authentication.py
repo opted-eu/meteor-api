@@ -1,6 +1,6 @@
 import flask_jwt_extended as jwtx
 from flask import current_app
-from meteor.users.dgraph import UserLogin
+from meteor.users.dgraph import UserLogin, AnonymousUser
 from meteor.main.model import User
 from meteor import dgraph
 
@@ -24,8 +24,11 @@ def user_identity_lookup(user):
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data) -> User:
     identity = jwt_data["sub"]
-    user = User(uid=identity)
-    return user
+    try:
+        user = User(uid=identity)
+        return user
+    except ValueError:
+        return AnonymousUser
 
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict) -> bool:
