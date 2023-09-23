@@ -237,6 +237,7 @@ class Schema:
         """
             Get the correct name of a DGraph Type
             Helpful when input is all lower case
+            
             `Schema.get_type('fileformat')` -> 'FileFormat'
         """
         if not dgraph_type:
