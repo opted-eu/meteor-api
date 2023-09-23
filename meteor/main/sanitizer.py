@@ -273,6 +273,9 @@ class Sanitizer:
             if self.data.get(key) and isinstance(item, ReverseRelationship):
                 validated = item.validate(
                     self.data[key], self.entry_uid, facets=facets)
+                if item.required and validated is None and not self.is_upsert:
+                    raise InventoryValidationError(f'Error in predicate <{key}>. Is required, but no value supplied!')
+
                 if isinstance(validated, list):
                     self.related_entries += validated
                 else:
@@ -290,8 +293,11 @@ class Sanitizer:
 
             elif key in self.data and isinstance(item, SingleRelationship):
                 related_items = item.validate(self.data[key], facets=facets)
-                validated = []
-                if isinstance(related_items, list):
+                if item.required and related_items is None and not self.is_upsert:
+                    raise InventoryValidationError(f'Error in predicate <{key}>. Is required, but no value supplied!')
+
+                elif isinstance(related_items, list):
+                    validated = []
                     for i in related_items:
                         validated.append(i['uid'])
                         if isinstance(i['uid'], NewID):
