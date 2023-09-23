@@ -902,11 +902,10 @@ def query(_max_results: int = 25, _page: int = 1, _terms: str = None) -> t.List[
         query_string = build_query_string(r)
         if query_string:
             search_terms = _terms
-            if not search_terms == '':
-                variables = {'$searchTerms': search_terms}
+            if search_terms is not None and search_terms.strip() != '':
+                variables = {'$searchTerms': search_terms.strip()}
             else:
                 variables = None
-
             result = dgraph.query(query_string, variables=variables)
             result = result['q']
 
