@@ -1464,7 +1464,6 @@ class LearningMaterial(Entry):
 
     text_types = ListRelationship(description="Text Genres covered by this learning material",
                                   relationship_constraint="TextType",
-                                  required=True,
                                   autoload_choices=True,
                                   queryable=True)
 
