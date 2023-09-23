@@ -11,6 +11,7 @@ WorkingDirectory=/home/ava/wp3inventory
 ExecStart=/home/ava/environments/wp3/bin/gunicorn --workers 8 --bind unix:meteor.sock -m 007 meteor:create_app()
 Restart=always
 Environment="meteor_SECRETKEY=123456789"
+Environment="PREFERRED_URL_SCHEME=https"
 Environment="EMAIL_USER="
 Environment="EMAIL_PW="
 Environment="TWITTER_CONSUMER_KEY="
