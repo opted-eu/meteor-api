@@ -569,8 +569,8 @@ function renderAuthors(data) {
                 selectOnTab: true,
                 load: function(query, callback) {
                     if ( query.length < 3 ) return callback();
-                    var url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + '&predicate=name&dgraph.type=Author';
-                    var openalex_url = 'https://api.openalex.org/autocomplete/authors?q=' + encodeURIComponent(query) + '&author_hint=institution&mailto=info@opted.eu'
+                    const url = '{{ url_for("endpoint.lookup") }}?query=' + encodeURIComponent(query) + '&predicate=name&dgraph.type=Author';
+                    const openalex_url = 'https://api.openalex.org/autocomplete/authors?q=' + encodeURIComponent(query) + '&author_hint=institution&mailto=info@opted.eu'
                     Promise.all([fetch(url)
                                     .then(response => response.json())
                                     .then(j => j.data)
@@ -610,7 +610,7 @@ function renderAuthors(data) {
                     option: function(data, escape) {
                         return '<div>' +
                                 '<span class="title">' + escape(data.name) + '</span> ' +
-                                '<small class="text-muted">' + escape(data.affiliations.join('; ')) + '</small>' +
+                                '<small class="text-muted">' + escape(data.affiliations?.join('; ')) + '</small>' +
                             '</div>';
                     },
                     item: function(data, escape) {
@@ -618,7 +618,7 @@ function renderAuthors(data) {
                     }
                 },
                 create: function(input, callback) {
-                    var returnData = {
+                    const returnData = {
                         value: input,
                         uid: input,
                         _unique_name: input,
