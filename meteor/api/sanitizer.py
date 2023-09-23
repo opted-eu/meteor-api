@@ -1,20 +1,21 @@
+import typing
+
 from meteor.flaskdgraph import Schema
-from meteor.flaskdgraph.dgraph_types import (UID, MutualRelationship, NewID, Predicate, ReverseRelationship, Scalar,
-                                                     SingleRelationship, GeoScalar, Variable, make_nquad, dict_to_nquad)
-from meteor.flaskdgraph.utils import validate_uid
+from meteor.flaskdgraph.dgraph_types import (UID, MutualRelationship, NewID,
+                                             ReverseRelationship, Scalar,
+                                             SingleRelationship,
+                                             Variable,
+                                             dict_to_nquad)
+
 from meteor.errors import InventoryValidationError, InventoryPermissionError
-from meteor.auxiliary import icu_codes
 
 from meteor.users.constants import USER_ROLES
 from meteor.main.model import User
 from meteor import dgraph
 from flask import current_app
-from werkzeug.datastructures import ImmutableMultiDict
 
-from meteor.main.model import Entry, Organization, NewsSource
+from meteor.main.model import Entry
 from meteor.misc import get_ip
-from meteor.misc.utils import IMD2dict
-from flask_login import current_user
 
 # External Utilities
 
@@ -23,7 +24,6 @@ import secrets
 import re
 
 import datetime
-from dateutil import parser as dateparser
 
 
 class Sanitizer:
@@ -36,12 +36,17 @@ class Sanitizer:
 
     upsert_query = None
 
-    def __init__(self, data: dict, fields: dict = None, dgraph_type=Entry, entry_review_status=None, **kwargs):
+    def __init__(self,
+                 data: dict,
+                 user: User,
+                 fields: dict = None,
+                 dgraph_type=Entry,
+                 entry_review_status: typing.Literal['draft',
+                                                     'pending', 'revise', 'accepted'] = None,
+                 **kwargs):
         current_app.logger.debug(f'Got the following data: {data}')
 
-        if isinstance(data, ImmutableMultiDict):
-            data = IMD2dict(data)
-        self.user = current_user
+        self.user = user
         self.user_ip = get_ip()
         self._prevalidate_inputdata(data, self.user, self.user_ip)
         if not isinstance(dgraph_type, str):
@@ -91,14 +96,15 @@ class Sanitizer:
         if not isinstance(data, dict):
             raise TypeError('Data object has to be type dict!')
         if not isinstance(user, User):
-            raise InventoryPermissionError(f'User Object is not class User! Received class: {type(user)}')
+            raise InventoryPermissionError(
+                f'User Object is not class User! Received class: {type(user)}')
         if not isinstance(ip, str):
             raise TypeError('IP Address is not string!')
         return True
 
     @classmethod
-    def edit(cls, data: dict, fields=None, dgraph_type=Entry, **kwargs):
-        cls._prevalidate_inputdata(data, current_user, get_ip())
+    def edit(cls, data: dict, user: User, fields=None, dgraph_type=Entry, **kwargs):
+        cls._prevalidate_inputdata(data, user, get_ip())
 
         if 'uid' not in data.keys():
             raise InventoryValidationError(
@@ -109,8 +115,8 @@ class Sanitizer:
             raise InventoryValidationError(
                 f'Entry can not be edited! UID does not exist: {data["uid"]}')
 
-        if current_user._role < USER_ROLES.Reviewer:
-            if check.get('_added_by').get('uid') != current_user.id:
+        if user._role < USER_ROLES.Reviewer:
+            if check.get('_added_by').get('uid') != user.id:
                 raise InventoryPermissionError(
                     'You do not have the required permissions to edit this entry!')
 
@@ -123,12 +129,18 @@ class Sanitizer:
 
         if entry_review_status != 'draft':
             edit_fields = {key: field for key,
-                           field in edit_fields.items() if field.edit}
+                           field in edit_fields.items() if field.edit or key == 'uid'}
 
         if not isinstance(dgraph_type, str):
             dgraph_type = dgraph_type.__name__
 
-        return cls(data, is_upsert=True, dgraph_type=dgraph_type, entry_review_status=entry_review_status, fields=edit_fields, **kwargs)
+        return cls(data,
+                   user,
+                   is_upsert=True,
+                   dgraph_type=dgraph_type,
+                   entry_review_status=entry_review_status,
+                   fields=edit_fields,
+                   **kwargs)
 
     def _set_nquads(self):
         nquads = dict_to_nquad(self.entry)
@@ -250,7 +262,7 @@ class Sanitizer:
         # unpack facets from input dict (JSON)
         self._preprocess_facets()
 
-        # run all parse_ methods 
+        # run all parse_ methods
         for item in dir(self):
             if item.startswith('parse_'):
                 m = getattr(self, item)
@@ -264,6 +276,9 @@ class Sanitizer:
             if key in self.skip_keys:
                 continue
 
+            if key not in self.data and self.is_upsert:
+                continue
+
             if key in self.facets.keys():
                 facets = self.facets[key]
             else:
@@ -273,7 +288,8 @@ class Sanitizer:
                 validated = item.validate(
                     self.data[key], self.entry_uid, facets=facets)
                 if item.required and validated is None and not self.is_upsert:
-                    raise InventoryValidationError(f'Error in predicate <{key}>. Is required, but no value supplied!')
+                    raise InventoryValidationError(
+                        f'Error in predicate <{key}>. Is required, but no value supplied!')
 
                 if isinstance(validated, list):
                     self.related_entries += validated
@@ -293,7 +309,8 @@ class Sanitizer:
             elif key in self.data and isinstance(item, SingleRelationship):
                 related_items = item.validate(self.data[key], facets=facets)
                 if item.required and related_items is None and not self.is_upsert:
-                    raise InventoryValidationError(f'Error in predicate <{key}>. Is required, but no value supplied!')
+                    raise InventoryValidationError(
+                        f'Error in predicate <{key}>. Is required, but no value supplied!')
 
                 if isinstance(related_items, list):
                     validated = []
@@ -309,12 +326,12 @@ class Sanitizer:
 
             elif self.data.get(key) and hasattr(item, 'validate'):
                 validated = item.validate(self.data[key], facets=facets)
-            
+
             elif hasattr(item, 'autocode'):
                 if item.autoinput in self.data.keys():
                     validated = item.autocode(
                         self.data[item.autoinput], facets=facets)
-            
+
             elif hasattr(item, 'default'):
                 validated = item.default
                 if hasattr(validated, 'facets') and facets is not None:
@@ -322,7 +339,8 @@ class Sanitizer:
 
             #  assert validation procedure really yields values for required fields
             if item.required and validated is None and not self.is_upsert:
-                raise InventoryValidationError(f'Error in predicate <{key}>. Is required, but no value supplied!')
+                raise InventoryValidationError(
+                    f'Error in predicate <{key}>. Is required, but no value supplied!')
 
             if validated is None:
                 continue
@@ -344,6 +362,7 @@ class Sanitizer:
             self.entry = self._add_entry_meta(self.entry)
             self.overwrite[self.entry_uid] = [item.predicate for k, item in self.fields.items(
             ) if item.overwrite and k in self.data.keys()]
+            print(self.overwrite)
         else:
             self.entry = self._add_entry_meta(self.entry, newentry=True)
             # self.entry['_unique_name'] = self.generate_unique_name(self.entry)
@@ -365,7 +384,7 @@ class Sanitizer:
                     'You do not have the required permissions to change the review status!')
             self.entry['entry_review_status'] = 'accepted'
             self.entry['_reviewed_by'] = UID(self.user.uid, facets={
-                                            'timestamp': datetime.datetime.now(datetime.timezone.utc)})
+                'timestamp': datetime.datetime.now(datetime.timezone.utc)})
             self.skip_keys.append('entry_review_status')
         elif self.data.get('entry_review_status'):
             if self.entry_review_status == 'draft' and self.data['entry_review_status'] == 'pending':
@@ -400,7 +419,7 @@ class Sanitizer:
             pass
         else:
             self.data['_unique_name'] = 'dummy'
-            
+
     @staticmethod
     def generate_unique_name(entry: dict):
         """
@@ -410,11 +429,12 @@ class Sanitizer:
         no spaces, only underscores
         all lowercase
         only ascii characters
-        
+
         get the first dgraph.type that is not 'Entry'
         """
         try:
-            entry_type = list(set(entry['dgraph.type']).difference({'Entry'}))[0]
+            entry_type = list(
+                set(entry['dgraph.type']).difference({'Entry'}))[0]
         except:
             entry_type = ""
 
@@ -433,7 +453,8 @@ class Sanitizer:
                 res = dgraph.query(query_string)
                 country_code = res['q'][0]['iso_3166_1_2']
             except Exception as e:
-                current_app.logger.warning(f'Could not retrieve country code for new entry <{entry.get("name", entry)}>: {e}', exc_info=True)
+                current_app.logger.warning(
+                    f'Could not retrieve country code for new entry <{entry.get("name", entry)}>: {e}', exc_info=True)
 
         if 'openalex' in entry:
             _name = slugify(str(entry['openalex']), separator="")
@@ -453,7 +474,7 @@ class Sanitizer:
             unique_name += country_code + '_'
 
         unique_name += _name
-        
+
         if dgraph.get_uid('_unique_name', unique_name):
             # add timestamp as fallback
             _stamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -464,20 +485,22 @@ class Sanitizer:
     def process_scientificpublication(self):
 
         # TODO: completely rework this
-
         """
             Special steps for papers
             Generate a name based on author and title
         """
         for author in self.entry['authors']:
-            if author.facets['sequence'] == 0: break
+            if author.facets['sequence'] == 0:
+                break
         if isinstance(author, NewID):
             for entry in self.related_entries:
-                if entry['uid'] == author: break
+                if entry['uid'] == author:
+                    break
             author_name = entry['name']
         else:
             query_string = """query author ($authoruid : string) { q(func: uid($authoruid)) { name } }"""
-            res  = dgraph.query(query_string, variables={'$authoruid': str(author)})
+            res = dgraph.query(query_string, variables={
+                               '$authoruid': str(author)})
             author_name = res["q"][0]['name']
         if len(self.entry['authors']) > 1:
             author_name += " et al."
@@ -551,7 +574,7 @@ class Sanitizer:
         all lowercase
         only ascii characters
         """
-        
+
         name = slugify(str(name), separator="")
         channel = slugify(str(channel), separator="")
         country = dgraph.get_unique_name(country_uid)
@@ -563,8 +586,5 @@ class Sanitizer:
             # add timestamp as fallback
             _stamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
             unique_name += f'_{_stamp}'
-        
+
         return unique_name
-
-
-    

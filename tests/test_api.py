@@ -272,6 +272,442 @@ class TestAPILoggedOut(BasicTestSetup):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.json), 1)
 
+
+    """ Query Routs """
+
+    def test_query_route(self):
+
+        with self.client as c:
+            query = {'languages': [self.lang_german, self.lang_english],
+                     'languages*connector': ['OR'],
+                     'channel': self.channel_print
+                     }
+
+            response = c.get('/api/query', query_string=query,
+                              headers=self.headers)
+
+            self.assertEqual(len(response.json), 3)
+
+            response = c.get('/api/query/count', query_string=query,
+                              headers=self.headers)
+
+            self.assertEqual(response.json, 3)
+
+    def test_query_private_predicates(self):
+
+        with self.client as c:
+            query = {'email': "wp3@opted.eu"}
+
+            response = c.get('/api/query',
+                              query_string=query,
+                              headers=self.headers)
+
+            self.assertEqual(response.json['status'], 400)
+
+            query = {'display_name': "Contributor"}
+
+            response = c.get('/api/query/count', 
+                             query_string=query,
+                             headers=self.headers)
+
+            self.assertEqual(response.json['status'], 400)
+
+    def test_query_different_predicates(self):
+
+        with self.client as c:
+            query = {"languages": [self.lang_german],
+                     "publication_kind": "alternative media",
+                     "channel": self.channel_print}
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+
+            self.assertEqual(
+                response.json[0]['_unique_name'], "direkt_print")
+
+            query = {"publication_kind": "newspaper",
+                     "channel": self.channel_website,
+                     "country": self.austria_uid}
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+            self.assertEqual(
+                response.json[0]['_unique_name'], "www.derstandard.at")
+
+    def test_query_same_scalar_predicates(self):
+        # same Scalar predicates are combined with OR operators
+        # e.g., payment_model == "free" OR payment_model == "partly free"
+
+        with self.client as c:
+            # German that is free OR partly for free
+            query = {"languages": [self.lang_german],
+                     "payment_model": ["free", "partly free"]
+                     }
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+            
+            res = [entry['_unique_name'] for entry in response.json]
+            self.assertCountEqual(res,
+                                  ["www.derstandard.at", "globalvoices_org_website"])
+
+            # English that is free OR partly for free
+            query = {"languages": [self.lang_english],
+                     "payment_model": ["free", "partly free"]
+                     }
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+            self.assertEqual(
+                response.json[0]['_unique_name'], "globalvoices_org_website")
+
+            # Free or partly for free IN Germany, but in English
+            query = {"languages": [self.lang_english],
+                     "payment_model": ["free", "partly free"],
+                     "countries": self.germany_uid
+                     }
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+            self.assertEqual(len(response.json), 0)
+
+            # twitter OR instagram IN austria
+            query = {"channel": [self.channel_twitter, self.channel_instagram],
+                     "country": self.austria_uid
+                     }
+
+            response = c.get('/api/query',
+                             query_string=query)
+            self.assertEqual(len(response.json), 2)
+
+
+    def test_query_same_list_predicates(self):
+
+        with self.client as c:
+            # Spanish AND German speaking that is either free or partly free
+            query = {"languages": [self.lang_spanish, self.lang_german],
+                     "payment_model": ["free", "partly free"]
+                     }
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+            self.assertEqual(len(response.json), 0)
+
+            # English AND Hungarian speaking that is either free or partly free
+            query = {"languages": [self.lang_english, self.lang_hungarian],
+                     "payment_model": ["free", "partly free"]
+                     }
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+            self.assertEqual(
+                response.json[0]['_unique_name'], "globalvoices_org_website")
+
+    def test_query_date_predicates(self):
+
+        with self.client as c:
+            # Founded by exact year
+            query = {"date_founded": ["1995"]}
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+            self.assertEqual(len(response.json), 2)
+
+            # Founded in range
+            query = {"date_founded": ["1990", "2000"]}
+
+            response = c.get('/api/query',
+                             query_string=query)
+            self.assertEqual(len(response.json), 4)
+
+            # Founded before year
+            query = {"date_founded": ["2000"],
+                     "date_founded*operator": 'lt'}
+
+            response = c.get('/api/query',
+                             query_string=query)
+            self.assertEqual(len(response.json), 6)
+
+            # Founded after year
+            query = {"date_founded": ["2000"],
+                     "date_founded*operator": 'gt'}
+
+            response = c.get('/api/query',
+                             query_string=query)
+            
+            self.assertEqual(len(response.json), 5)
+
+    def test_query_boolean_predicates(self):
+        with self.client as c:
+            # verified social media account
+            query = {"verified_account": True}
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+            
+            self.assertEqual(len(response.json), 3)
+
+            query = {"verified_account": 'true'}
+            response = c.get('/api/query',
+                             query_string=query)
+            
+            self.assertEqual(len(response.json), 3)
+
+    def test_query_facet_filters(self):
+        with self.client as c:
+            query = {"audience_size|unit": "copies sold",
+                     "audience_size|count": 52000,
+                     "audience_size|count*operator": 'gt'}
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+            self.assertEqual(
+                response.json[0]['_unique_name'], 'derstandard_print')
+
+    def test_query_type_filters(self):
+
+        with self.client as c:
+            query = {"dgraph.type": "NewsSource",
+                     "countries": self.germany_uid}
+
+            response = c.get('/api/query',
+                             query_string=query,
+                             headers=self.headers)
+            self.assertEqual(len(response.json), 1)
+
+            query = {"dgraph.type": ["NewsSource", "Organization"],
+                     "countries": self.austria_uid}
+
+            response = c.get('/api/query/count',
+                             query_string=query)
+            self.assertEqual(response.json, 11)
+
+    """ Edit Routes """
+
+    def test_duplicate_check(self):
+
+        with self.client as c:
+            res = c.get('/api/add/check',
+                        query_string={'name': 'AmCAT',
+                                      'dgraph_type': 'Tool'},
+                        headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.json[0]['name'], 'AmCAT')
+
+            res = c.get('/api/add/check',
+                        headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.status_code, 400)
+
+            res = c.get('/api/add/check',
+                        query_string={'name': 'AmCAT',
+                                      'dgraph_type': 'Tooler'},
+                        headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.status_code, 400)
+
+            res = c.get('/api/add/check',
+                        query_string={'name': 'AmCAT'},
+                        headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.status_code, 400)
+
+
+            res = c.get('/api/add/check',
+                        query_string={'name': "10.1080/1461670X.2020.1745667",
+                                      'dgraph_type': 'ScientificPublication'},
+                        headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.json[0]['doi'], "10.1080/1461670X.2020.1745667")
+
+    
+    def test_new_entry(self):
+
+        """ Test the basic functionality of the route with not too complicated edge cases """
+
+        mock_organization = {
+            'name': 'Deutsche Bank',
+            'alternate_names': 'TC, ',
+            'wikidata_id': "Q66048",
+            'date_founded': 1956,
+            'ownership_kind': 'private ownership',
+            'country': self.germany_uid,
+            'address': 'Schwanheimer Str. 149A, 60528 Frankfurt am Main, Deutschland',
+            'employees': '5000',
+            'publishes': [self.falter_print_uid, self.derstandard_print],
+            'owns': self.derstandard_mbh_uid,
+            'party_affiliated': 'no'
+        }
+
+        with self.client as c:
+            
+            res = c.post('/api/add/Organization',
+                         json={'data': mock_organization},
+                         headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertIn('uid', res.json)
+                # clean up
+                uid = res.json['uid']
+                mutation = dgraph.delete({'uid': uid})
+                self.assertTrue(mutation)
+
+            
+            res = c.post('/api/add/Organizationasd',
+                         json={'data': mock_organization},
+                         headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.status_code, 400)
+
+
+            res = c.post('/api/add/Notification',
+                         json={'data': mock_organization},
+                         headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.status_code, 403)
+
+            res = c.post('/api/add/Organization',
+                         data={'data': mock_organization},
+                         headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.status_code, 400)
+
+            # ensure users cannot circumvent review system
+            mock_organization['entry_review_status'] = 'accepted'
+            res = c.post('/api/add/Organization',
+                         json={'data': mock_organization},
+                         headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                print(res.json)
+                self.assertIn('uid', res.json)
+                uid = res.json['uid']
+                # clean up
+                entry = dgraph.query(f"query check($uid: string) {{ q(func: uid($uid)) {{ uid expand(_all_) }}  }}",
+                             variables={'$uid': uid})
+                print(entry)
+                self.assertNotEqual(entry['q'][0]['entry_review_status'], 'accepted')
+                mutation = dgraph.delete({'uid': uid})
+                self.assertTrue(mutation)
+
+    def test_edit_entry(self):
+
+        with self.client as c:
+            # no UID
+            edit_entry = {
+                'data': {
+                'name': 'Test',
+                'entry_review_status': 'accepted'}
+            }
+            
+            res = c.post('/api/edit/' + self.derstandard_print,
+                         json=edit_entry,
+                         headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in == 'admin':
+                self.assertEqual(res.json['uid'], self.derstandard_print)
+            elif self.logged_in == 'reviewer':
+                self.assertEqual(res.json['uid'], self.derstandard_print)
+            else:
+                self.assertEqual(res.status_code, 403)
+            
+            # clean up
+            res = dgraph.mutation({'uid': self.derstandard_print,
+                             'name': "Der Standard"})
+            self.assertNotEqual(res, False)
+
+
+            wrong_uid = {'uid': '0xfffffffff', **edit_entry}
+            # wrong uid
+            res = c.post('/api/edit/0xfffffffff',
+                         json=edit_entry,
+                         headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.status_code, 404)
+
+    def test_new_learning_material(self):
+        sample_data =  {
+                        "authors": ["0000-0002-0387-5377", "0000-0001-5971-8816"],
+                        "date_published": "2023",
+                        "name": "Replication Crisis Solved with Julia",
+                        "description": "Manual for making replicable research in Julia",
+                        "dgraph.type": ["Entry", "Dataset"],
+                        "doi": "10.1177/0165551515598926",
+                        "urls": ["https://awesometutorials.org/part1","https://awesometutorials.org/part2"],
+                        "programming_languages": [self.programming_julia]
+                    }
+  
+        with self.client as c:
+            res = c.post('/api/add/LearningMaterial',
+                     json = {'data': sample_data},
+                         headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertIn('uid', res.json)
+                # clean up
+                uid = res.json['uid']
+                mutation = dgraph.delete({'uid': uid})
+                self.assertTrue(mutation)
+
+            # test empty orderedlistrelationship
+            # authors are required, so empty list should raise an error
+            sample_data['authors'] = []
+            res = c.post('/api/add/LearningMaterial',
+                        json = {'data': sample_data},
+                         headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                # should actually be a 4xx error
+                self.assertEqual(res.status_code, 500)
+
+            
+
     # """ Review Routes """
 
     # def test_overview(self):

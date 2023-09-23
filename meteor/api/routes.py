@@ -278,14 +278,18 @@ class API(Blueprint):
     def query_params(self, f):
         """
         Decorator that will read the query parameters for the request.
-        The names are the names that are mapped in the function.
+        And call the decorated function with the request parameters.
+
+        E.g.: `my_func(a, b, c)`
+        it will check if `a`, `b`, or `c` are in the request parameters
+        (either in the url query `some_url?a=value`, in the form data, and in the json data) 
         """
         func_params = inspect.signature(f).parameters
 
         @wraps(f)
         def logic(*args, **kw):
             params = dict(kw)
-            for parameter_name, par in func_params.items():
+            for parameter_name, par in func_params.items():     
                 if parameter_name in request.args:
                     p = request.args.get(parameter_name)
                     try:
@@ -297,6 +301,8 @@ class API(Blueprint):
                         elif t.get_origin(par.annotation) == t.Literal:
                             if not p in t.get_args(par.annotation):
                                 raise ValueError
+                        elif t.get_origin(par.annotation) == t.Any:
+                            p = p
                         else:
                             p = par.annotation(p)
 
@@ -899,22 +905,25 @@ def query(_max_results: int = 25, _page: int = 1, _terms: str = None) -> t.List[
         flat=False).items() if v[0] != ''}
     
     if len(r) > 0:
-        query_string = build_query_string(r)
-        if query_string:
-            search_terms = _terms
-            if search_terms is not None and search_terms.strip() != '':
-                variables = {'$searchTerms': search_terms.strip()}
-            else:
-                variables = None
-            result = dgraph.query(query_string, variables=variables)
-            result = result['q']
+        try:
+            query_string = build_query_string(r)
+        except ValueError as e:
+            return api.abort(400, message=f'{e}')  
+          
+        search_terms = _terms
+        if search_terms is not None and search_terms.strip() != '':
+            variables = {'$searchTerms': search_terms.strip()}
+        else:
+            variables = None
+        result = dgraph.query(query_string, variables=variables)
+        result = result['q']
 
-            # clean 'Entry' from types
-            if len(result) > 0:
-                for item in result:
-                    if 'Entry' in item['dgraph.type']:
-                        item['dgraph.type'].remove('Entry')
-            recursive_restore_sequence(result)
+        # clean 'Entry' from types
+        if len(result) > 0:
+            for item in result:
+                if 'Entry' in item['dgraph.type']:
+                    item['dgraph.type'].remove('Entry')
+        recursive_restore_sequence(result)
 
         return jsonify(result)
     else:
@@ -929,16 +938,18 @@ def query_count(_terms: str = None) -> int:
         flat=False).items() if v[0] != ''}
     
     if len(r) > 0:
-        query_string = build_query_string(r, count=True)
-        if query_string:
-            search_terms = _terms
-            if not search_terms == '':
-                variables = {'$searchTerms': search_terms}
-            else:
-                variables = None
+        try:
+            query_string = build_query_string(r, count=True)
+        except ValueError as e:
+            return api.abort(400, message=f'{e}')  
+        search_terms = _terms
+        if search_terms is not None and search_terms.strip() != '':
+            variables = {'$searchTerms': search_terms.strip()}
+        else:
+            variables = None
 
-            result = dgraph.query(query_string, variables=variables)
-            result = result['total'][0]['count']
+        result = dgraph.query(query_string, variables=variables)
+        result = result['total'][0]['count']
 
         return jsonify(result)
     else:
@@ -1065,7 +1076,7 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
 
 """ Add new Entries """
 
-@api.route('/add/check')
+@api.route('/add/check', authentication=True)
 def duplicate_check(name: str = None, dgraph_type: str = None) -> t.List[Entry]:
     """ 
         perform potential duplicate check. 
@@ -1108,45 +1119,80 @@ def duplicate_check(name: str = None, dgraph_type: str = None) -> t.List[Entry]:
     
     return jsonify(result['check'])
     
+from meteor.api.requests import EditablePredicates, PublicDgraphTypes
 
-@api.route('/add/<dgraph_type>', methods=['POST'])
-def add_new_entry(dgraph_type: str, data: t.Any = None) -> SuccessfulAPIOperation:
+@api.route('/add/<dgraph_type>', methods=['POST'], authentication=True)
+def add_new_entry(dgraph_type: str, data: EditablePredicates, draft: bool = False) -> SuccessfulAPIOperation:
     """
-        Send data for new entry.
+        Send data for new entry. Only accepts JSON data.
 
         Use the path `/schema/type/{dgraph_type}` to retrieve a list of required predicates.
 
         If the new entry was added successfully, the JSON response includes a `redirect` 
-        key which shows the link to view the new entry.
+        key which shows the link to view the new entry
 
         Data for new entry should be structured as follows:
 
         ```
-        {"name": "New Entry",
-         "alternate_names": ["A list", "of more"],
-         "country": "0x123",
-         "tools": ["0x234", "0x345"]
-         }
+        {"data":                                                    # wrap the data in `data`
+            {
+                "name": "New Entry",
+                "alternate_names": ["A list", "of more"],
+                "country": "0x123",
+                "tools": ["0x234", "0x345"],
+                "date_modified": "2023-09-23T18:34:42.652102",      # datetime always in isoformat
+                "audience_size: "2023-09-23",                       # truncated also ok
+                "audience_size|unit": "followers"                   # facets are separated with `|`
+            }
+        }
+        ```
+
+
+        The optional `draft` (default = `false`) argument can be used to add new entries that are only in draft status. This 
+        means they will be visible for only the user who created them. A draft also gets a UID,
+        and if the user wishes to continue to work on this draft, use the same route and send the 
+        `uid` also in the `data`.
+
+        ```
+        {"data":
+            {
+                ...
+
+                "uid": "0x213"          # UID of the draft
+            }
+        }
+        ```
     """
     dgraph_type = Schema.get_type(dgraph_type)
-    if not dgraph_type:
-        api.abort(400, message="Invalid DGraph type")
+    if dgraph_type is None:
+        return api.abort(400, message="Invalid DGraph type")
+    
+    if Schema.is_private(dgraph_type):
+        return api.abort(403, message=f"You cannot add new entries of type <{dgraph_type}>")
 
-    current_app.logger.debug(f'Received JSON: \n{request.json}')
+    if not request.is_json:
+        return api.abort(400, message=f"This route only accepts JSON formatted data")
+
+    current_app.logger.debug(f'Received JSON: \n{data}')
     try:
-        if 'uid' in request.json.keys():
-            sanitizer = Sanitizer.edit(request.json, dgraph_type=NewsSource)
+        if 'uid' in data.keys():
+            sanitizer = Sanitizer.edit(data, jwtx.current_user, dgraph_type=dgraph_type)
         else:
-            sanitizer = Sanitizer(request.json, dgraph_type=NewsSource)
+            entry_review_status = None
+            if draft:
+                entry_review_status = 'draft'
+            sanitizer = Sanitizer(data, 
+                                  jwtx.current_user, 
+                                  dgraph_type=dgraph_type, 
+                                  entry_review_status=entry_review_status)
         current_app.logger.debug(f'Processed Entry: \n{sanitizer.entry}\n{sanitizer.related_entries}')
         current_app.logger.debug(f'Set Nquads: {sanitizer.set_nquads}')
         current_app.logger.debug(f'Delete Nquads: {sanitizer.delete_nquads}')
     except Exception as e:
         import traceback
-        error = {'error': f'{e}'}
         tb_str = ''.join(traceback.format_exception(None, e, e.__traceback__))
         current_app.logger.error(tb_str)
-        return api.abort(500, message=error)
+        return api.abort(500, message=f'{e}')
 
     try:
         if sanitizer.is_upsert:
@@ -1154,14 +1200,13 @@ def add_new_entry(dgraph_type: str, data: t.Any = None) -> SuccessfulAPIOperatio
         else:
             result = dgraph.upsert(None, del_nquads=sanitizer.delete_nquads, set_nquads=sanitizer.set_nquads)
     except Exception as e:
-        error = {'error': f'{e}'}
         tb_str = ''.join(traceback.format_exception(
             None, e, e.__traceback__))
         current_app.logger.error(tb_str)
         current_app.logger.error(f'Upsert Query: {sanitizer.upsert_query}')
         current_app.logger.error(f'Delete nquads: {sanitizer.delete_nquads}')
         current_app.logger.error(f'Set nquads: {sanitizer.set_nquads}')
-        return api.abort(500, message=error)
+        return api.abort(500, message=f'{e}')
 
     if result:
         if sanitizer.is_upsert:
@@ -1169,7 +1214,7 @@ def add_new_entry(dgraph_type: str, data: t.Any = None) -> SuccessfulAPIOperatio
         else:
             newuids = dict(result.uids)
             uid = newuids[str(sanitizer.entry_uid).replace('_:', '')]
-        response = {'status': 'success',
+        response = {'status': 200,
                     'message': 'New entry added!',
                     'redirect': url_for('api.view_uid', uid=uid),
                     'uid': uid}
@@ -1185,9 +1230,8 @@ def add_new_entry(dgraph_type: str, data: t.Any = None) -> SuccessfulAPIOperatio
 from meteor.review.dgraph import check_entry
 from meteor.edit.utils import can_delete, can_edit, channel_filter
 
-from meteor.api.requests import EditablePredicates, PublicDgraphTypes
 
-@api.route('/edit/<uid>', methods=['POST'])
+@api.route('/edit/<uid>', methods=['POST'], authentication=True)
 def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
     """ 
         Edit an entry by its UID
@@ -1199,16 +1243,16 @@ def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
     check = check_entry(uid=uid)
     
     if not check:
-        return api.abort(404)
+        return api.abort(404, message=f"No entry found with UID <{uid}>")
 
-    if not can_edit(check, current_user):
-        return api.abort(403)
+    if not can_edit(check, jwtx.current_user):
+        return api.abort(403, message=f"You do not have the right permissions to edit <{uid}>")
     
     for dgraph_type in check['dgraph.type']:
         if Schema.is_private(dgraph_type):
             return api.abort(403, message='You cannot edit entries of this type')
-        if current_user._role < Schema.permissions_edit(dgraph_type):
-            return api.abort(403)
+        if jwtx.current_user._role < Schema.permissions_edit(dgraph_type):
+            return api.abort(403, message=f"You do not have the permission to edit types <{dgraph_type}>")
     
     if 'uid' not in data:
         data['uid'] = uid
@@ -1224,9 +1268,10 @@ def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
         except:
             continue
 
-
     try:
-        sanitizer = Sanitizer.edit(data, dgraph_type=dgraph_type)
+        sanitizer = Sanitizer.edit(data, 
+                                   jwtx.current_user,
+                                   dgraph_type=dgraph_type)
     except Exception as e:
         if current_app.debug:
             current_app.logger.error(f'<{uid}> ({dgraph_type}) could not be updated: {e}', exc_info=True)
@@ -1236,7 +1281,7 @@ def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
         result = dgraph.upsert(
             sanitizer.upsert_query, del_nquads=sanitizer.delete_nquads, set_nquads=sanitizer.set_nquads)
         return jsonify({'status': 'success',
-                        'message': f'<{uid}> has been edited and accepted',
+                        'message': f'<{uid}> has been edited',
                         'uid': uid})
     except Exception as e:
         current_app.logger.warning(f'<{uid}> ({dgraph_type}) could not be updated: {e}', exc_info=True)

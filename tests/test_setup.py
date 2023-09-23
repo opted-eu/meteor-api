@@ -117,8 +117,9 @@ class BasicTestSetup(unittest.TestCase):
             cls.lang_german = dgraph.get_uid('_unique_name', 'language_german')
             cls.lang_english = dgraph.get_uid('_unique_name', 'language_english')
             cls.lang_hungarian = dgraph.get_uid('_unique_name', 'language_hungarian')
-
             cls.lang_spanish = dgraph.get_uid('_unique_name', 'language_spanish')
+
+            cls.programming_julia = dgraph.get_uid('_unique_name', 'programming_language_julia')
 
             cls.fileformat_csv = dgraph.get_uid('_unique_name', 'fileformat_csv')
 
