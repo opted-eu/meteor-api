@@ -139,6 +139,9 @@ server {
         location / {
                 include proxy_params;
                 proxy_pass http://unix:/home/ava/wp3inventory/meteor.sock;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-Proto $scheme;
         }
 
         location ^~ /static/ {
