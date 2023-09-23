@@ -77,6 +77,9 @@ class TestDOI(BasicTestSetup):
                                  affiliation='WZB Berlin Social Science Center')
         self.assertEqual(r['orcid-id'], '0000-0001-5267-3299')
 
+        r = orcid.get_author('0000-0002-0387-5377')
+        self.assertEqual(r['name'], 'Richard McElreath')
+
     def test_zenodo(self):
         r = zenodo(self.zenodo_doi)
         r = zenodo(self.zenodo_doi2)

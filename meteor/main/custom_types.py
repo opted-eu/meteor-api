@@ -8,7 +8,7 @@ from meteor.flaskdgraph.dgraph_types import *
 
 from meteor.add.external import geocode, reverse_geocode, get_wikidata, openalex_getauthorname
 from meteor.flaskdgraph.utils import validate_uid
-
+from meteor.external.orcid import ORCID
 import re
 
 from slugify import slugify
@@ -401,6 +401,8 @@ class AuthorList(OrderedListRelationship):
     """ uses custom validation for author ids from openalex """
 
     openalex_regex = re.compile(r"^A\d{4,}$")
+    orcid_regex = re.compile(r"\d{4}-\d{4}-\d{4}-\d{4}")
+    orcid = ORCID()
 
     def validation_hook(self, data):
         pre_processed = []
@@ -419,6 +421,19 @@ class AuthorList(OrderedListRelationship):
                         except Exception as e:
                             current_app.logger.error(f'failed retrieving author from openalex: {author}: {e}', exc_info=True)
                             raise InventoryValidationError(f'Failed to retrieve author from openalex: {author}')
+                elif self.orcid_regex.match(author.strip()):
+                    author_uid = dgraph.get_uid(field="orcid", value=author.strip(), query_filter=["not type(Rejected)"])
+                    if author_uid:
+                        pre_processed.append({'uid': UID(author_uid)})
+                    else:
+                        try:
+                            new_author = self.orcid.get_author(author.strip())
+                            new_author['uid'] = NewID(author)
+                            new_author['dgraph.type'] = self.relationship_constraint
+                            pre_processed.append(new_author)
+                        except Exception as e:
+                            current_app.logger.error(f'failed retrieving author from ORCID: {author}: {e}', exc_info=True)
+                            raise InventoryValidationError(f'Failed to retrieve author from ORCID: {author}')
                 else:
                     pre_processed.append(author)                    
             except Exception as e:

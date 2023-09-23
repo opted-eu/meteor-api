@@ -18,9 +18,37 @@ class ORCID:
         if token:
             headers["Access token"] = token
         else:
-            headers["Access token"] = current_app.config['ORCID_ACCESS_TOKEN']
+            try:
+                headers["Access token"] = current_app.config['ORCID_ACCESS_TOKEN']
+            except (KeyError, RuntimeError):
+                pass
 
         self.headers = headers
+
+    def get_author(self, orcid: str) -> dict:
+        r = requests.get(self.api + 'v3.0/' + orcid + '/record', 
+                         headers=self.headers)
+        
+        r.raise_for_status()
+
+        j = r.json()
+        
+        result = {'orcid': orcid}
+
+        try:
+            result['family_name'] = j['person']['name']['family-name']['value']
+            result['given_name'] = j['person']['name']['given-names']['value']
+            result['name'] = result['given_name'] + ' ' + result['family_name']
+        except:
+            pass
+        
+        try:
+            result['affiliations'] = self.get_author_affiliations(orcid)
+        except:
+            pass
+
+        return result
+
 
     def search_authors(self, name: str = None, 
                       given_name: str = None, 
