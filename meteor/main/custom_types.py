@@ -339,7 +339,7 @@ class OrderedListRelationship(SingleRelationship):
         super().__init__(relationship_constraint=relationship_constraint, allow_new=allow_new,
                          autoload_choices=autoload_choices, overwrite=overwrite, *args, **kwargs)
 
-    def validate(self, data: Union[str, list, UID], facets: dict=None, **kwargs) -> list:
+    def validate(self, data: Union[str, list, UID], facets: dict=None, **kwargs) -> Union[list, None]:
         data = self.validation_hook(data)
         if isinstance(data, str):
             data = data.split(',')
@@ -347,6 +347,8 @@ class OrderedListRelationship(SingleRelationship):
         if not facets:
             facets = {"sequence": 0}
         if isinstance(data, (list, set, tuple)):
+            if len(data) == 0:
+                return None
             for i, item in enumerate(data):
                 f = facets.copy()
                 f.update(sequence=i)
