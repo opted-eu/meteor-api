@@ -1429,7 +1429,8 @@ class LearningMaterial(Entry):
                                          queryable=True,
                                          relationship_constraint=[
                                              "ConceptVariable"],
-                                         autoload_choices=True)
+                                         autoload_choices=True,
+                                         allow_new=True)
 
     methodologies = ListRelationship(description="Methodologies / Operations discussed in the learning material",
                                      queryable=True,
@@ -1470,7 +1471,6 @@ class LearningMaterial(Entry):
     modalities = ListRelationship(description="Does the learning material cover specific modalities?",
                                   relationship_constraint="Modality",
                                   autoload_choices=True,
-                                  allow_new=True,
                                   queryable=True)
 
 
