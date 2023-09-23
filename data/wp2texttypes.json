@@ -12,16 +12,6 @@
         ]
     },
     {
-        "uid": "_:texttype_socialmedia",
-        "_unique_name": "texttype_socialmedia",
-        "name": "Social Media",
-        "description": "texts from social media platforms",
-        "dgraph.type": [
-            "Entry",
-            "TextType"
-        ]
-    },
-    {
         "uid": "_:texttype_websitecontent",
         "_unique_name": "texttype_websitecontent",
         "name": "Website Content",
