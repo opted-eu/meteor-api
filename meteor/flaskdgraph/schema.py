@@ -438,8 +438,31 @@ class Schema:
 
     @classmethod
     def provide_queryable_predicates(cls) -> t.Iterable[dict]:
-        queryable = {}
-        for predicate_name, predicate in Schema.get_queryable_predicates().items():
+        qp = {'name': 'dgraph.type',
+                'in': 'query',
+                'description': 'DGraph Type',
+                'required': False,
+                'schema': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'string',
+                        'enum': [k for k in cls.__types__.keys() if k not in cls.__private_types__]
+                        }
+                    }
+                }
+        connector = {'name': 'dgraph.type' + '*connector',
+                     'in': 'query',
+                     'description': 'Logical connectors for combining an array',
+                     'required': False,
+                     'schema': {
+                         'type': 'string',
+                         'enum': ['or'],
+                         'default': 'or'
+                     }
+                     }
+        queryable = {'dgraph.type': qp,
+                     'dgraph.type*connector': connector}
+        for predicate in Schema.get_queryable_predicates().values():
             queryable.update(predicate.openapi_query_parameter)
 
         return queryable
