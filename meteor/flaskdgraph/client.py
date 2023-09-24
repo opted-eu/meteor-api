@@ -268,9 +268,9 @@ class DGraph(object):
     def upsert(self, query, 
                set_nquads: str=None, 
                del_nquads: str=None, 
-               set_obj: dict | list =None,
-               del_obj: dict | list =None,
-               cond=None) -> dict | bool:
+               set_obj: Union[dict, list] =None,
+               del_obj: Union[dict, list] =None,
+               cond=None) -> Union[dict, bool]:
         if query:
             if not query.startswith('{'):
                 query = '{' + query + '}'
