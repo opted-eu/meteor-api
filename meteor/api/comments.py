@@ -1,6 +1,8 @@
+import typing as t
 from meteor import dgraph
 from meteor.flaskdgraph.utils import validate_uid
-import typing as t
+from meteor.main.model import Comment, User
+from meteor.users.constants import USER_ROLES
 
 def get_comments(uid: str) -> t.List[dict]:
 
@@ -19,11 +21,10 @@ def get_comments(uid: str) -> t.List[dict]:
 
     return data['q']
 
-from meteor.main.model import Comment
-from flask_login import current_user
-from meteor.flaskdgraph import dql
 
-def post_comment(uid: str, message: str) -> dict:
+def post_comment(uid: str, 
+                 message: str,
+                 user: User) -> dict:
 
     uid = validate_uid(uid)
     if not uid:
@@ -34,13 +35,33 @@ def post_comment(uid: str, message: str) -> dict:
     if not 'Entry' in dgraph_type:
         raise ValueError
     
-    if current_user._role < Comment.__permission_new__:
+    if user._role < Comment.__permission_new__:
         raise PermissionError
 
-    comment = Comment(_creator=current_user.id, 
+    comment = Comment(_creator=user.uid, 
                       content=message,
                       _comment_on=uid)
     
     result = dgraph.mutation(comment.as_dict())
 
     return dict(result.uids)
+
+def remove_comment(uid: str,
+                   user: User) -> bool:
+    
+    uid = validate_uid(uid)
+    if not uid:
+        raise ValueError
+    
+    query = Comment.uid == uid
+    query.fetch(['uid', 'dgraph.type', 'expand(Comment) { uid }'])
+    comment = dgraph.query(query)['q'][0]
+
+    if not 'Comment' in comment['dgraph.type']:
+        raise PermissionError
+    
+    if user.uid == comment['_creator']['uid'] or user.role >= USER_ROLES.Admin:
+        return dgraph.delete({'uid': uid})
+    
+    raise PermissionError
+    
