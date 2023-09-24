@@ -25,15 +25,14 @@ Implemented:
 - Quicksearch
 - Schema
 - Login Routine
-
-Semi-Implemented:
-- Add
-- Edit
-- Review
-- User actions
+- Add (**NEW**)
+- Edit (**NEW**)
+- Review (**NEW**)
+- User actions (**NEW**)
+- Commenting (**NEW**)
+- Admin actions (**NEW**)
 
 Not Implemented:
-- Admin actions
 - Follow
 - Notifications
 - Recommender system
@@ -66,7 +65,7 @@ from meteor.external.doi import clean_doi
 from meteor.main.model import *
 
 from meteor.api.sanitizer import Sanitizer
-from meteor.api.comments import get_comments, post_comment
+from meteor.api.comments import get_comments, post_comment, remove_comment
 from meteor.api.responses import SuccessfulAPIOperation
 
 #: Maps Flask/Werkzeug rooting types to Swagger ones
@@ -758,23 +757,6 @@ def view_unique_name(unique_name: str) -> t.Union[Entry, PoliticalParty,
 
     return jsonify(data)
 
-# TODO: add permission validation
-@login_required
-@api.route('/view/comments/<uid>', authentication=True)
-def view_comments(uid: str) -> t.List[Comment]:
-    """ 
-        list all comments for this entry 
-    
-        Comments are sorted by date (oldest first)
-    """
-    
-    try:
-        data = get_comments(uid)
-    except ValueError:
-        return api.abort(404, message=f'could not get comments for UID <{uid}>')
-
-    return jsonify(data)
-
 @api.route('/view/ownership/<uid>')
 def view_ownership(uid: str) -> t.List[Entry]:
     """ get data for plotting ownership network """
@@ -1310,29 +1292,39 @@ def delete_draft(uid: str) -> SuccessfulAPIOperation:
 from meteor.api import review
 from meteor.review.dgraph import accept_entry, reject_entry, send_acceptance_notification
 
-@api.route('/review')
+@api.route('/review', authentication=True)
 def overview(dgraph_type: str = None, 
              country: str = None, 
              text_type: str = None,
              user: str = None) -> t.List[Entry]:
+    """ Get an overview of all entries that need to be reviewed """
+
+    if jwtx.current_user.role < USER_ROLES.Reviewer:
+        return api.abort(403, message="You need to be a reviewer to view this route.")
 
     if dgraph_type:
         dgraph_type = Schema.get_type(dgraph_type)
 
     overview = review.get_overview(dgraph_type,
-                            country=country,
-                            user=user,
-                            text_type=text_type)
+                                   country=country,
+                                   user=user,
+                                   text_type=text_type)
 
     return jsonify(overview)
 
-@api.route('/review/submit', methods=['POST'])
-def submit_review(uid: str, status: t.Literal['accepted', 'rejected', 'revise']) -> SuccessfulAPIOperation:
+@api.route('/review/submit', methods=['POST'], authentication=True)
+def submit_review(uid: str, 
+                  status: t.Literal['accepted', 'rejected', 'revise']) -> SuccessfulAPIOperation:
+    """ Submit a review decision """
+    
+    if jwtx.current_user.role < USER_ROLES.Reviewer:
+        return api.abort(403, message='You need to be a reviewer to access this route.')
+
     if status == 'accepted':
         try:
-            review.accept_entry(uid, current_user)
+            review.accept_entry(uid, jwtx.current_user)
             # send_acceptance_notification(uid)
-            return jsonify({'status': 'success',
+            return jsonify({'status': 200,
                             'message': 'Entry has been accepted!',
                             'uid': uid})
         except Exception as e:
@@ -1341,8 +1333,8 @@ def submit_review(uid: str, status: t.Literal['accepted', 'rejected', 'revise'])
     
     elif status == 'rejected':
         try:
-            review.reject_entry(uid, current_user)
-            return jsonify({'status': 'success',
+            review.reject_entry(uid, jwtx.current_user)
+            return jsonify({'status': 200,
                             'message': 'Entry has been rejected!',
                             'uid': uid})
         except Exception as e:
@@ -1351,28 +1343,69 @@ def submit_review(uid: str, status: t.Literal['accepted', 'rejected', 'revise'])
     
     elif status == 'revise':
         # TODO: send notification to user that entry should be revised
-        return jsonify({'status': 'not implemented',
+        return jsonify({'status': 501,
                         'message': 'Feature not ready yet!',
                         'uid': uid})
     else:
         return abort(404)
+    
 
-@api.route('/review/<uid>/comment', methods=['POST'])
+@api.route('/comment/view/<uid>', authentication=True)
+def view_comments(uid: str) -> t.List[Comment]:
+    """ 
+        list all comments for this entry 
+    
+        Comments are sorted by date (oldest first)
+    """
+    
+    try:
+        data = get_comments(uid)
+    except ValueError:
+        return api.abort(404, message=f'could not get comments for UID <{uid}>')
+
+    return jsonify(data)
+
+
+@api.route('/comment/post/<uid>', methods=['POST'], authentication=True)
 def leave_comment(uid: str, message: str) -> SuccessfulAPIOperation:
     """
-        Post a new comment for this entry.
+        Post a new comment for this entry `uid`.
 
         If successfull, then the `uid` key is the UID of the new comment.
     """
 
     try:
-        result = post_comment(uid, message)
+        result = post_comment(uid, message, jwtx.current_user)
         uid_return = list(result.values())[0]
         return jsonify({'status': 'success',
                         'message': f'Comment posted on <{uid}>.',
                         'uid': uid_return})
+    except PermissionError:
+        return api.abort(403, message=f"You do not have the permission to post a comment on <{uid}>")
     except Exception as e:
-        api.abort(400, message=f"Could not post comment on <{uid}>: {e}")
+        return api.abort(400, message=f"Could not post comment on <{uid}>: {e}")
+
+@api.route('/comment/delete/<uid>', authentication=True)
+def delete_comment(uid: str) -> SuccessfulAPIOperation:
+    """
+        Delete a comment by uid
+
+        Users can only delete their own comments. (Admins can delete any comment)
+    
+    """
+
+    try:
+        result = remove_comment(uid, jwtx.current_user)
+        if result == True:
+            return jsonify({'status': 'success',
+                            'message': f'Comment deleted!',
+                            'uid': uid})
+        else:
+            return api.abort(500, message=f'Could not delete comment with uid <{uid}>')
+    except PermissionError:
+        return api.abort(403, message=f"You do not have the permission to post delete this comment")
+    except Exception as e:
+        return api.abort(400, message=f'Could not delete comment with uid <{uid}>')
 
 
 """ User Related """
@@ -1602,22 +1635,29 @@ def change_password(old_pw: str, new_pw: str, confirm_new: str) -> SuccessfulAPI
     return jsonify(status=200, message=f'Your password has been changed')
 
 
+from meteor.api.requests import UserProfile
+
 @api.route('/user/profile', authentication=True)
 def profile() -> User:
     """ view current user's profile """
     return jsonify(jwtx.current_user.json)
 
 @api.route('/user/profile/update', methods=['POST'], authentication=True)
-def update_profile(display_name: str = None, 
-                    affiliation: str = None, 
-                    orcid: str = None, 
-                    notifications: bool = None) -> SuccessfulAPIOperation:
-    """ update current user's profile """
+def update_profile(data: UserProfile) -> SuccessfulAPIOperation:
+    """ 
+        update current user's profile 
+    
+        Profile details can be deleted by sending `null` values. E.g., 
+        delete a user's affiliation:
+
+        ```
+        {"data": 
+            {"affiliation": null}
+        }
+        ```
+    """
     try:
-        jwtx.current_user.update_profile({'display_name': display_name,
-                                        'affiliation': affiliation,
-                                        'orcid': orcid,
-                                        'notifications': notifications})
+        jwtx.current_user.update_profile(data)
         return jsonify({'status': 200,
                         'message': 'Profile updated'})
     except Exception as e:
@@ -1678,7 +1718,6 @@ def show_user_entries(uid: str,
     """
     try:
         user = User(uid=uid)
-        print(user)
     except:
         return api.abort(404, message='User not found')
     
@@ -1690,36 +1729,58 @@ def show_user_entries(uid: str,
                                   page=page)
         return jsonify(entries)
 
-    # Anonymous Users and contributors can onle see accepted entries
+    # Anonymous Users and contributors can only see accepted entries
     if current_user._role <= USER_ROLES.Contributor:
         entry_review_status = 'accepted'
     else:
         if entry_review_status == 'draft':
-            return abort(403, message='You cannot view draft entries of other users')
+            return api.abort(403, message='You cannot view draft entries of other users')
     
     entries = user.my_entries(dgraph_type=dgraph_type, 
-                              entry_review_status=entry_review_status,
-                              )
+                              entry_review_status=entry_review_status)
     return jsonify(entries)
 
 """ Administer Users """
 
-@api.route('/admin/users')
+@api.route('/admin/users', authentication=True)
 def show_all_users() -> t.List[User]:
     """ 
         lists all users with their roles
     """
-    
-    return api.abort(501)
+    if jwtx.current_user.role < USER_ROLES.Admin:
+        return api.abort(403)
+    user_list = User.list_users()
+    return jsonify(user_list)
 
 
-@api.route('/admin/users/<uid>')
+@api.route('/admin/users/<uid>', authentication=True)
 def change_user(uid: str, role: int) -> SuccessfulAPIOperation:
     """ 
         change user role
     """
+    if jwtx.current_user.role < USER_ROLES.Admin:
+        return api.abort(403)
     
-    return api.abort(501)
+    res = dgraph.query(User.uid == uid)
+    try:
+        editable_user = res['q'][0]
+    except:
+        return api.abort(404, message='User not found')
+    
+    if role not in USER_ROLES.dict_reverse:
+        return api.abort(400, message=f"Unknown user level <{role}>")
+
+    try:
+        result = dgraph.update_entry({'role': role}, uid=uid)
+    except Exception as e:
+        return api.abort(500, message=f'Database error {e}')
+
+    if not result:
+        return api.abort(500, message="Could not update user")
+    
+    return jsonify({'status': 200,
+                    'uid': uid,
+                    'message': f'User role updated to {USER_ROLES.dict_reverse[role]}'})
 
 
 
@@ -1743,16 +1804,53 @@ def follow_type(dgraph_type: str, status: t.Literal['follow', 'unfollow']) -> Su
 
 """ Notifications """
 
-@api.route('/notifications')
-def show_notifications() -> t.List[Notification]:
+from meteor.api.notifications import get_all_notifications, get_unread_notifications, mark_notifications_as_read
+from meteor.main.model import Notification
+
+
+@api.route('/notifications/all', authentication=True)
+def show_all_notifications() -> t.List[Notification]:
     """ lists all notifications for the current user """
-    return abort(501)
 
-@api.route('/notifications/dismiss', methods=['POST'])
+    return get_all_notifications(jwtx.current_user)
+
+@api.route('/notifications/unread', authentication=True)
+def show_unread_notifications() -> t.List[Notification]:
+    """ lists unread notifications for the current user """
+
+    return get_unread_notifications(jwtx.current_user)
+
+
+@api.route('/notifications/dismiss', methods=['POST'], authentication=True)
 def dismiss_notifications(uids: t.List[str]) -> SuccessfulAPIOperation:
-    """ mark notification(s) as read; dismiss them """
-    return abort(501)
+    """ mark notification(s) as read; dismiss them 
+    
+        If notification has been dismissed before, then the route silently
+        ignores it.
 
+        Raises error if a supplied UID is invalid.
+
+    """
+
+    try:
+        mark_notifications_as_read(uids, jwtx.current_user)
+    except Exception as e:
+        return api.abort(500, message=f'Could not mark notification as read: {e}')
+    
+    return jsonify({'status': 200,
+                    'message': 'Done'})
+
+@api.route('/debug/notification/dispatch')
+def debug_dispatch_notification(uid: str) -> SuccessfulAPIOperation:
+    """ Only for testing, send the user a notification"""
+
+    if not current_app.debug:
+        return api.abort(404)
+    
+    notify = Notification(_notify=uid)
+    res = dgraph.mutation(notify.as_dict())
+    print(res)
+    return jsonify(res.uids[notify.as_dict()['uid']])
 
 
 """ External APIs """

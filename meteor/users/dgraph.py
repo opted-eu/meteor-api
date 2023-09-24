@@ -43,6 +43,10 @@ class UserLogin(UserMixin):
 
     def __repr__(self):
         return f'<DGraph Helper Class UserLogin.uid {self.id}>'
+    
+    @classmethod
+    def predicates(cls):
+        raise NotImplementedError
 
     """
         Helper Methods for __init__
@@ -158,17 +162,25 @@ class UserLogin(UserMixin):
 
     def update_profile(self, form_data: dict) -> bool:
         user_data = {}
+        delete_data = {}
+
+        editable_predicates = [k for k, v in self.predicates().items() if v.edit]
+    
         try:
             data = form_data.data
         except:
             data = form_data
         for k, v in data.items():
-            if k in ['submit', 'csrf_token']:
+            if k not in editable_predicates:
                 continue
-            if v is None: continue
+            if v is None: 
+                delete_data[k] = v
             else:
                 user_data[k] = v
         result = dgraph.update_entry(user_data, uid=self.id)
+        if len(delete_data.keys()) > 0:
+            delete_data['uid'] = self.uid
+            deleted = dgraph.delete(delete_data)
         if result:
             for k, v in user_data.items():
                 setattr(self, k, v)

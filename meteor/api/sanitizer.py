@@ -362,7 +362,6 @@ class Sanitizer:
             self.entry = self._add_entry_meta(self.entry)
             self.overwrite[self.entry_uid] = [item.predicate for k, item in self.fields.items(
             ) if item.overwrite and k in self.data.keys()]
-            print(self.overwrite)
         else:
             self.entry = self._add_entry_meta(self.entry, newentry=True)
             # self.entry['_unique_name'] = self.generate_unique_name(self.entry)

@@ -31,3 +31,9 @@ EditablePredicates = typing.TypedDict('EditablePredicates',
                                       {k: v._type for k, v in Schema.get_predicates(Entry).items() if v.edit})
 
 PublicDgraphTypes = typing.Literal[tuple([t for t in Schema.get_types(private=False)])]
+
+UserProfile = typing.TypedDict('UserProfile',
+                               {'display_name': str,
+                                'orcid': str,
+                                'affiliation': str,
+                                'preference_emails': bool})

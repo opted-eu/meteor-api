@@ -70,7 +70,7 @@ def get_overview(dgraph_type: str = None,
     data = dgraph.query(query, variables=variables)
 
     if len(data['q']) == 0:
-        return False
+        return []
 
     data = data['q']
     for item in data:
@@ -122,7 +122,7 @@ def reject_entry(uid: str, user: typing.Any) -> None:
     del_nquads = " \n ".join(del_nquads)
 
     rejected = {'uid': uid, 'entry_review_status': 'rejected', 'dgraph.type': 'Rejected',
-                "_reviewed_by": UID(user.id, facets={'timestamp': datetime.now()})}
+                "_reviewed_by": UID(user.id, facets={'timestamp': datetime.datetime.now()})}
     set_nquads = " \n ".join(dict_to_nquad(rejected))
 
     dgraph.upsert(query, del_nquads=del_nquads)

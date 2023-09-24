@@ -55,7 +55,8 @@ class User(Schema, UserLogin):
                                         autoload_choices=False,
                                         edit=False,
                                         relationship_constraint="Entry")
-    follows_types = ListString('Following types')
+    follows_types = ListString('Following types',
+                               edit=False)
 
 
 @login_manager.user_loader
@@ -1517,6 +1518,9 @@ class Notification(Schema):
     _title = String(default="Notification",
                     edit=False)
     _content = String(edit=False)
+    _linked = SingleRelationship(edit=False, 
+                                 description="Entries that are linked to this notification",
+                                 relationship_constraint=["Entry"])
     _email_dispatched = Boolean(default=False,
                                 edit=False)
 

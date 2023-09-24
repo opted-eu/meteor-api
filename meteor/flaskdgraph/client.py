@@ -265,7 +265,12 @@ class DGraph(object):
         else:
             return False
 
-    def upsert(self, query, set_nquads=None, del_nquads=None, cond=None):
+    def upsert(self, query, 
+               set_nquads: str=None, 
+               del_nquads: str=None, 
+               set_obj: dict | list =None,
+               del_obj: dict | list =None,
+               cond=None) -> dict | bool:
         if query:
             if not query.startswith('{'):
                 query = '{' + query + '}'
@@ -273,9 +278,13 @@ class DGraph(object):
         self.logger.debug(f'Query:\n{query}')
         self.logger.debug(f'set nquads:\n{set_nquads}')
         self.logger.debug(f'delete nquads:\n{del_nquads}')
+        self.logger.debug(f'set obj:\n{set_obj}')
+        self.logger.debug(f'delete obj:\n{del_obj}')
         txn = self.connection.txn()
         mutation = txn.create_mutation(
-            set_nquads=set_nquads, del_nquads=del_nquads, cond=cond)
+            set_nquads=set_nquads, del_nquads=del_nquads, 
+            set_obj=set_obj, del_obj=del_obj,
+            cond=cond)
         request = txn.create_request(query=query, mutations=[
                                      mutation], commit_now=True)
 
