@@ -537,13 +537,13 @@
         _:comment1 <dgraph.type> "Comment" .
         _:comment1 <_creator> _:admin .
         _:comment1 <_comment_date> "2023-09-13" .
-        _:comment1 <_comment_on> _:derstandardat .
+        _:comment1 <_comment_on> _:derstandardfacebook .
         _:comment1 <content> "Please read this comment" .
 
         _:comment2 <dgraph.type> "Comment" .
         _:comment2 <_creator> _:reviewer .
         _:comment2 <_comment_date> "2023-09-14" .
-        _:comment2 <_comment_on> _:derstandardat .
+        _:comment2 <_comment_on> _:derstandardfacebook .
         _:comment2 <content> "I have read this *comment*" .
 
 
