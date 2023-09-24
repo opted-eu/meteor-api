@@ -80,7 +80,7 @@ def main():
     txn = client.txn()
 
     query = """{
-        q(func: has(dgraph.type)) @filter(NOT type(User) AND NOT type(dgraph.graphql) AND NOT type(Rejected) AND NOT has(entry_review_status)) { v as uid } }"""
+        q(func: has(dgraph.type)) @filter(NOT type(User) AND NOT type(Comment) AND NOT type(dgraph.graphql) AND NOT type(Rejected) AND NOT has(entry_review_status)) { v as uid } }"""
     nquad = """
         uid(v) <entry_review_status> "accepted" .
         uid(v) <dgraph.type> "Entry" .

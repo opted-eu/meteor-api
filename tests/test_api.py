@@ -617,13 +617,11 @@ class TestAPILoggedOut(BasicTestSetup):
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
-                print(res.json)
                 self.assertIn('uid', res.json)
                 uid = res.json['uid']
                 # clean up
                 entry = dgraph.query(f"query check($uid: string) {{ q(func: uid($uid)) {{ uid expand(_all_) }}  }}",
                              variables={'$uid': uid})
-                print(entry)
                 self.assertNotEqual(entry['q'][0]['entry_review_status'], 'accepted')
                 mutation = dgraph.delete({'uid': uid})
                 self.assertTrue(mutation)
@@ -657,8 +655,8 @@ class TestAPILoggedOut(BasicTestSetup):
             self.assertNotEqual(res, False)
 
 
-            wrong_uid = {'uid': '0xfffffffff', **edit_entry}
             # wrong uid
+            wrong_uid = {'uid': '0xfffffffff', **edit_entry}
             res = c.post('/api/edit/0xfffffffff',
                          json=edit_entry,
                          headers=self.headers)
@@ -667,6 +665,54 @@ class TestAPILoggedOut(BasicTestSetup):
             else:
                 self.assertEqual(res.status_code, 404)
 
+            # list predicates
+            data = {'data': {
+                'alternate_names': ['DeR StAnDaRd']
+            }}
+
+            res = c.post('/api/edit/' + self.derstandard_print,
+                         json=data,
+                         headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in in ['admin', 'reviewer']:
+                self.assertEqual(res.json['uid'], self.derstandard_print)
+                q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { alternate_names } }', 
+                                 variables={'$uid': self.derstandard_print})
+                self.assertEqual(len(q['q'][0]['alternate_names']), 1)
+                self.assertEqual(q['q'][0]['alternate_names'][0], 'DeR StAnDaRd')
+            else:
+                self.assertEqual(res.status_code, 403)
+            
+            # clean up
+            res = dgraph.mutation({'uid': self.derstandard_print,
+                                    'alternate_names': ["DerStandard", "DER STANDARD"]})
+            self.assertNotEqual(res, False)
+
+            # delete list predicates
+            data = {'data': {
+                'alternate_names': None
+            }}
+
+            res = c.post('/api/edit/' + self.derstandard_print,
+                         json=data,
+                         headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in in ['admin', 'reviewer']:
+                self.assertEqual(res.json['uid'], self.derstandard_print)
+                q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { alternate_names } }', 
+                                 variables={'$uid': self.derstandard_print})
+                self.assertEqual(len(q['q']), 0)
+            else:
+                self.assertEqual(res.status_code, 403)
+            
+            # clean up
+            res = dgraph.mutation({'uid': self.derstandard_print,
+                                    'alternate_names': ["DerStandard", "DER STANDARD"]})
+            self.assertNotEqual(res, False)
+
+           
     def test_new_learning_material(self):
         sample_data =  {
                         "authors": ["0000-0002-0387-5377", "0000-0001-5971-8816"],
@@ -708,111 +754,396 @@ class TestAPILoggedOut(BasicTestSetup):
 
             
 
-    # """ Review Routes """
+    """ Review Routes """
 
-    # def test_overview(self):
+    def test_review_overview(self):
 
-    #     # /review/overview
-    #     # /review/overview?country=0x123&entity=0x234
-    #     with self.client as c:
+        # /review/overview
+        # /review/overview?country=0x123&entity=0x234
+        with self.client as c:
+            # set sample data to "pending"
+            res = dgraph.mutation({'uid': self.derstandard_print,
+                                    'entry_review_status': "pending"})
+            self.assertNotEqual(res, False)
 
-    #         response = c.get('/review/overview')
-    #         if not self.logged_in:
-    #             # redirect to login page
-    #             self.assertEqual(response.status_code, 302)
-    #         elif self.logged_in == 'contributor':
-    #             self.assertEqual(response.status_code, 403)
-    #         else:
-    #             self.assertEqual(response.status_code, 200)
+            response = c.get('/api/review',
+                             headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(response.status_code, 401)
+            elif self.logged_in == 'contributor':
+                self.assertEqual(response.status_code, 403)
+            else:
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json[0]['uid'], self.derstandard_print)
 
-    #         response = c.get('/review/overview',
-    #                          query_string={'country': self.austria_uid})
-    #         if not self.logged_in:
-    #             # redirect to login page
-    #             self.assertEqual(response.status_code, 302)
-    #         elif self.logged_in == 'contributor':
-    #             self.assertEqual(response.status_code, 403)
-    #         else:
-    #             self.assertEqual(response.status_code, 200)
+            response = c.get('/api/review',
+                             query_string={'country': self.austria_uid},
+                             headers=self.headers)
 
-    #         response = c.get('/review/overview',
-    #                          query_string={'entity': 'Tool'})
-    #         if not self.logged_in:
-    #             # redirect to login page
-    #             self.assertEqual(response.status_code, 302)
-    #         elif self.logged_in == 'contributor':
-    #             self.assertEqual(response.status_code, 403)
-    #         else:
-    #             self.assertEqual(response.status_code, 200)
+            if not self.logged_in:
+                self.assertEqual(response.status_code, 401)
+            elif self.logged_in == 'contributor':
+                self.assertEqual(response.status_code, 403)
+            else:
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json[0]['uid'], self.derstandard_print)
 
-    # def test_review_submit(self):
 
-    #     # POST /review/submit
+            response = c.get('/api/review',
+                             query_string={'dgraph_type': 'Tool'},
+                             headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(response.status_code, 401)
+            elif self.logged_in == 'contributor':
+                self.assertEqual(response.status_code, 403)
+            else:
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(len(response.json), 0)
 
-    #     # prepare a temp entry
-    #     tmp_entry = {'uid': '_:tempentry',
-    #                  'dgraph.type': ['Entry', 'NewsSource'],
-    #                  'name': 'Temp Entry',
-    #                  '_unique_name': 'tmp_entry',
-    #                  '_date_created': '2022-05-17T10:00:00',
-    #                  '_added_by': {'uid': self.contributor_uid,
-    #                                  '_added_by|timestamp': '2022-05-17T10:00:00',
-    #                                  '_added_by|ip': '192.168.0.1'
-    #                                  }
-    #                  }
+            res = dgraph.mutation({'uid': self.derstandard_print,
+                                    'entry_review_status': "accepted"})
+            self.assertNotEqual(res, False)
 
-    #     # accept entry
 
-    #     with self.client as c:
-    #         response = dgraph.mutation(tmp_entry)
-    #         tmp_entry_uid = response.uids['tempentry']
+    def test_review_submit(self):
 
-    #     delete_tmp = {'uid': tmp_entry_uid,
-    #                   'dgraph.type': None,
-    #                   'name': None,
-    #                   '_unique_name': None,
-    #                   '_added_by': {'uid': self.contributor_uid},
-    #                   '_date_created': None}
+        # POST /review/submit
 
-    #     with self.client as c:
+        # prepare a temp entry
+        tmp_entry = {'uid': '_:tempentry',
+                     'dgraph.type': ['Entry', 'NewsSource'],
+                     'name': 'Temp Entry',
+                     '_unique_name': 'tmp_entry',
+                     '_date_created': '2022-05-17T10:00:00',
+                     '_added_by': {'uid': self.contributor_uid,
+                                     '_added_by|timestamp': '2022-05-17T10:00:00',
+                                     '_added_by|ip': '192.168.0.1'
+                                     }
+                     }
 
-    #         response = c.post('/review/submit',
-    #                           data={'uid': tmp_entry_uid, 'accept': True},
-    #                           headers=self.headers)
-    #         if not self.logged_in:
-    #             # redirect to login page
-    #             self.assertEqual(response.status_code, 200)
-    #             self.assertEqual(response.request.path, url_for('users.login'))
-    #         elif self.logged_in == 'contributor':
-    #             self.assertEqual(response.status_code, 403)
-    #         else:
-    #             self.assertEqual(response.status_code, 200)
+        # accept entry
+        with self.client as c:
+            response = dgraph.mutation(tmp_entry)
+            tmp_entry_uid = response.uids['tempentry']
 
-    #         dgraph.delete(delete_tmp)
+            delete_tmp = {'uid': tmp_entry_uid,
+                        'dgraph.type': None,
+                        'name': None,
+                        '_unique_name': None,
+                        '_added_by': {'uid': self.contributor_uid},
+                        '_date_created': None}
 
-    #     # reject entry
+            response = c.post('/api/review/submit',
+                              data={'uid': tmp_entry_uid, 'status': 'accepted'},
+                              headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(response.status_code, 401)
+            elif self.logged_in == 'contributor':
+                self.assertEqual(response.status_code, 403)
+            else:
+                print(response.json)
+                self.assertEqual(response.status_code, 200)
 
-    #     with self.client as c:
-    #         response = dgraph.mutation(tmp_entry)
-    #         tmp_entry_uid = response.uids['tempentry']
+            dgraph.delete(delete_tmp)
 
-    #     delete_tmp['uid'] = tmp_entry_uid
+            response = dgraph.mutation(tmp_entry)
+            tmp_entry_uid = response.uids['tempentry']
 
-    #     with self.client as c:
+            delete_tmp['uid'] = tmp_entry_uid
 
-    #         response = c.post('/review/submit',
-    #                           data={'uid': tmp_entry_uid, 'reject': True},
-    #                           headers=self.headers)
-    #         if not self.logged_in:
-    #             # redirect to login page
-    #             self.assertEqual(response.status_code, 200)
-    #             self.assertEqual(response.request.path, url_for('users.login'))
-    #         elif self.logged_in == 'contributor':
-    #             self.assertEqual(response.status_code, 403)
-    #         else:
-    #             self.assertEqual(response.status_code, 200)
+            response = c.post('/api/review/submit',
+                              data={'uid': tmp_entry_uid, 'status': "rejected"},
+                              headers=self.headers)
+            if not self.logged_in:
+                # redirect to login page
+                self.assertEqual(response.status_code, 401)
+            elif self.logged_in == 'contributor':
+                self.assertEqual(response.status_code, 403)
+            else:
+                self.assertEqual(response.status_code, 200)
 
-    #         dgraph.delete(delete_tmp)
+            dgraph.delete(delete_tmp)
+
+
+    """ User Profiles """
+
+    def test_user_profile(self):
+        
+        with self.client as c:
+            res = c.get('/api/user/profile',
+                        headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in == 'admin':
+                self.assertEqual(res.status_code, 200)
+                self.assertEqual(res.json['email'], "wp3@opted.eu")
+            elif self.logged_in == 'reviewer':
+                self.assertEqual(res.status_code, 200)
+                self.assertEqual(res.json['email'], "reviewer@opted.eu")
+            elif self.logged_in == 'contributor':
+                self.assertEqual(res.status_code, 200)
+                self.assertEqual(res.json['email'], "contributor@opted.eu")
+
+            # update profile
+            res = c.post('/api/user/profile/update',
+                        headers=self.headers,
+                        json={'data': {'affiliation': 'Hogwarts'}})
+            
+            updated = c.get('/api/user/profile',
+                            headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.status_code, 200)
+                self.assertEqual(updated.json['affiliation'], "Hogwarts")
+
+            res = c.post('/api/user/profile/update',
+                        headers=self.headers,
+                       json={'data': {'affiliation': None}})
+            
+            updated = c.get('/api/user/profile',
+                            headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.status_code, 200)
+                self.assertNotIn("affiliation", updated.json)
+
+            # try to change email address
+            # should not be allowed / have no effect
+            res = c.post('/api/user/profile/update',
+                        headers=self.headers,
+                       json={'data': {'email': "someother@email.com"}})
+            
+            updated = c.get('/api/user/profile',
+                            headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in == 'admin':
+                self.assertEqual(res.status_code, 200)
+                self.assertEqual(updated.json['email'], "wp3@opted.eu")
+            elif self.logged_in == 'reviewer':
+                self.assertEqual(res.status_code, 200)
+                self.assertEqual(updated.json['email'], "reviewer@opted.eu")
+            elif self.logged_in == 'contributor':
+                self.assertEqual(res.status_code, 200)
+                self.assertEqual(updated.json['email'], "contributor@opted.eu")
+
+            # try to delete private field
+            # should not be allowed / have no effect
+            res = c.post('/api/user/profile/update',
+                        headers=self.headers,
+                       json={'data': {'_account_status': None}})
+            
+            updated = c.get('/api/user/profile',
+                            headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in == 'admin':
+                self.assertEqual(res.status_code, 200)
+                self.assertEqual(updated.json['_account_status'], "active")
+            elif self.logged_in == 'reviewer':
+                self.assertEqual(res.status_code, 200)
+                self.assertEqual(updated.json['_account_status'], "active")
+            elif self.logged_in == 'contributor':
+                self.assertEqual(res.status_code, 200)
+                self.assertEqual(updated.json['_account_status'], "active")
+
+    def test_show_user_entries(self):
+
+        with self.client as c:
+            res = c.get('/api/user/' + self.contributor_uid + '/entries',
+                        headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(len(res.json), 0)
+            elif self.logged_in == 'contributor':
+                self.assertEqual(len(res.json), 1)
+            else:
+                self.assertEqual(len(res.json), 1)
+
+            res = c.get('/api/user/0xfffffffffffffff/entries',
+                        headers=self.headers)
+            
+            self.assertEqual(res.status_code, 404)
+
+            res = c.get('/api/user/' + self.admin_uid + '/entries',
+                        headers=self.headers)
+            
+            self.assertEqual(len(res.json), 100)
+
+            res = c.get('/api/user/' + self.admin_uid + '/entries',
+                        query_string={'page': 2},
+                        headers=self.headers)
+            
+            self.assertEqual(len(res.json), 100)
+
+            res = c.get('/api/user/' + self.admin_uid + '/entries',
+                        query_string={'dgraph_type': 'Country'},
+                        headers=self.headers)
+            
+            self.assertEqual(len(res.json), 100)
+
+            res = c.get('/api/user/' + self.contributor_uid + '/entries',
+                        headers=self.headers,
+                        query_string={'entry_review_status': 'draft'})
+            
+            if not self.logged_in:
+                # not logged in just gets to see all accepted entries
+                self.assertEqual(len(res.json), 0)
+                self.assertEqual(res.status_code, 200)
+            elif self.logged_in == 'contributor':
+                # can view oneself's drafts
+                self.assertEqual(len(res.json), 0)
+                self.assertEqual(res.status_code, 200)
+            else:
+                self.assertEqual(res.status_code, 403)
+
+
+    """ User Management """
+
+    def test_admin_users(self):
+        with self.client as c:
+            res = c.get('/api/admin/users',
+                        headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in != 'admin':
+                self.assertEqual(res.status_code, 403)
+            else:
+                self.assertEqual(len(res.json), 3)
+
+    
+    def test_edit_user_role(self):
+        with self.client as c:
+            res = c.get('/api/admin/users/' + self.contributor_uid,
+                        headers=self.headers,
+                        query_string={'role': 2})
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in != 'admin':
+                self.assertEqual(res.status_code, 403)
+            else:
+                self.assertEqual(res.status_code, 200)
+                user = dgraph.query("query User($uid: string) { q(func: uid($uid)) { role } }",
+                                    variables={'$uid': self.contributor_uid})
+                self.assertEqual(user['q'][0]['role'], 2)
+            
+            # clean up
+            dgraph.update_entry({'role': 1}, self.contributor_uid)
+
+            # use illegal value
+            res = c.get('/api/admin/users/' + self.contributor_uid,
+                        headers=self.headers,
+                        query_string={'role': 7})
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in != 'admin':
+                self.assertEqual(res.status_code, 403)
+            else:
+                self.assertEqual(res.status_code, 400)
+                user = dgraph.query("query User($uid: string) { q(func: uid($uid)) { role } }",
+                                    variables={'$uid': self.contributor_uid})
+                self.assertEqual(user['q'][0]['role'], 1)
+            
+            # clean up
+            dgraph.update_entry({'role': 1}, self.contributor_uid)
+
+            # wrong user uid
+            res = c.get('/api/admin/users/0xffffffffffffff',
+                        headers=self.headers,
+                        query_string={'role': 2})
+            
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in != 'admin':
+                self.assertEqual(res.status_code, 403)
+            else:
+                self.assertEqual(res.status_code, 404)
+
+
+    """ Commenting """
+
+    def test_view_comments(self):
+        with self.client as c:
+            res = c.get('/api/comment/view/' + self.derstandard_facebook,
+                        headers=self.headers)
+
+        if not self.logged_in:
+            self.assertEqual(res.status_code, 401)
+        else:
+            self.assertEqual(res.status_code, 200)
+            self.assertEqual(len(res.json), 2)
+
+    def test_post_comment(self):
+
+        comment = {'message': 'This is a new comment'}
+
+        with self.client as c:
+
+            res = c.post('/api/comment/post/' + self.derstandard_print,
+                   headers=self.headers,
+                   json=comment)
+            
+            comment_uid = None
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            else:
+                self.assertEqual(res.status_code, 200)
+                self.assertIn('uid', res.json)
+                comment_uid = res.json['uid']
+
+            # delete new comment
+            if comment_uid:
+                res = c.get('/api/comment/delete/' + comment_uid,
+                    headers=self.headers)
+                
+                if not self.logged_in:
+                    self.assertEqual(res.status_code, 401)
+                else:
+                    self.assertEqual(res.status_code, 200)
+                    self.assertEqual(res.json['uid'], comment_uid)
+
+    def test_delete_comment(self):
+
+        # prepare a comment
+        comment = {'uid': '_:comment',
+                     'dgraph.type': ['Comment'],
+                     'message': 'Will be deleted',
+                     '_creator': {'uid': self.contributor_uid}
+                     }
+
+        # accept entry
+        with self.client as c:
+            response = dgraph.mutation(comment)
+            comment_uid = response.uids['comment']
+
+            res = c.get('/api/comment/delete/' + comment_uid,
+                        headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in == 'contributor':
+                self.assertEqual(res.status_code, 200)
+            elif self.logged_in == 'reviewer':
+                self.assertEqual(res.status_code, 403)
+            else:
+                self.assertEqual(res.status_code, 200)
+            
+            # clean up
+            mutation = dgraph.delete({'uid': comment_uid})
+            self.assertTrue(mutation)
+
+
+    """ Follow Entries """
+
+    """ Notifications """
+
+    """ Recommender System """
 
 
 class TestAPILoggedInContributor(TestAPILoggedOut):
