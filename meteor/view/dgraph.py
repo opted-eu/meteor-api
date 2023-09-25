@@ -70,6 +70,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
                            archives: ~authors @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
                            datasets: ~authors @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) }
                            publications: ~authors @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) } 
+                           learning_materials: ~authors @filter(type("LearningMaterial")) (orderasc: date_published) { uid name title date_published entry_review_status authors @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) } 
                         } }'''
 
     elif dgraph_type == 'Operation':

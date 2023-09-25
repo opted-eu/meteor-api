@@ -284,18 +284,19 @@ class Schema:
         return {k: v for k, v in relationships.items() if isinstance(v, (SingleRelationship, MutualRelationship))}
     
     @classmethod
-    def get_reverse_relationships(cls, _cls) -> dict:
+    def get_reverse_relationships(cls, _cls) -> t.List[tuple]:
         """
-            Get all reverse relationships from the DGraph Type to other DGraph Types.
-            Returns a dict of `{'predicate_name': <DGraph Predicate>}`
-            `Schema.get_reverse_relationships('NewsSource')` -> {'publishes': <DGraph Predicate "publishes"> ...}
+            Get all implicit reverse relationships from the DGraph Type to other DGraph Types.
+
+            Returns a list of tuples of `[('predicate_name', 'dgraph.type')]`
+
+            `Schema.get_reverse_relationships('NewsSource')` -> ('publishes', 'PoliticalParty'), ('publishes', 'Organization'), ('sources_included', 'JournalisticBrand') ... `
         """
-        from .dgraph_types import SingleRelationship, MutualRelationship
         if not isinstance(_cls, str):
             _cls = _cls.__name__
 
         try:
-            return deepcopy(Schema.__reverse_relationships__[_cls])
+            return [(p.predicate, p.bound_dgraph_type) for p in Schema.__reverse_relationships__[_cls]]
         except KeyError:
             return None
       
