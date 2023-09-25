@@ -53,9 +53,10 @@ def new_entry():
             else:
                 return redirect(url_for('add.new', dgraph_type=form.entity.data))
 
-    drafts = current_user.my_entries(entry_review_status="draft")
-    if drafts:
-        drafts = drafts[0]['drafts']
+    try:
+        drafts = current_user.my_entries(entry_review_status="draft")
+    except:
+        drafts = None
     return render_template('add/newentry.html', form=form, drafts=drafts)
 
 
