@@ -661,6 +661,66 @@ def get_predicate(predicate: str) -> t.TypedDict('Predicate', uid=str):
     return jsonify(result)
     
 
+@api.route('/schema/predicate/counts/<predicate>')
+def get_predicate_counts(predicate: str) -> t.List[
+        t.TypedDict('Predicate', uid=str, _unique_name=str, name=str, entries=int, value=str)]:
+    """ 
+        Total number of entries for a predicate.
+
+        _Intended for query forms, to show the user beforehand how many entries can be expected_
+
+        Provides an aggregation for a predicate. It shows count of entries associated with certain types.
+        For example, `country` returns all countries in the database alongside how many entries are linked to
+        each country (0 values are omitted). The return object for relationship predicates has the following keys:
+        `uid`, `_unique_name`, `name` (for pretty printing), and `entries` (total count of entries). 
+
+        For non-relationship predicates (e.g., multiple choice) the route provides a count for each value.
+        The return object has the following keys:
+        `name` (for pretty printing), `value` (database value) and `entries` (total count of entries). 
+
+    """
+    try:
+        predicate = Schema.get_queryable_predicates()[predicate]
+    except KeyError:
+        return api.abort(404)
+
+    if not hasattr(predicate, 'choices'):
+        return jsonify({'warning': f'Predicate <{predicate}> has no available choices'})
+
+    if 'uid' in predicate.dgraph_predicate_type:
+
+        query_predicates = [predicate.predicate]
+
+        if predicate.predicate_alias:
+            query_predicates += predicate.predicate_alias
+
+        query_string = "{ "
+        query_vars = []
+        for i, p in enumerate(query_predicates):
+            query_string += f"var(func: has({p})) @groupby({p}) {{ v{i} as count(uid) }} "
+            query_vars.append(f'v{i}')
+
+        query_string += f"""q(func: uid({', '.join(query_vars)}), orderasc: name) {{ 
+            name _unique_name uid entries: math({' + '.join(query_vars)}) }} 
+            }}"""
+        
+        result = dgraph.query(query_string)['q']
+    
+    else:
+        query_string = f""" {{
+            q(func: has({predicate.predicate})) @groupby({predicate.predicate}) {{ 
+                entries: count(uid) 
+                }} 
+            }}
+        """
+        
+        result = dgraph.query(query_string)['q'][0]["@groupby"]
+        for r in result:
+            r['value'] = r.pop(predicate.predicate)
+            r['name'] = predicate.choices[r['value']]
+
+    return jsonify(result)
+
 """ View Routes """
 
 @api.route('/view/recent')

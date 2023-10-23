@@ -279,7 +279,7 @@
         _:apa <alternate_names> "AOM" .
         _:apa <alternate_names> "APA Defacto CAMPUS" .
         _:apa <description> "Die Datenbank der APA-OnlineManager Library umfasst die Inhalte österreichischen Tageszeitungen sowie Wochen-, Monatsmagazine und Transkripte von Informationssendungen aus Radio & TV - derzeit aktuell mehr als 350 Medien. Zusätzlich sind auch viele internationale Zeitungen und Magazine verfügbar. Die Medienberichte werden 7 Tage nach Erscheinen in die Datenbank integriert und reichen zurück teilweise bis 1990." . 
-        _:apa <conditions_of_access> "restricted" .
+        _:apa <conditions_of_access> "purchase" .
         _:apa <url> "https://aomlibrary.apa.at/" .
         _:apa <sources_included> _:derstandardat (from=2009) .
         _:apa <sources_included> _:derstandardprint (from=1995) .
