@@ -75,7 +75,7 @@ def load_user(user_id):
 
 class Entry(Schema):
 
-    """ Base Entry Type that most other types inherit from """
+    """ Base Entry Type that all user generated types inherit from """
 
     __permission_new__ = USER_ROLES.Contributor
     __permission_edit__ = USER_ROLES.Contributor
@@ -582,6 +582,8 @@ class Channel(Entry):
 
 class Country(Entry):
 
+    """ Geographic / Political Entity """
+
     __permission_new__ = USER_ROLES.Admin
     __permission_edit__ = USER_ROLES.Admin
 
@@ -594,6 +596,8 @@ class Country(Entry):
 
 
 class Multinational(Entry):
+
+    """ Bundle of Geographic / Political Entities """
 
     __permission_new__ = USER_ROLES.Admin
     __permission_edit__ = USER_ROLES.Admin
@@ -1245,6 +1249,8 @@ class Author(Entry):
 
 class Language(Entry):
 
+    """ Written Language """
+
     iso_639_2 = String(label="ISO-639-2 Code",
                        description="ISO code with 2 characters (e.g. 'en')",
                        directives=['@index(exact)'])
@@ -1259,6 +1265,8 @@ class Language(Entry):
 
 
 class ProgrammingLanguage(Entry):
+
+    """ a system of notation for writing computer programs """
 
     pass
 

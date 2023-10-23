@@ -53,3 +53,8 @@ LoginToken = typing.TypedDict('LoginToken', {
     "access_token": str,
     "refresh_token": str
 })
+
+DGraphTypeDescription = typing.TypedDict('DGraphTypeDescription', {
+    "name": str,
+    "description": str
+})

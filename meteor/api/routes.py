@@ -145,7 +145,14 @@ class API(Blueprint):
                         }
                     }
             else:
-                r_type = PATH_TYPES[r]
+                try:
+                    r_type = PATH_TYPES[r]
+                except KeyError:
+                    r_type = api.annotation_to_response(r)[content_type]['schema']
+                content[content_type]["schema"] = {
+                    'type': 'array',
+                    'items': r_type
+                    }
         else:
             r = annotation
             if safe_issubclass(r, Schema):
@@ -413,7 +420,7 @@ def schema() -> dict:
             "info": {
                 "title": "Meteor API",
                 "description": __doc__,
-                "termsOfService": "http://meteor.opted.eu/about/",
+                "termsOfService": "https://meteor.opted.eu/about",
                 "contact": {
                     "email": "info@opted.eu"
                 },
@@ -605,6 +612,24 @@ def get_dgraph_type(dgraph_type: str, new: bool = False, edit: bool = False) -> 
               'predicates': predicates}
     
     return jsonify(result)
+
+from meteor.api.responses import DGraphTypeDescription
+
+@api.route('/schema/types')
+def list_dgraph_types() -> t.List[DGraphTypeDescription]:
+    """ 
+        List all public Dgraph Types alongside a description
+   
+        _Intended as utility for form generation._
+
+    """
+
+    dgraph_types = []
+    for dgtype in Schema.get_types(private=False):
+        dgraph_types.append({'name': dgtype,
+                             'description': Schema.get_type_description(dgtype)})
+    
+    return jsonify(dgraph_types)
     
 
 @api.route('/schema/predicate/<predicate>')
