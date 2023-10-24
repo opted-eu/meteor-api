@@ -151,3 +151,111 @@ def get_rejected(uid):
         return res['q'][0]
     else:
         return False
+
+
+"""
+    Recommender System
+"""
+
+def get_similar(uid: str, predicate: str) -> t.List[dict]:
+    uid = validate_uid(uid)
+    if not uid:
+        raise ValueError('Invalid UID provided')
+
+    query_string = f"""query JaccardSimilarity($uid: string)
+    {{
+        var(func: has({predicate})) {{
+            D2 as count({predicate})
+        }}
+        var(func: uid($uid)) {{
+            name
+            D1 as count({predicate})
+            v as {predicate} {{
+            ~{predicate} {{
+                intersection as count({predicate}, @filter(uid(v)))
+                distance as math(1 - (intersection / (1.0 * D1 + 1.0 * D2) ))
+                }}
+            }}
+        }}
+        similar(func: uid(distance), orderasc: val(distance), first: 10) 
+            @filter(NOT uid($uid) AND eq(entry_review_status, "accepted") AND ge(val(distance), 0.5)) {{
+                uid
+                _unique_name
+                name
+                title
+                common_items: val(intersection)
+                d: val(distance)
+                dgraph.type
+                entry_review_status
+                countries {{ name uid _unique_name }}
+                country {{ name uid _unique_name }}
+                channel {{ name uid _unique_name }}
+                authors @facets(orderasc: sequence) {{ name uid _unique_name }}
+                _authors_fallback @facets
+            }}
+        }}"""
+    
+    result = dgraph.query(query_string, variables={'$uid': uid})
+    return result['similar']
+
+
+
+def get_similar_by_many(uid: str, predicates: t.List[str]) -> t.List[dict]:
+    uid = validate_uid(uid)
+    if not uid:
+        raise ValueError('Invalid UID provided')
+
+    query_head = "query JaccardSimilarity($uid: string) {\n"
+
+    query_count_D2 = f"var(func: has({predicates[0]})) @filter(" + " AND ".join([f"has({p})" for p in predicates]) + ") { "
+    query_D1 = "var(func: uid($uid)) { \n norm as math(1) \n"
+    
+    for predicate in predicates:
+        query_count_D2 += f"D2_num_{predicate} as count({predicate}) \n"
+    
+        query_D1 += f"D1_num_{predicate} as count({predicate}) \n"
+        query_D1 += f"""v_{predicate} as {predicate} {{
+            ~{predicate} {{
+                D1_norm_{predicate} as math(D1_num_{predicate} / norm)
+                intersection_{predicate} as count({predicate}, @filter(uid(v_{predicate})))
+                union_{predicate}_tmp as math(1.0 * (D1_norm_{predicate} + D2_num_{predicate} - intersection_{predicate}))
+                union_{predicate} as math(cond(union_{predicate}_tmp == 0, 0.0001, union_{predicate}_tmp))
+                distance_{predicate} as math( 1 - ( intersection_{predicate} / union_{predicate} ) )
+            }}
+        }}\n"""
+
+    query_count_D2 += '}\n'
+    query_D1 += "avg_dist as math( (" 
+    query_D1 += " + ".join([f"distance_{p}" for p in predicates]) + ') / ' + str(len(predicates)) + ')'
+    query_D1 += '}\n' 
+
+
+    query_similar = """similar(func: uid(avg_dist), orderasc: val(avg_dist), first: 10) 
+            @filter(NOT uid($uid) AND eq(entry_review_status, "accepted") AND """
+    query_similar += " AND ".join([f"has({p})" for p in predicates]) + ") {"
+    query_similar += """
+                uid
+                _unique_name
+                name
+                title
+                d: val(avg_dist)
+                dgraph.type
+                entry_review_status
+                countries { name uid _unique_name }
+                country { name uid _unique_name }
+                channel { name uid _unique_name }
+                authors @facets(orderasc: sequence) { name uid _unique_name }
+                _authors_fallback @facets
+            """
+    for predicate in predicates:
+        query_similar += f"common_{predicate}: val(intersection_{predicate})\n"
+        query_similar += f"distance_{predicate}: val(distance_{predicate})\n"
+
+    query_similar += " } }"
+    
+    query_string = query_head + query_count_D2 + query_D1 + query_similar
+    
+    print(query_string)
+    
+    result = dgraph.query(query_string, variables={'$uid': uid})
+    return result['similar']
