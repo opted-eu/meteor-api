@@ -701,7 +701,8 @@ def get_predicate_counts(predicate: str) -> t.List[
             query_vars.append(f'v{i}')
 
         query_string += f"""q(func: uid({', '.join(query_vars)}), orderasc: name) {{ 
-            name _unique_name uid entries: math({' + '.join(query_vars)}) }} 
+            name _unique_name uid opted_scope
+            entries: math({' + '.join(query_vars)}) }} 
             }}"""
         
         result = dgraph.query(query_string)['q']
@@ -883,6 +884,22 @@ def view_rejected(uid: str) -> Rejected:
         return api.abort(403, message='You tried to view a rejected entry. Make sure you are logged in and have the right permissions.')
 
     return jsonify(data)
+
+from meteor.api.view import get_similar
+
+@api.route('/view/similar/<uid>')
+def view_similar(uid: str) -> t.List[Entry]:
+    return api.abort(501, "Not implemented")
+    dgraph_type = dgraph.get_dgraphtype(uid)
+    if dgraph_type in ['Dataset', 'Archive']:
+        return get_similar(uid, ["sources_included", "languages"])
+    elif dgraph_type == "ScientificPublication":
+        return get_similar(uid, ["methodologies", "concept_variables", 
+                                 "sources_included", "datasets_used", "countries", 
+                                 "languages"])
+    else:
+        api.abort(501, "Cannot provide similar entries for this DGraph Type")
+
 
 """ Query Routes """
 

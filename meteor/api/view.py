@@ -157,88 +157,49 @@ def get_rejected(uid):
     Recommender System
 """
 
-def get_similar(uid: str, predicate: str) -> t.List[dict]:
+def get_similar(uid: str, predicates: t.List[str], first=10) -> t.List[dict]:
+    """
+        Get similar entries by a list of predicates.
+
+        Calculates Jaccard Similarity for each predicate and then returns a mean distance.
+
+        Can take an arbitrary number of predicates (at least 1) for computing similarity.
+        Returns the top 10 nearest.
+    """
     uid = validate_uid(uid)
     if not uid:
         raise ValueError('Invalid UID provided')
-
-    query_string = f"""query JaccardSimilarity($uid: string)
-    {{
-        var(func: has({predicate})) {{
-            D2 as count({predicate})
-        }}
-        var(func: uid($uid)) {{
-            name
-            D1 as count({predicate})
-            v as {predicate} {{
-            ~{predicate} {{
-                intersection as count({predicate}, @filter(uid(v)))
-                distance as math(1 - (intersection / (1.0 * D1 + 1.0 * D2) ))
-                }}
-            }}
-        }}
-        similar(func: uid(distance), orderasc: val(distance), first: 10) 
-            @filter(NOT uid($uid) AND eq(entry_review_status, "accepted") AND ge(val(distance), 0.5)) {{
-                uid
-                _unique_name
-                name
-                title
-                common_items: val(intersection)
-                d: val(distance)
-                dgraph.type
-                entry_review_status
-                countries {{ name uid _unique_name }}
-                country {{ name uid _unique_name }}
-                channel {{ name uid _unique_name }}
-                authors @facets(orderasc: sequence) {{ name uid _unique_name }}
-                _authors_fallback @facets
-            }}
-        }}"""
     
-    result = dgraph.query(query_string, variables={'$uid': uid})
-    return result['similar']
-
-
-
-def get_similar_by_many(uid: str, predicates: t.List[str]) -> t.List[dict]:
-    uid = validate_uid(uid)
-    if not uid:
-        raise ValueError('Invalid UID provided')
-
+    # DQL Query has three blocks:
+    # 1. get all other nodes that have the same predicates and count how many edges they have
+    # 2. For the node of interest (node1) and each predicate, do:
+    #       - get a count of all edges, 
+    #       - find the intersection with all other nodes
+    #       - calculate the count for the union (ensure is not zero)
+    #       - compute the jaccard distance
+    #   then take the mean of all distances
+    # 3. Return the first 10 nodes (default value) that have the smallest distance
+    #       (make sure: does not return node1, and entries are accepted, and nodes have specified predicates) 
+    
+    # Declare GraphQL variable: only need UID
     query_head = "query JaccardSimilarity($uid: string) {\n"
 
-    query_count_D2 = f"var(func: has({predicates[0]})) @filter(" + " AND ".join([f"has({p})" for p in predicates]) + ") { "
-    query_D1 = "var(func: uid($uid)) { \n norm as math(1) \n"
+    # node2 are all other nodes
+    query_count_node2 = f"var(func: has({predicates[0]})) @filter(" + " AND ".join([f"has({p})" for p in predicates]) + ") { "
     
-    for predicate in predicates:
-        query_count_D2 += f"D2_num_{predicate} as count({predicate}) \n"
-    
-        query_D1 += f"D1_num_{predicate} as count({predicate}) \n"
-        query_D1 += f"""v_{predicate} as {predicate} {{
-            ~{predicate} {{
-                D1_norm_{predicate} as math(D1_num_{predicate} / norm)
-                intersection_{predicate} as count({predicate}, @filter(uid(v_{predicate})))
-                union_{predicate}_tmp as math(1.0 * (D1_norm_{predicate} + D2_num_{predicate} - intersection_{predicate}))
-                union_{predicate} as math(cond(union_{predicate}_tmp == 0, 0.0001, union_{predicate}_tmp))
-                distance_{predicate} as math( 1 - ( intersection_{predicate} / union_{predicate} ) )
-            }}
-        }}\n"""
+    # head for node1 (node of interest) and initialize a normalization value
+    query_node1 = "var(func: uid($uid)) { \n norm as math(1) \n"
 
-    query_count_D2 += '}\n'
-    query_D1 += "avg_dist as math( (" 
-    query_D1 += " + ".join([f"distance_{p}" for p in predicates]) + ') / ' + str(len(predicates)) + ')'
-    query_D1 += '}\n' 
-
-
-    query_similar = """similar(func: uid(avg_dist), orderasc: val(avg_dist), first: 10) 
-            @filter(NOT uid($uid) AND eq(entry_review_status, "accepted") AND """
-    query_similar += " AND ".join([f"has({p})" for p in predicates]) + ") {"
+    # head for 3rd block, with filters
+    query_similar = f"""similar(func: uid(avg_dist), orderasc: val(avg_dist), first: {first}) 
+            @filter(NOT uid($uid) AND eq(entry_review_status, "accepted") ) {{"""
+    # query_similar += " AND ".join([f"has({p})" for p in predicates]) + ") {"
     query_similar += """
                 uid
                 _unique_name
                 name
                 title
-                d: val(avg_dist)
+                average_distance: val(avg_dist)
                 dgraph.type
                 entry_review_status
                 countries { name uid _unique_name }
@@ -247,15 +208,36 @@ def get_similar_by_many(uid: str, predicates: t.List[str]) -> t.List[dict]:
                 authors @facets(orderasc: sequence) { name uid _unique_name }
                 _authors_fallback @facets
             """
+    
+    # go through each specified predicate and add the Jaccard similarity calculation
     for predicate in predicates:
+        query_count_node2 += f"node2_num_{predicate} as count({predicate}) \n"
+    
+        query_node1 += f"node1_num_{predicate} as count({predicate}) \n"
+        query_node1 += f"""v_{predicate} as {predicate} {{
+            ~{predicate} {{
+                node1_norm_{predicate} as math(node1_num_{predicate} / norm)
+                intersection_{predicate} as count({predicate}, @filter(uid(v_{predicate})))
+                union_{predicate} as math(1.0 * (node1_norm_{predicate} + node2_num_{predicate} - intersection_{predicate}))
+                distance_{predicate} as math( 1.0 - ( intersection_{predicate} / (union_{predicate} + 0.01) ) )
+            }}
+        }}\n"""
+
+        # give some verbose output, so we also return the distances for each predicate
         query_similar += f"common_{predicate}: val(intersection_{predicate})\n"
         query_similar += f"distance_{predicate}: val(distance_{predicate})\n"
 
+    query_count_node2 += '}\n'
+
+    # mean Jaccard Distance
+    query_node1 += "avg_dist as math( (" 
+    query_node1 += " + ".join([f"distance_{p}" for p in predicates]) + ') / ' + str(len(predicates)) + ')'
+    query_node1 += '}\n' 
+
     query_similar += " } }"
     
-    query_string = query_head + query_count_D2 + query_D1 + query_similar
-    
-    print(query_string)
-    
+    # compose query
+    query_string = query_head + query_count_node2 + query_node1 + query_similar
+       
     result = dgraph.query(query_string, variables={'$uid': uid})
     return result['similar']
