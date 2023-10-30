@@ -161,7 +161,7 @@ def get_similar(uid: str, predicates: t.List[str], first=10) -> t.List[dict]:
     """
         Get similar entries by a list of predicates.
 
-        Calculates Jaccard Similarity for each predicate and then returns a mean distance.
+        Calculates Jaccard Similarity for each predicate and then returns an similarity score.
 
         Can take an arbitrary number of predicates (at least 1) for computing similarity.
         Returns the top 10 nearest.
@@ -176,22 +176,22 @@ def get_similar(uid: str, predicates: t.List[str], first=10) -> t.List[dict]:
     #       - get a count of all edges, 
     #       - find the intersection with all other nodes
     #       - calculate the count for the union (ensure is not zero)
-    #       - compute the jaccard distance
-    #   then take the mean of all distances
-    # 3. Return the first 10 nodes (default value) that have the smallest distance
-    #       (make sure: does not return node1, and entries are accepted, and nodes have specified predicates) 
+    #       - compute the jaccard similarity
+    #   then sum all similarity values
+    # 3. Return the first 10 nodes (default value) that have the highest similarity
+    #       (make sure: does not return node1, and entries are accepted) 
     
     # Declare GraphQL variable: only need UID
     query_head = "query JaccardSimilarity($uid: string) {\n"
 
-    # node2 are all other nodes
-    query_count_node2 = f"var(func: has({predicates[0]})) @filter(" + " AND ".join([f"has({p})" for p in predicates]) + ") { "
+    # node2 are all other nodes       
+    query_count_node2 = ""
     
     # head for node1 (node of interest) and initialize a normalization value
     query_node1 = "var(func: uid($uid)) { \n norm as math(1) \n"
 
     # head for 3rd block, with filters
-    query_similar = f"""similar(func: uid(avg_dist), orderasc: val(avg_dist), first: {first}) 
+    query_similar = f"""similar(func: uid(sum_similarity), orderdesc: val(sum_similarity), first: {first}) 
             @filter(NOT uid($uid) AND eq(entry_review_status, "accepted") ) {{"""
     # query_similar += " AND ".join([f"has({p})" for p in predicates]) + ") {"
     query_similar += """
@@ -199,7 +199,7 @@ def get_similar(uid: str, predicates: t.List[str], first=10) -> t.List[dict]:
                 _unique_name
                 name
                 title
-                average_distance: val(avg_dist)
+                aggregated_similarity: val(sum_similarity)
                 dgraph.type
                 entry_review_status
                 countries { name uid _unique_name }
@@ -211,7 +211,10 @@ def get_similar(uid: str, predicates: t.List[str], first=10) -> t.List[dict]:
     
     # go through each specified predicate and add the Jaccard similarity calculation
     for predicate in predicates:
-        query_count_node2 += f"node2_num_{predicate} as count({predicate}) \n"
+        query_count_node2 += f"""var(func: has({predicate})) {{
+            node2_num_{predicate} as count({predicate}) 
+            }}\n
+            """
     
         query_node1 += f"node1_num_{predicate} as count({predicate}) \n"
         query_node1 += f"""v_{predicate} as {predicate} {{
@@ -219,20 +222,20 @@ def get_similar(uid: str, predicates: t.List[str], first=10) -> t.List[dict]:
                 node1_norm_{predicate} as math(node1_num_{predicate} / norm)
                 intersection_{predicate} as count({predicate}, @filter(uid(v_{predicate})))
                 union_{predicate} as math(1.0 * (node1_norm_{predicate} + node2_num_{predicate} - intersection_{predicate}))
-                distance_{predicate} as math( 1.0 - ( intersection_{predicate} / (union_{predicate} + 0.01) ) )
+                similarity_{predicate} as math( ( intersection_{predicate} * 1.0 / (union_{predicate} * 1.0) ) )
             }}
         }}\n"""
 
         # give some verbose output, so we also return the distances for each predicate
         query_similar += f"common_{predicate}: val(intersection_{predicate})\n"
-        query_similar += f"distance_{predicate}: val(distance_{predicate})\n"
+        query_similar += f"similarity_{predicate}: val(similarity_{predicate})\n"
 
-    query_count_node2 += '}\n'
 
     # mean Jaccard Distance
-    query_node1 += "avg_dist as math( (" 
-    query_node1 += " + ".join([f"distance_{p}" for p in predicates]) + ') / ' + str(len(predicates)) + ')'
-    query_node1 += '}\n' 
+    query_node1 += "sum_similarity as math( (" 
+    query_node1 += " + ".join([f"similarity_{p}" for p in predicates]) + ' ) '
+    # query_node1 += " + ".join([f"(distance_{p} / (distance_{p} + 0.0001) )" for p in predicates])
+    query_node1 += ') \n}\n' 
 
     query_similar += " } }"
     

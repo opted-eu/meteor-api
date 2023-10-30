@@ -76,6 +76,7 @@ PATH_TYPES = {
     'default': 'string',
     str: 'string',
     int: 'integer',
+    float: 'number',
     dict: 'object',
     bool: 'boolean',
     list: 'array',
@@ -888,15 +889,50 @@ def view_rejected(uid: str) -> Rejected:
 from meteor.api.view import get_similar
 
 @api.route('/view/similar/<uid>')
-def view_similar(uid: str) -> t.List[Entry]:
-    return api.abort(501, "Not implemented")
+def view_similar(uid: str, max_results: int = 10) -> t.List[
+        t.TypedDict('SimilarEntry', uid=str, _unique_name=str, name=str, 
+                    aggregated_similarity=float, common_placeholder=int, similarity_placeholder=float)]:
+    """
+        Get similar entries for the provided UID.
+
+        Calculates Jaccard Similarity to find similar entries. Returns also the number of common
+        entries for each relevant predicate. 
+        
+        Currently only supports the following types:
+
+        - Dataset
+        - Archive
+        - ScientificPublication
+        - Tool
+        - Collection
+        - LearningMaterial
+
+        Returns only "accepted" entries. max_results cannot exceed 50.
+    """
     dgraph_type = dgraph.get_dgraphtype(uid)
+    if max_results > 50:
+        max_results = 50
     if dgraph_type in ['Dataset', 'Archive']:
-        return get_similar(uid, ["sources_included", "languages"])
+        return get_similar(uid, ["sources_included", "languages", "countries", "channels",
+                                 "text_types", "meta_variables", "concept_variables"],
+                           first=max_results)
     elif dgraph_type == "ScientificPublication":
-        return get_similar(uid, ["methodologies", "concept_variables", 
+        return get_similar(uid, ["methodologies", "concept_variables", "text_types",
                                  "sources_included", "datasets_used", "countries", 
-                                 "languages"])
+                                 "languages"],
+                           first=max_results)
+    elif dgraph_type == 'Tool':
+        return get_similar(uid, ["used_for", "languages", "channels", "programming_languages"],
+                           first=max_results)
+    elif dgraph_type == 'Collection':
+        return get_similar(uid, ["entries_included", "languages", "countries", "tools",
+                                 "references", "materials", "concept_variables"],
+                           first=max_results)
+    elif dgraph_type == 'LearningMaterial':
+        return get_similar(uid, ["languages", "programming_languages", "channels", "tools",
+                                 "concept_variables", "methodologies", "datasets_used"],
+                           first=max_results)
+
     else:
         api.abort(501, "Cannot provide similar entries for this DGraph Type")
 
