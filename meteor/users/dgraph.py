@@ -1,4 +1,4 @@
-from typing import Union, Any
+from typing import Union, Any, List
 from meteor import login_manager
 from flask import current_app
 
@@ -136,9 +136,8 @@ class UserLogin(UserMixin):
         return data
 
     """
-        Class Methods: 
-            Login users
-            verify tokens and return instance of User
+        Login users
+        verify tokens and return instance of User
     """
 
     @classmethod
@@ -204,6 +203,10 @@ class UserLogin(UserMixin):
         else:
             return False
 
+    """
+        User self-management
+    """
+
     def update_profile(self, form_data: dict) -> bool:
         user_data = {}
         delete_data = {}
@@ -267,6 +270,10 @@ class UserLogin(UserMixin):
             algorithm="HS256"
         )
         return reset_token
+    
+    """
+        Public facing features of user
+    """
     
     def my_entries(self, 
                    dgraph_type: str = None, 
@@ -399,3 +406,68 @@ class UserLogin(UserMixin):
         if len(data['q']) == 0:
             return False
         return data['q']
+    
+    """
+        Follow & Subscribe
+    """
+
+    def follow_entity(self, uid: str):
+        """
+            Follow a specific entity
+        """
+        follow = {"uid": self.uid,
+                  "follows_entities": [{"uid": uid}]}
+        
+        if not dgraph.mutation(follow):
+            raise Exception
+        
+    def unfollow_entity(self, uid: str):
+        unfollow = {"uid": self.uid,
+                   "follows_entities": [{"uid": uid}]}
+        
+        if not dgraph.delete(unfollow):
+            raise Exception
+        
+    def follow_type(self, dgraph_type: str):
+        follow = {'uid': self.uid,
+                  'follows_types': dgraph_type}
+        
+        if not dgraph.mutation(follow):
+            raise Exception
+    
+    def unfollow_type(self, dgraph_type: str):
+        unfollow = {'uid': self.uid,
+                  'follows_types': dgraph_type}
+        
+        if not dgraph.delete(unfollow):
+            raise Exception
+        
+    def show_follow_entities(self) -> List[dict]:
+        query_string = """query UserFollows($user: string) {
+            q(func: uid($user)) {
+                follows_entities { 
+                    uid _unique_name name title
+                    dgraph.type
+                    alternate_names
+                    countries { name uid _unique_name }
+                    country { name uid _unique_name }
+                    channel { name uid _unique_name }
+                    authors @facets(orderasc: sequence) { name uid _unique_name }
+                    _authors_fallback @facets(orderasc: sequence)
+                }
+            }
+        }"""
+
+        res = dgraph.query(query_string, variables={'$user': self.uid})
+        return res['q'][0]['follows_entities']
+    
+    def show_follow_types(self) -> List[str]:
+        query_string = """query UserFollows($user: string) {
+            q(func: uid($user)) {
+                follows_types
+            }
+        }"""
+
+        res = dgraph.query(query_string, variables={'$user': self.uid})
+        return res['q'][0]['follows_types']
+

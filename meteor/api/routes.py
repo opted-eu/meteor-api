@@ -1942,6 +1942,89 @@ def show_user_entries(uid: str,
                               entry_review_status=entry_review_status)
     return jsonify(entries)
 
+""" Follow Entries """
+
+@api.route('/follow/entries', authentication=True)
+def show_follow_entries() -> t.List[Entry]:
+    """ lists all entries that the current user is following """
+    return jwtx.current_user.show_follow_entities()
+
+
+@api.route('/follow/types', authentication=True)
+def show_follow_types() -> t.List[Entry]:
+    """ lists all entries that the current user is following """
+    return jwtx.current_user.show_follow_types()
+
+@api.route('/follow/entry/<uid>', authentication=True)
+def follow_entry(uid: str) -> SuccessfulAPIOperation:
+    """ follow anything new related to this entry. """
+
+    uid = validate_uid(uid)
+    if not uid:
+        return api.abort(404, message=f"Invalid UID provided <{uid}>")
+    
+    dgraph_type = dgraph.get_dgraphtype(uid)
+    if dgraph_type not in Schema.get_types(private=False):
+        return api.abort(404, message=f"Cannot follow entity of DGraph type <{dgraph_type}>")
+    
+    try:
+        jwtx.current_user.follow_entity(uid)
+    except:
+        return api.abort(400, message=f"Could not follow entity <{uid}>")
+    
+    return jsonify(status=200, message="Success")
+
+
+@api.route('/unfollow/entry/<uid>', authentication=True)
+def unfollow_entity(uid: str) -> SuccessfulAPIOperation:
+    """ unfollow entry. """
+
+    uid = validate_uid(uid)
+    if not uid:
+        return api.abort(404, message=f"Invalid UID provided <{uid}>")
+    
+    dgraph_type = dgraph.get_dgraphtype(uid)
+    if dgraph_type not in Schema.get_types(private=False):
+        return api.abort(404, message=f"Cannot unfollow entity of DGraph type <{dgraph_type}>")
+    
+    try:
+        jwtx.current_user.unfollow_entity(uid)
+    except:
+        return api.abort(400, message=f"Could not unfollow entity <{uid}>")
+    
+    return jsonify(status=200, message="Success")
+
+
+@api.route('/follow/type/<dgraph_type>', authentication=True)
+def follow_type(dgraph_type: str) -> SuccessfulAPIOperation:
+    """ follow new entries related to this dgraph.type. """
+
+    if dgraph_type not in Schema.get_types(private=False):
+        return api.abort(404, message=f"Cannot follow DGraph type <{dgraph_type}>")
+    
+    try:
+        jwtx.current_user.follow_type(dgraph_type)
+    except:
+        return api.abort(400, message=f"Could not follow DGraph type <{dgraph_type}>")
+    
+    return jsonify(status=200, message="Success")
+
+
+@api.route('/unfollow/type/<dgraph_type>', authentication=True)
+def unfollow_type(dgraph_type: str) -> SuccessfulAPIOperation:
+    """ unfollow new entries related to this dgraph.type. """
+
+    if dgraph_type not in Schema.get_types(private=False):
+        return api.abort(404, message=f"Cannot unfollow DGraph type <{dgraph_type}>")
+    
+    try:
+        jwtx.current_user.unfollow_type(dgraph_type)
+    except:
+        return api.abort(400, message=f"Could not unfollow DGraph type <{dgraph_type}>")
+    
+    return jsonify(status=200, message="Success")
+
+
 """ Administer Users """
 
 @api.route('/admin/users', authentication=True)
@@ -1986,23 +2069,6 @@ def change_user(uid: str, role: int) -> SuccessfulAPIOperation:
 
 
 
-""" Follow Entries """
-
-@api.route('/follow')
-def show_follow() -> t.List[Entry]:
-    """ lists all entries that the current user is following """
-    return abort(501)
-
-@api.route('/follow/<uid>', methods=['POST'])
-def follow_entry(uid: str, status: t.Literal['follow', 'unfollow']) -> SuccessfulAPIOperation:
-    """ (un)follow new entries related to this entry. """
-    return abort(501)
-
-
-@api.route('/follow/<dgraph_type>', methods=['POST'])
-def follow_type(dgraph_type: str, status: t.Literal['follow', 'unfollow']) -> SuccessfulAPIOperation:
-    """ (un)follow new entries related to this dgraph.type. Status: "follow", "unfollow" """
-    return abort(501)
 
 """ Notifications """
 
