@@ -222,6 +222,23 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(response.json[0]['_creator']['uid'], self.admin_uid)
                 self.assertEqual(response.json[1]['_creator']['uid'], self.reviewer_uid)
 
+    def test_post_comments(self):
+
+        with self.client as c:
+            response = c.post('/api/comment/post/' + self.derstandard_twitter, 
+                              headers=self.headers)
+            
+            if not self.logged_in:
+                self.assertEqual(response.status_code, 401)
+            elif self.logged_in == 'Contributor':
+                self.assertEqual(response.status_code, 403)
+            else:
+                self.assertEqual(response.status_code, 200)
+
+            if 'uid' in response.json:
+                deleted = c.get('/api/comment/delete/' + response.json['uid'],
+                                headers=self.headers)
+                
 
     """ Search and Lookup """
 

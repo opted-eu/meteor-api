@@ -1605,7 +1605,7 @@ def delete_comment(uid: str) -> SuccessfulAPIOperation:
     except PermissionError:
         return api.abort(403, message=f"You do not have the permission to post delete this comment")
     except Exception as e:
-        return api.abort(400, message=f'Could not delete comment with uid <{uid}>')
+        return api.abort(400, message=f'Could not delete comment with uid <{uid}>. {e}')
 
 
 """ User Related """
