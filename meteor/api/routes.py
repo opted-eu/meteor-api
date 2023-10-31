@@ -726,7 +726,7 @@ def get_predicate_counts(predicate: str) -> t.List[
 """ View Routes """
 
 @api.route('/view/recent')
-def view_recent(limit: int = 5) -> t.List[Entry]:
+def view_recent(limit: int = 5, dgraph_type: str = "Entry") -> t.List[Entry]:
     """ 
     
     Get the most recent entries. 
@@ -738,9 +738,12 @@ def view_recent(limit: int = 5) -> t.List[Entry]:
         limit = 50
     if limit < 1:
         limit = 1
-    query_string = '''query getRecent ($limit : int)
+    
+    if dgraph_type not in Schema.get_types(private=False):
+        return api.abort(404, message=f"Cannot find DGraph Type <{dgraph_type}>")
+    query_string = '''query getRecent ($limit: int, $type: string)
                     {
-                        data(func: has(dgraph.type), orderdesc: _date_created, first: $limit) 
+                        data(func: type($type), orderdesc: _date_created, first: $limit) 
                             @filter(eq(entry_review_status, "accepted") AND has(_date_created)) {
                                 uid
                                 _unique_name 
@@ -753,12 +756,71 @@ def view_recent(limit: int = 5) -> t.List[Entry]:
                             }
                         }'''
     
-    result = dgraph.query(query_string, variables={'$limit': str(limit)})
+    result = dgraph.query(query_string, variables={'$limit': str(limit), '$type': dgraph_type})
     for entry in result['data']:
         if 'Entry' in entry['dgraph.type']:
             entry['dgraph.type'].remove('Entry')
-        if 'Resource' in entry['dgraph.type']:
-            entry['dgraph.type'].remove('Resource')
+
+    return jsonify(result['data'])
+
+import random
+
+@api.route('/view/random')
+def view_random(limit: int = 5, dgraph_type: str = "Entry") -> t.List[Entry]:
+    """ 
+    
+    Get random entries. 
+    
+    Default 5. Max: 50 
+    
+    """
+    if limit > 50:
+        limit = 50
+    if limit < 1:
+        limit = 1
+    if dgraph_type not in Schema.get_types(private=False):
+        return api.abort(404, message=f"Cannot find DGraph Type <{dgraph_type}>")
+    
+    first_query = '''query getCount($type: string)
+                    {
+                        q(func: type($type)) 
+                            @filter(eq(entry_review_status, "accepted") AND has(_date_created)) {
+                                count(uid)
+                            }
+                        }'''
+    
+    count = dgraph.query(first_query, variables={'$type': dgraph_type})['q'][0]['count']
+
+    random_numbers = random.sample(range(1, count), limit)
+
+    query_string = 'query getRandom($type: string) {'
+    for i, num in enumerate(random_numbers):
+                    query_string += f'''var(func: type($type), first: 1, offset: {num}) 
+                            @filter(eq(entry_review_status, "accepted") AND has(_date_created)) {{
+                                random_{i} as uid
+                            }}
+                    '''
+    
+    query_string += "data(func: uid(" + ", ".join([f"random_{i}" for i in range(limit)]) + ')) '
+    query_string += """{
+                        uid
+                        _unique_name 
+                        name 
+                        dgraph.type 
+                        title
+                        _date_created
+                        channel { name }
+                        country { name }
+                        authors @facets(orderasc: sequence) { name uid _unique_name }
+                        }
+                    }
+                """
+
+    result = dgraph.query(query_string, variables={'$type': dgraph_type})
+
+    for entry in result['data']:
+        if 'Entry' in entry['dgraph.type']:
+            entry['dgraph.type'].remove('Entry')
 
     return jsonify(result['data'])
 
@@ -1153,8 +1215,8 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
                                    'countries { name uid _unique_name }',
                                    'country { name uid _unique_name }',
                                    'channel { name uid _unique_name }',
-                                   'authors @facets { name uid _unique_name }',
-                                   '_authors_fallback @facets'],
+                                   'authors @facets(orderasc: sequence) { name uid _unique_name }',
+                                   '_authors_fallback @facets(orderasc: sequence)'],
                             block_name="data")
 
         dql_query = dql.DQLQuery('lookup', blocks=[field1, field2, field3, field4, data])
@@ -1179,8 +1241,8 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
                 'countries { name uid _unique_name }',
                 'country { name uid _unique_name }',
                 'channel { name uid _unique_name }',
-                'authors @facets { name uid _unique_name }',
-                '_authors_fallback @facets']
+                'authors @facets(orderasc: sequence) { name uid _unique_name }',
+                '_authors_fallback @facets(orderasc: sequence)']
         if predicate not in fetch:
             fetch.append(predicate)
         dql_query = dql.DQLQuery(block_name="data", 
