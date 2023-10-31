@@ -50,8 +50,8 @@ from flask.scaffold import F
 
 from flask_login import current_user, login_required
 import flask_jwt_extended as jwtx
-# TODO: reimplement this class for jwtx!
-from meteor import AnonymousUser
+
+from meteor.users.dgraph import AnonymousUser
 
 from meteor.flaskdgraph import dql
 from meteor.flaskdgraph import build_query_string
@@ -1168,12 +1168,14 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
     """
     if not query or not predicate:
         return api.abort(400, message='Incorrect request parameters provided.')
+    
+    if predicate.startswith('_'):
+        return api.aboit(403, message=f'You cannot query this predicate <{predicate}>')
 
     # Ensure private dgraph.types are protected here
     if any([Schema.is_private(t) for t in dgraph_types]):
         return api.abort(403, message='You cannot access this dgraph.type')
     
-    # TODO: add check whether predicate is not private
     dgraph_types = [dql.type_(t) for t in dgraph_types]
     
     if predicate == 'name':

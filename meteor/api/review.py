@@ -11,6 +11,7 @@ from meteor import dgraph
 from meteor.flaskdgraph import Schema
 from meteor.flaskdgraph import dql
 from meteor.flaskdgraph.dgraph_types import UID, dict_to_nquad, Variable, make_nquad, Scalar
+from meteor.main.model import User
 import datetime
 
 def get_overview(dgraph_type: str = None, 
@@ -81,8 +82,7 @@ def get_overview(dgraph_type: str = None,
     return data
 
 
-# TODO: Fix typing for User
-def accept_entry(uid: str, user: typing.Any) -> None:
+def accept_entry(uid: str, user: User) -> None:
     accepted = {'uid': UID(uid), 
                 'entry_review_status': 'accepted',
                 "_reviewed_by": UID(user.id, 
@@ -94,8 +94,7 @@ def accept_entry(uid: str, user: typing.Any) -> None:
     
 from string import ascii_letters
 
-# TODO: Fix typing for User
-def reject_entry(uid: str, user: typing.Any) -> None:
+def reject_entry(uid: str, user: User) -> None:
 
     current_app.logger.debug(f'Rejecting entry: UID {uid}')
 

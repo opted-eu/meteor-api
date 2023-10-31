@@ -483,7 +483,6 @@ class Sanitizer:
 
     def process_scientificpublication(self):
 
-        # TODO: completely rework this
         """
             Special steps for papers
             Generate a name based on author and title
