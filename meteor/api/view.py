@@ -182,7 +182,7 @@ def get_similar(uid: str, predicates: t.List[str], first=10) -> t.List[dict]:
     #       (make sure: does not return node1, and entries are accepted) 
     
     # Declare GraphQL variable: only need UID
-    query_head = "query JaccardSimilarity($uid: string) {\n"
+    query_head = "query JaccardSimilarity($uid: string, $first: int) {\n"
 
     # node2 are all other nodes       
     query_count_node2 = ""
@@ -191,7 +191,7 @@ def get_similar(uid: str, predicates: t.List[str], first=10) -> t.List[dict]:
     query_node1 = "var(func: uid($uid)) { \n norm as math(1) \n"
 
     # head for 3rd block, with filters
-    query_similar = f"""similar(func: uid(sum_similarity), orderdesc: val(sum_similarity), first: {first}) 
+    query_similar = f"""similar(func: uid(sum_similarity), orderdesc: val(sum_similarity), first: $first) 
             @filter(NOT uid($uid) AND eq(entry_review_status, "accepted") ) {{"""
     # query_similar += " AND ".join([f"has({p})" for p in predicates]) + ") {"
     query_similar += """
@@ -242,5 +242,5 @@ def get_similar(uid: str, predicates: t.List[str], first=10) -> t.List[dict]:
     # compose query
     query_string = query_head + query_count_node2 + query_node1 + query_similar
        
-    result = dgraph.query(query_string, variables={'$uid': uid})
+    result = dgraph.query(query_string, variables={'$uid': uid, '$first': str(first)})
     return result['similar']
