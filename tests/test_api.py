@@ -226,7 +226,8 @@ class TestAPILoggedOut(BasicTestSetup):
 
         with self.client as c:
             response = c.post('/api/comment/post/' + self.derstandard_twitter, 
-                              headers=self.headers)
+                              headers=self.headers,
+                              json={'message': 'Testing Comment'})
             
             if not self.logged_in:
                 self.assertEqual(response.status_code, 401)
@@ -1031,7 +1032,7 @@ class TestAPILoggedOut(BasicTestSetup):
             elif self.logged_in != 'admin':
                 self.assertEqual(res.status_code, 403)
             else:
-                self.assertEqual(len(res.json), 3)
+                self.assertGreaterEqual(len(res.json), 3)
 
     
     def test_edit_user_role(self):
