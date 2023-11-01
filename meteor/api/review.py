@@ -82,10 +82,10 @@ def get_overview(dgraph_type: str = None,
     return data
 
 
-def accept_entry(uid: str, user: User) -> None:
+def accept_entry(uid: str, reviewer: User) -> None:
     accepted = {'uid': UID(uid), 
                 'entry_review_status': 'accepted',
-                "_reviewed_by": UID(user.id, 
+                "_reviewed_by": UID(reviewer.id, 
                                     facets={'timestamp': datetime.datetime.now()})}
 
     set_nquads = " \n ".join(dict_to_nquad(accepted))
@@ -94,7 +94,7 @@ def accept_entry(uid: str, user: User) -> None:
     
 from string import ascii_letters
 
-def reject_entry(uid: str, user: User) -> None:
+def reject_entry(uid: str, reviewer: User) -> None:
 
     current_app.logger.debug(f'Rejecting entry: UID {uid}')
 
@@ -121,7 +121,7 @@ def reject_entry(uid: str, user: User) -> None:
     del_nquads = " \n ".join(del_nquads)
 
     rejected = {'uid': uid, 'entry_review_status': 'rejected', 'dgraph.type': 'Rejected',
-                "_reviewed_by": UID(user.id, facets={'timestamp': datetime.datetime.now()})}
+                "_reviewed_by": UID(reviewer.id, facets={'timestamp': datetime.datetime.now()})}
     set_nquads = " \n ".join(dict_to_nquad(rejected))
 
     dgraph.upsert(query, del_nquads=del_nquads)

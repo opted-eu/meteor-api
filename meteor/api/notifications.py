@@ -81,3 +81,36 @@ def notify_new_type(dgraph_type: str, new_uid: str) -> None:
     res = dgraph.mutation(notifications)
     logger.debug(f'Dispatched notifications: {res.uids}')
     logger.debug(res)
+
+from meteor.users.emails import send_accept_email
+
+def send_review_notification(uid: str, status: t.Literal['accepted', 'revise', 'rejected']):
+    # assummes uid is safe and exists
+    query_string = """query get_entry($query: string) {
+                        q(func: uid($query)) { 
+                            uid name 
+                            dgraph.type
+                            _date_created
+                            channel { name }
+                            _added_by { uid display_name email preference_emails } 
+                        } 
+                    }"""
+    
+    entry = dgraph.query(query_string=query_string, variables={'$query': uid})['q'][0]
+    user = entry['_added_by']['uid']
+    
+    if status == 'accepted':
+        title = "New Entry was accepted"
+        message = f"Your entry <{entry['name']}> ({entry['dgraph.type']}) was reviewed and accepted!"
+    elif status == 'revise':
+        title = "Your entry needs revision"
+        message = f"Your entry <{entry['name']}> ({entry['dgraph.type']}) was reviewed and needs some improvements!"
+    else:
+        title = "New Entry was rejected"
+        message = f"Your entry <{entry['name']}> ({entry['dgraph.type']}) was reviewed and rejected."
+
+    notify = Notification(_notify=user,
+                          _title=title,
+                          _content=message,
+                          _linked=uid)
+    res = dgraph.mutation(notify.as_dict())

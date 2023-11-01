@@ -1406,9 +1406,6 @@ def add_new_entry(dgraph_type: str, data: EditablePredicates, draft: bool = Fals
         # Subscribe user to their new entry
         jwtx.current_user.follow_entity(uid)
 
-        # Notify Users about new entry for this dgraph type
-        notify_new_type(dgraph_type, uid)
-
         return jsonify(response)
     else:
         current_app.logger.error(f'DGraph Error - Could not perform mutation: {sanitizer.set_nquads}')
@@ -1498,7 +1495,8 @@ def delete_draft(uid: str) -> SuccessfulAPIOperation:
 """ Review Entries """
 
 from meteor.api import review
-from meteor.review.dgraph import accept_entry, reject_entry, send_acceptance_notification
+from meteor.review.dgraph import accept_entry, reject_entry
+from meteor.api.notifications import send_review_notification
 
 @api.route('/review', authentication=True)
 def overview(dgraph_type: str = None, 
@@ -1531,7 +1529,14 @@ def submit_review(uid: str,
     if status == 'accepted':
         try:
             review.accept_entry(uid, jwtx.current_user)
-            # send_acceptance_notification(uid)
+
+            # Notify user who made new entry 
+            send_review_notification(uid, "accepted")
+            
+            # Notify Users about new entry for this dgraph type
+            dgraph_type = dgraph.get_dgraphtype(uid)
+            notify_new_type(dgraph_type, uid)
+
             return jsonify({'status': 200,
                             'message': 'Entry has been accepted!',
                             'uid': uid})
@@ -1542,6 +1547,9 @@ def submit_review(uid: str,
     elif status == 'rejected':
         try:
             review.reject_entry(uid, jwtx.current_user)
+            # Notify user who made new entry 
+            send_review_notification(uid, "rejected")
+            
             return jsonify({'status': 200,
                             'message': 'Entry has been rejected!',
                             'uid': uid})
@@ -1550,7 +1558,9 @@ def submit_review(uid: str,
             return api.abort(400, message=f'Reviewing entry failed! Error: {e}')
     
     elif status == 'revise':
-        # TODO: send notification to user that entry should be revised
+        # Notify user who made new entry 
+        send_review_notification(uid, "revise")
+            
         return jsonify({'status': 501,
                         'message': 'Feature not ready yet!',
                         'uid': uid})
