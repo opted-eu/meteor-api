@@ -25,17 +25,16 @@ Implemented:
 - Quicksearch
 - Schema
 - Login Routine
-- Add (**NEW**)
-- Edit (**NEW**)
-- Review (**NEW**)
-- User actions (**NEW**)
-- Commenting (**NEW**)
-- Admin actions (**NEW**)
+- Add
+- Edit
+- Review
+- User actions
+- Commenting
+- Admin actions
+- Recommender system (**NEW**)
+- Follow Types and Entries (*Work in Progress*)
+- Notifications (*Work in Progress*)
 
-Not Implemented:
-- Follow
-- Notifications
-- Recommender system
 
 """
 
@@ -1304,6 +1303,7 @@ def duplicate_check(name: str = None, dgraph_type: str = None) -> t.List[Entry]:
     return jsonify(result['check'])
     
 from meteor.api.requests import EditablePredicates, PublicDgraphTypes
+from meteor.api.notifications import notify_new_type
 
 @api.route('/add/<dgraph_type>', methods=['POST'], authentication=True)
 def add_new_entry(dgraph_type: str, data: EditablePredicates, draft: bool = False) -> SuccessfulAPIOperation:
@@ -1402,6 +1402,12 @@ def add_new_entry(dgraph_type: str, data: EditablePredicates, draft: bool = Fals
                     'message': 'New entry added!',
                     'redirect': url_for('api.view_uid', uid=uid),
                     'uid': uid}
+        
+        # Subscribe user to their new entry
+        jwtx.current_user.follow_entity(uid)
+
+        # Notify Users about new entry for this dgraph type
+        notify_new_type(dgraph_type, uid)
 
         return jsonify(response)
     else:
@@ -2108,17 +2114,22 @@ def dismiss_notifications(uids: t.List[str]) -> SuccessfulAPIOperation:
     return jsonify({'status': 200,
                     'message': 'Done'})
 
-@api.route('/debug/notification/dispatch')
+from meteor.api.notifications import dispatch_notification
+
+@api.route('/debug/notification/dispatch', authentication=True)
 def debug_dispatch_notification(uid: str) -> SuccessfulAPIOperation:
-    """ Only for testing, send the user a notification"""
+    """ Only for testing, send the current user a notification"""
 
     if not current_app.debug:
         return api.abort(404)
     
-    notify = Notification(_notify=uid)
-    res = dgraph.mutation(notify.as_dict())
-    print(res)
-    return jsonify(res.uids[notify.as_dict()['uid']])
+    res = dispatch_notification(jwtx.current_user, 
+                                "Debug",
+                                "Testing Notification System",
+                                uid)
+    return jsonify({"uid": res,
+                    "status": 200,
+                    "message": "Notification dispatched"})
 
 
 """ External APIs """
