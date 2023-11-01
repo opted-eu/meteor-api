@@ -1406,6 +1406,10 @@ def add_new_entry(dgraph_type: str, data: EditablePredicates, draft: bool = Fals
         # Subscribe user to their new entry
         jwtx.current_user.follow_entity(uid)
 
+        # Notify Reviewers about new Entry
+        notify_new_entity(uid, role=USER_ROLES.Reviewer)
+        notify_new_type(dgraph_type, uid, role=USER_ROLES.Reviewer)
+        
         return jsonify(response)
     else:
         current_app.logger.error(f'DGraph Error - Could not perform mutation: {sanitizer.set_nquads}')
@@ -1592,6 +1596,7 @@ def view_comments(uid: str) -> t.List[Comment]:
 
     return jsonify(data)
 
+from meteor.api.notifications import send_comment_notifications
 
 @api.route('/comment/post/<uid>', methods=['POST'], authentication=True)
 def leave_comment(uid: str, message: str) -> SuccessfulAPIOperation:
@@ -1604,6 +1609,12 @@ def leave_comment(uid: str, message: str) -> SuccessfulAPIOperation:
     try:
         result = post_comment(uid, message, jwtx.current_user)
         uid_return = list(result.values())[0]
+        # Notify involved Users 
+        # - Entry Author
+        # - Entry Reviewers
+        # - Users who edited Entry
+        send_comment_notifications(uid)
+
         return jsonify({'status': 'success',
                         'message': f'Comment posted on <{uid}>.',
                         'uid': uid_return})

@@ -2,6 +2,7 @@ import typing as t
 from meteor import dgraph
 from meteor.flaskdgraph.utils import validate_uid
 from meteor.main.model import Notification, User
+from meteor.users.constants import USER_ROLES
 
 from logging import getLogger
 
@@ -64,29 +65,40 @@ def dispatch_notification(user: User,
     res = dgraph.mutation(notify.as_dict())
     return res.uids[notify.as_dict()['uid'].replace('_:', '')]
 
-def notify_new_type(dgraph_type: str, new_uid: str) -> None:
+def notify_new_type(dgraph_type: str, 
+                    new_uid: str,
+                    role=USER_ROLES.Contributor) -> None:
     # get all users who follow this type
-    query_string = """query UsersFollow($type: string) {
-        q(func: eq(follows_types, $type)) {
+    query_string = """query UsersFollow($type: string, $role: int, $new_uid: string) {
+        q(func: eq(follows_types, $type)) @filter(ge(role, $role)) {
             uid
+        }
+        entry(func: uid($new_uid)) {
+            name entry_review_status
         }
     }"""
 
-    res = dgraph.query(query_string, variables={'$type': dgraph_type})
+    res = dgraph.query(query_string, variables={'$type': dgraph_type, '$role': role, '$new_uid': new_uid})
     users = [u['uid'] for u in res['q']]
+    entry = res['entry'][0]
+    message = f"A new entry for the type {dgraph_type} was added: {entry['name']}"
+    if entry['entry_review_status'] == 'pending':
+        message += "The new entry is awaiting review."
     notifications = [Notification(_notify=user, 
                                   _title=f"New {dgraph_type}",
-                                  _content=f"A new entry for the type {dgraph_type} was added",
+                                  _content=message,
                                   _linked=new_uid).as_dict() for user in users]
     res = dgraph.mutation(notifications)
     logger.debug(f'Dispatched notifications: {res.uids}')
     logger.debug(res)
 
-def notify_new_entity(uid: str) -> None:
-    query_string = """query UsersFollow($uid: string) {
+def notify_new_entity(uid: str, role=USER_ROLES.Contributor) -> None:
+    query_string = """query UsersFollow($uid: string, $role: int) {
         entry(func: uid($uid)) {
-            expand(_all_) { u as uid }
+            expand(_all_) @filter(ge(role, $role)) { u as uid }
             dgraph.type
+            name
+            entry_review_status
         }
         users(func: has(follows_entities)) @filter(uid_in(follows_entities, uid(u))) {
             uid
@@ -96,17 +108,19 @@ def notify_new_entity(uid: str) -> None:
             }
         }"""
     
-    res = dgraph.query(query_string, variables={'$uid': uid})
+    res = dgraph.query(query_string, variables={'$uid': uid, '$role': role})
     entry = res['entry'][0]
     entry['dgraph.type'].remove('Entry')
     dgraph_type = entry['dgraph.type'][0]
     notifications = []
     for user in res['users']:
-        message = (f'A new entry with the name "{entry["name"]}" ({dgraph_type}) was added. ' 
-                   f"You receive this notification, because you follow the entities: ")
+        message = (f'A new entry with the name "{entry["name"]}" ({dgraph_type}) was added. ')
+        if entry['entry_review_status'] == 'pending':
+            message += 'The entry is awaiting review.'
+        message += f"You receive this notification, because you follow the entities: "
         message += ", ".join([follow['name'] for follow in user['follows_entities']])
         notify = Notification(_notify=user['uid'], 
-                              _title=f"New Entry <{entry['name']}>!",
+                              _title=f"New {entry['entry_review_status']} {dgraph_type}: <{entry['name']}>!",
                               _content=message,
                               _linked=uid)
         notifications.append(notify.as_dict())
@@ -147,3 +161,32 @@ def send_review_notification(uid: str, status: t.Literal['accepted', 'revise', '
                           _content=message,
                           _linked=uid)
     res = dgraph.mutation(notify.as_dict())
+
+
+def send_comment_notifications(uid: str):
+    query_string = """query CommentedEntry($uid: string) {
+        entry(func: uid($uid)) {
+            expand(_all_) @filter(type(User)) { u as uid }
+            dgraph.type
+            name
+        }
+        users(func: uid(u))) {
+            uid
+            }
+        }"""
+    
+    res = dgraph.query(query_string, variables={'$uid': uid})
+    entry = res['entry'][0]
+    entry['dgraph.type'].remove('Entry')
+    dgraph_type = entry['dgraph.type'][0]
+    notifications = []
+    for user in res['users']:
+        message = f'A new comment was posted on "{entry["name"]}" ({dgraph_type}).'
+        notify = Notification(_notify=user['uid'], 
+                              _title=f"New Comment on <{entry['name']}>!",
+                              _content=message,
+                              _linked=uid)
+        notifications.append(notify.as_dict())
+    res = dgraph.mutation(notifications)
+    logger.debug(f'Dispatched notifications: {res.uids}')
+    logger.debug(res)
