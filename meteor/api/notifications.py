@@ -3,6 +3,10 @@ from meteor import dgraph
 from meteor.flaskdgraph.utils import validate_uid
 from meteor.main.model import Notification, User
 
+from logging import getLogger
+
+logger = getLogger()
+
 def get_unread_notifications(user: User) -> t.List[dict]:
     
     query_string = '''query getNotifications($user : string) {
@@ -46,3 +50,34 @@ def mark_notifications_as_read(uids: t.List[str],
     if not notifications:
         raise ValueError
     return notifications    
+
+def dispatch_notification(user: User, 
+                          title: str,
+                          content: str,
+                          linked: str) -> str:
+    """ Send a notification to a user """
+
+    notify = Notification(_notify=user.uid,
+                          _title=title,
+                          _content=content,
+                          _linked=linked)
+    res = dgraph.mutation(notify.as_dict())
+    return res.uids[notify.as_dict()['uid'].replace('_:', '')]
+
+def notify_new_type(dgraph_type: str, new_uid: str) -> None:
+    # get all users who follow this type
+    query_string = """query UsersFollow($type: string) {
+        q(func: eq(follows_types, $type) {
+            uid
+        }
+    }"""
+
+    res = dgraph.query(query_string, variables={'$type': dgraph_type})
+    users = [u['uid'] for u in res['q']]
+    notifications = [Notification(_notify=user, 
+                                  _title=f"New {dgraph_type}",
+                                  _content=f"A new entry for the type {dgraph_type} was added",
+                                  _linked=new_uid).as_dict() for user in users]
+    res = dgraph.mutation(notifications)
+    logger.debug(f'Dispatched notifications: {res.uids}')
+    logger.debug(res)
