@@ -83,14 +83,21 @@ def get_overview(dgraph_type: str = None,
 
 
 def accept_entry(uid: str, reviewer: User) -> None:
-    accepted = {'uid': UID(uid), 
-                'entry_review_status': 'accepted',
-                "_reviewed_by": UID(reviewer.id, 
-                                    facets={'timestamp': datetime.datetime.now()})}
+    accepted = {'uid': uid, 
+              'entry_review_status': 'accepted',
+              "_reviewed_by":  {"uid": reviewer.uid, 
+                                "_reviewed_by|timestamp": datetime.datetime.now().isoformat()}
+              }
+    dgraph.mutation(accepted)
 
-    set_nquads = " \n ".join(dict_to_nquad(accepted))
 
-    dgraph.upsert(None, set_nquads=set_nquads)
+def mark_revise(uid: str, reviewer: User) -> None:
+    revise = {'uid': uid, 
+              'entry_review_status': 'revise',
+              "_reviewed_by":  {"uid": reviewer.uid, 
+                                "_reviewed_by|timestamp": datetime.datetime.now().isoformat()}
+              }
+    dgraph.mutation(revise)
     
 from string import ascii_letters
 

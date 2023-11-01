@@ -67,7 +67,7 @@ def dispatch_notification(user: User,
 def notify_new_type(dgraph_type: str, new_uid: str) -> None:
     # get all users who follow this type
     query_string = """query UsersFollow($type: string) {
-        q(func: eq(follows_types, $type) {
+        q(func: eq(follows_types, $type)) {
             uid
         }
     }"""
@@ -81,6 +81,39 @@ def notify_new_type(dgraph_type: str, new_uid: str) -> None:
     res = dgraph.mutation(notifications)
     logger.debug(f'Dispatched notifications: {res.uids}')
     logger.debug(res)
+
+def notify_new_entity(uid: str) -> None:
+    query_string = """query UsersFollow($uid: string) {
+        entry(func: uid($uid)) {
+            expand(_all_) { u as uid }
+            dgraph.type
+        }
+        users(func: has(follows_entities)) @filter(uid_in(follows_entities, uid(u))) {
+            uid
+            follows_entities @filter(uid(u)) {
+                    uid name _unique_name dgraph.type
+                }
+            }
+        }"""
+    
+    res = dgraph.query(query_string, variables={'$uid': uid})
+    entry = res['entry'][0]
+    entry['dgraph.type'].remove('Entry')
+    dgraph_type = entry['dgraph.type'][0]
+    notifications = []
+    for user in res['users']:
+        message = (f'A new entry with the name "{entry["name"]}" ({dgraph_type}) was added. ' 
+                   f"You receive this notification, because you follow the entities: ")
+        message += ", ".join([follow['name'] for follow in user['follows_entities']])
+        notify = Notification(_notify=user['uid'], 
+                              _title=f"New Entry <{entry['name']}>!",
+                              _content=message,
+                              _linked=uid)
+        notifications.append(notify.as_dict())
+    res = dgraph.mutation(notifications)
+    logger.debug(f'Dispatched notifications: {res.uids}')
+    logger.debug(res)
+
 
 from meteor.users.emails import send_accept_email
 

@@ -469,5 +469,8 @@ class UserLogin(UserMixin):
         }"""
 
         res = dgraph.query(query_string, variables={'$user': self.uid})
-        return res['q'][0]['follows_types']
+        try:
+            return res['q'][0]['follows_types']
+        except IndexError:
+            return []
 

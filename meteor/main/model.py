@@ -56,6 +56,7 @@ class User(Schema, UserLogin):
                                         edit=False,
                                         relationship_constraint="Entry")
     follows_types = ListString('Following types',
+                               directives=['@index(hash)'],
                                edit=False)
 
 

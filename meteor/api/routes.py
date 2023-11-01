@@ -1496,7 +1496,7 @@ def delete_draft(uid: str) -> SuccessfulAPIOperation:
 
 from meteor.api import review
 from meteor.review.dgraph import accept_entry, reject_entry
-from meteor.api.notifications import send_review_notification
+from meteor.api.notifications import send_review_notification, notify_new_entity
 
 @api.route('/review', authentication=True)
 def overview(dgraph_type: str = None, 
@@ -1537,11 +1537,14 @@ def submit_review(uid: str,
             dgraph_type = dgraph.get_dgraphtype(uid)
             notify_new_type(dgraph_type, uid)
 
+            # Notify Users who follow specific entities related to this new one
+            notify_new_entity(uid)
+
             return jsonify({'status': 200,
                             'message': 'Entry has been accepted!',
                             'uid': uid})
         except Exception as e:
-            current_app.logger.exception(f'Could not accept entry with uid {uid}: {e}')
+            current_app.logger.exception(f'Could not accept entry with uid <{uid}>: {e}')
             return api.abort(400, message=f'Reviewing entry failed! Error: {e}')
     
     elif status == 'rejected':
@@ -1554,16 +1557,22 @@ def submit_review(uid: str,
                             'message': 'Entry has been rejected!',
                             'uid': uid})
         except Exception as e:
-            current_app.logger.error(f'Could not reject entry with uid {uid}: {e}')
+            current_app.logger.error(f'Could not reject entry with uid <{uid}>: {e}')
             return api.abort(400, message=f'Reviewing entry failed! Error: {e}')
     
     elif status == 'revise':
-        # Notify user who made new entry 
-        send_review_notification(uid, "revise")
-            
-        return jsonify({'status': 501,
-                        'message': 'Feature not ready yet!',
-                        'uid': uid})
+        try:
+            review.mark_revise(uid, jwtx.current_user)
+
+            # Notify user who made new entry 
+            send_review_notification(uid, "revise")
+                
+            return jsonify({'status': 200,
+                            'message': 'Entry marked as "revise"!',
+                            'uid': uid})
+        except Exception as e:
+                current_app.logger.error(f'Could not mark as revised uid <{uid}>: {e}')
+                return api.abort(400, message=f'Reviewing entry failed! Error: {e}')
     else:
         return abort(404)
     
