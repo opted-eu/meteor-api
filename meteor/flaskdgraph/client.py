@@ -303,7 +303,7 @@ class DGraph(object):
             self.logger.debug(f'No Response')
             return False
 
-    def delete(self, mutation: dict) -> bool:
+    def delete(self, mutation: Union[dict, list]) -> bool:
 
         txn = self.connection.txn()
 
