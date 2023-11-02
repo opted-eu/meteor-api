@@ -32,8 +32,8 @@ Implemented:
 - Commenting
 - Admin actions
 - Recommender system (**NEW**)
-- Follow Types and Entries (*Work in Progress*)
-- Notifications (*Work in Progress*)
+- Follow Types and Entries (**NEW**)
+- Notifications (**NEW**)
 
 
 """
