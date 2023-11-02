@@ -105,9 +105,12 @@ def reject_entry(uid: str, reviewer: User) -> None:
 
     current_app.logger.debug(f'Rejecting entry: UID {uid}')
 
+    dgraph_type = dgraph.get_dgraphtype(uid)
+
     uid = UID(uid)
 
-    relationships = list(Schema.relationship_predicates().keys())
+    relationships = set(Schema.relationship_predicates().keys())
+    relationships = list(set(relationships) - {'_added_by', '_edited_by'})
     query = []
     vars = {}
 
@@ -127,7 +130,10 @@ def reject_entry(uid: str, reviewer: User) -> None:
 
     del_nquads = " \n ".join(del_nquads)
 
-    rejected = {'uid': uid, 'entry_review_status': 'rejected', 'dgraph.type': 'Rejected',
+    rejected = {'uid': uid, 
+                'entry_review_status': 'rejected', 
+                'dgraph.type': 'Rejected',
+                '_former_types': dgraph_type,
                 "_reviewed_by": UID(reviewer.id, facets={'timestamp': datetime.datetime.now()})}
     set_nquads = " \n ".join(dict_to_nquad(rejected))
 
