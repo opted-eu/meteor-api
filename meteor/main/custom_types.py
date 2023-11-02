@@ -188,7 +188,7 @@ class SubunitAutocode(ListRelationship):
                 geo_query = {'uid': UID(duplicate_check)}
             else:
                 geo_query['uid'] = NewID(
-                    f"_:{slugify(secrets.token_urlsafe(8))}")
+                    newid=f"_:{slugify(secrets.token_urlsafe(8))}")
             return geo_query
         else:
             raise InventoryValidationError(
@@ -285,7 +285,7 @@ class OrderedListRelationship(SingleRelationship):
                 elif not hasattr(item, 'facets'):
                     validated_item = validate_uid(item)
                     if not validated_item and self.allow_new:
-                        ordered_uids.append({'uid': NewID(item, facets=f),
+                        ordered_uids.append({'uid': NewID(newid=item, facets=f),
                                              'dgraph.type': self.relationship_constraint})
                     elif validated_item:
                         ordered_uids.append({'uid': UID(validated_item, facets=f)})
@@ -342,7 +342,7 @@ class AuthorList(OrderedListRelationship):
                     else:
                         try:
                             new_author = openalex_getauthorname(author.strip())
-                            new_author['uid'] = NewID(author)
+                            new_author['uid'] = NewID(newid=author)
                             new_author['dgraph.type'] = self.relationship_constraint
                             pre_processed.append(new_author)
                         except Exception as e:
@@ -355,7 +355,7 @@ class AuthorList(OrderedListRelationship):
                     else:
                         try:
                             new_author = self.orcid.get_author(author.strip())
-                            new_author['uid'] = NewID(author)
+                            new_author['uid'] = NewID(newid=author)
                             new_author['dgraph.type'] = self.relationship_constraint
                             pre_processed.append(new_author)
                         except Exception as e:

@@ -243,7 +243,7 @@ class Sanitizer:
             uid = self.data.pop('uid')
             self.entry_uid = UID(validate_uid(uid))
         else:
-            self.entry_uid = NewID('_:newentry')
+            self.entry_uid = NewID()
 
         self.entry['uid'] = self.entry_uid
         self.skip_keys.append('uid')

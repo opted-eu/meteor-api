@@ -76,7 +76,9 @@ class UID:
 
 class NewID:
 
-    def __init__(self, newid, facets=None, suffix=None):
+    def __init__(self, newid=None, facets=None, suffix=None):
+        if newid is None:
+            newid = '_:newentry'
         if newid.startswith('_:'):
             self.newid = newid.strip()
         else:
@@ -815,7 +817,7 @@ class ReverseRelationship(_PrimitivePredicate):
             if not self.allow_new:
                 raise InventoryValidationError(
                     f'Error in <{self.predicate}>! Adding new items is not allowed, the provided value is not a UID: {data}')
-            d = {'uid': NewID(data, facets=facets),
+            d = {'uid': NewID(newid=data, facets=facets),
                  self._target_predicate: node}
             if self.relationship_constraint:
                 d.update({'dgraph.type': self.relationship_constraint})
@@ -1042,7 +1044,7 @@ class MutualRelationship(_PrimitivePredicate):
             if not self.allow_new:
                 raise InventoryValidationError(
                     f'Error in <{self.predicate}>! provided value is not a UID: {data}')
-            node_data = NewID(data, facets=facets)
+            node_data = NewID(newid=data, facets=facets)
             data_node = {'uid': node_data, self.predicate: node, 'name': data}
             if self.relationship_constraint:
                 data_node.update({'dgraph.type': self.relationship_constraint})
@@ -1210,7 +1212,7 @@ class UIDPredicate(Predicate):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(read_only=True, hidden=True, new=False, edit=False,
-                         default=NewID('_:newentry'), *args, **kwargs)
+                         default=NewID, *args, **kwargs)
 
     def validate(self, uid, **kwargs):
         if not validate_uid(uid):
@@ -1814,7 +1816,7 @@ class SingleRelationship(Predicate):
             if not self.allow_new:
                 raise InventoryValidationError(
                     f'Error in <{self.predicate}>! provided value is not a UID: `{data}`')
-            d = {'uid': NewID(data, facets=facets)}
+            d = {'uid': NewID(newid=data, facets=facets)}
             if self.relationship_constraint:
                 d.update({'dgraph.type': self.relationship_constraint})
             return d
@@ -2001,7 +2003,7 @@ def make_nquad(s, p, o) -> str:
     """ Strings, Ints, Floats, Bools, Date(times) are converted automatically to Scalar """
 
     if not isinstance(s, (UID, NewID, Variable)):
-        s = NewID(s)
+        s = NewID(newid=s)
 
     if not isinstance(p, Predicate):
         p = Predicate.from_key(p)
@@ -2033,7 +2035,7 @@ def dict_to_nquad(d: dict) -> list:
     if d.get('uid'):
         uid = d['uid']
     else:
-        uid = NewID('_:newentry')
+        uid = NewID()
     nquads = []
     for key, val in d.items():
         if val is None:
