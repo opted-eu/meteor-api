@@ -459,7 +459,10 @@ class UserLogin(UserMixin):
         }"""
 
         res = dgraph.query(query_string, variables={'$user': self.uid})
-        return res['q'][0]['follows_entities']
+        try:
+            return res['q'][0]['follows_entities']
+        except IndexError:
+            return []
     
     def show_follow_types(self) -> List[str]:
         query_string = """query UserFollows($user: string) {
