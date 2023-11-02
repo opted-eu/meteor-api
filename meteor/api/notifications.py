@@ -56,7 +56,11 @@ def dispatch_notification(user: User,
                           title: str,
                           content: str,
                           linked: str) -> str:
-    """ Send a notification to a user """
+    """ 
+        Send a notification to a user. 
+    
+        Returns UID of notification 
+    """
 
     notify = Notification(_notify=user.uid,
                           _title=title,
@@ -78,7 +82,7 @@ def notify_new_type(dgraph_type: str,
         }
     }"""
 
-    res = dgraph.query(query_string, variables={'$type': dgraph_type, '$role': role, '$new_uid': new_uid})
+    res = dgraph.query(query_string, variables={'$type': dgraph_type, '$role': str(role), '$new_uid': new_uid})
     users = [u['uid'] for u in res['q']]
     entry = res['entry'][0]
     message = f"A new entry for the type {dgraph_type} was added: {entry['name']}"
@@ -95,12 +99,10 @@ def notify_new_type(dgraph_type: str,
 def notify_new_entity(uid: str, role=USER_ROLES.Contributor) -> None:
     query_string = """query UsersFollow($uid: string, $role: int) {
         entry(func: uid($uid)) {
-            expand(_all_) @filter(ge(role, $role)) { u as uid }
+            expand(_all_) { u as uid }
             dgraph.type
-            name
-            entry_review_status
         }
-        users(func: has(follows_entities)) @filter(uid_in(follows_entities, uid(u))) {
+        users(func: ge(role, $role)) @filter(uid_in(follows_entities, uid(u))) {
             uid
             follows_entities @filter(uid(u)) {
                     uid name _unique_name dgraph.type
@@ -108,7 +110,7 @@ def notify_new_entity(uid: str, role=USER_ROLES.Contributor) -> None:
             }
         }"""
     
-    res = dgraph.query(query_string, variables={'$uid': uid, '$role': role})
+    res = dgraph.query(query_string, variables={'$uid': uid, '$role': str(role)})
     entry = res['entry'][0]
     entry['dgraph.type'].remove('Entry')
     dgraph_type = entry['dgraph.type'][0]
@@ -133,7 +135,7 @@ from meteor.users.emails import send_accept_email
 
 def send_review_notification(uid: str, status: t.Literal['accepted', 'revise', 'rejected']):
     # assummes uid is safe and exists
-    query_string = """query get_entry($query: string) {
+    query_string = """query getEntry($query: string) {
                         q(func: uid($query)) { 
                             uid name 
                             dgraph.type
@@ -166,11 +168,12 @@ def send_review_notification(uid: str, status: t.Literal['accepted', 'revise', '
 def send_comment_notifications(uid: str):
     query_string = """query CommentedEntry($uid: string) {
         entry(func: uid($uid)) {
-            expand(_all_) @filter(type(User)) { u as uid }
+            expand(_all_) @filter(type(User)) { u1 as uid }
             dgraph.type
             name
+            ~follows_entities { u2 as uid }
         }
-        users(func: uid(u))) {
+        users(func: type(User)) @filter(uid(u1) OR uid(u2)) {
             uid
             }
         }"""
