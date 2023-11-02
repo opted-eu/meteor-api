@@ -264,8 +264,8 @@ def zenodo(doi: str) -> dict:
     
     # hit = j['hits'][0]
 
-    result = {'doi': doi,
-              'url': j['links']['html']}
+    result = {'doi': doi}
+    result['url'] = j['links'].get('self_html')
 
     result['_authors_fallback'] = []
     result['_authors_fallback|sequence'] = {}
