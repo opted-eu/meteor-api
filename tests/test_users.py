@@ -74,6 +74,9 @@ class TestUsers(BasicTestSetup):
             self.assertIsInstance(current_user, User)
             self.client.get('/users/delete')
 
+        # delete user again
+        dgraph.delete({'uid': new_uid})
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

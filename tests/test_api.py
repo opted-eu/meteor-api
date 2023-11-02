@@ -769,6 +769,10 @@ class TestAPILoggedOut(BasicTestSetup):
             else:
                 # should actually be a 4xx error
                 self.assertEqual(res.status_code, 500)
+                # clean up
+                uid = res.json['uid']
+                mutation = dgraph.delete({'uid': uid})
+                self.assertTrue(mutation)
 
             
 
@@ -859,7 +863,6 @@ class TestAPILoggedOut(BasicTestSetup):
             elif self.logged_in == 'contributor':
                 self.assertEqual(response.status_code, 403)
             else:
-                print(response.json)
                 self.assertEqual(response.status_code, 200)
 
             dgraph.delete(delete_tmp)
@@ -869,11 +872,11 @@ class TestAPILoggedOut(BasicTestSetup):
 
             delete_tmp['uid'] = tmp_entry_uid
 
+            # Reject Entry
             response = c.post('/api/review/submit',
                               data={'uid': tmp_entry_uid, 'status': "rejected"},
                               headers=self.headers)
             if not self.logged_in:
-                # redirect to login page
                 self.assertEqual(response.status_code, 401)
             elif self.logged_in == 'contributor':
                 self.assertEqual(response.status_code, 403)
@@ -1032,7 +1035,7 @@ class TestAPILoggedOut(BasicTestSetup):
             elif self.logged_in != 'admin':
                 self.assertEqual(res.status_code, 403)
             else:
-                self.assertGreaterEqual(len(res.json), 3)
+                self.assertEqual(len(res.json), 3)
 
     
     def test_edit_user_role(self):

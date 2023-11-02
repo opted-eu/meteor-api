@@ -21,7 +21,7 @@ class TestDOI(BasicTestSetup):
 
     manifesto_doi = '10.25522/manifesto.mpdssa.2020b'
     zenodo_doi = '10.5281/zenodo.3611246'
-    zenodo_doi2 = '10.5281/ZENODO.4724125'
+    zenodo_doi2 = '10.5281/ZENODO.8381573'
     arxiv_doi = '10.48550/arXiv.2001.08435'
     arxiv_link = "https://arxiv.org/abs/1103.2903"
     arxiv_versioned = "https://arxiv.org/abs/1103.2903v1"
