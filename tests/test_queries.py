@@ -41,6 +41,15 @@ class TestQueries(BasicTestSetup):
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 1)
 
+        # test aliasing
+        query = {'country': [self.austria_uid, self.germany_uid],
+                 'country*connector': ['AND'],
+                 }
+
+        query_string = build_query_string(query, count=True)
+        res = dgraph.query(query_string)
+        self.assertEqual(res['total'][0]['count'], 1)
+
         query = {'country': [self.switzerland_uid, self.germany_uid],
                  'country*connector': ['OR']
                  }
