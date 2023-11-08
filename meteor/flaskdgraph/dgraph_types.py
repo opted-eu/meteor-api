@@ -498,7 +498,8 @@ class _PrimitivePredicate:
         try:
             if connector == "AND":
                 f = [str(operator(predicate, strip_query(val))) for val in vals]
-                return " AND ".join(f)
+                _f = " AND ".join(f)
+                return f"({_f})"
             else:
                 vals = [strip_query(v) for v in vals]
                 return f'{operator(predicate, vals)}'

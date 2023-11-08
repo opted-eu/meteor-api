@@ -158,7 +158,10 @@ def build_query_string(query: dict, public=True, count=False) -> str:
             alias_filters = [predicate_filter]
             for alias in predicate.predicate_alias:
                 alias_filters.append(predicate.query_filter(
-                    val, predicate=alias, custom_operator=operator))
+                    val, 
+                    predicate=alias,
+                    connector=connector, 
+                    custom_operator=operator))
             predicate_filter = " OR ".join(alias_filters)
             predicate_filter = f'({predicate_filter})'
 

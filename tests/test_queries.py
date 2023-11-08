@@ -33,6 +33,16 @@ class TestQueries(BasicTestSetup):
         res = dgraph.query(query_string)
         self.assertEqual(res['total'][0]['count'], 2)
 
+        # alias for languages
+        query = {'language': [self.lang_german, self.lang_english],
+                 'language*connector': ['OR'],
+                 'channel': [self.channel_website],
+                 }
+
+        query_string = build_query_string(query, count=True)
+        res = dgraph.query(query_string)
+        self.assertEqual(res['total'][0]['count'], 2)
+
         query = {'countries': [self.austria_uid, self.germany_uid],
                  'countries*connector': ['AND'],
                  }
