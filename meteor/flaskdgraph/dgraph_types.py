@@ -800,6 +800,7 @@ class ReverseRelationship(_PrimitivePredicate):
         # if we want the form field to show all choices automatically.
         self.autoload_choices = autoload_choices
         self.choices = {}
+        self.choices_dicts = []
         self.choices_tuples = []
         self.entry_uid = None
 
@@ -1022,6 +1023,7 @@ class MutualRelationship(_PrimitivePredicate):
         # if we want the form field to show all choices automatically.
         self.autoload_choices = autoload_choices
         self.choices = {}
+        self.choices_dicts = []
         self.choices_tuples = []
         self.entry_uid = None
 
@@ -1800,6 +1802,7 @@ class SingleRelationship(Predicate):
         # if we want the form field to show all choices automatically.
         self.autoload_choices = autoload_choices
         self.choices = {}
+        self.choices_dicts = []
         self.choices_tuples = []
 
         super().__init__(*args, example=example, **kwargs)
@@ -1834,7 +1837,7 @@ class SingleRelationship(Predicate):
         query_string = '{ '
 
         for dgraph_type in self.relationship_constraint:
-            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name _unique_name }} '''
+            query_string += f'''{dgraph_type.lower()}(func: type("{dgraph_type}"), orderasc: name) {{ uid name _unique_name opted_scope dgraph.type entry_review_status }} '''
 
         query_string += '}'
 
@@ -1846,6 +1849,7 @@ class SingleRelationship(Predicate):
             self.choices_tuples = [
                 (c['uid'], c.get('name') or c.get('_unique_name')) for c in choices[self.relationship_constraint[0].lower()]]
             self.choices_tuples.insert(0, ('', ''))
+            self.choices_dicts = choices[self.relationship_constraint[0].lower()]
 
         else:
             self.choices = {}
@@ -1855,6 +1859,7 @@ class SingleRelationship(Predicate):
                     (c['uid'], c.get('name') or c.get('_unique_name')) for c in choices[dgraph_type.lower()]]
                 self.choices.update({c['uid']: c.get('name') or c.get('_unique_name')
                                      for c in choices[dgraph_type.lower()]})
+                self.choices_dicts += choices[dgraph_type.lower()]
 
     @property
     def wtf_field(self) -> TomSelectField:

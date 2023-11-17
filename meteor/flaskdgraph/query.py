@@ -130,7 +130,7 @@ def build_query_string(query: dict, public=True, count=False) -> str:
     # these are the default predicates that we ALWAYS want to return
     # should be moved outside the function and declared as a setting
     query_parts = ['uid', '_unique_name', 'name', 'dgraph.type',
-                   'wikidata_id',
+                   'wikidata_id', 'opted_scope',
                    'authors @facets(orderasc: sequence) { name }', 
                    '_authors_fallback @facets(orderasc: sequence)', 
                    'alternate_names', 'date_published']

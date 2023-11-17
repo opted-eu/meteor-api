@@ -633,7 +633,7 @@ def list_dgraph_types() -> t.List[DGraphTypeDescription]:
     
 
 @api.route('/schema/predicate/<predicate>')
-def get_predicate(predicate: str) -> t.TypedDict('Predicate', uid=str):
+def get_predicate(predicate: str, detailed: bool = False) -> t.TypedDict('Predicate', uid=str):
     """ 
         Get choices for given predicate. 
 
@@ -641,6 +641,20 @@ def get_predicate(predicate: str) -> t.TypedDict('Predicate', uid=str):
 
         _This route is intended as a utility for form generation._
         _For example, the country selection menu._
+
+        **Note:** Some predicates cannot load all choices at once, because there might be
+        too many options at once. In such instances, this endpoint will return a warning. 
+        Use the `lookup` endpoint instead. 
+
+        Setting the `detailed` query parameter to `true` will return a list of objects,
+        instead of key-value pairs. Then each item contains more detailed information:
+
+            - `_unique_name`
+            - `uid`
+            - `name`
+            - `opted_scope`
+            - `entry_review_status`
+            - `dgraph.type` 
     """
     try:
         predicate = Schema.predicates()[predicate]
@@ -654,7 +668,16 @@ def get_predicate(predicate: str) -> t.TypedDict('Predicate', uid=str):
         if predicate.autoload_choices:
             predicate.get_choices()
         else:
-            return jsonify({'warning': f'Available choices for <{predicate}> are not automatically loaded'})
+            return jsonify({'warning': f'Available choices for <{predicate}> are not automatically loaded. Use the `lookup` endpoint instead.'})
+
+        if detailed:
+            result = predicate.choices_dicts
+            for entry in result:
+                try:
+                    entry['dgraph.type'].remove('Entry')
+                except:
+                    pass
+            return jsonify(result)
 
     result = predicate.choices
 
@@ -701,11 +724,16 @@ def get_predicate_counts(predicate: str) -> t.List[
             query_vars.append(f'v{i}')
 
         query_string += f"""q(func: uid({', '.join(query_vars)}), orderasc: name) {{ 
-            name _unique_name uid opted_scope
+            name _unique_name uid opted_scope dgraph.type
             entries: math({' + '.join(query_vars)}) }} 
             }}"""
         
         result = dgraph.query(query_string)['q']
+        for entry in result:
+            try:
+                entry['dgraph.type'].remove('Entry')
+            except:
+                pass
     
     else:
         query_string = f""" {{
