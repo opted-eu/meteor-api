@@ -51,11 +51,11 @@ from flask_login import current_user, login_required
 import flask_jwt_extended as jwtx
 
 from meteor.users.dgraph import AnonymousUser
-
+from meteor.errors import *
 from meteor.flaskdgraph import dql
 from meteor.flaskdgraph import build_query_string
 from meteor.flaskdgraph.utils import validate_uid, recursive_restore_sequence
-from meteor.view.dgraph import get_entry, get_rejected
+from meteor.api.view import get_entry, get_preview, get_reverse_relationships, get_rejected
 from meteor.view.utils import can_view
 
 from meteor.external.dgraph import dgraph_resolve_doi
@@ -879,9 +879,9 @@ def view_uid(uid: str) -> t.Union[Entry, PoliticalParty,
     if not uid:
         return api.abort(404, message="Invalid UID")
 
-    data = get_entry(uid=uid)
-
-    if not data:
+    try:
+        data = get_preview(uid=uid)
+    except InventoryDatabaseError:
         return api.abort(404, message=f'The requested entry <{uid}> could not be found!')
 
     current_user = jwtx.current_user or AnonymousUser()
@@ -890,7 +890,9 @@ def view_uid(uid: str) -> t.Union[Entry, PoliticalParty,
             return api.abort(403, message="You do not have the permissions to view this entry.")
         else:
             return api.abort(401, message="You do not have the permissions to view this entry. Try to login?")
-        
+    
+    data = get_entry(uid=uid)
+
     return jsonify(data)
 
 
@@ -916,11 +918,12 @@ def view_unique_name(unique_name: str) -> t.Union[Entry, PoliticalParty,
                                   LearningMaterial]:
     """ detail view of a single entry by unique name (human readable ID) """
         
-    data = get_entry(unique_name=unique_name)
+    data = get_preview(unique_name=unique_name)
 
     if not data:
         return api.abort(404, message=f'The requested entry "{unique_name}" could not be found!')
-
+    
+    current_user = jwtx.current_user or AnonymousUser()
     if not can_view(data, current_user):
         if current_user.is_authenticated:
             response = jsonify({
@@ -930,8 +933,41 @@ def view_unique_name(unique_name: str) -> t.Union[Entry, PoliticalParty,
             return api.abort(403, message="You do not have the permissions to view this entry.")
         else:
             return api.abort(403, message="You do not have the permissions to view this entry. Try to login?")
+    
+    data = get_entry(uid=data['uid'])
 
     return jsonify(data)
+
+@api.route('/view/reverse/<uid>', authentication=True, optional=True)
+def view_reverse_relationships(uid: str) -> Entry:
+    """ Get reverse relationships for a given entry """
+
+    uid = validate_uid(uid)
+    if not uid:
+        return api.abort(404)
+    
+    dgraph_type = dgraph.get_dgraphtype(uid)
+    if not dgraph_type:
+        return api.abort(404)
+    
+    data = get_preview(uid=uid)
+    if not data:
+        return api.abort(404, message=f'The requested entry <{uid}> could not be found!')
+
+    current_user = jwtx.current_user or AnonymousUser()
+    if not can_view(data, current_user):
+        if current_user.is_authenticated:
+            response = jsonify({
+                'status': 403,
+                'message': "You do not have the permissions to view this entry."})
+            response.status_code = 403
+            return api.abort(403, message="You do not have the permissions to view this entry.")
+        else:
+            return api.abort(403, message="You do not have the permissions to view this entry. Try to login?")
+    
+    results = get_reverse_relationships(uid)
+
+    return jsonify(results)
 
 @api.route('/view/ownership/<uid>')
 def view_ownership(uid: str) -> t.List[Entry]:
@@ -1400,6 +1436,8 @@ def add_new_entry(dgraph_type: str, data: EditablePredicates, draft: bool = Fals
         current_app.logger.debug(f'Processed Entry: \n{sanitizer.entry}\n{sanitizer.related_entries}')
         current_app.logger.debug(f'Set Nquads: {sanitizer.set_nquads}')
         current_app.logger.debug(f'Delete Nquads: {sanitizer.delete_nquads}')
+    except (InventoryPermissionError, InventoryValidationError) as e:
+        return api.abort(400, message=f'Could not sanitize submitted data: {e}')
     except Exception as e:
         import traceback
         tb_str = ''.join(traceback.format_exception(None, e, e.__traceback__))

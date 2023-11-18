@@ -29,10 +29,12 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
         try:
             dgraph_type = Schema.get_type(dgraph_type)
         except TypeError:
-            pass
-        query_func += f'@filter(type({dgraph_type}))'
+            raise InventoryValidationError
+        assert dgraph_type is not None, InventoryValidationError 
     else:
-        query_func += f'@filter(has(dgraph.type))'
+        dgraph_type = dgraph.get_dgraphtype(uid=uid)
+
+    query_func += f'@filter(type({dgraph_type}))'
 
     query_fields = '''{ uid dgraph.type 
                         expand(_all_) { 
@@ -46,7 +48,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
     if dgraph_type == 'NewsSource':
         query_fields += '''published_by: ~publishes @facets(orderasc: _unique_name) { name _unique_name uid entry_review_status dgraph.type } 
                             archives: ~sources_included @facets @filter(type("Archive")) (orderasc: _unique_name) { name _unique_name uid entry_review_status } 
-                            datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) (orderasc: _unique_name){ name _unique_name uid entry_review_status @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) }
+                            datasets: ~sources_included @facets @filter(type("Dataset")) (orderasc: _unique_name) { name _unique_name uid entry_review_status @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) }
                             papers: ~sources_included @facets @filter(type("ScientificPublication")) (orderasc: date_published) { uid name title date_published entry_review_status @facets(orderasc: sequence) { uid _unique_name name } _authors_fallback @facets(orderasc: sequence) } 
                         } }'''
 

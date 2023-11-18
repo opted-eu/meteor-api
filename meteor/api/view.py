@@ -1,6 +1,7 @@
 from meteor import dgraph
 from meteor.flaskdgraph import Schema
 from meteor.main.model import *
+from meteor.errors import *
 
 import typing as t
 from meteor.flaskdgraph.utils import recursive_restore_sequence, validate_uid
@@ -13,8 +14,36 @@ logger = logging.getLogger(__name__)
     Inventory Detail View Functions
 """
 
+def get_preview(unique_name: str = None, uid: str = None) -> dict:
+    """ 
+        Get only most important predicates, used for checking permissions
+    """
+    if unique_name:
+        uid = dgraph.get_uid("_unique_name", unique_name)
+
+    uid = validate_uid(uid)
+    if not uid:
+        raise InventoryValidationError(f'Invalid UID <{uid}>')
+
+    var = uid
+
+    query_string = '''query get_entry($value: string) {
+                        entry(func: uid($value)) @filter(has(dgraph.type)) { 
+                            uid dgraph.type entry_review_status 
+                            _added_by { uid display_name }
+                       } 
+                    }'''
+    
+
+    data = dgraph.query(query_string, variables={'$value': var})
+
+    if len(data['entry']) == 0:
+        raise InventoryDatabaseError('Entry not found!')
+    
+    return data['entry'][0]
+
+
 def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str, Schema] = None) -> t.Union[dict, None]:
-    query_var = 'query get_entry($value: string) { '
     if unique_name:
         uid = dgraph.get_uid("_unique_name", unique_name)
 
@@ -33,33 +62,30 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
     if not dgraph_type:
         dgraph_type = dgraph.get_dgraphtype(uid)
 
-    query_func = f'entry(func: uid($value)) @filter(type({dgraph_type}))'
-
-
-    query_fields = '''{ uid dgraph.type 
-                        expand(_all_) { 
+    query_string = '''query get_entry($value: string, $dtype: string) {
+        entry(func: uid($value)) @filter(type($dtype)) { 
+            uid dgraph.type expand(_all_) { 
                             uid _unique_name name title entry_review_status display_name 
                             authors @facets(orderasc: sequence) { uid _unique_name name } 
                             _authors_fallback @facets(orderasc: sequence) 
                             channel { uid name _unique_name }
                             }
                         }
-                        '''
+                    }'''
 
     
-    query_string = query_var + query_func + query_fields + ' }'
-    print(query_string)
-
-    data = dgraph.query(query_string, variables={'$value': var})
+    data = dgraph.query(query_string, variables={'$value': var, '$dtype': dgraph_type})
 
     if len(data['entry']) == 0:
         return None
+    
+    data = data['entry'][0]
 
-    recursive_restore_sequence(data['entry'])
+    recursive_restore_sequence(data)
     # data = data['entry'][0]
     
     # Get authors again, in right order
-    if 'authors' in data['entry'][0]:
+    if 'authors' in data:
         authors_query = """query get_entry($value: string) { 
             q(func: uid($value)) { 
                 uid dgraph.type
@@ -69,7 +95,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
         """
         authors = dgraph.query(authors_query, variables={'$value': var})
         try:
-            data['entry'][0]['authors'] = authors['q'][0]['authors']
+            data['authors'] = authors['q'][0]['authors']
         except Exception as e:
             logger.debug(f'Could not append authors: {e}')
 
@@ -102,7 +128,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
     return data
 
 
-def get_reverse_relationships(uid: str = None) -> dict:
+def get_reverse_relationships(uid: str) -> dict:
     query_var = 'query get_entry($value: string) { '
     
     uid = validate_uid(uid)
@@ -114,7 +140,7 @@ def get_reverse_relationships(uid: str = None) -> dict:
     reverse_relationships = Schema.get_reverse_relationships(dgraph_type)
     query_relationships = []
     for predicate, dtype in reverse_relationships:
-        subquery = f"""{dtype.lower()}s(func: type({dtype}), orderasc: _unique_name) @filter(uid_in({predicate}, $value)) {{
+        subquery = f"""{predicate}__{dtype.lower()}s(func: type({dtype}), orderasc: _unique_name) @filter(uid_in({predicate}, $value)) {{
                         uid name title date_published entry_review_status dgraph.type
                         channel {{ _unique_name name uid entry_review_status }}
                         authors @facets(orderasc: sequence) {{ _unique_name uid name entry_review_status }}
@@ -125,7 +151,6 @@ def get_reverse_relationships(uid: str = None) -> dict:
 
     
     query_string = query_var + "\n".join(query_relationships) + ' }'
-    print(query_string)
 
     data = dgraph.query(query_string, variables={'$value': uid})
 
@@ -136,6 +161,24 @@ def get_reverse_relationships(uid: str = None) -> dict:
             continue
 
     return data
+
+
+    # reverse_relationships = Schema.get_reverse_relationships(dgraph_type)
+
+    # query_string = "query reverseRelationships($uid: string) { q(func: uid($uid)) {\n"
+
+    # for p, dtype in reverse_relationships:
+    #     query_string += f'''{p}__{dtype.lower()}: ~{p} @filter(type({dtype}) AND eq(entry_review_status, ["accepted", "pending"])) @facets (orderasc: _unique_name) {{ 
+    #         name _unique_name uid entry_review_status dgraph.type title
+    #         authors @facets(orderasc: sequence) {{ uid _unique_name name }} 
+    #         _authors_fallback @facets(orderasc: sequence) 
+    #     }} \n'''  
+
+    # query_string += '} }'
+
+    # result = dgraph.query(query_string, variables={'$uid': uid})
+    # return jsonify(result)
+
 
 def get_rejected(uid):
     query_string = f'''{{ q(func: uid({uid})) @filter(type(Rejected)) 

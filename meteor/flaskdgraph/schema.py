@@ -151,7 +151,7 @@ class Schema:
                 else:
                     cls.__relationship_predicates__[
                         key].append(cls.__name__)
-                if cls_attribute.dgraph_directives is not None and '@reverse' in cls_attribute.dgraph_directives:
+                if not isinstance(attribute, MutualRelationship) and cls_attribute.dgraph_directives is not None and '@reverse' in cls_attribute.dgraph_directives:
                     for constraint in cls_attribute.relationship_constraint:
                         try:
                             Schema.__reverse_relationships__[constraint].append(cls_attribute)
