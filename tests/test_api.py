@@ -758,7 +758,7 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertTrue(mutation)
 
             # test empty orderedlistrelationship
-            # authors are required, so empty list should raise an error
+            # authors are not required, so empty list should be ignored
             sample_data['authors'] = []
             res = c.post('/api/add/LearningMaterial',
                         json = {'data': sample_data},
@@ -767,8 +767,7 @@ class TestAPILoggedOut(BasicTestSetup):
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
-                # should actually be a 4xx error
-                self.assertEqual(res.status_code, 500)
+                self.assertIn('uid', res.json)
                 # clean up
                 uid = res.json['uid']
                 mutation = dgraph.delete({'uid': uid})
