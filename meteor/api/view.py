@@ -86,7 +86,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
     
     # Get authors again, in right order
     if 'authors' in data:
-        authors_query = """query get_entry($value: string) { 
+        authors_query = """query getEntry($value: string) { 
             q(func: uid($value)) { 
                 uid dgraph.type
                 authors @facets(orderasc: sequence) { uid _unique_name name  }
@@ -99,32 +99,16 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
         except Exception as e:
             logger.debug(f'Could not append authors: {e}')
 
-    if dgraph_type == 'Channel':
-        num_sources = dgraph.query(NewsSource.channel.count(uid, _reverse=True, entry_review_status="accepted"))
-        data['num_sources'] = num_sources['channel'][0]['count']
-
-    elif dgraph_type == 'Archive':
-        num_sources = dgraph.query(Archive.sources_included.count(uid, entry_review_status="accepted"))
-        data['num_sources'] = num_sources['sources_included'][0]['count(sources_included)']
-
-    elif dgraph_type == 'Dataset':
-        num_sources = dgraph.query(Dataset.sources_included.count(uid, entry_review_status="accepted"))
-        data['num_sources'] = num_sources['sources_included'][0]['count(sources_included)']
-
-    elif dgraph_type == 'Country':
-        num_sources = dgraph.query(NewsSource.countries.count(uid, _reverse=True, entry_review_status="accepted"))
-        data['num_sources'] = num_sources['countries'][0]['count']
-        num_orgs = dgraph.query(Organization.country.count(uid, _reverse=True, entry_review_status="accepted"))
-        data['num_orgs'] = num_orgs['country'][0]['count']
-    
-    elif dgraph_type == 'Multinational':
-        num_sources = dgraph.query(NewsSource.countries.count(uid, _reverse=True, entry_review_status="accepted"))
-        data['num_sources'] = num_sources['countries'][0]['count']
-
-    elif dgraph_type == 'Subnational':
-        num_sources = dgraph.query(NewsSource.subnational_scope.count(uid, _reverse=True, entry_review_status="accepted"))
-        data['num_sources'] = num_sources['subnational_scope'][0]['count']
-
+    if dgraph_type in ['Channel', 'Country', 'Multinational', 'Subnational']:
+        query_string = 'query getCounts($uid: string) { q(func: uid($uid)) {\n'
+        for predicate, dtype in Schema.get_reverse_relationships(dgraph_type):
+            query_string += f'num_{dtype.lower()}: ~{predicate} @filter(eq(entry_review_status, "accepted") AND type({dtype})) {{ count(uid) }}\n'
+        query_string += '} }'
+        counts = dgraph.query(query_string, variables={'$uid': uid})
+        if len(counts['q']) > 0:
+            for k, v in counts['q'][0].items():
+                data[k] = v[0]['count']
+   
     return data
 
 
@@ -136,7 +120,7 @@ def get_reverse_relationships(uid: str) -> dict:
         raise ValueError
 
     dgraph_type = dgraph.get_dgraphtype(uid)
-
+    
     reverse_relationships = Schema.get_reverse_relationships(dgraph_type)
     query_relationships = []
     for predicate, dtype in reverse_relationships:
@@ -161,24 +145,6 @@ def get_reverse_relationships(uid: str) -> dict:
             continue
 
     return data
-
-
-    # reverse_relationships = Schema.get_reverse_relationships(dgraph_type)
-
-    # query_string = "query reverseRelationships($uid: string) { q(func: uid($uid)) {\n"
-
-    # for p, dtype in reverse_relationships:
-    #     query_string += f'''{p}__{dtype.lower()}: ~{p} @filter(type({dtype}) AND eq(entry_review_status, ["accepted", "pending"])) @facets (orderasc: _unique_name) {{ 
-    #         name _unique_name uid entry_review_status dgraph.type title
-    #         authors @facets(orderasc: sequence) {{ uid _unique_name name }} 
-    #         _authors_fallback @facets(orderasc: sequence) 
-    #     }} \n'''  
-
-    # query_string += '} }'
-
-    # result = dgraph.query(query_string, variables={'$uid': uid})
-    # return jsonify(result)
-
 
 def get_rejected(uid):
     query_string = f'''{{ q(func: uid({uid})) @filter(type(Rejected)) 
