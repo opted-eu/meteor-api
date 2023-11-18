@@ -5,7 +5,7 @@ Helper function to evaluate viewing permissions
 Entries with "draft" or "pending" status can only be
 viewed by the user who created the item or reviewers/admins
 """
-def can_view(entry, user) -> bool:
+def can_view(entry: dict, user) -> bool:
     if "entry_review_status" in entry.keys():
         if entry.get('entry_review_status') in ['pending', 'rejected', 'revise']:
             if user.is_authenticated:
