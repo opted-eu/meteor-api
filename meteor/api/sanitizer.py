@@ -319,10 +319,12 @@ class Sanitizer:
                         if isinstance(i['uid'], NewID):
                             self.related_entries.append(i)
 
-                else:
+                elif isinstance(related_items, dict):
                     validated = related_items['uid']
                     if isinstance(related_items['uid'], NewID):
                         self.related_entries.append(related_items)
+                else:
+                    current_app.logger.debug(f'No legal value supplied for {key}. Provided data: {self.data[key]}')
 
             elif self.data.get(key) and hasattr(item, 'validate'):
                 validated = item.validate(self.data[key], facets=facets)
