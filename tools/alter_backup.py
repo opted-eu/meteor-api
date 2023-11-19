@@ -22,6 +22,9 @@ tmp = tmp.replace("MetaVar", "MetaVariable")
 tmp = tmp.replace("ConceptVar", "ConceptVariable")
 tmp = tmp.replace("Subunit", "Subnational")
 
+# remove IP addresses
+ip_regex = re.compile(r'ip=".*",')
+tmp = ip_regex.sub("", tmp)
 
 # mapping dict 'old': 'new'
 wp3_mapping = {'creation_date': '_date_created',
