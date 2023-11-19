@@ -15,7 +15,6 @@ from meteor import dgraph
 from flask import current_app
 
 from meteor.main.model import Entry
-from meteor.misc import get_ip
 
 # External Utilities
 
@@ -47,8 +46,7 @@ class Sanitizer:
         current_app.logger.debug(f'Got the following data: {data}')
 
         self.user = user
-        self.user_ip = get_ip()
-        self._prevalidate_inputdata(data, self.user, self.user_ip)
+        self._prevalidate_inputdata(data, self.user)
         if not isinstance(dgraph_type, str):
             dgraph_type = dgraph_type.__name__
         self.dgraph_type = dgraph_type
@@ -92,19 +90,17 @@ class Sanitizer:
         self._set_nquads()
 
     @staticmethod
-    def _prevalidate_inputdata(data: dict, user: User, ip: str) -> bool:
+    def _prevalidate_inputdata(data: dict, user: User) -> bool:
         if not isinstance(data, dict):
             raise TypeError('Data object has to be type dict!')
         if not isinstance(user, User):
             raise InventoryPermissionError(
                 f'User Object is not class User! Received class: {type(user)}')
-        if not isinstance(ip, str):
-            raise TypeError('IP Address is not string!')
         return True
 
     @classmethod
     def edit(cls, data: dict, user: User, fields=None, dgraph_type=Entry, **kwargs):
-        cls._prevalidate_inputdata(data, user, get_ip())
+        cls._prevalidate_inputdata(data, user)
 
         if 'uid' not in data.keys():
             raise InventoryValidationError(
@@ -210,8 +206,7 @@ class Sanitizer:
             entry['_unique_name'] = self.generate_unique_name(entry)
 
         facets = {'timestamp': datetime.datetime.now(
-            datetime.timezone.utc),
-            'ip': self.user_ip}
+            datetime.timezone.utc)}
 
         if not newentry:
             entry['_edited_by'] = UID(self.user.uid, facets=facets)
