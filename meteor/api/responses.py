@@ -58,3 +58,7 @@ DGraphTypeDescription = typing.TypedDict('DGraphTypeDescription', {
     "name": str,
     "description": str
 })
+
+ReverseRelationships = typing.TypedDict('ReverseRelationships', {
+    "predicate__dgraphtype": list
+})

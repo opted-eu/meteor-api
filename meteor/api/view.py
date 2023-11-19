@@ -125,7 +125,7 @@ def get_reverse_relationships(uid: str) -> dict:
     query_relationships = []
     for predicate, dtype in reverse_relationships:
         subquery = f"""{predicate}__{dtype.lower()}s(func: type({dtype}), orderasc: _unique_name) @filter(uid_in({predicate}, $value)) {{
-                        uid name title date_published entry_review_status dgraph.type
+                        uid _unique_name name title date_published entry_review_status dgraph.type
                         channel {{ _unique_name name uid entry_review_status }}
                         authors @facets(orderasc: sequence) {{ _unique_name uid name entry_review_status }}
                         _authors_fallback @facets(orderasc: sequence)

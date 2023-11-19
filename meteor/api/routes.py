@@ -938,9 +938,27 @@ def view_unique_name(unique_name: str) -> t.Union[Entry, PoliticalParty,
 
     return jsonify(data)
 
+from meteor.api.responses import ReverseRelationships
+
 @api.route('/view/reverse/<uid>', authentication=True, optional=True)
-def view_reverse_relationships(uid: str) -> Entry:
-    """ Get reverse relationships for a given entry """
+def view_reverse_relationships(uid: str) -> ReverseRelationships:
+    """ 
+        Get reverse (incoming) relationships for a given entry 
+
+        While the regular `/view/uid/{uid}` route returns all outgoing relationships,
+        this route returns all reverse relationships.
+
+        For example, given the `uid` of a `PoliticalParty`, this route returns all
+        `Dataset`s that include this party.
+
+        The route returns a nested object, where the keys at the root represent the
+        predicates together with the DGraph types where the relationships are coming from.
+        The format is `<predicate>__<dgraphtype>s` (separated by double underscore; all lowercase).
+        Using the example from above, it would contain the key `sources_included__datasets`.
+
+        Each of these keys is a list of `Entry` objects. 
+    
+    """
 
     uid = validate_uid(uid)
     if not uid:
