@@ -1,0 +1,54 @@
+[
+    {
+        "uid": "_:collection_de_leadingmediaingermany",
+        "_unique_name": "collection_de_leadingmediaingermany",
+        "_date_created": "2023-11-19T13:30:03.097549Z",
+        "name": "Leading Media in Germany",
+        "alternate_names": [
+            "Leitmedien",
+            "Newspaper of Record in Germany",
+            "Deutsche Leitmedien"
+        ],
+        "countries": [
+            {
+                "_unique_name": "country_germany"
+            }
+        ],
+        "description": "\"Leitmedien\" according to J. Wilke (1999: Mediengeschichte der Bundesrepublik Deutschland).\r\nA newspaper of record is a major national newspaper with large circulation whose editorial and news-gathering functions are considered authoritative and independent; they are thus \"newspapers of record by reputation\" and include some of the oldest and most widely respected newspapers in the world.",
+        "entry_review_status": "accepted",
+        "entries_included": [
+            {
+                "_unique_name": "newssource_de_bild_print"
+            },
+            {
+                "_unique_name": "newssource_de_frankfurterallgemeinezeitung_print"
+            },
+            {
+                "_unique_name": "newssource_de_suddeutschezeitung_print"
+            },
+            {
+                "_unique_name": "newssource_de_diezeit_print"
+            },
+            {
+                "_unique_name": "newssource_de_diewelt_print"
+            },
+            {
+                "_unique_name": "newssource_de_stern_print"
+            },
+            {
+                "_unique_name": "newssource_de_taz_print"
+            },
+            {
+                "_unique_name": "newssource_de_frankfurterrundschau_print"
+            },
+            {
+                "_unique_name": "newssource_de_handelsblatt_print"
+            }
+        ],
+        "languages": [
+            {
+                "_unique_name": "language_german"
+            }
+        ]
+    }
+]
