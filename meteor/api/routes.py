@@ -300,10 +300,7 @@ class API(Blueprint):
                     p = request.args.get(parameter_name)
                     try:
                         if t.get_origin(par.annotation) == list:
-                            if isinstance(p, list):
-                                p = [par.annotation.__args__[0](x) for x in p]
-                            else:
-                                p = [par.annotation.__args__[0](p)]
+                            p = [par.annotation.__args__[0](x) for x in request.args.getlist(parameter_name)]
                         elif t.get_origin(par.annotation) == t.Literal:
                             if not p in t.get_args(par.annotation):
                                 raise ValueError
