@@ -113,7 +113,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
 
 
 def get_reverse_relationships(uid: str) -> dict:
-    query_var = 'query get_entry($value: string) { '
+    query_var = 'query get_entry($value: string) { q(func: uid($value)) {'
     
     uid = validate_uid(uid)
     if not uid:
@@ -124,17 +124,19 @@ def get_reverse_relationships(uid: str) -> dict:
     reverse_relationships = Schema.get_reverse_relationships(dgraph_type)
     query_relationships = []
     for predicate, dtype in reverse_relationships:
-        subquery = f"""{predicate}__{dtype.lower()}s(func: type({dtype}), orderasc: _unique_name) @filter(uid_in({predicate}, $value)) {{
-                        uid _unique_name name title date_published entry_review_status dgraph.type
+        subquery = f"""{predicate}__{dtype.lower()}s: ~{predicate} @filter(type({dtype})) (orderasc: _unique_name) @facets {{
+                        uid _unique_name name name_abbrev title date_published entry_review_status dgraph.type
                         channel {{ _unique_name name uid entry_review_status }}
                         authors @facets(orderasc: sequence) {{ _unique_name uid name entry_review_status }}
                         _authors_fallback @facets(orderasc: sequence)
+                        fulltext_available
+                        temporal_coverage_start temporal_coverage_end
                         }}"""
         
         query_relationships.append(subquery)
 
     
-    query_string = query_var + "\n".join(query_relationships) + ' }'
+    query_string = query_var + "\n".join(query_relationships) + ' } }'
 
     data = dgraph.query(query_string, variables={'$value': uid})
 
@@ -144,7 +146,7 @@ def get_reverse_relationships(uid: str) -> dict:
         except:
             continue
 
-    return data
+    return data['q'][0]
 
 def get_rejected(uid):
     query_string = f'''{{ q(func: uid({uid})) @filter(type(Rejected)) 
