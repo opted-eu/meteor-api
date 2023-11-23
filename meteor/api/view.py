@@ -123,7 +123,9 @@ def get_reverse_relationships(uid: str) -> dict:
     
     reverse_relationships = Schema.get_reverse_relationships(dgraph_type)
     query_relationships = []
+    result = {}
     for predicate, dtype in reverse_relationships:
+        result[f"{predicate}__{dtype.lower()}s"] = []
         subquery = f"""{predicate}__{dtype.lower()}s: ~{predicate} @filter(type({dtype})) (orderasc: _unique_name) @facets {{
                         uid _unique_name name name_abbrev title date_published entry_review_status dgraph.type
                         channel {{ _unique_name name uid entry_review_status }}
@@ -140,13 +142,18 @@ def get_reverse_relationships(uid: str) -> dict:
 
     data = dgraph.query(query_string, variables={'$value': uid})
 
+    if len(data['q']) == 0:
+        return result
+
     for v in data.values():
         try:
             recursive_restore_sequence(v)
         except:
             continue
+    
+    result.update(data['q'][0])
 
-    return data['q'][0]
+    return result
 
 def get_rejected(uid):
     query_string = f'''{{ q(func: uid({uid})) @filter(type(Rejected)) 
