@@ -34,9 +34,6 @@ class TestAPILoggedOut(BasicTestSetup):
         with self.client as c:
             response = c.post('/api/user/login',
                               json={'username': 'contributor', 'password': 123})
-            print(response, response.cross_origin_embedder_policy, response.cross_origin_opener_policy)
-            print(response.headers)
-            print(response.json)
             self.assertEqual(response.status_code, 400)
 
     def test_view_uid(self):

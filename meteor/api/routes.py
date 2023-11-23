@@ -310,7 +310,7 @@ class API(Blueprint):
                             p = par.annotation(p)
 
                     except ValueError:
-                        abort(400)
+                        self.abort(400, message=f"Wrong value provided for parameter: <{parameter_name}>")
                     params[parameter_name] = p
                 if parameter_name in request.form.keys():
                     p = request.form.get(parameter_name)
@@ -319,8 +319,10 @@ class API(Blueprint):
                     if parameter_name in request.json:
                         p = request.json.get(parameter_name)
                         params[parameter_name] = p
-
-            return f(**params)
+            try:
+                return f(**params)
+            except TypeError as e:
+                return self.abort(400, message=f'Wrong API call, please review your provided parameters. Full error message: {e}')
         return logic
 
     def route(self, rule: str, authentication: bool = False, **options: t.Any) -> t.Callable[[F], F]:
@@ -1565,13 +1567,13 @@ def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
 
 from meteor.edit.dgraph import draft_delete
 
-@api.route('/delete/draft', methods=['POST'])
+@api.route('/delete/draft', methods=['POST'], authentication=True)
 def delete_draft(uid: str) -> SuccessfulAPIOperation:
     check = check_entry(uid=uid)
     if not check:
-        return abort(404)
+        return api.abort(404)
     if not can_delete(check):
-        return abort(403)
+        return api.abort(403)
 
     draft_delete(check['uid'])
 
@@ -1661,7 +1663,7 @@ def submit_review(uid: str,
                 current_app.logger.error(f'Could not mark as revised uid <{uid}>: {e}')
                 return api.abort(400, message=f'Reviewing entry failed! Error: {e}')
     else:
-        return abort(404)
+        return api.abort(404)
     
 
 @api.route('/comment/view/<uid>', authentication=True)
