@@ -9,6 +9,7 @@ import unittest
 path.append(dirname(path[0]))
 from test_setup import BasicTestSetup
 from meteor import dgraph
+from meteor.main.model import User
 
 
 class TestAPILoggedOut(BasicTestSetup):
@@ -977,6 +978,47 @@ class TestAPILoggedOut(BasicTestSetup):
             elif self.logged_in == 'contributor':
                 self.assertEqual(res.status_code, 200)
                 self.assertEqual(updated.json['_account_status'], "active")
+
+    
+    def test_user_password(self):
+        if not self.logged_in:
+            self.skipTest("Requires login credentials")
+        
+        with self.client as c:
+            old_password = self.user_login['password']
+            new_password = old_password + '_new'
+
+            # change password
+            changed_pw = c.post('/api/user/password/change',
+                        headers=self.headers,
+                        json={
+                            "new_pw": new_password,
+                            "confirm_new": new_password,
+                            "old_pw": old_password
+                        })
+            
+            # log out
+            logout = c.get('/api/user/logout',
+                           headers=self.headers)
+
+            # login with new password
+            login_new_pw = c.post('/api/user/login/token', 
+                                data={'email': self.user_login['email'],
+                                      'password': new_password})
+            
+            self.assertEqual(login_new_pw.status_code, 200)
+            self.assertIn('access_token', login_new_pw.json)
+            
+            token = login_new_pw.json['access_token']
+            self.headers['Authorization'] = 'Bearer ' + token
+
+            self.assertEqual(changed_pw.status_code, 200)
+            self.assertEqual(logout.status_code, 200)
+
+
+        # tidy up
+        user = User(email=self.user_login['email'])
+        user.change_password(old_password)
 
     def test_show_user_entries(self):
 
