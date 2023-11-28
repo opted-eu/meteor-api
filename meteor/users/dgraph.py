@@ -236,7 +236,7 @@ class UserLogin(UserMixin):
             return False
 
     def change_password(self, password: str) -> bool:
-        user_data = {'pw': password}
+        user_data = {'_pw': password}
         result = dgraph.update_entry(user_data, uid=self.id)
         if result:
             return True
