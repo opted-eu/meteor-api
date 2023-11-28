@@ -51,7 +51,9 @@ SuccessfulAPIOperation = typing.TypedDict('SuccessfulAPIOperation', {
 LoginToken = typing.TypedDict('LoginToken', {
     "status": str,
     "access_token": str,
-    "refresh_token": str
+    "refresh_token": str,
+    "access_token_valid_until": str,
+    "refresh_token_valid_until": str
 })
 
 DGraphTypeDescription = typing.TypedDict('DGraphTypeDescription', {

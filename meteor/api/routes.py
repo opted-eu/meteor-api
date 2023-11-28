@@ -47,7 +47,7 @@ import collections
 from flask import Blueprint, jsonify, current_app, request, abort, url_for, render_template
 from flask.scaffold import F
 
-from flask_login import current_user, login_required
+from flask_login import login_required
 import flask_jwt_extended as jwtx
 
 from meteor.users.dgraph import AnonymousUser
@@ -1754,6 +1754,8 @@ def login(email: str, password: str) -> LoginToken:
     jwtx.set_access_cookies(response, access_token)
     return response
 
+from flask_jwt_extended import config as jwtx_config
+
 @api.route('/user/login/token', methods=['POST'])
 def login_token(email: str, password: str) -> LoginToken:
     """ login to account, get a JWT token back """
@@ -1763,9 +1765,15 @@ def login_token(email: str, password: str) -> LoginToken:
         return api.abort(401, message="Wrong credentials. Make sure you have an account.")
     
     access_token = jwtx.create_access_token(identity=user)
+    access_token_expiration = datetime.datetime.now() + jwtx_config.config.access_expires
+    
     refresh_token = jwtx.create_refresh_token(identity=user)
+    refresh_token_expiration = datetime.datetime.now() + jwtx_config.config.refresh_expires
+    
     return jsonify(access_token=access_token,
                    refresh_token=refresh_token, 
+                   access_token_valid_until=access_token_expiration.isoformat(),
+                   refreh_token_valid_until=refresh_token_expiration.isoformat(),
                    status=200)
 
 @api.route('/user/is_logged_in', authentication=True, optional=True)
