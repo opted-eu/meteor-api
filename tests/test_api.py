@@ -988,6 +988,17 @@ class TestAPILoggedOut(BasicTestSetup):
             old_password = self.user_login['password']
             new_password = old_password + '_new'
 
+            # try to change password with wrong old password
+            attempt = c.post('/api/user/password/change',
+                        headers=self.headers,
+                        json={
+                            "new_pw": new_password,
+                            "confirm_new": new_password,
+                            "old_pw": "wrong_old_password"
+                        })
+            
+            self.assertEqual(attempt.status_code, 401)
+
             # change password
             changed_pw = c.post('/api/user/password/change',
                         headers=self.headers,

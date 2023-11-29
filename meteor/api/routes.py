@@ -1953,13 +1953,13 @@ def change_password(old_pw: str, new_pw: str, confirm_new: str) -> SuccessfulAPI
     """ send password reset request """
 
     if not User.user_verify(jwtx.current_user.uid, old_pw):
-        raise ValidationError('Old password is incorrect!')
+        return api.abort(401, 'Old password is incorrect!')
     
     if len(new_pw) < 6:
-        return api.abort(422, message=f'Password should be a minimum of 6 characters')
+        return api.abort(401, message=f'Password should be a minimum of 6 characters')
 
     if new_pw != confirm_new:
-        return api.abort(422, message=f'Passwords do not match')
+        return api.abort(401, message=f'Passwords do not match')
 
     jwtx.current_user.change_password(new_pw)
 
