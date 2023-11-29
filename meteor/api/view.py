@@ -69,6 +69,8 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
                             authors @facets(orderasc: sequence) { uid _unique_name name } 
                             _authors_fallback @facets(orderasc: sequence) 
                             channel { uid name _unique_name }
+                            country { uid name _unique_name iso_3166_1_2 opted_scope }
+                            countries { uid name _unique_name iso_3166_1_2 opted_scope }
                             }
                         }
                     }'''
