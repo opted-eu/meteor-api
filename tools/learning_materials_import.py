@@ -35,6 +35,8 @@ for material in j:
         'uid': ADMIN_UID,
         '_reviewed_by|timestamp': datetime.now().isoformat()
         }
+    if not 'dgraph.type' in material:
+        material['dgraph.type'] = ["Entry", "LearningMaterial"]
     for value in material.values():
         if type(value) == list:
             for subval in value:

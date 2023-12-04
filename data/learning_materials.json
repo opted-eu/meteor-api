@@ -1,982 +1,1039 @@
 [
- {
-  "uid": "_:learningmaterial_egocentricnetworksfromtwittertimelines",
-  "authors": [
-   {
-    "_unique_name": "author_0000000262858649",
-    "authors|sequence": 0
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_vosonsml"
-   },
-   {
-    "_unique_name": "tool_rtweet"
-   }
-  ],
-  "description": "Demonstration of how to use rtweet and vosonSML to construct an ego net from Twitter users timelines.",
-  "urls": [
-   "https://vosonlab.github.io/posts/2022-06-05-egocentric-networks-from-twitter-timelines/"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_networkanalysis"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_egocentricnetworksfromtwittertimelines",
-  "entry_review_status": "accepted",
-  "channels": [
-   {
-    "_unique_name": "twitter"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_r"
-   }
-  ],
-  "_date_created": "2023-09-23T09:16:07.996782Z",
-  "name": "Egocentric Networks from Twitter timelines"
- },
- {
-  "uid": "_:learningmaterial_emfdscoretutorial",
-  "authors": [
-   {
-    "_unique_name": "author_0000000214854264",
-    "authors|sequence": 2
-   },
-   {
-    "_unique_name": "author_000000020866064X",
-    "authors|sequence": 0
-   },
-   {
-    "_unique_name": "author_0000000245592439",
-    "authors|sequence": 3
-   },
-   {
-    "_unique_name": "author_0000000282477341",
-    "authors|sequence": 4
-   },
-   {
-    "_unique_name": "author_0000000229682557",
-    "authors|sequence": 1
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_emfdscore"
-   }
-  ],
-  "description": "This notebook provides a tutorial on how to use eMFDScore for extracing various moral information metrics from texutal input.\r\nSpecifically, this tutorial guides the reader how to effectively use the eMFDScore tool either on the command line (for MACOS and Linux) and in Python (for Windows, MACOS, and Linux).\r\nIn addition, this tutorial also demonstrates which scoring options are appropriate for particular tasks.\r\nFor more detailed background information on the eMFD, please consult the respective publication.",
-  "urls": [
-   "https://github.com/medianeuroscience/emfdscore/blob/master/eMFDscore_Tutorial.ipynb"
-  ],
-  "concept_variables": [
-   {
-    "_unique_name": "conceptvariable_moralityethics"
-   }
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_documentscoring"
-   },
-   {
-    "_unique_name": "operation_dictionaryresource"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_emfdscoretutorial",
-  "entry_review_status": "accepted",
-  "languages": [
-   {
-    "_unique_name": "language_english"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_python"
-   }
-  ],
-  "_date_created": "2023-09-25T14:00:23.82803Z",
-  "name": "eMFDscore Tutorial"
- },
- {
-  "uid": "_:learningmaterial_rankdegreeinfluencercoresamplerradices",
-  "authors": [
-   {
-    "_unique_name": "author_0000000188086790",
-    "authors|sequence": 0
-   },
-   {
-    "_unique_name": "author_0000000293307786",
-    "authors|sequence": 1
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_radices"
-   }
-  ],
-  "text_types": [
-   {
-    "_unique_name": "texttype_socialmedia"
-   }
-  ],
-  "description": "This software prototype creates an explorative sample of core accounts in (optionally language-based) Twitter follow networks.",
-  "urls": [
-   "https://www.youtube.com/watch?v=i_p-tjvmrR4"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_networkanalysis"
-   },
-   {
-    "_unique_name": "operation_apiaccess"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_rankdegreeinfluencercoresamplerradices",
-  "entry_review_status": "accepted",
-  "channels": [
-   {
-    "_unique_name": "twitter"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_python"
-   }
-  ],
-  "_date_created": "2023-09-25T14:14:36.562023Z",
-  "name": "RADICES Twitter follow network sampler demo"
- },
- {
-  "uid": "_:learningmaterial_instamancerexample",
-  "authors": [
-   {
-    "_unique_name": "author_adamsmith_qut",
-    "uid": "_:author_adamsmith_qut",
-    "authors|sequence": 0
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_instamancer"
-   }
-  ],
-  "text_types": [
-   {
-    "_unique_name": "texttype_socialmedia"
-   }
-  ],
-  "description": "Instamancer is a scraping tool used in Instagram data mining and analysis projects.",
-  "urls": [
-   "https://adamsm.com/instamancer/"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_datascraping"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_instamancerexample",
-  "entry_review_status": "pending",
-  "channels": [
-   {
-    "_unique_name": "instagram"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_java"
-   },
-   {
-    "_unique_name": "programming_language_c"
-   },
-   {
-    "_unique_name": "programming_language_r"
-   },
-   {
-    "_unique_name": "programming_language_javascript"
-   }
-  ],
-  "_date_created": "2023-09-25T14:43:35.810942Z",
-  "name": "Instamancer Example"
- },
- {
-  "uid": "_:learningmaterial_facepagertutorials",
-  "authors": [
-   {
-    "_unique_name": "author_tillkeyling",
-    "uid": "_:author_tillkeyling",
-    "authors|sequence": 1
-   },
-   {
-    "uid": "_:author_0000000318606695",
-    "entry_review_status": "pending",
-    "name": "Jakob Jünger",
-    "affiliations|openalex": {
-      "0": "https://openalex.org/I22465464"
-    },
-    "affiliations": [
-      "University of Münster"
-    ],
-    "_unique_name": "author_0000000318606695",
-    "_date_created": "2023-09-25T15:00:30.159627Z",
-    "orcid": "0000-0003-1860-6695",
-    "openalex": [
-      "A5088931518"
-    ],
-    "authors|sequence": 0
-  }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_facepager"
-   }
-  ],
-  "text_types": [
-   {
-    "_unique_name": "texttype_socialmedia"
-   },
-   {
-    "_unique_name": "texttype_usercomment"
-   }
-  ],
-  "description": "Facepager was made for fetching public available data from YouTube, Twitter and other websites on the basis of APIs and webscraping. All data is stored in a SQLite database and may be exported to csv.",
-  "urls": [
-   "https://www.youtube.com/playlist?list=PLIrMdwnFepPJD-sxYWGU5EtMJ2qKW8Q8r"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_datascraping"
-   },
-   {
-    "_unique_name": "operation_apiaccess"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   },
-   {
-    "_unique_name": "modality_image"
-   }
-  ],
-  "_unique_name": "learningmaterial_facepagertutorials",
-  "entry_review_status": "pending",
-  "channels": [
-   {
-    "_unique_name": "twitter"
-   },
-   {
-    "_unique_name": "facebook"
-   },
-   {
-    "_unique_name": "youtube"
-   }
-  ],
-  "languages": [
-   {
-    "_unique_name": "language_english"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_python"
-   }
-  ],
-  "_date_created": "2023-09-25T15:00:30.156859Z",
-  "name": "Facepager Tutorials"
- },
- {
-  "uid": "_:learningmaterial_newsmaptutorial",
-  "authors": [
-   {
-    "_unique_name": "author_0000000165195265",
-    "authors|sequence": 0
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_newsmap"
-   }
-  ],
-  "description": "Newsmap is a semi-supervised model for geographical document classification. While (full) supervised models are trained on manually classified data, this semi-supervised model learns from \u201cseed words\u201d in dictionaries.",
-  "urls": [
-   "https://tutorials.quanteda.io/machine-learning/newsmap/"
-  ],
-  "concept_variables": [
-   {
-    "_unique_name": "conceptvariable_location"
-   }
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_geographicaldocumentclassification"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_newsmaptutorial",
-  "entry_review_status": "pending",
-  "languages": [
-   {
-    "_unique_name": "language_german"
-   },
-   {
-    "_unique_name": "language_simplified_chinese"
-   },
-   {
-    "_unique_name": "language_italian"
-   },
-   {
-    "_unique_name": "language_russian"
-   },
-   {
-    "_unique_name": "language_spanish"
-   },
-   {
-    "_unique_name": "language_traditional_chinese"
-   },
-   {
-    "_unique_name": "language_japanese"
-   },
-   {
-    "_unique_name": "language_english"
-   },
-   {
-    "_unique_name": "language_arabic"
-   },
-   {
-    "_unique_name": "language_french"
-   },
-   {
-    "_unique_name": "language_hebrew"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_r"
-   }
-  ],
-  "_date_created": "2023-09-25T15:35:08.991064Z",
-  "name": "newsmap Tutorial"
- },
- {
-  "uid": "_:learningmaterial_quantedatutorials",
-  "authors": [
-   {
-    "_unique_name": "author_0000000165195265",
-    "authors|sequence": 0
-   },
-   {
-    "_unique_name": "author_0000000263154125",
-    "authors|sequence": 1
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_quanteda"
-   }
-  ],
-  "description": "A fast, flexible, and comprehensive framework for quantitative text analysis in R. Provides functionality for corpus management, creating and manipulating tokens and ngrams, exploring keywords in context, forming and manipulating sparse matrices of documents by features and feature co-occurrences, analyzing keywords, computing feature similarities and distances, applying content dictionaries, applying supervised and unsupervised machine learning, visually representing text and text analyses, and more.",
-  "urls": [
-   "https://tutorials.quanteda.io/"
-  ],
-  "concept_variables": [
-   {
-    "_unique_name": "conceptvariable_sentiment"
-   }
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_textcleaning"
-   },
-   {
-    "_unique_name": "operation_stemming"
-   },
-   {
-    "_unique_name": "operation_textpruning"
-   },
-   {
-    "_unique_name": "operation_partofspeechtagging"
-   },
-   {
-    "_unique_name": "operation_dictionaryanalysis"
-   },
-   {
-    "_unique_name": "operation_keywordsincontext"
-   },
-   {
-    "_unique_name": "operation_networkanalysis"
-   },
-   {
-    "_unique_name": "operation_documentsimilarityscoring"
-   },
-   {
-    "_unique_name": "operation_corpuscomparison"
-   },
-   {
-    "_unique_name": "operation_semanticnetworkanalysis"
-   },
-   {
-    "_unique_name": "operation_tokenization"
-   },
-   {
-    "_unique_name": "operation_lexicaldiversity"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_quantedatutorials",
-  "entry_review_status": "pending",
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_r"
-   }
-  ],
-  "_date_created": "2023-09-25T15:48:17.077206Z",
-  "name": "Quanteda Tutorials"
- },
- {
-  "uid": "_:learningmaterial_parsingchinesetextwithstanfordnlp",
-  "authors": [
-   {
-    "_unique_name": "author_michellefullwood",
-    "uid": "_:author_michellefullwood",
-    "_date_created": "2023-09-25T15:56:33.887799Z",
-    "authors|sequence": 0
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_stanfordwordsegmenter"
-   }
-  ],
-  "description": "This software is for \u201ctokenizing\u201d or \u201csegmenting\u201d the words of Chinese or Arabic text.",
-  "urls": [
-   "https://michelleful.github.io/code-blog/2015/09/10/parsing-chinese-with-stanford/"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_tokenization"
-   },
-   {
-    "_unique_name": "operation_dataparsing"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_parsingchinesetextwithstanfordnlp",
-  "entry_review_status": "pending",
-  "languages": [
-   {
-    "_unique_name": "language_simplified_chinese"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_java"
-   }
-  ],
-  "_date_created": "2023-09-25T15:56:33.884208Z",
-  "name": "Parsing Chinese text with Stanford NLP"
- },
- {
-  "uid": "_:learningmaterial_pythontutorialwebscrapingwithbeautifulsoupandrequests",
-  "authors": [
     {
-        "uid": "_:author_coreyschafer",
+        "uid": "_:learningmaterial_egocentricnetworksfromtwittertimelines",
+        "authors": [
+            {
+                "_unique_name": "author_0000000262858649",
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_vosonsml"
+            },
+            {
+                "_unique_name": "tool_rtweet"
+            }
+        ],
+        "description": "Demonstration of how to use rtweet and vosonSML to construct an ego net from Twitter users timelines.",
+        "urls": [
+            "https://vosonlab.github.io/posts/2022-06-05-egocentric-networks-from-twitter-timelines/"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_networkanalysis"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_egocentricnetworksfromtwittertimelines",
         "entry_review_status": "accepted",
-        "name": "Corey Schafer",
-        "_unique_name": "author_coreyschafer",
-        "_date_created": "2023-09-25T16:01:03.149155Z",
-        "authors|sequence": 0
-      }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_beautifulsoup4"
-   }
-  ],
-  "text_types": [
-   {
-    "_unique_name": "texttype_websitecontent"
-   }
-  ],
-  "description": "Beautiful Soup is a library that makes it easy to scrape information from web pages. It sits atop an HTML or XML parser, providing Pythonic idioms for iterating, searching, and modifying the parse tree.",
-  "urls": [
-   "https://www.youtube.com/watch?v=ng2o98k983k"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_htmlparsing"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_pythontutorialwebscrapingwithbeautifulsoupandrequests",
-  "entry_review_status": "pending",
-  "channels": [
-   {
-    "_unique_name": "website"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_python"
-   }
-  ],
-  "_date_created": "2023-09-25T16:01:03.146436Z",
-  "name": "Python Tutorial: Web Scraping with BeautifulSoup and Requests"
- },
- {
-  "uid": "_:learningmaterial_rtweettutorial",
-  "authors": [
-   {
-    "_unique_name": "author_0000000163441274",
-    "authors|sequence": 0
-   },
-   {
-    "_unique_name": "author_000000034757117X",
-    "authors|sequence": 2
-   },
-   {
-    "_unique_name": "author_francois_briatteuvnhwt73",
-    "uid": "_:author_francois_briatteuvnhwt73",
-    "authors|sequence": 4
-   },
-   {
-    "_unique_name": "author_0000000197472570",
-    "authors|sequence": 1
-   },
-   {
-    "_unique_name": "author_0000000239483914",
-    "authors|sequence": 3
-   },
-   {
-    "_unique_name": "author_0000000242221819",
-    "authors|sequence": 5
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_rtweet"
-   }
-  ],
-  "description": "An implementation of calls designed to collect and organize Twitter data via Twitter's REST and stream Application Program Interfaces (API), which can be found at the following URL: <https://developer.twitter.com/en/docs>.",
-  "urls": [
-   "https://cran.r-project.org/web/packages/rtweet/vignettes/stream.html"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_apiaccess"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_rtweettutorial",
-  "entry_review_status": "pending",
-  "channels": [
-   {
-    "_unique_name": "twitter"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_r"
-   }
-  ],
-  "_date_created": "2023-09-26T09:28:03.789239Z",
-  "name": "rtweet Tutorial"
- },
- {
-  "uid": "_:learningmaterial_beginnersguidetooctisvol1",
-  "authors": [
-   {
-    "uid": "_:author_0000000335336500",
-    "_unique_name": "author_0000000335336500",
-    "orcid": "0000-0003-3533-6500",
-    "name": "Emil Rijcken",
-    "affilitations": ["Eindhoven University of Technology"],
-    "authors|sequence": 0
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_octis"
-   }
-  ],
-  "description": "OCTIS (Optimizing and Comparing Topic models Is Simple) aims at training, analyzing and comparing Topic Models, whose optimal hyperparameters are estimated by means of a Bayesian Optimization approach.",
-  "urls": [
-   "https://towardsdatascience.com/a-beginners-guide-to-octis-optimizing-and-comparing-topic-models-is-simple-590554ec9ba6",
-   "https://towardsdatascience.com/a-beginners-guide-to-octis-vol-2-optimizing-topic-models-1214e58be1e5"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_topicmodelling"
-   },
-   {
-    "_unique_name": "operation_validation"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_beginnersguidetooctisvol1",
-  "entry_review_status": "pending",
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_python"
-   }
-  ],
-  "_date_created": "2023-09-26T11:19:43.27221Z",
-  "name": "Beginner\u2019s guide to OCTIS vol. 1"
- },
- {
-  "uid": "_:learningmaterial_antcon4tutorials",
-  "authors": [
+        "channels": [
+            {
+                "_unique_name": "twitter"
+            }
+        ],
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_r"
+            }
+        ],
+        "_date_created": "2023-09-23T09:16:07.996782Z",
+        "name": "Egocentric Networks from Twitter timelines"
+    },
     {
-        "uid": "_:author_0000000282492824",
-        "entry_review_status": "pending",
-        "name": "Laurence Anthony",
-        "affiliations|openalex": {
-          "0": "https://openalex.org/I150744194"
-        },
-        "affiliations": [
-          "Waseda University"
+        "uid": "_:learningmaterial_emfdscoretutorial",
+        "authors": [
+            {
+                "_unique_name": "author_0000000214854264",
+                "authors|sequence": 2
+            },
+            {
+                "_unique_name": "author_000000020866064X",
+                "authors|sequence": 0
+            },
+            {
+                "_unique_name": "author_0000000245592439",
+                "authors|sequence": 3
+            },
+            {
+                "_unique_name": "author_0000000282477341",
+                "authors|sequence": 4
+            },
+            {
+                "_unique_name": "author_0000000229682557",
+                "authors|sequence": 1
+            }
         ],
-        "_unique_name": "author_0000000282492824",
-        "_date_created": "2023-09-26T11:44:14.383805Z",
-        "orcid": "0000-0002-8249-2824",
-        "openalex": [
-          "A5025314843"
+        "tools": [
+            {
+                "_unique_name": "tool_emfdscore"
+            }
         ],
-        "authors|sequence": 0
-      }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_antconc"
-   }
-  ],
-  "description": "A freeware corpus analysis toolkit for concordancing and text analysis.",
-  "urls": [
-   "https://www.youtube.com/playlist?list=PLiRIDpYmiC0R3Vv5NncOuIqaUcyLLW7Ae"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_ngramextraction"
-   },
-   {
-    "_unique_name": "operation_keywordsincontext"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_antcon4tutorials",
-  "entry_review_status": "pending",
-  "languages": [
-   {
-    "_unique_name": "language_english"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_python"
-   }
-  ],
-  "_date_created": "2023-09-26T11:44:14.381853Z",
-  "name": "AntCon 4 Tutorials"
- },
- {
-  "uid": "_:learningmaterial_wordsmithtutorial",
-  "authors": [
-   {
-    "_unique_name": "author_0000000224049277",
-    "authors|sequence": 0
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_wordsmith"
-   }
-  ],
-  "description": "WordSmith helps you find concordances and keywords in your text.",
-  "urls": [
-   "https://www.youtube.com/watch?v=sbErTW2MzCY"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_keywordsincontext"
-   },
-   {
-    "_unique_name": "operation_wordfrequenciescorpusstatistics"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_wordsmithtutorial",
-  "entry_review_status": "pending",
-  "alternate_names": [
-   "Introducing YouTube Data Tools"
-  ],
-  "channels": [
-   {
-    "_unique_name": "youtube"
-   }
-  ],
-  "languages": [
-   {
-    "_unique_name": "language_english"
-   }
-  ],
-  "_date_created": "2023-09-26T11:47:54.809694Z",
-  "name": "WordSmith Tutorial"
- },
- {
-  "uid": "_:learningmaterial_pretexttutorial",
-  "authors": [
-   {
-    "_unique_name": "author_0000000199591805",
-    "authors|sequence": 1
-   },
-   {
-    "_unique_name": "author_a5066165608",
-    "authors|sequence": 0
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_pretext"
-   }
-  ],
-  "text_types": [
-   {
-    "_unique_name": "texttype_speech"
-   }
-  ],
-  "description": "An R package to assess the consequences of text preprocessing decisions.",
-  "urls": [
-   "http://www.mjdenny.com/getting_started_with_preText.html"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_textcleaning"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_pretexttutorial",
-  "entry_review_status": "pending",
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_r"
-   }
-  ],
-  "_date_created": "2023-09-26T11:59:21.826095Z",
-  "name": "preText Tutorial"
- },
- {
-  "uid": "_:learningmaterial_wordscorestutorial",
-  "authors": [
-   {
-    "_unique_name": "author_000000020797564X",
-    "authors|sequence": 1
-   },
-   {
-    "_unique_name": "author_0000000175159831",
-    "authors|sequence": 0
-   },
-   {
-    "_unique_name": "author_0000000220893817",
-    "authors|sequence": 2
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_wordscores"
-   }
-  ],
-  "text_types": [
-   {
-    "_unique_name": "texttype_speech"
-   }
-  ],
-  "description": "Wordscores is a scaling model for estimating the positions (mostly of political actors) for dimensions that are specified a priori. Wordscores was introduced in Laver, Benoit and Garry (2003) and is widely used among political scientists.",
-  "urls": [
-   "https://tutorials.quanteda.io/machine-learning/wordscores/"
-  ],
-  "concept_variables": [
-   {
-    "_unique_name": "conceptvariable_ideologicalposition"
-   }
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_documentscoring"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_wordscorestutorial",
-  "entry_review_status": "pending",
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_r"
-   }
-  ],
-  "_date_created": "2023-09-27T11:03:17.016376Z",
-  "name": "Wordscores Tutorial"
- },
- {
-  "uid": "_:learningmaterial_textstattutorial",
-  "authors": [
+        "description": "This notebook provides a tutorial on how to use eMFDScore for extracing various moral information metrics from texutal input.\r\nSpecifically, this tutorial guides the reader how to effectively use the eMFDScore tool either on the command line (for MACOS and Linux) and in Python (for Windows, MACOS, and Linux).\r\nIn addition, this tutorial also demonstrates which scoring options are appropriate for particular tasks.\r\nFor more detailed background information on the eMFD, please consult the respective publication.",
+        "urls": [
+            "https://github.com/medianeuroscience/emfdscore/blob/master/eMFDscore_Tutorial.ipynb"
+        ],
+        "concept_variables": [
+            {
+                "_unique_name": "conceptvariable_moralityethics"
+            }
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_documentscoring"
+            },
+            {
+                "_unique_name": "operation_dictionaryresource"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_emfdscoretutorial",
+        "entry_review_status": "accepted",
+        "languages": [
+            {
+                "_unique_name": "language_english"
+            }
+        ],
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_python"
+            }
+        ],
+        "_date_created": "2023-09-25T14:00:23.82803Z",
+        "name": "eMFDscore Tutorial"
+    },
     {
-        "uid": "_:author_0009000056945810",
+        "uid": "_:learningmaterial_rankdegreeinfluencercoresamplerradices",
+        "authors": [
+            {
+                "_unique_name": "author_0000000188086790",
+                "authors|sequence": 0
+            },
+            {
+                "_unique_name": "author_0000000293307786",
+                "authors|sequence": 1
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_radices"
+            }
+        ],
+        "text_types": [
+            {
+                "_unique_name": "texttype_socialmedia"
+            }
+        ],
+        "description": "This software prototype creates an explorative sample of core accounts in (optionally language-based) Twitter follow networks.",
+        "urls": [
+            "https://www.youtube.com/watch?v=i_p-tjvmrR4"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_networkanalysis"
+            },
+            {
+                "_unique_name": "operation_apiaccess"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_rankdegreeinfluencercoresamplerradices",
+        "entry_review_status": "accepted",
+        "channels": [
+            {
+                "_unique_name": "twitter"
+            }
+        ],
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_python"
+            }
+        ],
+        "_date_created": "2023-09-25T14:14:36.562023Z",
+        "name": "RADICES Twitter follow network sampler demo"
+    },
+    {
+        "uid": "_:learningmaterial_instamancerexample",
+        "authors": [
+            {
+                "_unique_name": "author_adamsmith_qut",
+                "uid": "_:author_adamsmith_qut",
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_instamancer"
+            }
+        ],
+        "text_types": [
+            {
+                "_unique_name": "texttype_socialmedia"
+            }
+        ],
+        "description": "Instamancer is a scraping tool used in Instagram data mining and analysis projects.",
+        "urls": [
+            "https://adamsm.com/instamancer/"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_datascraping"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_instamancerexample",
         "entry_review_status": "pending",
-        "name": "Matthias Hüning",
-        "affiliations|openalex": {
-          "0": "https://openalex.org/I75951250"
-        },
-        "affiliations": [
-          "Freie Universität Berlin"
+        "channels": [
+            {
+                "_unique_name": "instagram"
+            }
         ],
-        "_unique_name": "author_0009000056945810",
-        "orcid": "0009-0000-5694-5810",
-        "_date_created": "2023-09-27T11:07:49.814362Z",
-        "openalex": [
-          "A5075546394"
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_java"
+            },
+            {
+                "_unique_name": "programming_language_c"
+            },
+            {
+                "_unique_name": "programming_language_r"
+            },
+            {
+                "_unique_name": "programming_language_javascript"
+            }
         ],
-        "authors|sequence": 0
-      }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_textstat"
-   }
-  ],
-  "description": "TextSTAT is a simple programme for the analysis of texts. It reads plain text files (in different encodings) and HTML files (directly from the internet) and it produces word frequency lists and concordances from these files. This version includes a web-spider which reads as many pages as you want from a particular website and puts them in a TextSTAT-corpus. The new news-reader, too, puts news messages in a TextSTAT-readable corpus file. TextSTAT reads MS Word and OpenOffice files. No conversion needed, just add the files to your corpus.",
-  "urls": [
-   "https://www.youtube.com/watch?v=juVaI2nMWOE"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_documentsearch"
-   },
-   {
-    "_unique_name": "operation_keywordsincontext"
-   },
-   {
-    "_unique_name": "operation_wordfrequenciescorpusstatistics"
-   },
-   {
-    "_unique_name": "operation_keywordextraction"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_textstattutorial",
-  "entry_review_status": "pending",
-  "languages": [
-   {
-    "_unique_name": "language_english"
-   }
-  ],
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_python"
-   }
-  ],
-  "_date_created": "2023-09-27T11:07:49.808642Z",
-  "name": "TextSTAT Tutorial"
- },
- {
-  "uid": "_:learningmaterial_interactivetopicmodelingwithbertopic",
-  "authors": [
-   {
-    "_unique_name": "author_a5028666747",
-    "authors|sequence": 0
-   }
-  ],
-  "tools": [
-   {
-    "_unique_name": "tool_bertopic"
-   }
-  ],
-  "description": "Neural topic modeling with a class-based TF-IDF procedure. BERTopic is a topic modeling technique that leverages huggingface\u2014 transformers and c-TF-IDF to create dense clusters allowing for easily interpretable topics whilst keeping important words in the topic descriptions. BERTopic supports guided, (semi-) supervised, and dynamic topic modeling. It even supports visualizations similar to LDAvis!",
-  "urls": [
-   "https://towardsdatascience.com/interactive-topic-modeling-with-bertopic-1ea55e7d73d8"
-  ],
-  "methodologies": [
-   {
-    "_unique_name": "operation_topicmodelling"
-   }
-  ],
-  "modalities": [
-   {
-    "_unique_name": "modality_text"
-   }
-  ],
-  "_unique_name": "learningmaterial_interactivetopicmodelingwithbertopic",
-  "entry_review_status": "pending",
-  "programming_languages": [
-   {
-    "_unique_name": "programming_language_python"
-   }
-  ],
-  "_date_created": "2023-09-27T11:12:41.48078Z",
-  "name": "Interactive Topic Modeling with BERTopic"
- }
+        "_date_created": "2023-09-25T14:43:35.810942Z",
+        "name": "Instamancer Example"
+    },
+    {
+        "uid": "_:learningmaterial_facepagertutorials",
+        "authors": [
+            {
+                "_unique_name": "author_tillkeyling",
+                "uid": "_:author_tillkeyling",
+                "authors|sequence": 1
+            },
+            {
+                "uid": "_:author_0000000318606695",
+                "entry_review_status": "pending",
+                "name": "Jakob Jünger",
+                "affiliations|openalex": {
+                    "0": "https://openalex.org/I22465464"
+                },
+                "affiliations": [
+                    "University of Münster"
+                ],
+                "_unique_name": "author_0000000318606695",
+                "_date_created": "2023-09-25T15:00:30.159627Z",
+                "orcid": "0000-0003-1860-6695",
+                "openalex": [
+                    "A5088931518"
+                ],
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_facepager"
+            }
+        ],
+        "text_types": [
+            {
+                "_unique_name": "texttype_socialmedia"
+            },
+            {
+                "_unique_name": "texttype_usercomment"
+            }
+        ],
+        "description": "Facepager was made for fetching public available data from YouTube, Twitter and other websites on the basis of APIs and webscraping. All data is stored in a SQLite database and may be exported to csv.",
+        "urls": [
+            "https://www.youtube.com/playlist?list=PLIrMdwnFepPJD-sxYWGU5EtMJ2qKW8Q8r"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_datascraping"
+            },
+            {
+                "_unique_name": "operation_apiaccess"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            },
+            {
+                "_unique_name": "modality_image"
+            }
+        ],
+        "_unique_name": "learningmaterial_facepagertutorials",
+        "entry_review_status": "pending",
+        "channels": [
+            {
+                "_unique_name": "twitter"
+            },
+            {
+                "_unique_name": "facebook"
+            },
+            {
+                "_unique_name": "youtube"
+            }
+        ],
+        "languages": [
+            {
+                "_unique_name": "language_english"
+            }
+        ],
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_python"
+            }
+        ],
+        "_date_created": "2023-09-25T15:00:30.156859Z",
+        "name": "Facepager Tutorials"
+    },
+    {
+        "uid": "_:learningmaterial_newsmaptutorial",
+        "authors": [
+            {
+                "_unique_name": "author_0000000165195265",
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_newsmap"
+            }
+        ],
+        "description": "Newsmap is a semi-supervised model for geographical document classification. While (full) supervised models are trained on manually classified data, this semi-supervised model learns from \u201cseed words\u201d in dictionaries.",
+        "urls": [
+            "https://tutorials.quanteda.io/machine-learning/newsmap/"
+        ],
+        "concept_variables": [
+            {
+                "_unique_name": "conceptvariable_location"
+            }
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_geographicaldocumentclassification"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_newsmaptutorial",
+        "entry_review_status": "pending",
+        "languages": [
+            {
+                "_unique_name": "language_german"
+            },
+            {
+                "_unique_name": "language_simplified_chinese"
+            },
+            {
+                "_unique_name": "language_italian"
+            },
+            {
+                "_unique_name": "language_russian"
+            },
+            {
+                "_unique_name": "language_spanish"
+            },
+            {
+                "_unique_name": "language_traditional_chinese"
+            },
+            {
+                "_unique_name": "language_japanese"
+            },
+            {
+                "_unique_name": "language_english"
+            },
+            {
+                "_unique_name": "language_arabic"
+            },
+            {
+                "_unique_name": "language_french"
+            },
+            {
+                "_unique_name": "language_hebrew"
+            }
+        ],
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_r"
+            }
+        ],
+        "_date_created": "2023-09-25T15:35:08.991064Z",
+        "name": "newsmap Tutorial"
+    },
+    {
+        "uid": "_:learningmaterial_quantedatutorials",
+        "authors": [
+            {
+                "_unique_name": "author_0000000165195265",
+                "authors|sequence": 0
+            },
+            {
+                "_unique_name": "author_0000000263154125",
+                "authors|sequence": 1
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_quanteda"
+            }
+        ],
+        "description": "A fast, flexible, and comprehensive framework for quantitative text analysis in R. Provides functionality for corpus management, creating and manipulating tokens and ngrams, exploring keywords in context, forming and manipulating sparse matrices of documents by features and feature co-occurrences, analyzing keywords, computing feature similarities and distances, applying content dictionaries, applying supervised and unsupervised machine learning, visually representing text and text analyses, and more.",
+        "urls": [
+            "https://tutorials.quanteda.io/"
+        ],
+        "concept_variables": [
+            {
+                "_unique_name": "conceptvariable_sentiment"
+            }
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_textcleaning"
+            },
+            {
+                "_unique_name": "operation_stemming"
+            },
+            {
+                "_unique_name": "operation_textpruning"
+            },
+            {
+                "_unique_name": "operation_partofspeechtagging"
+            },
+            {
+                "_unique_name": "operation_dictionaryanalysis"
+            },
+            {
+                "_unique_name": "operation_keywordsincontext"
+            },
+            {
+                "_unique_name": "operation_networkanalysis"
+            },
+            {
+                "_unique_name": "operation_documentsimilarityscoring"
+            },
+            {
+                "_unique_name": "operation_corpuscomparison"
+            },
+            {
+                "_unique_name": "operation_semanticnetworkanalysis"
+            },
+            {
+                "_unique_name": "operation_tokenization"
+            },
+            {
+                "_unique_name": "operation_lexicaldiversity"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_quantedatutorials",
+        "entry_review_status": "pending",
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_r"
+            }
+        ],
+        "_date_created": "2023-09-25T15:48:17.077206Z",
+        "name": "Quanteda Tutorials"
+    },
+    {
+        "uid": "_:learningmaterial_parsingchinesetextwithstanfordnlp",
+        "authors": [
+            {
+                "_unique_name": "author_michellefullwood",
+                "uid": "_:author_michellefullwood",
+                "_date_created": "2023-09-25T15:56:33.887799Z",
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_stanfordwordsegmenter"
+            }
+        ],
+        "description": "This software is for \u201ctokenizing\u201d or \u201csegmenting\u201d the words of Chinese or Arabic text.",
+        "urls": [
+            "https://michelleful.github.io/code-blog/2015/09/10/parsing-chinese-with-stanford/"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_tokenization"
+            },
+            {
+                "_unique_name": "operation_dataparsing"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_parsingchinesetextwithstanfordnlp",
+        "entry_review_status": "pending",
+        "languages": [
+            {
+                "_unique_name": "language_simplified_chinese"
+            }
+        ],
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_java"
+            }
+        ],
+        "_date_created": "2023-09-25T15:56:33.884208Z",
+        "name": "Parsing Chinese text with Stanford NLP"
+    },
+    {
+        "uid": "_:learningmaterial_pythontutorialwebscrapingwithbeautifulsoupandrequests",
+        "authors": [
+            {
+                "uid": "_:author_coreyschafer",
+                "entry_review_status": "accepted",
+                "name": "Corey Schafer",
+                "_unique_name": "author_coreyschafer",
+                "_date_created": "2023-09-25T16:01:03.149155Z",
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_beautifulsoup4"
+            }
+        ],
+        "text_types": [
+            {
+                "_unique_name": "texttype_websitecontent"
+            }
+        ],
+        "description": "Beautiful Soup is a library that makes it easy to scrape information from web pages. It sits atop an HTML or XML parser, providing Pythonic idioms for iterating, searching, and modifying the parse tree.",
+        "urls": [
+            "https://www.youtube.com/watch?v=ng2o98k983k"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_htmlparsing"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_pythontutorialwebscrapingwithbeautifulsoupandrequests",
+        "entry_review_status": "pending",
+        "channels": [
+            {
+                "_unique_name": "website"
+            }
+        ],
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_python"
+            }
+        ],
+        "_date_created": "2023-09-25T16:01:03.146436Z",
+        "name": "Python Tutorial: Web Scraping with BeautifulSoup and Requests"
+    },
+    {
+        "uid": "_:learningmaterial_rtweettutorial",
+        "authors": [
+            {
+                "_unique_name": "author_0000000163441274",
+                "authors|sequence": 0
+            },
+            {
+                "_unique_name": "author_000000034757117X",
+                "authors|sequence": 2
+            },
+            {
+                "_unique_name": "author_francois_briatteuvnhwt73",
+                "uid": "_:author_francois_briatteuvnhwt73",
+                "authors|sequence": 4
+            },
+            {
+                "_unique_name": "author_0000000197472570",
+                "authors|sequence": 1
+            },
+            {
+                "_unique_name": "author_0000000239483914",
+                "authors|sequence": 3
+            },
+            {
+                "_unique_name": "author_0000000242221819",
+                "authors|sequence": 5
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_rtweet"
+            }
+        ],
+        "description": "An implementation of calls designed to collect and organize Twitter data via Twitter's REST and stream Application Program Interfaces (API), which can be found at the following URL: <https://developer.twitter.com/en/docs>.",
+        "urls": [
+            "https://cran.r-project.org/web/packages/rtweet/vignettes/stream.html"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_apiaccess"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_rtweettutorial",
+        "entry_review_status": "pending",
+        "channels": [
+            {
+                "_unique_name": "twitter"
+            }
+        ],
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_r"
+            }
+        ],
+        "_date_created": "2023-09-26T09:28:03.789239Z",
+        "name": "rtweet Tutorial"
+    },
+    {
+        "uid": "_:learningmaterial_beginnersguidetooctisvol1",
+        "authors": [
+            {
+                "uid": "_:author_0000000335336500",
+                "_unique_name": "author_0000000335336500",
+                "orcid": "0000-0003-3533-6500",
+                "name": "Emil Rijcken",
+                "affilitations": [
+                    "Eindhoven University of Technology"
+                ],
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_octis"
+            }
+        ],
+        "description": "OCTIS (Optimizing and Comparing Topic models Is Simple) aims at training, analyzing and comparing Topic Models, whose optimal hyperparameters are estimated by means of a Bayesian Optimization approach.",
+        "urls": [
+            "https://towardsdatascience.com/a-beginners-guide-to-octis-optimizing-and-comparing-topic-models-is-simple-590554ec9ba6",
+            "https://towardsdatascience.com/a-beginners-guide-to-octis-vol-2-optimizing-topic-models-1214e58be1e5"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_topicmodelling"
+            },
+            {
+                "_unique_name": "operation_validation"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_beginnersguidetooctisvol1",
+        "entry_review_status": "pending",
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_python"
+            }
+        ],
+        "_date_created": "2023-09-26T11:19:43.27221Z",
+        "name": "Beginner\u2019s guide to OCTIS vol. 1"
+    },
+    {
+        "uid": "_:learningmaterial_antcon4tutorials",
+        "authors": [
+            {
+                "uid": "_:author_0000000282492824",
+                "entry_review_status": "pending",
+                "name": "Laurence Anthony",
+                "affiliations|openalex": {
+                    "0": "https://openalex.org/I150744194"
+                },
+                "affiliations": [
+                    "Waseda University"
+                ],
+                "_unique_name": "author_0000000282492824",
+                "_date_created": "2023-09-26T11:44:14.383805Z",
+                "orcid": "0000-0002-8249-2824",
+                "openalex": [
+                    "A5025314843"
+                ],
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_antconc"
+            }
+        ],
+        "description": "A freeware corpus analysis toolkit for concordancing and text analysis.",
+        "urls": [
+            "https://www.youtube.com/playlist?list=PLiRIDpYmiC0R3Vv5NncOuIqaUcyLLW7Ae"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_ngramextraction"
+            },
+            {
+                "_unique_name": "operation_keywordsincontext"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_antcon4tutorials",
+        "entry_review_status": "pending",
+        "languages": [
+            {
+                "_unique_name": "language_english"
+            }
+        ],
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_python"
+            }
+        ],
+        "_date_created": "2023-09-26T11:44:14.381853Z",
+        "name": "AntCon 4 Tutorials"
+    },
+    {
+        "uid": "_:learningmaterial_wordsmithtutorial",
+        "authors": [
+            {
+                "_unique_name": "author_0000000224049277",
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_wordsmith"
+            }
+        ],
+        "description": "WordSmith helps you find concordances and keywords in your text.",
+        "urls": [
+            "https://www.youtube.com/watch?v=sbErTW2MzCY"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_keywordsincontext"
+            },
+            {
+                "_unique_name": "operation_wordfrequenciescorpusstatistics"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_wordsmithtutorial",
+        "entry_review_status": "pending",
+        "alternate_names": [
+            "Introducing YouTube Data Tools"
+        ],
+        "channels": [
+            {
+                "_unique_name": "youtube"
+            }
+        ],
+        "languages": [
+            {
+                "_unique_name": "language_english"
+            }
+        ],
+        "_date_created": "2023-09-26T11:47:54.809694Z",
+        "name": "WordSmith Tutorial"
+    },
+    {
+        "uid": "_:learningmaterial_pretexttutorial",
+        "authors": [
+            {
+                "_unique_name": "author_0000000199591805",
+                "authors|sequence": 1
+            },
+            {
+                "_unique_name": "author_a5066165608",
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_pretext"
+            }
+        ],
+        "text_types": [
+            {
+                "_unique_name": "texttype_speech"
+            }
+        ],
+        "description": "An R package to assess the consequences of text preprocessing decisions.",
+        "urls": [
+            "http://www.mjdenny.com/getting_started_with_preText.html"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_textcleaning"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_pretexttutorial",
+        "entry_review_status": "pending",
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_r"
+            }
+        ],
+        "_date_created": "2023-09-26T11:59:21.826095Z",
+        "name": "preText Tutorial"
+    },
+    {
+        "uid": "_:learningmaterial_wordscorestutorial",
+        "authors": [
+            {
+                "_unique_name": "author_000000020797564X",
+                "authors|sequence": 1
+            },
+            {
+                "_unique_name": "author_0000000175159831",
+                "authors|sequence": 0
+            },
+            {
+                "_unique_name": "author_0000000220893817",
+                "authors|sequence": 2
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_wordscores"
+            }
+        ],
+        "text_types": [
+            {
+                "_unique_name": "texttype_speech"
+            }
+        ],
+        "description": "Wordscores is a scaling model for estimating the positions (mostly of political actors) for dimensions that are specified a priori. Wordscores was introduced in Laver, Benoit and Garry (2003) and is widely used among political scientists.",
+        "urls": [
+            "https://tutorials.quanteda.io/machine-learning/wordscores/"
+        ],
+        "concept_variables": [
+            {
+                "_unique_name": "conceptvariable_ideologicalposition"
+            }
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_documentscoring"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_wordscorestutorial",
+        "entry_review_status": "pending",
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_r"
+            }
+        ],
+        "_date_created": "2023-09-27T11:03:17.016376Z",
+        "name": "Wordscores Tutorial"
+    },
+    {
+        "uid": "_:learningmaterial_textstattutorial",
+        "authors": [
+            {
+                "uid": "_:author_0009000056945810",
+                "entry_review_status": "pending",
+                "name": "Matthias Hüning",
+                "affiliations|openalex": {
+                    "0": "https://openalex.org/I75951250"
+                },
+                "affiliations": [
+                    "Freie Universität Berlin"
+                ],
+                "_unique_name": "author_0009000056945810",
+                "orcid": "0009-0000-5694-5810",
+                "_date_created": "2023-09-27T11:07:49.814362Z",
+                "openalex": [
+                    "A5075546394"
+                ],
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_textstat"
+            }
+        ],
+        "description": "TextSTAT is a simple programme for the analysis of texts. It reads plain text files (in different encodings) and HTML files (directly from the internet) and it produces word frequency lists and concordances from these files. This version includes a web-spider which reads as many pages as you want from a particular website and puts them in a TextSTAT-corpus. The new news-reader, too, puts news messages in a TextSTAT-readable corpus file. TextSTAT reads MS Word and OpenOffice files. No conversion needed, just add the files to your corpus.",
+        "urls": [
+            "https://www.youtube.com/watch?v=juVaI2nMWOE"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_documentsearch"
+            },
+            {
+                "_unique_name": "operation_keywordsincontext"
+            },
+            {
+                "_unique_name": "operation_wordfrequenciescorpusstatistics"
+            },
+            {
+                "_unique_name": "operation_keywordextraction"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_textstattutorial",
+        "entry_review_status": "pending",
+        "languages": [
+            {
+                "_unique_name": "language_english"
+            }
+        ],
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_python"
+            }
+        ],
+        "_date_created": "2023-09-27T11:07:49.808642Z",
+        "name": "TextSTAT Tutorial"
+    },
+    {
+        "uid": "_:learningmaterial_interactivetopicmodelingwithbertopic",
+        "authors": [
+            {
+                "_unique_name": "author_a5028666747",
+                "authors|sequence": 0
+            }
+        ],
+        "tools": [
+            {
+                "_unique_name": "tool_bertopic"
+            }
+        ],
+        "description": "Neural topic modeling with a class-based TF-IDF procedure. BERTopic is a topic modeling technique that leverages huggingface\u2014 transformers and c-TF-IDF to create dense clusters allowing for easily interpretable topics whilst keeping important words in the topic descriptions. BERTopic supports guided, (semi-) supervised, and dynamic topic modeling. It even supports visualizations similar to LDAvis!",
+        "urls": [
+            "https://towardsdatascience.com/interactive-topic-modeling-with-bertopic-1ea55e7d73d8"
+        ],
+        "methodologies": [
+            {
+                "_unique_name": "operation_topicmodelling"
+            }
+        ],
+        "modalities": [
+            {
+                "_unique_name": "modality_text"
+            }
+        ],
+        "_unique_name": "learningmaterial_interactivetopicmodelingwithbertopic",
+        "entry_review_status": "pending",
+        "programming_languages": [
+            {
+                "_unique_name": "programming_language_python"
+            }
+        ],
+        "_date_created": "2023-09-27T11:12:41.48078Z",
+        "name": "Interactive Topic Modeling with BERTopic"
+    },
+    {
+        "uid": "_:collection_de_leadingmediaingermany",
+        "_date_created": "2023-11-19T13:30:03.097549+00:00",
+        "_unique_name": "collection_de_leadingmediaingermany",
+        "alternate_names": [
+            "Leitmedien",
+            "Newspaper of Record in Germany",
+            "Deutsche Leitmedien"
+        ],
+        "countries": [
+            {
+                "_unique_name": "country_germany"
+            }
+        ],
+        "description": "\"Leitmedien\" according to J. Wilke (1999: Mediengeschichte der Bundesrepublik Deutschland).\r\nA newspaper of record is a major national newspaper with large circulation whose editorial and news-gathering functions are considered authoritative and independent; they are thus \"newspapers of record by reputation\" and include some of the oldest and most widely respected newspapers in the world.",
+        "dgraph.type": [
+            "Entry",
+            "Collection"
+        ],
+        "entries_included": [
+            {
+                "_unique_name": "newssource_de_bild_print"
+            },
+            {
+                "_unique_name": "newssource_de_frankfurterallgemeinezeitung_print"
+            },
+            {
+                "_unique_name": "newssource_de_suddeutschezeitung_print"
+            },
+            {
+                "_unique_name": "newssource_de_diezeit_print"
+            },
+            {
+                "_unique_name": "newssource_de_diewelt_print"
+            },
+            {
+                "_unique_name": "newssource_de_stern_print"
+            },
+            {
+                "_unique_name": "newssource_de_taz_print"
+            },
+            {
+                "_unique_name": "newssource_de_frankfurterrundschau_print"
+            },
+            {
+                "_unique_name": "newssource_de_handelsblatt_print"
+            }
+        ],
+        "languages": [
+            {
+                "_unique_name": "language_german",
+            }
+        ],
+        "name": "Leading Media in Germany",
+    }
 ]
