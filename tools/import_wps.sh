@@ -7,5 +7,7 @@ echo "WP5..."
 python3 -u tools/wp5_import.py
 echo "WP2..."
 python3 -u tools/wp2_import.py
+echo "Learning Materials ..."
+python3 -u tools/learning_materials_import.py
 echo "Cleanup ..."
 python3 -u tools/migration_cleanups.py
