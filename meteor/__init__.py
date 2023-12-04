@@ -58,7 +58,7 @@ def create_app(config_class=Config, config_json=None):
     import wtforms
     assert wtforms.__version__.startswith('3.'), 'WTForms Version 3.X.X is required!'
 
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path='/legacy/static')
     app.json = UpdatedJSONProvider(app)
 
     app.logger.addHandler(create_filehandler())
