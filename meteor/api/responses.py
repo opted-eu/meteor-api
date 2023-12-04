@@ -56,6 +56,14 @@ LoginToken = typing.TypedDict('LoginToken', {
     "refresh_token_valid_until": str
 })
 
+AccessToken = typing.TypedDict('AccessToken', {
+    "status": str,
+    "access_token": str,
+    "refresh_token": str,
+    "access_token_valid_until": str,
+    "refresh_token_valid_until": str
+})
+
 DGraphTypeDescription = typing.TypedDict('DGraphTypeDescription', {
     "name": str,
     "description": str

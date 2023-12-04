@@ -1733,26 +1733,26 @@ def delete_comment(uid: str) -> SuccessfulAPIOperation:
 
 """ User Related """
 
-from meteor.api.responses import LoginToken
+from meteor.api.responses import LoginToken, AccessToken
 
-@api.route('/user/login', methods=['POST'])
-def login(email: str, password: str) -> LoginToken:
-    """ 
-        login to account, get a session cookie back 
+# @api.route('/user/login', methods=['POST'])
+# def login(email: str, password: str) -> LoginToken:
+#     """ 
+#         login to account, get a session cookie back 
 
-        This route provides a JWT as a session cookie. It is
-        recommended method for the login routine, because
-        it allows Meteor to refresh tokens automatically.
-    """
+#         This route provides a JWT as a session cookie. It is
+#         recommended method for the login routine, because
+#         it allows Meteor to refresh tokens automatically.
+#     """
     
-    user = User.login(email, password)
-    if not user:
-        return api.abort(401, message="Wrong credentials. Make sure you have an account.")
+#     user = User.login(email, password)
+#     if not user:
+#         return api.abort(401, message="Wrong credentials. Make sure you have an account.")
     
-    response = jsonify({"message": "login successful"})
-    access_token = jwtx.create_access_token(identity=user)
-    jwtx.set_access_cookies(response, access_token)
-    return response
+#     response = jsonify({"message": "login successful"})
+#     access_token = jwtx.create_access_token(identity=user)
+#     jwtx.set_access_cookies(response, access_token)
+#     return response
 
 from flask_jwt_extended import config as jwtx_config
 
@@ -1786,29 +1786,45 @@ def is_logged_in() -> SuccessfulAPIOperation:
                         'is_logged_in': False})
     
 
-@api.route('/user/login/refresh', methods=['POST'], authentication=True, refresh=True)
-def refresh_token() -> LoginToken:
-    """ login to account, get a JWT token back """
+@api.route('/user/login/refresh', authentication=True, refresh=True)
+def refresh_token() -> AccessToken:
+    """ 
+        Provide a refresh token, get a new access token back.
+
+        Perform a GET request to this route with the refresh token in the headers:
+
+        ```
+        Authorization: "Bearer $REFRESH_TOKEN"
+        ```
+
+        You get a new access token back, alongside its expiration date. If the refresh token
+        is too old (usually 30 days), then a complete fresh login is required.
+     
+      
+    """
     
     identity = jwtx.get_jwt_identity()
     access_token = jwtx.create_access_token(identity=identity)
-    return jsonify(access_token=access_token, status=200)
+    access_token_expiration = datetime.datetime.now() + jwtx_config.config.access_expires
+    return jsonify(access_token=access_token, 
+                   access_token_valid_until=access_token_expiration.isoformat(),
+                   status=200)
 
-@api.after_app_request
-def refresh_expiring_jwts(response):
-    """ Automatically handle refreshing of JWT (stored as session cookies) """
-    try:
-        exp_timestamp = jwtx.get_jwt()["exp"]
-        now = datetime.datetime.now(datetime.timezone.utc)
-        target_timestamp = datetime.datetime.timestamp(now + datetime.timedelta(minutes=30))
-        if target_timestamp > exp_timestamp:
-            access_token = jwtx.create_access_token(identity=jwtx.get_jwt_identity())
-            jwtx.set_access_cookies(response, access_token)
-            current_app.logger.debug(f'Refreshed Token for user <{jwtx.get_jwt_identity()}>')
-        return response
-    except (RuntimeError, KeyError):
-        # Case where there is not a valid JWT. Just return the original response
-        return response
+# @api.after_app_request
+# def refresh_expiring_jwts(response):
+#     """ Automatically handle refreshing of JWT (stored as session cookies) """
+#     try:
+#         exp_timestamp = jwtx.get_jwt()["exp"]
+#         now = datetime.datetime.now(datetime.timezone.utc)
+#         target_timestamp = datetime.datetime.timestamp(now + datetime.timedelta(minutes=30))
+#         if target_timestamp > exp_timestamp:
+#             access_token = jwtx.create_access_token(identity=jwtx.get_jwt_identity())
+#             jwtx.set_access_cookies(response, access_token)
+#             current_app.logger.debug(f'Refreshed Token for user <{jwtx.get_jwt_identity()}>')
+#         return response
+#     except (RuntimeError, KeyError):
+#         # Case where there is not a valid JWT. Just return the original response
+#         return response
 
 
 @api.route('/user/logout', authentication=True, verify_type=False)
