@@ -11,6 +11,13 @@ from datetime import datetime
 from slugify import slugify
 import re
 
+from argparse import ArgumentParser
+
+parser = ArgumentParser(description='Script to import WP2 data')
+parser.add_argument('--debug', action="store_true")
+args = parser.parse_args()
+
+
 from tools.migration_helpers import (PUBLICATION_CACHE, 
                                      client, ADMIN_UID, process_doi, DOI_PATTERN,
                                      save_publication_cache,
@@ -464,14 +471,20 @@ entry_template = {'_date_created': datetime.now().isoformat(),
 for ttype in wp2_texttypes:
     ttype.update(entry_template)
 
+wp2_texttypes.append(cppt_entry)
 
 wp2_canonical = {}
 
 df.doi = df.doi.fillna('')
 failed_dois = []
-for index, row in df.iterrows():
+
+if args.debug:
+    df = df.sample(100)
+
+from tqdm import tqdm
+for index, row in tqdm(df.iterrows()):
     doi = row['doi']
-    print('Processing:', doi, row['url'])
+    # print('Processing:', doi, row['url'])
     new_entry = {**wp2_template, 
                  '_tmp_unique_name': row['original_id'],
                  'url': row['url'],

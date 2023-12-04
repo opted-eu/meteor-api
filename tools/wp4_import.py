@@ -875,10 +875,11 @@ print('Retrieving Authors and DOI Metadata ...')
 
 for doi in dois:
     try:
+        print(doi)
         publication_info[doi] = process_doi(doi, PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS)
         authors[doi] = publication_info[doi]['authors']
     except Exception as e:
-        print(doi, e)
+        print('Problem at:', doi, e)
         failed.append(doi)
 
 save_publication_cache()

@@ -384,11 +384,12 @@ print('Resolving DOIs and retrieving author information ...')
 
 for doi in dois:
     try:
+        print(doi)
         publication_info[doi] = process_doi(doi, PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS)
         authors[doi] = publication_info[doi]['authors']
         # publication_info[doi] = crossref(doi, crossref_cache)
     except Exception as e:
-        print(doi, e)
+        print('Problem at:', doi, e)
         failed.append(doi)
 
 save_publication_cache()
@@ -531,32 +532,34 @@ for dataset_url, dataset in wp5_datasets.items():
 # Only principal investigators, in alphabetical order
 
 cap_authors_ids = [
-                   'A2131181776', # "E. Scott Adler"
-                   'A2058889440', # "Petya Alexandrova"
-                   'A2092558081', # "Anthony M. Bertelli",
-                   'A4364111795', # "Shaun Bevan"
-                   'A2117355790', # Felipe Gonçalves Brasil
-                   'A2113519852', # "Christian Breunig"
-                   'A2280864390', # "Laura Chaqués Bonafont"
-                   'A2004930978', # Ana Cláudia Niedhardt Capella
-                   'A147734712', # "Marcello Carammia"
-                   'A2050248265', # "Roy Gava"
-                   'A2118894099', # Christoffer Green-Pedersen
-                   'A314638087', # "Isabelle Guinaudeau"
-                   'A2167894569', # Will Jennings
-                   'A4358641479', # Peter John
-                   'A4267416689', # Luz Muñoz Màrquez
-                   'A2014855980', # Peter B. Mortensen
-                   'A2131914141', # Anna M. Palau
-                   'A4339388086', # "Sebastiaan Princen"
-                   'A4333550685', # "Tinette Schnatterer"
-                   'A2188386334', # "Pascal Sciarini"
-                   'A4337499954', # "Arco Timmermans"
-                   'A4297190057', # Anke Tresch
-                   'A4357284298', # Stefaan Walgrave 
-                   'A4297309152', # "John Wilkerson"
-                   'A72279048', # "Christina Wolbrecht"
-                   'A1145779895', # "Frédéric Varone"
+                   'A5042975485', # Stefaan Walgrave, Belgium
+                   'A5005872138', # Daniela Širinić, Croatia
+                   'A5036452910', # Christoffer Green-Pedersen, Denmark
+                   'A5035906707', # Peter B. Mortensen, Denmark
+                   'A5040846387', # Petya Alexandrova, European Union
+                   'A5019366355', # Sebastiaan Princen, European Union
+                   'A5079553683', # Marcello Carammia, European Union
+                   'A5051442026', # Emiliano Grossman, France
+                   'A5042265529', # Christian Breunig, Germany
+                   'A5020080306', # Miklós Sebők, Hungary
+                   'A5057176896', # Zsolt Boda, Hungary
+                   'A5019287978', # Conor Little, Ireland
+                   'A5028913176', # Amnon Cavari, Israel
+                   'A5005044683', # Maoz Rosenthal, Israel
+                   'A5033970527', # Ilana Shpaizman, Israel 
+                   'A5087287508', # Enrico Borghetto, Italy
+                   'A5079553683', # Marcello Carammia, Italy
+                   'A5030370639', # Federico Russo, Italy
+                   'A5021118986', # Arco Timmermans, Nederlands
+                   'A5080131973', # Gerard Breeman, Nederlands
+                   'A5033691267', # Łukasz Wordliczek, Poland
+                   'A5066211324', # Ana Maria Belchior, Portugal
+                   'A5087287508', # Enrico Borghetto, Portugal
+                   'A5057507122', # Catherine Moury, Portugal
+                   'A5066975041', # Laura Chaqués Bonafont, Spain
+                   'A5087496824', # Pascal Sciarini, Switzerland
+                   'A5068843325', # Frédéric Varone, Switzerland
+                   'A5012934179', # Shaun Bevan, UK
                    ]
 
 cap_authors = []
@@ -576,7 +579,7 @@ for i, open_alex in enumerate(cap_authors_ids):
         else:
             api = "https://api.openalex.org/people/"
             r = requests.get(api + open_alex, params={'mailto': "info@opted.eu"})
-            author_details = r.json()
+            author_details = r.json() 
             PUBLICATION_CACHE[open_alex] = author_details
         author_entry = {'uid': '_:' + slugify(open_alex, separator="_"),
                         '_unique_name': 'author_' + slugify(open_alex, separator=""),
@@ -593,8 +596,8 @@ for i, open_alex in enumerate(cap_authors_ids):
         if author_details['ids'].get("orcid"):
             author_entry['orcid'] = author_details['ids']['orcid'].replace('https://orcid.org/', '')
         try:
-            author_entry['affiliations'] = author_details['last_known_institution']['display_name']
-            author_entry['affiliations|openalex'] = author_details['last_known_institution']['id']
+            if author_details['last_known_institution']['display_name']:
+                author_entry['affiliations'] = [author_details['last_known_institution']['display_name']]
         except:
             pass
     else:
@@ -607,6 +610,8 @@ cap_metavariables = [metavars_lookup[v] for v in cap_metavars.tolist() if v in m
 cap_df['countries_uid'] = cap_df.countries.replace(country_uid_mapping)
 
 cap_countries = {c: {'uid': c} for c in cap_df['countries_uid'].unique().tolist()}
+cap_df.temporal_coverage_start = cap_df.temporal_coverage_start.astype(int)
+cap_df.temporal_coverage_end = cap_df.temporal_coverage_end.astype(int)
 cap_start = cap_df.groupby("countries_uid").agg(list).temporal_coverage_start.apply(min).to_dict()
 cap_end = cap_df.groupby("countries_uid").agg(list).temporal_coverage_end.apply(max).to_dict()
 

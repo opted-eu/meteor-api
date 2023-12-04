@@ -503,9 +503,8 @@ for node in j:
                 'audience_size_recent': count,
                 'audience_size_recent|unit': node['audience_size|unit']['0'],
                 'audience_size_recent|timestamp': node['audience_size'][0]}
-    except:
-        print('Could not parse node', node['uid'])
-        # print(node)
+    except Exception as e:
+        print('Could not parse node', node['uid'], e)
         continue
     audience_size_recent.append(updated)
     
@@ -619,6 +618,7 @@ remove_keys = ['_entry_added', 'description', 'name', 'title', 'url', 'date_publ
 
 for entry in entries_with_doi:
     try:
+        print(entry['doi'])
         updated_entry = process_doi(entry['doi'], PUBLICATION_CACHE, entry_review_status=ENTRY_REVIEW_STATUS)
         updated_entry['uid'] = entry['uid']
         for k in remove_keys:
