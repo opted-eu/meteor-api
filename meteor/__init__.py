@@ -110,14 +110,14 @@ def create_app(config_class=Config, config_json=None):
     from meteor.endpoints.routes import endpoint
     from meteor.main.routes import main
     from meteor.errors.handlers import errors
-    app.register_blueprint(users)
-    app.register_blueprint(view)
-    app.register_blueprint(add)
-    app.register_blueprint(edit)
-    app.register_blueprint(review)
-    app.register_blueprint(endpoint)
-    app.register_blueprint(main)
-    app.register_blueprint(errors)
+    app.register_blueprint(users, url_prefix='/legacy')
+    app.register_blueprint(view, url_prefix='/legacy')
+    app.register_blueprint(add, url_prefix='/legacy')
+    app.register_blueprint(edit, url_prefix='/legacy')
+    app.register_blueprint(review, url_prefix='/legacy')
+    app.register_blueprint(endpoint, url_prefix='/legacy')
+    app.register_blueprint(main, url_prefix='/legacy')
+    app.register_blueprint(errors, url_prefix='/legacy')
 
     jwt.init_app(app)
 
