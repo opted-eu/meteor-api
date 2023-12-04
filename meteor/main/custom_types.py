@@ -1,6 +1,7 @@
 import datetime
 from typing import Union, Iterable, Any
 from flask import current_app
+# TODO: get current user
 from flask_login import current_user
 from meteor import dgraph
 from meteor.errors import InventoryValidationError
@@ -331,7 +332,7 @@ class AuthorList(OrderedListRelationship):
     orcid_regex = re.compile(r"\d{4}-\d{4}-\d{4}-\d{4}")
     orcid = ORCID()
 
-    def validation_hook(self, data):
+    def validation_hook(self, data: list):
         pre_processed = []
         for author in data:
             try:
@@ -348,7 +349,7 @@ class AuthorList(OrderedListRelationship):
                         except Exception as e:
                             current_app.logger.error(f'failed retrieving author from openalex: {author}: {e}', exc_info=True)
                             raise InventoryValidationError(f'Failed to retrieve author from openalex: {author}')
-                elif self.orcid_regex.match(author.strip()):
+                elif self.orcid_regex.search(author.strip()):
                     author_uid = dgraph.get_uid(field="orcid", value=author.strip(), query_filter=["not type(Rejected)"])
                     if author_uid:
                         pre_processed.append({'uid': UID(author_uid)})
@@ -384,7 +385,7 @@ class MultipleChoiceInt(MultipleChoice):
     def __init__(self, overwrite=True, *args, **kwargs) -> None:
         super().__init__(overwrite, default=None, *args, **kwargs)
 
-    def validation_hook(self, data):
+    def validation_hook(self, data: Union[str, list]):
         if isinstance(data, str):
             data = data.split(',')
         if not isinstance(data, list):
@@ -402,25 +403,33 @@ class MultipleChoiceInt(MultipleChoice):
 
 class GitHubAuto(String):
 
-    def validation_hook(self, data):
-        if "github" in data:
-            data = data.replace('https://www.', '')
-            data = data.replace('http://www.', '')
-            data = data.replace('https://', '')
-            data = data.replace('http://', '')
-            data = data.replace('github.com/', '')
-            if data.startswith('/'):
-                data = data[1:]
-            if data.endswith('/'):
-                data = data[:-1]
-        
-        return data
+    def validation_hook(self, data: str):
+        data = data.replace('https://www.', '')
+        data = data.replace('http://www.', '')
+        data = data.replace('https://', '')
+        data = data.replace('http://', '')
+        data = data.replace('github.com/', '')
+        if data.startswith('/'):
+            data = data[1:]
+        if data.endswith('/'):
+            data = data[:-1]
     
+        return data
+
+
+class ORCID(String):
+
+    """ Cleans the ORCID to only leave the pattern 0000-0000-0000-0000"""
+
+    orcid_regex = re.compile(r'\d{4}-\d{4}-\d{4}-\d{4}')
+
+    def validation_hook(self, data: str):    
+        return self.orcid_regex.search(data)[0]
 
 """
     Utilities
 """
-
+# TODO: get current user, change to jwt procedure
 def get_current_user_uid() -> UID:
     if current_user.is_authenticated:
         return UID(current_user.uid)

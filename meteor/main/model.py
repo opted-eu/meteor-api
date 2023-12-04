@@ -1230,7 +1230,7 @@ class Author(Entry):
 
     """ Authors are people who create datasets, archives, tools or scientific publications. """
 
-    orcid = String(label="ORCID", directives=["@index(hash)"])
+    orcid = ORCID(label="ORCID", directives=["@index(hash)"])
     url = String(label="URL", description="Website of author",
                  directives=["@index(hash)"])
     openalex = ListString(label="OpenAlex ID",
