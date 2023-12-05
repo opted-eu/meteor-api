@@ -563,8 +563,9 @@ cap_authors_ids = [
                    ]
 
 cap_authors = []
-
+print('Getting CAP authors ...')
 for i, open_alex in enumerate(cap_authors_ids):
+    print('Author:', open_alex)
     query_string = """query lookupAuthor ($openalex: string) 
     {
         q(func: eq(openalex, $openalex)) {
