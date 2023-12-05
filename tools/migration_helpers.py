@@ -107,6 +107,9 @@ def process_authors(authors_tmp: list, cache, entry_review_status='accepted') ->
     authors = resolve_authors(authors_tmp, orcid_token=CONFIG['ORCID_ACCESS_TOKEN'])
     authors_new = []
     for author in authors:
+        if 'affiliations' in author:
+            if author['affiliations'] is None:
+                _ = author.pop('affiliations')
         # First we check if we have an ORCID
         orcid = author.get('orcid')
         openalex = author.get('openalex')
