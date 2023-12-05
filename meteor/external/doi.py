@@ -478,4 +478,6 @@ def resolve_authors(authors_tmp: typing.List[dict],
 
         if not 'affiliations' in author:
             author['affiliations'] = get_author_affiliations(author, orcid_token=orcid_token)
+        if author['affiliations'] is None or None in author['affiliations']:
+            _ = author.pop('affiliations')
     return authors_tmp
