@@ -1002,10 +1002,10 @@ def view_ownership(uid: str) -> t.List[Entry]:
                         q(func: uid(uid(u))) 
                             @filter(eq(entry_review_status, "accepted") AND 
                                 eq(dgraph.type,["Organization", "NewsSource", "PoliticalParty"]))  {
-                            name uid dgraph.type
-                            channel { _unique_name }
-                            publishes @filter(eq(entry_review_status, "accepted")) { uid }
-                            owns @filter(eq(entry_review_status, "accepted")) { uid }
+                            name uid dgraph.type _unique_name
+                            channel { _unique_name uid name }
+                            publishes @filter(eq(entry_review_status, "accepted")) { uid _unique_name }
+                            owns @filter(eq(entry_review_status, "accepted")) { uid _unique_name }
                         }
                     }"""
     result = dgraph.query(query_string=query_string, variables={'$id': uid})
