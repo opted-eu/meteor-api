@@ -1035,10 +1035,10 @@ class Tool(Entry):
                                        default=False,
                                        queryable=True)
 
-    channels = ListRelationship(description="Is the tool designed for specific channels?",
-                                autoload_choices=True,
-                                queryable=True,
-                                relationship_constraint="Channel")
+    designed_for = ListRelationship(description="Is the tool designed for a specific entity?",
+                                    autoload_choices=False,
+                                    queryable=True,
+                                    relationship_constraint=["Channel", "Dataset", "PoliticalParty", "Organization", "Government", "Parliament", "Person"])
 
     language_independent = Boolean(description="Is the tool language independent?",
                                    label="Yes",

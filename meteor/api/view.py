@@ -66,6 +66,7 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
         entry(func: uid($value)) @filter(type($dtype)) { 
             uid dgraph.type expand(_all_) { 
                             uid _unique_name name title entry_review_status display_name 
+                            dgraph.type
                             authors @facets(orderasc: sequence) { uid _unique_name name } 
                             _authors_fallback @facets(orderasc: sequence) 
                             channel { uid name _unique_name }
