@@ -281,7 +281,7 @@ class TestSanitizers(BasicTestSetup):
                       'channel': {'uid': self.channel_print},
                       'channel_unique_name': 'print',
                       'name': 'Schwäbische Post',
-                      '_unqiue_name': 'newssource_germany_schwaebischepost_print',
+                      '_unique_name': 'newssource_germany_schwaebischepost_print',
                       'publication_kind': 'newspaper',
                       'geographic_scope': 'subnational',
                       'countries': {'uid': self.germany_uid},

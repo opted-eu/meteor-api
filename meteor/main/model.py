@@ -978,7 +978,7 @@ class Tool(Entry):
     description = String(large_textfield=True, description="Please provide a short description for the tool",
                          overwrite=True)
 
-    platform = MultipleChoice(description="For which kind of operating systems is the tool available?",
+    platforms = MultipleChoice(description="For which kind of operating systems is the tool available?",
                               choices={'windows': 'Windows',
                                        'linux': 'Linux',
                                        'macos': 'macOS'},

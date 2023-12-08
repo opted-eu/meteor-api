@@ -170,7 +170,8 @@
             {
                 "_unique_name": "author_adamsmith_qut",
                 "uid": "_:author_adamsmith_qut",
-                "authors|sequence": 0
+                "authors|sequence": 0,
+                "name": "Adam Smith"
             }
         ],
         "tools": [
@@ -227,7 +228,8 @@
             {
                 "_unique_name": "author_tillkeyling",
                 "uid": "_:author_tillkeyling",
-                "authors|sequence": 1
+                "authors|sequence": 1,
+                "name": "Till Keyling"
             },
             {
                 "uid": "_:author_0000000318606695",
@@ -470,7 +472,8 @@
                 "_unique_name": "author_michellefullwood",
                 "uid": "_:author_michellefullwood",
                 "_date_created": "2023-09-25T15:56:33.887799Z",
-                "authors|sequence": 0
+                "authors|sequence": 0,
+                "name": "Michael Fullwood"
             }
         ],
         "tools": [
@@ -575,7 +578,8 @@
             {
                 "_unique_name": "author_francois_briatteuvnhwt73",
                 "uid": "_:author_francois_briatteuvnhwt73",
-                "authors|sequence": 4
+                "authors|sequence": 4, 
+                "name": "Francois Briatte"
             },
             {
                 "_unique_name": "author_0000000197472570",
