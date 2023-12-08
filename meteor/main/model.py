@@ -571,6 +571,18 @@ class Person(Entry):
     url = String(
         label="URL", description="Website related_news_sources to the person",
         directives=["@index(hash)"])
+    
+    publishes = ListRelationship(relationship_constraint='NewsSource',
+                                 overwrite=True,
+                                 description='Which news sources does this person publish?',
+                                 render_kw={'placeholder': 'Type to search existing news sources and add multiple...'})
+
+    owns = ListRelationship(allow_new=True,
+                            relationship_constraint='Organization',
+                            overwrite=True,
+                            description='Which organisations are owned by this person?',
+                            render_kw={'placeholder': 'Type to search existing organisations and add multiple...'})
+
 
 
 class Channel(Entry):
