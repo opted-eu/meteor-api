@@ -133,9 +133,6 @@ def get_names(wikidata_id: str) -> dict:
         print('Problem getting short name at', wikidata_id)
     return result
 
-client_stub = pydgraph.DgraphClientStub('localhost:9080')
-client = pydgraph.DgraphClient(client_stub)
-
 # Load Data from Excel sheet
 xlsx = p / 'data' / 'OPTED Taxonomy.xlsx'
 
@@ -251,7 +248,7 @@ newssource_template = {
 # Step 1: resolve country names
 
 query_string = '''query countries($country: string) {
-    q(func: match(name, $country, 2)) @filter(type(Country) OR type(Multinational)) { uid _unique_name iso_3166_1_2 } 
+    q(func: match(name, $country, 1)) @filter(type(Country) OR type(Multinational)) { uid _unique_name iso_3166_1_2 } 
 }'''
 
 countries = df_parties.country.unique().tolist()
