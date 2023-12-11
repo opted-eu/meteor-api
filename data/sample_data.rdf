@@ -453,9 +453,9 @@
         _:amcat <version> "4" .
         _:amcat <open_source> "yes" .
         _:amcat <conditions_of_access> "free" .
-        _:amcat <platorm> "windows" .
-        _:amcat <platorm> "macos" .
-        _:amcat <platorm> "linux" .
+        _:amcat <platform> "windows" .
+        _:amcat <platform> "macos" .
+        _:amcat <platform> "linux" .
         _:amcat <graphical_user_interface> "true" .
         
         _:wouter <name> "Wouter van Atteveldt" .

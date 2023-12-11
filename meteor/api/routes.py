@@ -916,11 +916,14 @@ def view_unique_name(unique_name: str) -> t.Union[Entry, PoliticalParty,
                                   Collection,
                                   LearningMaterial]:
     """ detail view of a single entry by unique name (human readable ID) """
-        
-    data = get_preview(unique_name=unique_name)
+    
+    try:
+        data = get_preview(unique_name=unique_name)
+    except:
+        return api.abort(404, message=f'The requested entry with "_unique_name" <{unique_name}> could not be found!')
 
     if not data:
-        return api.abort(404, message=f'The requested entry "{unique_name}" could not be found!')
+        return api.abort(404, message=f'The requested entry with "_unique_name" <{unique_name}> could not be found!')
     
     current_user = jwtx.current_user or AnonymousUser()
     if not can_view(data, current_user):
