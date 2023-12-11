@@ -1015,6 +1015,7 @@ class Tool(Entry):
                                 autoload_choices=True,
                                 allow_new=True,
                                 required=True,
+                                predicate_alias=['methodologies'],
                                 queryable=True)
 
     concept_variables = ListRelationship(description="Which concepts can the tool measure (e.g. sentiment, frames, etc)",
@@ -1165,6 +1166,7 @@ class ScientificPublication(Entry):
                                      relationship_constraint="Operation",
                                      autoload_choices=True,
                                      queryable=True,
+                                     predicate_alias=['used_for'],
                                      allow_new=True)
 
     concept_variables = ListRelationship(description="concepts investigated in this publication",
