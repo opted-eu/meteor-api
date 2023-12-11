@@ -96,28 +96,26 @@ def create_app(config_class=Config, config_json=None):
             app.logger.error(f'Slack Logging not working: {e}')
 
     app.config['APP_VERSION'] = __version__
-    if app.debug:
-        cors = CORS(app , resources={r"/*": {"origins": "*", "allow_headers": "*", "expose_headers": "*"}})
-    else:
-        CORS(app)
     
-
-    from meteor.users.routes import users
-    from meteor.view.routes import view
-    from meteor.add.routes import add
-    from meteor.edit.routes import edit
-    from meteor.review.routes import review
-    from meteor.endpoints.routes import endpoint
-    from meteor.main.routes import main
-    from meteor.errors.handlers import errors
-    app.register_blueprint(users, url_prefix='/legacy')
-    app.register_blueprint(view, url_prefix='/legacy')
-    app.register_blueprint(add, url_prefix='/legacy')
-    app.register_blueprint(edit, url_prefix='/legacy')
-    app.register_blueprint(review, url_prefix='/legacy')
-    app.register_blueprint(endpoint, url_prefix='/legacy')
-    app.register_blueprint(main, url_prefix='/legacy')
-    app.register_blueprint(errors, url_prefix='/legacy')
+    cors = CORS(app , resources={r"/*": {"origins": "*", "allow_headers": "*", "expose_headers": "*"}})
+    
+    if app.debug:
+        from meteor.users.routes import users
+        from meteor.view.routes import view
+        from meteor.add.routes import add
+        from meteor.edit.routes import edit
+        from meteor.review.routes import review
+        from meteor.endpoints.routes import endpoint
+        from meteor.main.routes import main
+        from meteor.errors.handlers import errors
+        app.register_blueprint(users, url_prefix='/legacy')
+        app.register_blueprint(view, url_prefix='/legacy')
+        app.register_blueprint(add, url_prefix='/legacy')
+        app.register_blueprint(edit, url_prefix='/legacy')
+        app.register_blueprint(review, url_prefix='/legacy')
+        app.register_blueprint(endpoint, url_prefix='/legacy')
+        app.register_blueprint(main, url_prefix='/legacy')
+        app.register_blueprint(errors, url_prefix='/legacy')
 
     jwt.init_app(app)
 
