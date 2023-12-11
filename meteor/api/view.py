@@ -102,7 +102,8 @@ def get_entry(unique_name: str = None, uid: str = None, dgraph_type: t.Union[str
         except Exception as e:
             logger.debug(f'Could not append authors: {e}')
 
-    if dgraph_type in ['Channel', 'Country', 'Multinational', 'Subnational']:
+    if dgraph_type in ['Channel', 'Country', 'Multinational', 'Subnational', 
+                       'TextType', 'Modality', 'Operation', 'Language', 'ProgrammingLanguage']:
         query_string = 'query getCounts($uid: string) { q(func: uid($uid)) {\n'
         for predicate, dtype in Schema.get_reverse_relationships(dgraph_type):
             query_string += f'num_{dtype.lower()}: ~{predicate} @filter(eq(entry_review_status, "accepted") AND type({dtype})) {{ count(uid) }}\n'

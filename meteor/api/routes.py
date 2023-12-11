@@ -966,7 +966,9 @@ def view_reverse_relationships(uid: str) -> ReverseRelationships:
     dgraph_type = dgraph.get_dgraphtype(uid)
     if not dgraph_type:
         return api.abort(404)
-    if dgraph_type in ['Channel', 'Country', 'Multinational', 'Language']:
+    if dgraph_type in ['Channel', 'Country', 'Multinational', 
+                       'Language', 'ProgrammingLanguage', 'TextType', 
+                       'Modality', 'Operation', 'Language']:
         return api.abort(400, f'Cannot perform this operation on dgraph.type <{dgraph_type}>. Try using the "/query" endpoint instead.')
 
     data = get_preview(uid=uid)
