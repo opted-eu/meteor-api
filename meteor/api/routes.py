@@ -6,35 +6,13 @@ General Notes:
 - UIDs are DGraphs internal unique ids for entries. 
     They are always represented as hex values (e.g., `0x12a`). 
     The API expects UIDs formatted as strings. Therefore, just treat UIDs as strings.
-- `_unique_name` is the externally used unique id for entries.
+- `_unique_name` (also known as "OPTED ID") is the externally used unique id for entries.
     Unique names are human-readable and assigned by the system automatically.
     They generally follow the pattern: `dgraph type` + `country` + `name` + `date added`.
     Unique names are all lowercase and also do not contain spaces, only ascii characters, and
     are separated by an underscore.
 - Predicates (you could also call them "variables", "fields", or "attributes") starting with an
     underscore are system-managed (e.g., `_date_created`) and cannot be edited by users.
-
-
-Currently work in progress.
-
-Implemented:
-- View
-- External
-- Lookup
-- Query
-- Quicksearch
-- Schema
-- Login Routine
-- Add
-- Edit
-- Review
-- User actions
-- Commenting
-- Admin actions
-- Recommender system (**NEW**)
-- Follow Types and Entries (**NEW**)
-- Notifications (**NEW**)
-
 
 """
 
@@ -424,7 +402,7 @@ def schema() -> dict:
                     "email": "info@opted.eu"
                 },
                 "license": {
-                    "name": "GPL-3.0",
+                    "name": "CC-BY-SA 4.0",
                 },
                 "version": current_app.config['APP_VERSION']
             },
