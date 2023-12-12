@@ -1370,10 +1370,8 @@ class Modality(Entry):
 
 class Collection(Entry):
 
-    """ A collection of entities by users 
-        (e.g. list of right-wing populist parties in Europe; 
-        Christian Baden's favourite tools for topic modelling in Hebrew; 
-        Banducci's list of most important media outlets in the UK)
+    """ 
+        A user created collection of entries.
     """
 
     name = String(
