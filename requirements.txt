@@ -40,3 +40,4 @@ tqdm
 thefuzz
 flask-jwt-extended
 flask-cors
+gunicorn
