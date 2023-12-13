@@ -4,7 +4,7 @@ click
 colorama
 dnspython
 email-validator
-Flask[async]
+Flask[async]==2.3.3
 Flask-Babel
 Flask-Email
 Flask-Login
