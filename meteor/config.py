@@ -33,7 +33,10 @@ class Config:
 
     INSTAGRAM_USERNAME = os.environ.get("INSTAGRAM_USERNAME", None)
     INSTAGRAM_PASSWORD = os.environ.get("INSTAGRAM_PASSWORD", None)
-
+    ORCID_CLIENT_ID = os.environ.get('ORCID_CLIENT_ID', None)
+    ORCID_CLIENT_SECRET = os.environ.get('ORCID_CLIENT_SECRET', None)
+    ORCID_ACCESS_TOKEN = os.environ.get('ORCID_ACCESS_TOKEN', None)
+    ORCID_REFRESH_TOKEN = os.environ.get('ORCID_REFRESH_TOKEN', None)
 
 """ Configure Logging """
 
