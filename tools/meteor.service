@@ -1,6 +1,6 @@
 # /etc/systemd/system/meteor.service
 [Unit]
-Description=Flask WP3 Inventory (Gunicorn)
+Description=Meteor API
 After=network.target
 
 [Service]
@@ -8,7 +8,7 @@ Type=simple
 User=ava
 Group=www-data
 WorkingDirectory=/home/ava/wp3inventory
-ExecStart=/home/ava/environments/wp3/bin/gunicorn --workers 8 --bind unix:meteor.sock -m 007 meteor:create_app()
+ExecStart=/home/ava/meteor-api/.venv/bin/gunicorn --workers 8 --bind unix:meteor.sock -m 007 meteor:create_app()
 Restart=always
 Environment="meteor_SECRETKEY=123456789"
 Environment="PREFERRED_URL_SCHEME=https"
@@ -18,8 +18,6 @@ Environment="TWITTER_CONSUMER_KEY="
 Environment="TWITTER_CONSUMER_SECRET="
 Environment="TWITTER_ACCESS_TOKEN="
 Environment="TWITTER_ACCESS_SECRET="
-
-
 
 [Install]
 WantedBy=multi-user.target
