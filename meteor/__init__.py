@@ -20,7 +20,7 @@ from flask_mail import Mail
 # from flask_wtf.csrf import CSRFProtect
 
 # Markdown Rendering
-from flaskext.markdown import Markdown
+from meteor.misc.markdown import Markdown
 from markdown.extensions.toc import TocExtension
 
 # Custom Dgraph Extension
