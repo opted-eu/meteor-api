@@ -14,6 +14,18 @@ General Notes:
 - Predicates (you could also call them "variables", "fields", or "attributes") starting with an
     underscore are system-managed (e.g., `_date_created`) and cannot be edited by users.
 
+**Acknowledgements and Disclaimer**
+
+This project has received funding from the European Union’s Horizon 2020 
+research & innovation programme under grant agreement No 951832. 
+The document reflects only the authors’ views. The European Union is not 
+liable for any use that may be made of the information contained herein.
+
+Although the information found on this system has been produced and processed 
+from sources believed to be reliable, no warranty, express or implied, 
+is made regarding accuracy, adequacy, completeness, legality, reliability or 
+usefulness of any information.
+    
 """
 
 import typing as t

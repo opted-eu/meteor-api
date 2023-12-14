@@ -1,8 +1,8 @@
 # Introduction
 
-This is the code repository for *Meteor* (the WP3 Inventory), which will contain an interlinked knowledge graph of news sources, media organizations, and data archives in Europe (for details see the [OPTED main page](https://opted.eu/)). Currently, this is a prototype / work in progress.
+This is the code repository for *Meteor* (specifically the Meteor API server), which contains an interlinked knowledge graph of polticial parties, datasets, news sources, organizations, tools and much more (for details see the [OPTED main page](https://opted.eu/)). 
 
-*Meteor* is a web based application that allows users to
+*Meteor* is an API that allows other applications to interact with the database:
 
 - browse & query the *Meteor* database
 - Add new entries to the database
@@ -10,12 +10,13 @@ This is the code repository for *Meteor* (the WP3 Inventory), which will contain
 
 ## Technical Details
 
-- developed in the Python framework [Flask](https://flask.palletsprojects.com/en/2.0.x/) (version 2.0.x)
+- developed in the Python framework [Flask](https://flask.palletsprojects.com/en/2.3.x/) (version 2.3.x)
 - uses [DGraph](https://dgraph.io/) as backend / data storage
 
 # Getting started
 
 1. Clone the repository
+2. create a new virtual environment with `python3 -m venv .venv` and activate it with `source .venv/bin/activate` 
 2. Install the requirements via pip (`python3 -m pip install -r requirements.txt`)
 3. Install DGraph on your local machine (see [official documentation](https://dgraph.io/downloads/))
 4. Launch your local DGraph instances (alpha and zero)
@@ -25,11 +26,22 @@ This is the code repository for *Meteor* (the WP3 Inventory), which will contain
 7. Add sample data to your DGraph instance using `python3 tools/sample_data.py`
 8. Open your browser at your localhost with port 5000 (http://127.0.0.1:5000)
 
+## Run Tests
+
+Make sure you set the schema and loaded the sample data to dgraph (see above)
+
+- Test the API with `python3 tests/test_api.py`
+- External services with `python3 tests/test_external.py` (make sure you have all API keys)
+- DOI resolution / ORCID tests with `python3 tests/test_doi.py`
+- additionally, can test: schema, notification, api_sanitizer, and queries.
+
+Other tests might be removed later
+
 # Quick Codebase Walkthrough
 
 ```
 ├── data                  # contains sample data in various formats and the dgraph schem
-├── meteor        # root folder for flask
+├── meteor                # root folder for flask
 ├── README.md             # this file
 ├── requirements.txt      # python requirements
 ├── run.py                # Flask launcher
@@ -51,15 +63,6 @@ Level | Name | Permissions
 1     | Contributor  | Add entries
 2     | Reviewer | + Review & Edit Entries, Invite Users
 10    | Admin   | + Change User Permissions 
-
-
-## Web Dependencies
-
-- Bootstrap 5
-- Font Awesome
-- Tom-Select
-- jquery typeahead
-- [bibtex-js](https://github.com/digitalheir/bibtex-js)
 
 ## Backups
 
@@ -96,3 +99,7 @@ Add it as cronjob with `crontab -e`
 ### Restore Backup
 
 - Get backup files and run the following command: `dgraph live --files g01.rdf.gz --schema g01.schema --zero localhost:5080`
+
+# Acknowledgements
+
+This project has received funding from the European Union’s Horizon 2020 research & innovation programme under grant agreement No 951832. The document reflects only the authors’ views. The European Union is not liable for any use that may be made of the information contained herein.
