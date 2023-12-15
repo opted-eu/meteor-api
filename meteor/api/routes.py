@@ -1182,7 +1182,10 @@ def query(_max_results: int = 25, _page: int = 1, _terms: str = None) -> t.List[
             for item in result:
                 if 'Entry' in item['dgraph.type']:
                     item['dgraph.type'].remove('Entry')
-        recursive_restore_sequence(result)
+        try:
+            recursive_restore_sequence(result)
+        except Exception as e:
+            current_app.logger.error(f'Could not restore sequence. \nData: {result}.\nError: {e}')
 
         return jsonify(result)
     else:
