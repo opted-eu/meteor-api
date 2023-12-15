@@ -1458,6 +1458,7 @@ class LearningMaterial(Entry):
                                      queryable=True,
                                      relationship_constraint="Operation",
                                      allow_new=True,
+                                     predicate_alias=['used_for'],
                                      autoload_choices=True)
 
     tools = ListRelationship(description="Which tools are related to this learning material?",
