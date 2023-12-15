@@ -1885,7 +1885,7 @@ def verify_email(token: str) -> SuccessfulAPIOperation:
         return api.abort(400, message="You are already logged in.")
 
     user = User.verify_email_token(token)
-    if user is None:
+    if not user:
         return api.abort(400, message='That is an invalid or expired token! Please contact us if you experiencing issues.')
     dgraph.update_entry({'_account_status': 'active'}, uid=user.id)
     return jsonify({'status': 200, 'message': 'Email verified! You can now try to log in'})
