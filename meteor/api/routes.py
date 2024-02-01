@@ -1286,7 +1286,6 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
         data = dql.QueryBlock(dql.uid("field1, field2, field3, field4"),
                             fetch=['uid', 
                                    '_unique_name', 
-                                   'name',
                                    'name@*',
                                    'name_abbrev',
                                    'name_abbrev@*',
@@ -1309,7 +1308,6 @@ def lookup(query: str = None, predicate: str = None, dgraph_types: t.List[str] =
         query_variable_lower = dql.GraphQLVariable(query_lower=query.lower())
         fetch = ['uid', 
                 '_unique_name', 
-                'name', 
                 'name@*',
                 'name_abbrev',
                 'name_abbrev@*',
