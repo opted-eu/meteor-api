@@ -1795,6 +1795,8 @@ def refresh_token() -> AccessToken:
 
         You get a new access token back, alongside its expiration date. If the refresh token
         is too old (usually 30 days), then a complete fresh login is required.
+
+        To get a new refresh token, a new login is required.
      
       
     """

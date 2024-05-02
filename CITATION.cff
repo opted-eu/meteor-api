@@ -1,4 +1,4 @@
-cff-version: "2.0.0.beta1"
+cff-version: "2.0.0"
 message: "If you use the data in Meteor, please use the following citation."
 authors:
 - family-names: "Balluff"
