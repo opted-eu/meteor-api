@@ -52,7 +52,9 @@ def get_overview(dgraph_type: str = None,
                         country {{ uid _unique_name name }} 
                         countries {{ uid _unique_name name }}
                         channel {{ uid _unique_name name }}
-                        channels {{ uid _unique_name name }} '''
+                        channels {{ uid _unique_name name }} 
+                        text_types {{ uid unique_name name }}
+                    '''
 
    
     query_head = ''

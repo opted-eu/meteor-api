@@ -1588,7 +1588,16 @@ def overview(dgraph_type: str = None,
              country: str = None, 
              text_type: str = None,
              user: str = None) -> t.List[Entry]:
-    """ Get an overview of all entries that need to be reviewed """
+    """ 
+        Get an overview of all entries that need to be reviewed 
+    
+        Simple filters can be applied. `dgraph_type` requires a string representation of
+        the type you want to filter by (e.g., `Parliament`). The fields `country`, `text_type`, 
+        and `user` expect a UID for filtering.
+
+        The return objects also contain the keys which they were filtered by, i.e., 
+        `added_by`, `country`, `countries`, `channel`, `channels`, `text_types`
+    """
 
     if jwtx.current_user.role < USER_ROLES.Reviewer:
         return api.abort(403, message="You need to be a reviewer to view this route.")
