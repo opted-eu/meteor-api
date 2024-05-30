@@ -733,6 +733,30 @@ class TestAPILoggedOut(BasicTestSetup):
                                    'alternate_names': ["DerStandard", "DER STANDARD"]})
             self.assertNotEqual(res, False)
 
+            # delete string contents
+            data = {'data': {
+                'description': ""
+            }}
+
+            res = c.post('/api/edit/' + self.fileformat_csv,
+                         json=data,
+                         headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in in ['admin', 'reviewer']:
+                self.assertEqual(res.json['uid'], self.fileformat_csv)
+                q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { description } }',
+                                 variables={'$uid': self.fileformat_csv})
+                print(q)
+                self.assertEqual(len(q['q']), 0)
+            else:
+                self.assertEqual(res.status_code, 403)
+
+            # clean up
+            res = dgraph.mutation({'uid': self.fileformat_csv,
+                                   'description': "delimited text file that uses a comma to separate values"})
+            self.assertNotEqual(res, False)
+
     def test_new_learning_material(self):
         sample_data = {
             "authors": ["0000-0002-0387-5377", "0000-0001-5971-8816"],
@@ -816,29 +840,6 @@ class TestAPILoggedOut(BasicTestSetup):
                                        {"uid": self.programming_r},
                                        {"uid": self.programming_julia}
                                    ]})
-            self.assertNotEqual(res, False)
-
-            # delete list predicates
-            data = {'data': {
-                'alternate_names': None
-            }}
-
-            res = c.post('/api/edit/' + self.derstandard_print,
-                         json=data,
-                         headers=self.headers)
-            if not self.logged_in:
-                self.assertEqual(res.status_code, 401)
-            elif self.logged_in in ['admin', 'reviewer']:
-                self.assertEqual(res.json['uid'], self.derstandard_print)
-                q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { alternate_names } }',
-                                 variables={'$uid': self.derstandard_print})
-                self.assertEqual(len(q['q']), 0)
-            else:
-                self.assertEqual(res.status_code, 403)
-
-            # clean up
-            res = dgraph.mutation({'uid': self.derstandard_print,
-                                   'alternate_names': ["DerStandard", "DER STANDARD"]})
             self.assertNotEqual(res, False)
 
     """ Review Routes """
