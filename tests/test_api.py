@@ -1,15 +1,13 @@
 # Ugly hack to allow absolute import from the root folder
 # whatever its name is. Please forgive the heresy.
-
-from meteor.main.model import User
-from meteor import dgraph
-from test_setup import BasicTestSetup
 from sys import path
 from os.path import dirname
-from flask import request
-import unittest
-
 path.append(dirname(path[0]))
+
+from test_setup import BasicTestSetup
+from meteor import dgraph
+from meteor.main.model import User
+import unittest
 
 
 class TestAPILoggedOut(BasicTestSetup):

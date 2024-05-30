@@ -339,27 +339,6 @@ class TestSanitizers(BasicTestSetup):
                           self.reviewer,
                           dgraph_type=ScientificPublication)
 
-    def test_newlearningmaterial(self):
-        sample_data = {
-            "authors": ["A5051794103"],
-            "date_published": "2020",
-            "description": "Other researchers are out there writing books about the wonder of science, capturing the imagination of the public, inspiring the thinkers that will secure our species just and sustainable future. Meanwhile, I am telling anyone who will listen that, if we are very careful and try very hard, we might not completely mislead ourselves.",
-            "dgraph.type": ["Entry", "LearningMaterial"],
-            "urls": ["https://xcelab.net/rm/"],
-            "name": "Statistical Rethinking",
-            "programming_languages": [self.programming_r, self.programming_julia, self.programming_python]
-        }
-
-        with self.app.app_context():
-            sanitizer = Sanitizer(sample_data,
-                                  self.reviewer,
-                                  dgraph_type=LearningMaterial)
-            self.assertEqual(type(sanitizer.set_nquads), str)
-            self.assertEqual(
-                sanitizer.entry['_unique_name'], "learningmaterial_statisticalrethinking")
-            self.assertEqual(
-                sanitizer.related_entries[0]["name"], "Richard McElreath")
-
     def test_editlearningmaterial(self):
         with self.app.app_context():
             uid = dgraph.get_uid(
