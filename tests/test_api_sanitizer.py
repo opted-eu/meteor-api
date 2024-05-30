@@ -2,36 +2,31 @@
 #  Ugly hack to allow absolute import from the root folder
 # whatever its name is. Please forgive the heresy.
 
+from meteor.users.dgraph import AnonymousUser
+from meteor.errors import InventoryValidationError, InventoryPermissionError
+from meteor.api.sanitizer import Sanitizer
+from meteor.main.model import Organization, NewsSource, User, ScientificPublication, LearningMaterial
+from meteor.flaskdgraph.dgraph_types import Scalar
+import datetime
+import copy
+from unittest.mock import patch
+import unittest
+from meteor import dgraph
+from test_setup import BasicTestSetup
 from sys import path
 from os.path import dirname
 
 path.append(dirname(path[0]))
-from test_setup import BasicTestSetup
-from meteor import dgraph
 
-import unittest
-from unittest.mock import patch
-import copy
-import secrets
-import datetime
-from meteor.flaskdgraph import Schema
-from meteor.flaskdgraph.dgraph_types import UID, Scalar
-from meteor.main.model import Entry, Organization, NewsSource, User, ScientificPublication
-from meteor.api.sanitizer import Sanitizer
-from meteor.errors import InventoryValidationError, InventoryPermissionError
-from meteor import create_app, dgraph
-from meteor.users.constants import USER_ROLES
-from meteor.users.dgraph import AnonymousUser
-from flask_login import current_user
-import flask_jwt_extended as jwtx
 
 def mock_wikidata(*args):
-    return {'wikidata_id': "Q49653", 
-            'alternate_names': [], 
-            'date_founded': datetime.datetime(1950, 6, 5, 0, 0), 
+    return {'wikidata_id': "Q49653",
+            'alternate_names': [],
+            'date_founded': datetime.datetime(1950, 6, 5, 0, 0),
             'address': 'Stuttgart'}
 
-@patch('meteor.main.sanitizer.get_wikidata', mock_wikidata) 
+
+@patch('meteor.main.sanitizer.get_wikidata', mock_wikidata)
 class TestSanitizers(BasicTestSetup):
 
     """
@@ -100,7 +95,6 @@ class TestSanitizers(BasicTestSetup):
 
             with self.assertRaises(InventoryPermissionError):
                 Sanitizer(self.mock_data2, AnonymousUser())
-        
 
     def test_list_facets(self):
         mock_data = {
@@ -123,7 +117,7 @@ class TestSanitizers(BasicTestSetup):
             self.assertTrue(
                 hasattr(sanitizer.entry['alternate_names'][0], "facets"))
             self.assertEqual(sanitizer.entry['alternate_names'][0].facets, {
-                                'kind': 'first'})
+                'kind': 'first'})
             self.assertIn(
                 '<alternate_names> "Jay Jay" (kind="first")', sanitizer.set_nquads)
 
@@ -132,7 +126,7 @@ class TestSanitizers(BasicTestSetup):
             self.assertTrue(
                 hasattr(sanitizer.entry['alternate_names'][1], "facets"))
             self.assertEqual(sanitizer.entry['alternate_names'][1].facets, {
-                                'kind': 'official'})
+                'kind': 'official'})
             self.assertIn(
                 '<alternate_names> "Jules" (kind="official")', sanitizer.set_nquads)
 
@@ -141,9 +135,9 @@ class TestSanitizers(BasicTestSetup):
             self.assertTrue(
                 hasattr(sanitizer.entry['alternate_names'][2], "facets"))
             self.assertEqual(sanitizer.entry['alternate_names'][2].facets, {
-                                'kind': 'CS-GO'})
+                'kind': 'CS-GO'})
             self.assertIn('<alternate_names> "JB" (kind="CS-GO")',
-                            sanitizer.set_nquads)
+                          sanitizer.set_nquads)
 
     def test_edit_entry(self):
 
@@ -183,10 +177,11 @@ class TestSanitizers(BasicTestSetup):
                 dgraph_type=Organization)
             self.assertEqual(sanitizer.is_upsert, False)
             self.assertCountEqual(sanitizer.entry['dgraph.type'], [
-                                    'Entry', 'Organization'])
+                'Entry', 'Organization'])
             self.assertEqual(
                 sanitizer.entry['entry_review_status'], 'pending')
-            self.assertEqual(sanitizer.entry['_unique_name'], 'organization_de_deutschebank')
+            self.assertEqual(
+                sanitizer.entry['_unique_name'], 'organization_de_deutschebank')
             self.assertIsNotNone(sanitizer.set_nquads)
             self.assertIsNone(sanitizer.delete_nquads)
             # WikiDataID for Deutsche Bank
@@ -196,15 +191,16 @@ class TestSanitizers(BasicTestSetup):
             mock_org = copy.deepcopy(self.mock_organization)
             mock_org.pop('address')
             sanitizer = Sanitizer(
-                mock_org, 
+                mock_org,
                 self.contributor,
                 dgraph_type=Organization)
             self.assertEqual(sanitizer.is_upsert, False)
             self.assertCountEqual(sanitizer.entry['dgraph.type'], [
-                                    'Entry', 'Organization'])
+                'Entry', 'Organization'])
             self.assertEqual(
                 sanitizer.entry['entry_review_status'], 'pending')
-            self.assertEqual(sanitizer.entry['_unique_name'], 'organization_de_deutschebank')
+            self.assertEqual(
+                sanitizer.entry['_unique_name'], 'organization_de_deutschebank')
             self.assertIsNotNone(sanitizer.set_nquads)
             self.assertIsNone(sanitizer.delete_nquads)
 
@@ -227,10 +223,10 @@ class TestSanitizers(BasicTestSetup):
                           self.derstandard_twitter,
                           self.www_derstandard_at]
         }
-   
+
         with self.app.app_context():
             sanitizer = Sanitizer.edit(
-                mock_org_edit, 
+                mock_org_edit,
                 self.reviewer,
                 dgraph_type=Organization)
             self.assertCountEqual(
@@ -243,7 +239,7 @@ class TestSanitizers(BasicTestSetup):
             mock_org_edit['country'] = self.germany_uid
             mock_org_edit['date_founded'] = '2010'
             sanitizer = Sanitizer.edit(
-                mock_org_edit, 
+                mock_org_edit,
                 self.reviewer,
                 dgraph_type=Organization)
             self.assertEqual(len(sanitizer.entry['publishes']), 4)
@@ -253,20 +249,20 @@ class TestSanitizers(BasicTestSetup):
 
         # this is a raw dgraph mutation
         new_draft = {'uid': '_:newdraft',
-                      'dgraph.type': 'NewsSource',
-                      'channel': {'uid': self.channel_print},
-                      'channel_unique_name': 'print',
-                      'name': 'Schwäbische Post',
-                      '_unique_name': 'newssource_germany_schwaebischepost_print',
-                      'publication_kind': 'newspaper',
-                      'geographic_scope': 'subnational',
-                      'countries': {'uid': self.germany_uid},
-                      'languages': {'uid': self.lang_german},
-                      'entry_review_status': 'draft',
-                      '_added_by': {'uid': self.reviewer.uid}}
+                     'dgraph.type': 'NewsSource',
+                     'channel': {'uid': self.channel_print},
+                     'channel_unique_name': 'print',
+                     'name': 'Schwäbische Post',
+                     '_unique_name': 'newssource_germany_schwaebischepost_print',
+                     'publication_kind': 'newspaper',
+                     'geographic_scope': 'subnational',
+                     'countries': {'uid': self.germany_uid},
+                     'languages': {'uid': self.lang_german},
+                     'entry_review_status': 'draft',
+                     '_added_by': {'uid': self.reviewer.uid}}
 
         # create a mock draft entry
-      
+
         with self.app.app_context():
             res = dgraph.mutation(new_draft)
             # get the UID of the mock draft
@@ -274,31 +270,31 @@ class TestSanitizers(BasicTestSetup):
 
         # this is a dict that needs to be sanitized
         edited_draft = {'uid': uid,
-                      'channel': self.channel_print,
-                      'channel_unique_name': 'print',
-                      'name': 'Schwäbische Post',
-                      'date_founded': '2000',
-                      'publication_kind': 'newspaper',
-                      'special_interest': 'no',
-                      'publication_cycle': 'continuous',
-                      'geographic_scope': 'subnational',
-                      'countries': self.germany_uid,
-                      'languages': [self.lang_german],
-                      'payment_model': 'partly free',
-                      'contains_ads': 'non subscribers',
-                      'publishes_org': self.derstandard_mbh_uid,
-                      'related_news_sources': [self.falter_print_uid],
-                      'entry_review_status': 'pending'}
-        
+                        'channel': self.channel_print,
+                        'channel_unique_name': 'print',
+                        'name': 'Schwäbische Post',
+                        'date_founded': '2000',
+                        'publication_kind': 'newspaper',
+                        'special_interest': 'no',
+                        'publication_cycle': 'continuous',
+                        'geographic_scope': 'subnational',
+                        'countries': self.germany_uid,
+                        'languages': [self.lang_german],
+                        'payment_model': 'partly free',
+                        'contains_ads': 'non subscribers',
+                        'publishes_org': self.derstandard_mbh_uid,
+                        'related_news_sources': [self.falter_print_uid],
+                        'entry_review_status': 'pending'}
+
         with self.app.app_context():
             # test if random user can edit
             with self.assertRaises(InventoryPermissionError):
-                sanitizer = Sanitizer.edit(edited_draft, 
-                                           self.contributor, 
+                sanitizer = Sanitizer.edit(edited_draft,
+                                           self.contributor,
                                            dgraph_type=NewsSource)
-                
+
             # test if owner can edit
-            sanitizer = Sanitizer.edit(edited_draft, 
+            sanitizer = Sanitizer.edit(edited_draft,
                                        self.reviewer,
                                        dgraph_type=NewsSource)
             self.assertIn("<_edited_by>", sanitizer.set_nquads)
@@ -309,39 +305,81 @@ class TestSanitizers(BasicTestSetup):
             res = dgraph.delete({'uid': uid})
 
     def test_newscientificpublication(self):
-        sample_data =  {
-                        "authors": ["A5039380414", "A5034823602", "A5055204791"],
-                        "conditions_of_access": "free",
-                        "countries": [self.spain_uid],
-                        "date_published": "2015",
-                        "description": "Data set analysing the sentiment of 2,704,523 tweets referring to Spanish politicians and parties between December 3rd, 2014 and January 12th, 2005.",
-                        "dgraph.type": ["Entry", "Dataset"],
-                        "doi": "10.1177/0165551515598926",
-                        "url": "https://doi.org/10.1177/0165551515598926",
-                        "file_formats": [self.fileformat_csv],
-                        "fulltext_available": True,
-                        "geographic_scope": "national",
-                        "languages": [self.lang_spanish],
-                        "title": "The megaphone of the people? Spanish SentiStrength for real-time analysis of political tweets",
-                        "temporal_coverage_end": "2015-01-12",
-                        "temporal_coverage_start": "2014-12-03",
-                    }
+        sample_data = {
+            "authors": ["A5039380414", "A5034823602", "A5055204791"],
+            "conditions_of_access": "free",
+            "countries": [self.spain_uid],
+            "date_published": "2015",
+            "description": "Data set analysing the sentiment of 2,704,523 tweets referring to Spanish politicians and parties between December 3rd, 2014 and January 12th, 2005.",
+            "dgraph.type": ["Entry", "Dataset"],
+            "doi": "10.1177/0165551515598926",
+            "url": "https://doi.org/10.1177/0165551515598926",
+            "file_formats": [self.fileformat_csv],
+            "fulltext_available": True,
+            "geographic_scope": "national",
+            "languages": [self.lang_spanish],
+            "title": "The megaphone of the people? Spanish SentiStrength for real-time analysis of political tweets",
+            "temporal_coverage_end": "2015-01-12",
+            "temporal_coverage_start": "2014-12-03",
+        }
 
         with self.app.app_context():
-            sanitizer = Sanitizer(sample_data, 
+            sanitizer = Sanitizer(sample_data,
                                   self.reviewer,
                                   dgraph_type=ScientificPublication)
             self.assertEqual(type(sanitizer.set_nquads), str)
-            self.assertEqual(sanitizer.entry['_unique_name'], "david_vilares_et_al_2015_the_megaphone_of_the_people")
+            self.assertEqual(
+                sanitizer.entry['_unique_name'], "david_vilares_et_al_2015_the_megaphone_of_the_people")
 
             # test empty orderedlistrelationship
             # authors are required, so empty list should raise an error
             sample_data['authors'] = []
             with self.assertRaises(InventoryValidationError):
-                Sanitizer(sample_data, 
+                Sanitizer(sample_data,
                           self.reviewer,
                           dgraph_type=ScientificPublication)
 
+    def test_newlearningmaterial(self):
+        sample_data = {
+            "authors": ["A5051794103"],
+            "date_published": "2020",
+            "description": "Other researchers are out there writing books about the wonder of science, capturing the imagination of the public, inspiring the thinkers that will secure our species just and sustainable future. Meanwhile, I am telling anyone who will listen that, if we are very careful and try very hard, we might not completely mislead ourselves.",
+            "dgraph.type": ["Entry", "LearningMaterial"],
+            "urls": ["https://xcelab.net/rm/"],
+            "name": "Statistical Rethinking",
+            "programming_languages": [self.programming_r, self.programming_julia, self.programming_python]
+        }
+
+        with self.app.app_context():
+            sanitizer = Sanitizer(sample_data,
+                                  self.reviewer,
+                                  dgraph_type=LearningMaterial)
+            self.assertEqual(type(sanitizer.set_nquads), str)
+            self.assertEqual(
+                sanitizer.entry['_unique_name'], "learningmaterial_statisticalrethinking")
+            self.assertEqual(
+                sanitizer.related_entries[0]["name"], "Richard McElreath")
+
+    def test_editlearningmaterial(self):
+        with self.app.app_context():
+            uid = dgraph.get_uid(
+                "_unique_name", "learningmaterial_statisticalrethinking")
+
+        sample_data = {
+            "uid": uid,
+            "authors": ["A5066935756", "A5084520588"],
+            "programming_languages": [self.programming_rust]
+        }
+
+        with self.app.app_context():
+            sanitizer = Sanitizer.edit(sample_data,
+                                       self.reviewer,
+                                       dgraph_type=LearningMaterial)
+            self.assertEqual(type(sanitizer.set_nquads), str)
+            self.assertCountEqual(sanitizer.overwrite[sanitizer.entry_uid], [
+                                  "authors", "programming_languages"])
+            self.assertCountEqual(sanitizer.entry.keys(), [
+                                  "uid", "authors", "programming_languages", "_edited_by"])
 
 
 if __name__ == "__main__":

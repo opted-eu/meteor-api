@@ -1,15 +1,15 @@
 # Ugly hack to allow absolute import from the root folder
 # whatever its name is. Please forgive the heresy.
 
+from meteor.main.model import User
+from meteor import dgraph
+from test_setup import BasicTestSetup
 from sys import path
 from os.path import dirname
 from flask import request
 import unittest
 
 path.append(dirname(path[0]))
-from test_setup import BasicTestSetup
-from meteor import dgraph
-from meteor.main.model import User
 
 
 class TestAPILoggedOut(BasicTestSetup):
@@ -68,7 +68,7 @@ class TestAPILoggedOut(BasicTestSetup):
 
             response = c.get('/api/view/uid/0',
                              headers=self.headers)
-            
+
             self.assertEqual(response.status_code, 404)
 
             response = c.get('/api/view/uid/0xffffffffffffff',
@@ -96,7 +96,7 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(response.status_code, 200)
             else:
                 self.assertEqual(response.status_code, 200)
-                
+
             # view one's own entry
             mutation = dgraph.mutation(
                 {'uid': self.derstandard_print,
@@ -187,19 +187,19 @@ class TestAPILoggedOut(BasicTestSetup):
         with self.client as c:
 
             response = c.get('/api/view/entry/' + 'derstandard_mbh',
-                                headers=self.headers)
+                             headers=self.headers)
             self.assertEqual(response.status_code, 200)
 
             response = c.get('/api/view/entry/' + 'falter_print',
-                                 headers=self.headers)
+                             headers=self.headers)
             self.assertEqual(response.status_code, 200)
 
             response = c.get('/api/view/entry/' + 'instagram',
-                                 headers=self.headers)
+                             headers=self.headers)
             self.assertEqual(response.status_code, 200)
 
             response = c.get('/api/view/entry/' + 'austria',
-                                 headers=self.headers)
+                             headers=self.headers)
             self.assertEqual(response.status_code, 200)
 
     def test_view_recent(self):
@@ -207,20 +207,20 @@ class TestAPILoggedOut(BasicTestSetup):
 
             response = c.get('/api/view/recent',
                              headers=self.headers)
-            self.assertEqual(len(response.json), 5) 
+            self.assertEqual(len(response.json), 5)
 
             response = c.get('/api/view/recent',
                              query_string={'limit': 100},
                              headers=self.headers)
-            self.assertEqual(len(response.json), 50) 
+            self.assertEqual(len(response.json), 50)
 
             response = c.get('/api/view/recent',
                              query_string={'limit': -10},
                              headers=self.headers)
-            self.assertEqual(len(response.json), 1) 
+            self.assertEqual(len(response.json), 1)
 
     def test_view_comments(self):
-        
+
         with self.client as c:
             response = c.get('/api/view/comments/' + self.www_derstandard_at,
                              headers=self.headers)
@@ -228,16 +228,18 @@ class TestAPILoggedOut(BasicTestSetup):
             if not self.logged_in:
                 self.assertEqual(response.status_code, 401)
             else:
-                self.assertEqual(response.json[0]['_creator']['uid'], self.admin_uid)
-                self.assertEqual(response.json[1]['_creator']['uid'], self.reviewer_uid)
+                self.assertEqual(
+                    response.json[0]['_creator']['uid'], self.admin_uid)
+                self.assertEqual(
+                    response.json[1]['_creator']['uid'], self.reviewer_uid)
 
     def test_post_comments(self):
 
         with self.client as c:
-            response = c.post('/api/comment/post/' + self.derstandard_twitter, 
+            response = c.post('/api/comment/post/' + self.derstandard_twitter,
                               headers=self.headers,
                               json={'message': 'Testing Comment'})
-            
+
             if not self.logged_in:
                 self.assertEqual(response.status_code, 401)
             elif self.logged_in == 'Contributor':
@@ -248,7 +250,6 @@ class TestAPILoggedOut(BasicTestSetup):
             if 'uid' in response.json:
                 deleted = c.get('/api/comment/delete/' + response.json['uid'],
                                 headers=self.headers)
-                
 
     """ Search and Lookup """
 
@@ -273,7 +274,6 @@ class TestAPILoggedOut(BasicTestSetup):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.json), 1)
 
-    
     def test_lookup(self):
 
         # /quicksearch?term=bla&limit=10
@@ -285,20 +285,20 @@ class TestAPILoggedOut(BasicTestSetup):
             self.assertEqual(response.status_code, 400)
 
             response = c.get('/api/lookup', query_string={'query': 'derstandardat',
-                                                               'predicate': 'identifier',
-                                                               'dgraph_type': 'NewsSource'},
+                                                          'predicate': 'identifier',
+                                                          'dgraph_type': 'NewsSource'},
                              headers=self.headers)
 
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.json[0]['uid'], self.derstandard_instagram)
+            self.assertEqual(
+                response.json[0]['uid'], self.derstandard_instagram)
 
             response = c.get('/api/lookup', query_string={'query': "10.1080/1461670X.2020.1745667",
-                                                               'predicate': 'doi'},
+                                                          'predicate': 'doi'},
                              headers=self.headers)
 
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.json), 1)
-
 
     """ Query Routs """
 
@@ -311,12 +311,12 @@ class TestAPILoggedOut(BasicTestSetup):
                      }
 
             response = c.get('/api/query', query_string=query,
-                              headers=self.headers)
+                             headers=self.headers)
 
             self.assertEqual(len(response.json), 3)
 
             response = c.get('/api/query/count', query_string=query,
-                              headers=self.headers)
+                             headers=self.headers)
 
             self.assertEqual(response.json, 3)
 
@@ -326,14 +326,14 @@ class TestAPILoggedOut(BasicTestSetup):
             query = {'email': "wp3@opted.eu"}
 
             response = c.get('/api/query',
-                              query_string=query,
-                              headers=self.headers)
+                             query_string=query,
+                             headers=self.headers)
 
             self.assertEqual(response.json['status'], 400)
 
             query = {'display_name': "Contributor"}
 
-            response = c.get('/api/query/count', 
+            response = c.get('/api/query/count',
                              query_string=query,
                              headers=self.headers)
 
@@ -376,7 +376,7 @@ class TestAPILoggedOut(BasicTestSetup):
             response = c.get('/api/query',
                              query_string=query,
                              headers=self.headers)
-            
+
             res = [entry['_unique_name'] for entry in response.json]
             self.assertCountEqual(res,
                                   ["www.derstandard.at", "globalvoices_org_website"])
@@ -411,7 +411,6 @@ class TestAPILoggedOut(BasicTestSetup):
             response = c.get('/api/query',
                              query_string=query)
             self.assertEqual(len(response.json), 2)
-
 
     def test_query_same_list_predicates(self):
 
@@ -469,7 +468,7 @@ class TestAPILoggedOut(BasicTestSetup):
 
             response = c.get('/api/query',
                              query_string=query)
-            
+
             self.assertEqual(len(response.json), 5)
 
     def test_query_boolean_predicates(self):
@@ -480,13 +479,13 @@ class TestAPILoggedOut(BasicTestSetup):
             response = c.get('/api/query',
                              query_string=query,
                              headers=self.headers)
-            
+
             self.assertEqual(len(response.json), 3)
 
             query = {"verified_account": 'true'}
             response = c.get('/api/query',
                              query_string=query)
-            
+
             self.assertEqual(len(response.json), 3)
 
     def test_query_facet_filters(self):
@@ -528,7 +527,7 @@ class TestAPILoggedOut(BasicTestSetup):
                         query_string={'name': 'AmCAT',
                                       'dgraph_type': 'Tool'},
                         headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
@@ -536,7 +535,7 @@ class TestAPILoggedOut(BasicTestSetup):
 
             res = c.get('/api/add/check',
                         headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
@@ -546,7 +545,7 @@ class TestAPILoggedOut(BasicTestSetup):
                         query_string={'name': 'AmCAT',
                                       'dgraph_type': 'Tooler'},
                         headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
@@ -555,26 +554,24 @@ class TestAPILoggedOut(BasicTestSetup):
             res = c.get('/api/add/check',
                         query_string={'name': 'AmCAT'},
                         headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
                 self.assertEqual(res.status_code, 400)
 
-
             res = c.get('/api/add/check',
                         query_string={'name': "10.1080/1461670X.2020.1745667",
                                       'dgraph_type': 'ScientificPublication'},
                         headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
-                self.assertEqual(res.json[0]['doi'], "10.1080/1461670X.2020.1745667")
+                self.assertEqual(res.json[0]['doi'],
+                                 "10.1080/1461670X.2020.1745667")
 
-    
     def test_new_entry(self):
-
         """ Test the basic functionality of the route with not too complicated edge cases """
 
         mock_organization = {
@@ -592,11 +589,11 @@ class TestAPILoggedOut(BasicTestSetup):
         }
 
         with self.client as c:
-            
+
             res = c.post('/api/add/Organization',
                          json={'data': mock_organization},
                          headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
@@ -606,21 +603,19 @@ class TestAPILoggedOut(BasicTestSetup):
                 mutation = dgraph.delete({'uid': uid})
                 self.assertTrue(mutation)
 
-            
             res = c.post('/api/add/Organizationasd',
                          json={'data': mock_organization},
                          headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
                 self.assertEqual(res.status_code, 400)
 
-
             res = c.post('/api/add/Notification',
                          json={'data': mock_organization},
                          headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
@@ -629,7 +624,7 @@ class TestAPILoggedOut(BasicTestSetup):
             res = c.post('/api/add/Organization',
                          data={'data': mock_organization},
                          headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
@@ -640,7 +635,7 @@ class TestAPILoggedOut(BasicTestSetup):
             res = c.post('/api/add/Organization',
                          json={'data': mock_organization},
                          headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
@@ -648,8 +643,9 @@ class TestAPILoggedOut(BasicTestSetup):
                 uid = res.json['uid']
                 # clean up
                 entry = dgraph.query(f"query check($uid: string) {{ q(func: uid($uid)) {{ uid expand(_all_) }}  }}",
-                             variables={'$uid': uid})
-                self.assertNotEqual(entry['q'][0]['entry_review_status'], 'accepted')
+                                     variables={'$uid': uid})
+                self.assertNotEqual(
+                    entry['q'][0]['entry_review_status'], 'accepted')
                 mutation = dgraph.delete({'uid': uid})
                 self.assertTrue(mutation)
 
@@ -659,14 +655,14 @@ class TestAPILoggedOut(BasicTestSetup):
             # no UID
             edit_entry = {
                 'data': {
-                'name': 'Test',
-                'entry_review_status': 'accepted'}
+                    'name': 'Test',
+                    'entry_review_status': 'accepted'}
             }
-            
+
             res = c.post('/api/edit/' + self.derstandard_print,
                          json=edit_entry,
                          headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             elif self.logged_in == 'admin':
@@ -675,17 +671,16 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(res.json['uid'], self.derstandard_print)
             else:
                 self.assertEqual(res.status_code, 403)
-            
+
             # clean up
             res = dgraph.mutation({'uid': self.derstandard_print,
-                             'name': "Der Standard"})
+                                   'name': "Der Standard"})
             self.assertNotEqual(res, False)
-
 
             # wrong uid
             wrong_uid = {'uid': '0xfffffffff', **edit_entry}
             res = c.post('/api/edit/0xfffffffff',
-                         json=edit_entry,
+                         json=wrong_uid,
                          headers=self.headers)
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
@@ -704,16 +699,17 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(res.status_code, 401)
             elif self.logged_in in ['admin', 'reviewer']:
                 self.assertEqual(res.json['uid'], self.derstandard_print)
-                q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { alternate_names } }', 
+                q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { alternate_names } }',
                                  variables={'$uid': self.derstandard_print})
                 self.assertEqual(len(q['q'][0]['alternate_names']), 1)
-                self.assertEqual(q['q'][0]['alternate_names'][0], 'DeR StAnDaRd')
+                self.assertEqual(q['q'][0]['alternate_names']
+                                 [0], 'DeR StAnDaRd')
             else:
                 self.assertEqual(res.status_code, 403)
-            
+
             # clean up
             res = dgraph.mutation({'uid': self.derstandard_print,
-                                    'alternate_names': ["DerStandard", "DER STANDARD"]})
+                                   'alternate_names': ["DerStandard", "DER STANDARD"]})
             self.assertNotEqual(res, False)
 
             # delete list predicates
@@ -728,35 +724,34 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(res.status_code, 401)
             elif self.logged_in in ['admin', 'reviewer']:
                 self.assertEqual(res.json['uid'], self.derstandard_print)
-                q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { alternate_names } }', 
+                q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { alternate_names } }',
                                  variables={'$uid': self.derstandard_print})
                 self.assertEqual(len(q['q']), 0)
             else:
                 self.assertEqual(res.status_code, 403)
-            
+
             # clean up
             res = dgraph.mutation({'uid': self.derstandard_print,
-                                    'alternate_names': ["DerStandard", "DER STANDARD"]})
+                                   'alternate_names': ["DerStandard", "DER STANDARD"]})
             self.assertNotEqual(res, False)
 
-           
     def test_new_learning_material(self):
-        sample_data =  {
-                        "authors": ["0000-0002-0387-5377", "0000-0001-5971-8816"],
-                        "date_published": "2023",
-                        "name": "Replication Crisis Solved with Julia",
-                        "description": "Manual for making replicable research in Julia",
-                        "dgraph.type": ["Entry", "Dataset"],
-                        "doi": "10.1177/0165551515598926",
-                        "urls": ["https://awesometutorials.org/part1","https://awesometutorials.org/part2"],
-                        "programming_languages": [self.programming_julia]
-                    }
-  
+        sample_data = {
+            "authors": ["0000-0002-0387-5377", "0000-0001-5971-8816"],
+            "date_published": "2023",
+            "name": "Replication Crisis Solved with Julia",
+            "description": "Manual for making replicable research in Julia",
+            "dgraph.type": ["Entry", "Dataset"],
+            "doi": "10.1177/0165551515598926",
+            "urls": ["https://awesometutorials.org/part1", "https://awesometutorials.org/part2"],
+            "programming_languages": [self.programming_julia]
+        }
+
         with self.client as c:
             res = c.post('/api/add/LearningMaterial',
-                     json = {'data': sample_data},
+                         json={'data': sample_data},
                          headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
@@ -770,9 +765,9 @@ class TestAPILoggedOut(BasicTestSetup):
             # authors are not required, so empty list should be ignored
             sample_data['authors'] = []
             res = c.post('/api/add/LearningMaterial',
-                        json = {'data': sample_data},
+                         json={'data': sample_data},
                          headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
@@ -782,7 +777,71 @@ class TestAPILoggedOut(BasicTestSetup):
                 mutation = dgraph.delete({'uid': uid})
                 self.assertTrue(mutation)
 
-            
+    def test_edit_learningmaterial(self):
+        with self.app.app_context():
+            uid = dgraph.get_uid(
+                "_unique_name", "learningmaterial_statisticalrethinking")
+            author = dgraph.get_uid("_unique_name", "author_a5051794103")
+
+        data = {
+            "data": {
+                "uid": uid,
+                "authors": ["A5066935756", "A5084520588"],
+                "programming_languages": [self.programming_rust]
+            }
+        }
+
+        with self.client as c:
+
+            res = c.post('/api/edit/' + uid,
+                         json=data,
+                         headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in in ['admin', 'reviewer']:
+                self.assertEqual(res.json['uid'], uid)
+                q = dgraph.query('query Edited($uid: string) { q(func: uid($uid)) { authors { name } programming_languages { _unique_name } } }',
+                                 variables={'$uid': uid})
+                edited_authors = [a["name"] for a in q["q"][0]["authors"]]
+                self.assertCountEqual(
+                    edited_authors, ["Richard C. McEachin", "M. Juliana McElrath"])
+                self.assertEqual(q["q"][0]["programming_languages"]
+                                 [0]["_unique_name"], "programming_language_rust")
+            else:
+                self.assertEqual(res.status_code, 403)
+
+            # clean up
+            res = dgraph.mutation({'uid': uid,
+                                   'authors': [{"uid": author}],
+                                   "prograaming_languages": [
+                                       {"uid": self.programming_python},
+                                       {"uid": self.programming_r},
+                                       {"uid": self.programming_julia}
+                                   ]})
+            self.assertNotEqual(res, False)
+
+            # delete list predicates
+            data = {'data': {
+                'alternate_names': None
+            }}
+
+            res = c.post('/api/edit/' + self.derstandard_print,
+                         json=data,
+                         headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in in ['admin', 'reviewer']:
+                self.assertEqual(res.json['uid'], self.derstandard_print)
+                q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { alternate_names } }',
+                                 variables={'$uid': self.derstandard_print})
+                self.assertEqual(len(q['q']), 0)
+            else:
+                self.assertEqual(res.status_code, 403)
+
+            # clean up
+            res = dgraph.mutation({'uid': self.derstandard_print,
+                                   'alternate_names': ["DerStandard", "DER STANDARD"]})
+            self.assertNotEqual(res, False)
 
     """ Review Routes """
 
@@ -793,7 +852,7 @@ class TestAPILoggedOut(BasicTestSetup):
         with self.client as c:
             # set sample data to "pending"
             res = dgraph.mutation({'uid': self.derstandard_print,
-                                    'entry_review_status': "pending"})
+                                   'entry_review_status': "pending"})
             self.assertNotEqual(res, False)
 
             response = c.get('/api/review',
@@ -804,7 +863,8 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(response.status_code, 403)
             else:
                 self.assertEqual(response.status_code, 200)
-                self.assertEqual(response.json[0]['uid'], self.derstandard_print)
+                self.assertEqual(
+                    response.json[0]['uid'], self.derstandard_print)
 
             response = c.get('/api/review',
                              query_string={'country': self.austria_uid},
@@ -816,8 +876,8 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(response.status_code, 403)
             else:
                 self.assertEqual(response.status_code, 200)
-                self.assertEqual(response.json[0]['uid'], self.derstandard_print)
-
+                self.assertEqual(
+                    response.json[0]['uid'], self.derstandard_print)
 
             response = c.get('/api/review',
                              query_string={'dgraph_type': 'Tool'},
@@ -831,9 +891,8 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(len(response.json), 0)
 
             res = dgraph.mutation({'uid': self.derstandard_print,
-                                    'entry_review_status': "accepted"})
+                                   'entry_review_status': "accepted"})
             self.assertNotEqual(res, False)
-
 
     def test_review_submit(self):
 
@@ -848,7 +907,7 @@ class TestAPILoggedOut(BasicTestSetup):
                      '_added_by': {'uid': self.contributor_uid,
                                      '_added_by|timestamp': '2022-05-17T10:00:00',
                                      '_added_by|ip': '192.168.0.1'
-                                     }
+                                   }
                      }
 
         # accept entry
@@ -857,14 +916,15 @@ class TestAPILoggedOut(BasicTestSetup):
             tmp_entry_uid = response.uids['tempentry']
 
             delete_tmp = {'uid': tmp_entry_uid,
-                        'dgraph.type': None,
-                        'name': None,
-                        '_unique_name': None,
-                        '_added_by': {'uid': self.contributor_uid},
-                        '_date_created': None}
+                          'dgraph.type': None,
+                          'name': None,
+                          '_unique_name': None,
+                          '_added_by': {'uid': self.contributor_uid},
+                          '_date_created': None}
 
             response = c.post('/api/review/submit',
-                              data={'uid': tmp_entry_uid, 'status': 'accepted'},
+                              data={'uid': tmp_entry_uid,
+                                    'status': 'accepted'},
                               headers=self.headers)
             if not self.logged_in:
                 self.assertEqual(response.status_code, 401)
@@ -882,7 +942,8 @@ class TestAPILoggedOut(BasicTestSetup):
 
             # Reject Entry
             response = c.post('/api/review/submit',
-                              data={'uid': tmp_entry_uid, 'status': "rejected"},
+                              data={'uid': tmp_entry_uid,
+                                    'status': "rejected"},
                               headers=self.headers)
             if not self.logged_in:
                 self.assertEqual(response.status_code, 401)
@@ -893,15 +954,14 @@ class TestAPILoggedOut(BasicTestSetup):
 
             dgraph.delete(delete_tmp)
 
-
     """ User Profiles """
 
     def test_user_profile(self):
-        
+
         with self.client as c:
             res = c.get('/api/user/profile',
                         headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             elif self.logged_in == 'admin':
@@ -916,12 +976,12 @@ class TestAPILoggedOut(BasicTestSetup):
 
             # update profile
             res = c.post('/api/user/profile/update',
-                        headers=self.headers,
-                        json={'data': {'affiliation': 'Hogwarts'}})
-            
+                         headers=self.headers,
+                         json={'data': {'affiliation': 'Hogwarts'}})
+
             updated = c.get('/api/user/profile',
                             headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             else:
@@ -929,9 +989,9 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(updated.json['affiliation'], "Hogwarts")
 
             res = c.post('/api/user/profile/update',
-                        headers=self.headers,
-                       json={'data': {'affiliation': None}})
-            
+                         headers=self.headers,
+                         json={'data': {'affiliation': None}})
+
             updated = c.get('/api/user/profile',
                             headers=self.headers)
             if not self.logged_in:
@@ -943,9 +1003,9 @@ class TestAPILoggedOut(BasicTestSetup):
             # try to change email address
             # should not be allowed / have no effect
             res = c.post('/api/user/profile/update',
-                        headers=self.headers,
-                       json={'data': {'email': "someother@email.com"}})
-            
+                         headers=self.headers,
+                         json={'data': {'email': "someother@email.com"}})
+
             updated = c.get('/api/user/profile',
                             headers=self.headers)
             if not self.logged_in:
@@ -963,9 +1023,9 @@ class TestAPILoggedOut(BasicTestSetup):
             # try to delete private field
             # should not be allowed / have no effect
             res = c.post('/api/user/profile/update',
-                        headers=self.headers,
-                       json={'data': {'_account_status': None}})
-            
+                         headers=self.headers,
+                         json={'data': {'_account_status': None}})
+
             updated = c.get('/api/user/profile',
                             headers=self.headers)
             if not self.logged_in:
@@ -980,53 +1040,51 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(res.status_code, 200)
                 self.assertEqual(updated.json['_account_status'], "active")
 
-    
     def test_user_password(self):
         if not self.logged_in:
             self.skipTest("Requires login credentials")
-        
+
         with self.client as c:
             old_password = self.user_login['password']
             new_password = old_password + '_new'
 
             # try to change password with wrong old password
             attempt = c.post('/api/user/password/change',
-                        headers=self.headers,
-                        json={
-                            "new_pw": new_password,
-                            "confirm_new": new_password,
-                            "old_pw": "wrong_old_password"
-                        })
-            
+                             headers=self.headers,
+                             json={
+                                 "new_pw": new_password,
+                                 "confirm_new": new_password,
+                                 "old_pw": "wrong_old_password"
+                             })
+
             self.assertEqual(attempt.status_code, 401)
 
             # change password
             changed_pw = c.post('/api/user/password/change',
-                        headers=self.headers,
-                        json={
-                            "new_pw": new_password,
-                            "confirm_new": new_password,
-                            "old_pw": old_password
-                        })
-            
+                                headers=self.headers,
+                                json={
+                                    "new_pw": new_password,
+                                    "confirm_new": new_password,
+                                    "old_pw": old_password
+                                })
+
             # log out
             logout = c.get('/api/user/logout',
                            headers=self.headers)
 
             # login with new password
-            login_new_pw = c.post('/api/user/login/token', 
-                                data={'email': self.user_login['email'],
-                                      'password': new_password})
-            
+            login_new_pw = c.post('/api/user/login/token',
+                                  data={'email': self.user_login['email'],
+                                        'password': new_password})
+
             self.assertEqual(login_new_pw.status_code, 200)
             self.assertIn('access_token', login_new_pw.json)
-            
+
             token = login_new_pw.json['access_token']
             self.headers['Authorization'] = 'Bearer ' + token
 
             self.assertEqual(changed_pw.status_code, 200)
             self.assertEqual(logout.status_code, 200)
-
 
         # tidy up
         user = User(email=self.user_login['email'])
@@ -1037,7 +1095,7 @@ class TestAPILoggedOut(BasicTestSetup):
         with self.client as c:
             res = c.get('/api/user/' + self.contributor_uid + '/entries',
                         headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(len(res.json), 0)
             elif self.logged_in == 'contributor':
@@ -1047,30 +1105,30 @@ class TestAPILoggedOut(BasicTestSetup):
 
             res = c.get('/api/user/0xfffffffffffffff/entries',
                         headers=self.headers)
-            
+
             self.assertEqual(res.status_code, 404)
 
             res = c.get('/api/user/' + self.admin_uid + '/entries',
                         headers=self.headers)
-            
+
             self.assertEqual(len(res.json), 100)
 
             res = c.get('/api/user/' + self.admin_uid + '/entries',
                         query_string={'page': 2},
                         headers=self.headers)
-            
+
             self.assertEqual(len(res.json), 100)
 
             res = c.get('/api/user/' + self.admin_uid + '/entries',
                         query_string={'dgraph_type': 'Country'},
                         headers=self.headers)
-            
+
             self.assertEqual(len(res.json), 100)
 
             res = c.get('/api/user/' + self.contributor_uid + '/entries',
                         headers=self.headers,
                         query_string={'entry_review_status': 'draft'})
-            
+
             if not self.logged_in:
                 # not logged in just gets to see all accepted entries
                 self.assertEqual(len(res.json), 0)
@@ -1082,14 +1140,13 @@ class TestAPILoggedOut(BasicTestSetup):
             else:
                 self.assertEqual(res.status_code, 403)
 
-
     """ User Management """
 
     def test_admin_users(self):
         with self.client as c:
             res = c.get('/api/admin/users',
                         headers=self.headers)
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             elif self.logged_in != 'admin':
@@ -1097,13 +1154,12 @@ class TestAPILoggedOut(BasicTestSetup):
             else:
                 self.assertEqual(len(res.json), 3)
 
-    
     def test_edit_user_role(self):
         with self.client as c:
             res = c.get('/api/admin/users/' + self.contributor_uid,
                         headers=self.headers,
                         query_string={'role': 2})
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             elif self.logged_in != 'admin':
@@ -1113,7 +1169,7 @@ class TestAPILoggedOut(BasicTestSetup):
                 user = dgraph.query("query User($uid: string) { q(func: uid($uid)) { role } }",
                                     variables={'$uid': self.contributor_uid})
                 self.assertEqual(user['q'][0]['role'], 2)
-            
+
             # clean up
             dgraph.update_entry({'role': 1}, self.contributor_uid)
 
@@ -1121,7 +1177,7 @@ class TestAPILoggedOut(BasicTestSetup):
             res = c.get('/api/admin/users/' + self.contributor_uid,
                         headers=self.headers,
                         query_string={'role': 7})
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             elif self.logged_in != 'admin':
@@ -1131,7 +1187,7 @@ class TestAPILoggedOut(BasicTestSetup):
                 user = dgraph.query("query User($uid: string) { q(func: uid($uid)) { role } }",
                                     variables={'$uid': self.contributor_uid})
                 self.assertEqual(user['q'][0]['role'], 1)
-            
+
             # clean up
             dgraph.update_entry({'role': 1}, self.contributor_uid)
 
@@ -1139,14 +1195,13 @@ class TestAPILoggedOut(BasicTestSetup):
             res = c.get('/api/admin/users/0xffffffffffffff',
                         headers=self.headers,
                         query_string={'role': 2})
-            
+
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
             elif self.logged_in != 'admin':
                 self.assertEqual(res.status_code, 403)
             else:
                 self.assertEqual(res.status_code, 404)
-
 
     """ Commenting """
 
@@ -1168,9 +1223,9 @@ class TestAPILoggedOut(BasicTestSetup):
         with self.client as c:
 
             res = c.post('/api/comment/post/' + self.derstandard_print,
-                   headers=self.headers,
-                   json=comment)
-            
+                         headers=self.headers,
+                         json=comment)
+
             comment_uid = None
             if not self.logged_in:
                 self.assertEqual(res.status_code, 401)
@@ -1182,8 +1237,8 @@ class TestAPILoggedOut(BasicTestSetup):
             # delete new comment
             if comment_uid:
                 res = c.get('/api/comment/delete/' + comment_uid,
-                    headers=self.headers)
-                
+                            headers=self.headers)
+
                 if not self.logged_in:
                     self.assertEqual(res.status_code, 401)
                 else:
@@ -1194,10 +1249,10 @@ class TestAPILoggedOut(BasicTestSetup):
 
         # prepare a comment
         comment = {'uid': '_:comment',
-                     'dgraph.type': ['Comment'],
-                     'message': 'Will be deleted',
-                     '_creator': {'uid': self.contributor_uid}
-                     }
+                   'dgraph.type': ['Comment'],
+                   'message': 'Will be deleted',
+                   '_creator': {'uid': self.contributor_uid}
+                   }
 
         # accept entry
         with self.client as c:
@@ -1214,11 +1269,10 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(res.status_code, 403)
             else:
                 self.assertEqual(res.status_code, 200)
-            
+
             # clean up
             mutation = dgraph.delete({'uid': comment_uid})
             self.assertTrue(mutation)
-
 
     """ Follow Entries """
 

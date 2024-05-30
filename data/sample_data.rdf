@@ -523,6 +523,21 @@
         _:amcatpaper <date_published> "2008-11-14" .
         _:amcatpaper <paper_kind> "dissertation" .
         _:amcatpaper <authors> _:wouter (sequence=0) .
+
+        _:learningmaterial_statistics <dgraph.type> "Entry" . 
+        _:learningmaterial_statistics <dgraph.type> "LearningMaterial" . 
+        _:learningmaterial_statistics <urls> "https://xcelab.net/rm/" . 
+        _:learningmaterial_statistics <authors> _:richardmcelreath (sequence=0) . 
+        _:learningmaterial_statistics <_unique_name> "learningmaterial_statisticalrethinking" . 
+        _:learningmaterial_statistics <entry_review_status> "pending" . 
+        _:learningmaterial_statistics <name> "Statistical Rethinking" . 
+        _:learningmaterial_statistics <description> "Other researchers are out there writing books about the wonder of science, capturing the imagination of the public, inspiring the thinkers that will secure our species just and sustainable future. Meanwhile, I am telling anyone who will listen that, if we are very careful and try very hard, we might not completely mislead ourselves." . 
+        _:richardmcelreath <openalex> "A5051794103" . 
+        _:richardmcelreath <name> "Richard McElreath" . 
+        _:richardmcelreath <orcid> "https://orcid.org/0000-0002-0387-5377" . 
+        _:richardmcelreath <dgraph.type> "Entry" . 
+        _:richardmcelreath <dgraph.type> "Author" . 
+        _:richardmcelreath <_unique_name> "author_a5051794103" . 
         
         _:paragraph <name> "Paragraph" .
         _:paragraph <dgraph.type> "UnitOfAnalysis" .

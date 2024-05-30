@@ -121,12 +121,15 @@ def main():
     query = """{
         amcat(func: eq(_unique_name, "tool_amcat")) { am as uid }
         python(func: eq(_unique_name, "programming_language_python")) { py as uid }
+        rlang(func: eq(_unique_name, "programming_language_r")) { r as uid }
+        julia(func: eq(_unique_name, "programming_language_julia")) { j as uid }
         paper1(func: eq(_unique_name, "10.1080_1461670X.2020.1745667")) { paper as uid }
         news(func: type(NewsSource)) { news as uid }
         globalvoices(func: eq(_unique_name, "globalvoices_org_website")) { gvoices as uid }
         german(func: eq(_unique_name, "language_german")) { ger as uid }
         english(func: eq(_unique_name, "language_english")) {eng as uid }
         hungarian(func: eq(_unique_name, "language_hungarian")) {hu as uid }
+        learningmaterial(func: eq(_unique_name, "learningmaterial_statisticalrethinking")) { learning as uid }
         }"""
     nquad = """
         uid(am) <programming_languages> uid(py) .
@@ -134,6 +137,9 @@ def main():
         uid(news) <languages> uid(ger) .
         uid(gvoices) <languages> uid(eng) .
         uid(gvoices) <languages> uid(hu) .
+        uid(learning) <programming_languages> uid(py) .
+        uid(learning) <programming_languages> uid(r) .
+        uid(learning) <programming_languages> uid(j) .
         """
     mutation = txn.create_mutation(set_nquads=nquad)
     request = txn.create_request(query=query, mutations=[mutation], commit_now=True)
