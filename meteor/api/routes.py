@@ -1513,6 +1513,7 @@ def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
         
     """
     check = check_entry(uid=uid)
+
     
     if not check:
         return api.abort(404, message=f"No entry found with UID <{uid}>")
@@ -1520,14 +1521,16 @@ def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
     if not can_edit(check, jwtx.current_user):
         return api.abort(403, message=f"You do not have the right permissions to edit <{uid}>")
     
-    for dgraph_type in check['dgraph.type']:
-        if Schema.is_private(dgraph_type):
+    for dtype in check['dgraph.type']:
+        if Schema.is_private(dtype):
             return api.abort(403, message='You cannot edit entries of this type')
-        if jwtx.current_user._role < Schema.permissions_edit(dgraph_type):
-            return api.abort(403, message=f"You do not have the permission to edit types <{dgraph_type}>")
+        if jwtx.current_user._role < Schema.permissions_edit(dtype):
+            return api.abort(403, message=f"You do not have the permission to edit types <{dtype}>")
     
     if 'uid' not in data:
         data['uid'] = uid
+
+    dgraph_type = [dt for dt in check["dgraph.type"] if dt != "Entry"][0]
 
     skip_fields = []
     # manually filter out fields depending on channel
@@ -1551,7 +1554,9 @@ def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
     
     try:
         result = dgraph.upsert(
-            sanitizer.upsert_query, del_nquads=sanitizer.delete_nquads, set_nquads=sanitizer.set_nquads)
+            sanitizer.upsert_query, 
+            del_nquads=sanitizer.delete_nquads, 
+            set_nquads=sanitizer.set_nquads)
         return jsonify({'status': 'success',
                         'message': f'<{uid}> has been edited',
                         'uid': uid})
