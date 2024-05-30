@@ -1510,7 +1510,19 @@ def edit_uid(uid: str, data: EditablePredicates) -> SuccessfulAPIOperation:
 
         Use the path `/schema/type/{dgraph_type}` to retrieve a list
         of editable predicates for a given type.
-        
+
+        To delete a field send `null` for the desired key. For example, deleting the
+        description, send the following JSON object:
+
+        ```
+        {
+            "data": {
+                "description": null
+            }
+        }
+        ```
+
+        Note that this raises an error when the field is required and cannot be deleted.
     """
     check = check_entry(uid=uid)
 
