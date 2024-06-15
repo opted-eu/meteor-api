@@ -455,6 +455,7 @@ class NewsSource(Entry):
             "society": "Society & Panorama",
             "science": "Science & Technology",
             "youth": "Youth",
+            "NA": "Don't Know / NA",
         },
         tom_select=True,
         queryable=True,
@@ -1253,6 +1254,7 @@ class Tool(Entry):
         choices={"windows": "Windows", "linux": "Linux", "macos": "macOS"},
         tom_select=True,
         queryable=True,
+        default=["windows", "linux", "macos"]
     )
 
     programming_languages = ListRelationship(
@@ -1426,6 +1428,7 @@ class ScientificPublication(Entry):
 
     paper_kind = SingleChoice(
         description="What kind of publication is this?",
+        required=True,
         choices={
             "journal-article": "Journal Article",
             "book": "Book",
