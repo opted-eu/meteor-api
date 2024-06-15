@@ -177,6 +177,10 @@ class TestSanitizers(BasicTestSetup):
             with self.assertRaises(InventoryValidationError):
                 sanitizer = Sanitizer.edit(wrong, self.reviewer)
 
+            # delete list string field
+            correct = {'uid': self.derstandard_mbh_uid, "alternate_names": None}
+            sanitizer = Sanitizer.edit(correct, self.reviewer)
+            self.assertEqual(f"<{self.derstandard_mbh_uid}> <alternate_names> * .", sanitizer.delete_nquads)
 
     def test_new_org(self):
 

@@ -735,7 +735,7 @@ class TestAPILoggedOut(BasicTestSetup):
 
             # delete string contents
             data = {'data': {
-                'description': ""
+                'description': None
             }}
 
             res = c.post('/api/edit/' + self.fileformat_csv,
@@ -747,7 +747,6 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(res.json['uid'], self.fileformat_csv)
                 q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { description } }',
                                  variables={'$uid': self.fileformat_csv})
-                print(q)
                 self.assertEqual(len(q['q']), 0)
             else:
                 self.assertEqual(res.status_code, 403)
