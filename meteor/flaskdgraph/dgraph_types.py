@@ -1191,8 +1191,8 @@ class String(Predicate):
     dgraph_predicate_type = 'string'
     is_list_predicate = False
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, overwrite=True, **kwargs) -> None:
+        super().__init__(*args, overwrite=overwrite, **kwargs)
 
     
     @property
@@ -1342,7 +1342,9 @@ class UniqueName(String):
     dgraph_directives = ['@index(hash, trigram)', '@upsert']
 
     def __init__(self, *args, **kwargs) -> None:
-        super().__init__(required=True, new=False,
+        super().__init__(required=True, 
+                         new=False,
+                         overwrite=False,
                          permission=USER_ROLES.Reviewer, *args, **kwargs)
 
     @property
@@ -1363,9 +1365,9 @@ class SingleChoice(String):
 
     dgraph_directives = ['@index(hash)']
 
-    def __init__(self, choices: dict = None, default='NA', radio_field=False, *args, **kwargs) -> None:
+    def __init__(self, *args, choices: dict = None, default='NA', radio_field=False, **kwargs) -> None:
 
-        super().__init__(*args, default=default, **kwargs)
+        super().__init__(*args, default=default, overwrite=True, **kwargs)
 
         self.choices = choices or {'NA': 'NA'}
         self.choices_tuples = [(k, v) for k, v in self.choices.items()]
@@ -1442,8 +1444,8 @@ class MultipleChoice(SingleChoice):
     is_list_predicate = True
     default_connector = "AND"
 
-    def __init__(self, overwrite=True, *args, **kwargs) -> None:
-        super().__init__(overwrite=overwrite, *args, **kwargs)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     def validation_hook(self, data):
         if isinstance(data, str):

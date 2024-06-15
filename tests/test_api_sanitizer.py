@@ -2,6 +2,10 @@
 #  Ugly hack to allow absolute import from the root folder
 # whatever its name is. Please forgive the heresy.
 
+from sys import path
+from os.path import dirname
+path.append(dirname(path[0]))
+
 from meteor.users.dgraph import AnonymousUser
 from meteor.errors import InventoryValidationError, InventoryPermissionError
 from meteor.api.sanitizer import Sanitizer
@@ -13,10 +17,6 @@ from unittest.mock import patch
 import unittest
 from meteor import dgraph
 from test_setup import BasicTestSetup
-from sys import path
-from os.path import dirname
-
-path.append(dirname(path[0]))
 
 
 def mock_wikidata(*args):
@@ -166,7 +166,7 @@ class TestSanitizers(BasicTestSetup):
             self.assertNotIn('dgraph.type', sanitizer.entry.keys())
             self.assertIn('_edited_by', sanitizer.entry.keys())
             self.assertCountEqual(
-                sanitizer.overwrite[sanitizer.entry_uid], ['alternate_names'])
+                sanitizer.overwrite[sanitizer.entry_uid], ['alternate_names', 'entry_review_status'])
 
     def test_new_org(self):
 
@@ -206,7 +206,7 @@ class TestSanitizers(BasicTestSetup):
 
     def test_edit_org(self):
         overwrite_keys = ['country', 'publishes',
-                          'date_founded', 'address']
+                          'date_founded', 'address', 'ownership_kind', 'entry_review_status']
 
         mock_org_edit = {
             "uid": self.derstandard_mbh_uid,
