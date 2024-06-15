@@ -1404,8 +1404,10 @@ def add_new_entry(dgraph_type: str, data: EditablePredicates, draft: bool = Fals
                 "country": "0x123",
                 "tools": ["0x234", "0x345"],
                 "date_modified": "2023-09-23T18:34:42.652102",      # datetime always in isoformat
-                "audience_size: "2023-09-23",                       # truncated also ok
-                "audience_size|unit": "followers"                   # facets are separated with `|`
+                "identifier": "@somehandle",
+                "identifier|kind": "social media"                   # facets are separated with `|`
+                "audience_size: ["2023-09-23"],                     # dates can also be truncated
+                "audience_size|unit": {"0": "followers"}            # facets for list types
             }
         }
         ```
