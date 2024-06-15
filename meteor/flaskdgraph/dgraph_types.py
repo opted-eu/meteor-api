@@ -455,12 +455,28 @@ class _PrimitivePredicate:
         # preferably this method should return a Scalar object
         
         if not self.overwrite and data is None:
-            raise InventoryValidationError(f"Tried to delete predicate <{self.label}> by supplying null value.")
+            raise InventoryValidationError(f"Tried to delete predicate <{self.predicate}> by supplying null value.")
         
         data = self.validation_hook(data)
         
         if isinstance(data, (list, set, tuple)):
-            return [Scalar(item, facets=facets) if isinstance(item, (str, int, datetime.datetime, datetime.date)) else item for item in data]
+            _data = []
+            for item in data:
+                if isinstance(item, (str, int, datetime.datetime, datetime.date)):
+                    _data.append(Scalar(item))
+                else:
+                    _data.append(item)
+            
+            if facets:
+                assert isinstance(facets, dict), InventoryValidationError(f"Error in <{self.predicate}>: Facets provided in wrong format!")
+                for key, val in facets.items():
+                    assert isinstance(val, dict), InventoryValidationError(f"Error in <{self.predicate}>: Facets provided in wrong format!")
+                    for counter, subval in val.items():
+                        _data[int(counter)].update_facets({key: subval})
+
+            return _data
+
+            # return [Scalar(item, facets=facets) if isinstance(item, (str, int, datetime.datetime, datetime.date)) else item for item in data]
         elif isinstance(data, (str, int, datetime.datetime, datetime.date)):
             return Scalar(data, facets=facets)
         else:
@@ -1609,6 +1625,51 @@ class DateTime(Predicate):
             o['description'] =  self.description
         return o
 
+
+class ListDatetime(DateTime):
+
+    dgraph_predicate_type = "[datetime]"
+    _type = list
+
+    def validation_hook(self, data):
+        if data is None:
+            return None
+        if isinstance(data, (list, tuple, set)):
+            _data = []
+            for val in data:
+                try:
+                    _data.append(dateparser.parse(val))
+                except:
+                    raise InventoryValidationError(
+                        f'Error in <{self.predicate}> Cannot parse provided value to date: {data}')
+            return _data
+        if isinstance(data, (datetime.date, datetime.datetime)):
+            return data
+        elif isinstance(data, int):
+            try:
+                return datetime.date(year=data, month=1, day=1)
+            except:
+                pass
+        try:
+            return dateparser.parse(data)
+        except:
+            raise InventoryValidationError(
+                f'Error in <{self.predicate}> Cannot parse provided value to date: {data}')
+
+
+    @property
+    def openapi_component(self) -> dict:
+        o = {'type': "array",
+             'items': {
+                'type': 'string',
+                'format': "date-time"
+                } 
+             }
+        if self.description:
+            o['description'] =  self.description
+        return o
+
+
 class Year(DateTime):
 
     dgraph_predicate_type = 'datetime'
@@ -1622,7 +1683,7 @@ class Year(DateTime):
                 return datetime.datetime(year=int(data), month=1, day=1)
             except:
                 raise InventoryValidationError(
-                    f'Cannot parse provided value to year: {data}')
+                    f'Error in <{self.predicate}>: Cannot parse provided value to year: {data}')
 
     @property
     def wtf_field(self) -> IntegerField:
@@ -1694,7 +1755,7 @@ class Boolean(Predicate):
             return data > 0
         else:
             raise InventoryValidationError(
-                f'Cannot evaluate provided value as bool: {data}!')
+                f'Error in <{self.predicate}>: Cannot evaluate provided value as bool: {data}!')
 
     def query_filter(self, vals, **kwargs) -> str:
         if isinstance(vals, list):

@@ -229,12 +229,7 @@ class Sanitizer:
                     self.facets[predicate].update({facet: self.data[key]})
                 else:
                     self.facets[predicate] = {facet: self.data[key]}
-
-            # for list predicates, we track facets via the value
-            if '@' in key:
-                val, facet = key.split('@')
-                self.facets[val] = {facet: self.data[key]}
-
+        
     def _postprocess_list_facets(self):
         for ll in self.entry.values():
             if isinstance(ll, list):

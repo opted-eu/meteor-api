@@ -99,10 +99,11 @@ class TestSanitizers(BasicTestSetup):
     def test_list_facets(self):
         mock_data = {
             'name': 'Test',
-            'alternate_names': 'Jay Jay,Jules,JB',
-            'Jay Jay@kind': 'first',
-            'Jules@kind': 'official',
-            'JB@kind': 'CS-GO'
+            'alternate_names': ['Jay Jay' , 'Jules', 'JB'],
+            'alternate_names|kind': {"0": 'first',
+                                     "1": 'official',
+                                     "2": "CS-GO"
+                                     }
         }
 
         with self.app.app_context():
@@ -298,7 +299,16 @@ class TestSanitizers(BasicTestSetup):
                         'contains_ads': 'non subscribers',
                         'publishes_org': self.derstandard_mbh_uid,
                         'related_news_sources': [self.falter_print_uid],
-                        'entry_review_status': 'pending'}
+                        'entry_review_status': 'pending',
+                        'audience_size': ["2024-06-15T21:20:13",
+                                          "2023-05-14",
+                                          "2022-04"],
+                        'audience_size|unit': {"0": "subscribers",
+                                               "1": "subscribers",
+                                               "2": "subscribers"},
+                        'audience_size|count': {"0": 100,
+                                                "1": 200,
+                                                "2": 300}}
 
         with self.app.app_context():
             # test if random user can edit

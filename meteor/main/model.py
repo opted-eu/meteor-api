@@ -553,8 +553,7 @@ class NewsSource(Entry):
         queryable=True,
     )
 
-    audience_size = ListYear(
-        edit=False,
+    audience_size = ListDatetime(
         facets=[
             Facet(
                 "unit",
