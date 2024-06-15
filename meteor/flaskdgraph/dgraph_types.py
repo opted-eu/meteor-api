@@ -1294,6 +1294,8 @@ class ListString(String):
         super().__init__(overwrite=overwrite, *args, **kwargs)
 
     def validation_hook(self, data):
+        if data is None:
+            return None
         if not isinstance(data, (list, tuple, set, str)):
             raise InventoryValidationError(
                 f'Error in <{self.predicate}> Provided data is not a list, tuple, str or set: {data}')
