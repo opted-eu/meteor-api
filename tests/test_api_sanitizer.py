@@ -168,6 +168,16 @@ class TestSanitizers(BasicTestSetup):
             self.assertCountEqual(
                 sanitizer.overwrite[sanitizer.entry_uid], ['alternate_names', 'entry_review_status'])
 
+            # delete string field
+            correct = {'uid': self.derstandard_mbh_uid, "description": None}
+            sanitizer = Sanitizer.edit(correct, self.reviewer)
+            self.assertEqual(f"<{self.derstandard_mbh_uid}> <description> * .", sanitizer.delete_nquads)
+
+            wrong = {'uid': self.derstandard_mbh_uid, "name": None}
+            with self.assertRaises(InventoryValidationError):
+                sanitizer = Sanitizer.edit(wrong, self.reviewer)
+
+
     def test_new_org(self):
 
         with self.app.app_context():

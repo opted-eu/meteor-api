@@ -279,7 +279,7 @@ class Sanitizer:
             else:
                 facets = None
 
-            if self.data.get(key) and isinstance(item, ReverseRelationship):
+            if key in self.data and isinstance(item, ReverseRelationship):
                 validated = item.validate(
                     self.data[key], self.entry_uid, facets=facets)
                 if item.required and validated is None and not self.is_upsert:
@@ -291,7 +291,7 @@ class Sanitizer:
                 else:
                     self.related_entries.append(validated)
                 continue
-            elif self.data.get(key) and isinstance(item, MutualRelationship):
+            elif key in self.data and isinstance(item, MutualRelationship):
                 node_data, data_node = item.validate(
                     self.data[key], self.entry_uid, facets=facets)
                 self.entry[item.predicate] = node_data
@@ -321,7 +321,7 @@ class Sanitizer:
                 else:
                     current_app.logger.debug(f'No legal value supplied for {key}. Provided data: {self.data[key]}')
 
-            elif self.data.get(key) and hasattr(item, 'validate'):
+            elif key in self.data and hasattr(item, 'validate'):
                 validated = item.validate(self.data[key], facets=facets)
 
             elif hasattr(item, 'autocode'):
@@ -357,8 +357,8 @@ class Sanitizer:
 
         if self.is_upsert:
             self.entry = self._add_entry_meta(self.entry)
-            self.overwrite[self.entry_uid] = [item.predicate for k, item in self.fields.items(
-            ) if item.overwrite and k in self.data.keys()]
+            self.overwrite[self.entry_uid] = [i.predicate for k, i in self.fields.items(
+            ) if i.overwrite and k in self.data.keys()]
         else:
             self.entry = self._add_entry_meta(self.entry, newentry=True)
             # self.entry['_unique_name'] = self.generate_unique_name(self.entry)

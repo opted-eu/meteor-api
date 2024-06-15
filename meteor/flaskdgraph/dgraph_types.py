@@ -448,12 +448,17 @@ class _PrimitivePredicate:
         # is the preferred way.
         return data
 
-    def validate(self, data, facets=None, **kwargs):
+    def validate(self, data, facets: dict=None, **kwargs):
         # Validation method that is called by data sanitizer
         # When overwriting this method make sure to accept
         # `facets` as keyword argument
         # preferably this method should return a Scalar object
+        
+        if not self.overwrite and data is None:
+            raise InventoryValidationError(f"Tried to delete predicate <{self.label}> by supplying null value.")
+        
         data = self.validation_hook(data)
+        
         if isinstance(data, (list, set, tuple)):
             return [Scalar(item, facets=facets) if isinstance(item, (str, int, datetime.datetime, datetime.date)) else item for item in data]
         elif isinstance(data, (str, int, datetime.datetime, datetime.date)):
