@@ -139,7 +139,7 @@ class TestSanitizers(BasicTestSetup):
                 'kind': 'CS-GO'})
             self.assertIn('<alternate_names> "JB" (kind="CS-GO")',
                           sanitizer.set_nquads)
-
+             
     def test_edit_entry(self):
 
         with self.app.app_context():
@@ -182,6 +182,24 @@ class TestSanitizers(BasicTestSetup):
             correct = {'uid': self.derstandard_mbh_uid, "alternate_names": None}
             sanitizer = Sanitizer.edit(correct, self.reviewer)
             self.assertEqual(f"<{self.derstandard_mbh_uid}> <alternate_names> * .", sanitizer.delete_nquads)
+
+    def test_edit_list_facets(self):
+        with self.app.app_context():
+            delete = {'uid': self.derstandard_facebook, "audience_size": None}
+            sanitizer = Sanitizer.edit(delete, self.reviewer, dgraph_type="NewsSource")
+            self.assertEqual(list(sanitizer.overwrite.values())[0], ["audience_size"])
+            self.assertEqual(sanitizer.delete_nquads, f"<{self.derstandard_facebook}> <audience_size> * .")
+    
+            edit = {'uid': self.derstandard_facebook, 
+                    "audience_size": ["2021-05-06"],
+                    "audience_size|count": {"0": 1234},
+                    "audience_size|unit": {"0": "followers"}}
+            
+            sanitizer = Sanitizer.edit(edit, self.reviewer, dgraph_type="NewsSource")
+            self.assertEqual(list(sanitizer.overwrite.values())[0], ["audience_size"])
+            self.assertEqual(sanitizer.delete_nquads, f"<{self.derstandard_facebook}> <audience_size> * .")
+            self.assertIn(f'<{self.derstandard_facebook}> <audience_size> "2021-05-06T00:00:00" (count=1234, unit="followers") .', sanitizer.set_nquads)
+    
 
     def test_new_org(self):
 

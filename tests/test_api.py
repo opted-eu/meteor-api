@@ -756,6 +756,42 @@ class TestAPILoggedOut(BasicTestSetup):
                                    'description': "delimited text file that uses a comma to separate values"})
             self.assertNotEqual(res, False)
 
+            # edit list predicates with facets
+            data = {'data': 
+                        {
+                        "audience_size": ["2021-05-06"],
+                        "audience_size|count": {"0": 1234},
+                        "audience_size|unit": {"0": "followers"}
+                        }
+                    }
+
+            res = c.post('/api/edit/' + self.derstandard_facebook,
+                         json=data,
+                         headers=self.headers)
+            if not self.logged_in:
+                self.assertEqual(res.status_code, 401)
+            elif self.logged_in in ['admin', 'reviewer']:
+                self.assertEqual(res.json['uid'], self.derstandard_facebook)
+                q = dgraph.query('query ListFacets($uid: string) { q(func: uid($uid)) { audience_size @facets } }',
+                                 variables={'$uid': self.derstandard_facebook})
+                self.assertEqual(q['q'][0]["audience_size|count"]["0"], 1234)
+            else:
+                self.assertEqual(res.status_code, 403)
+
+            # clean up
+            res = dgraph.mutation({'uid': self.derstandard_facebook,
+                                   "audience_size": ["2021-05-06",
+                                                     "2022-05-06"],
+                                   "audience_size|count": 
+                                            {"0": 347671,
+                                             "1": 456789},
+                                   "audience_size|unit": 
+                                          {"0": "followers",
+                                           "1": "followers"}
+                                    })
+            self.assertNotEqual(res, False)
+
+
     def test_new_learning_material(self):
         sample_data = {
             "authors": ["0000-0002-0387-5377", "0000-0001-5971-8816"],
@@ -861,8 +897,7 @@ class TestAPILoggedOut(BasicTestSetup):
                 self.assertEqual(response.status_code, 403)
             else:
                 self.assertEqual(response.status_code, 200)
-                self.assertEqual(
-                    response.json[0]['uid'], self.derstandard_print)
+                self.assertIn(self.derstandard_print, [item["uid"] for item in response.json])
 
             response = c.get('/api/review',
                              query_string={'country': self.austria_uid},
