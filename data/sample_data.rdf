@@ -190,6 +190,7 @@
         _:derstandardfacebook <geographic_scope> "national" .
         _:derstandardfacebook <countries> _:austria .
         _:derstandardfacebook <audience_size> "2021-05-06" (count=347671, unit="followers") .
+        _:derstandardfacebook <audience_size> "2022-05-06" (count=456789, unit="followers") .
         _:derstandardfacebook <verified_account> "true" .
 
         _:derstandardat <related_news_sources> _:derstandardprint .
