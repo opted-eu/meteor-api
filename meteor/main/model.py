@@ -977,8 +977,12 @@ class Archive(Entry):
 class Dataset(Entry):
     """Results of text analysis; or static collections of full-text data"""
 
-    name = String(
-        description="What is the name of the dataset?", required=True, overwrite=False
+    name = String(new=False, edit=False, hidden=True, overwrite=False)
+
+    title = String(
+        description="What is the title of the dataset?",
+        required=True,
+        directives=["@index(term)"],
     )
 
     alternate_names = ListString(
@@ -1253,7 +1257,7 @@ class Tool(Entry):
         choices={"windows": "Windows", "linux": "Linux", "macos": "macOS"},
         tom_select=True,
         queryable=True,
-        default=["windows", "linux", "macos"]
+        default=["windows", "linux", "macos"],
     )
 
     programming_languages = ListRelationship(
@@ -1787,6 +1791,7 @@ class Collection(Entry):
         description="Is this collection about concepts or related to theoretical constructs?",
         relationship_constraint=["ConceptVariable"],
         autoload_choices=True,
+        allow_new=True,
     )
 
     modalities = ListRelationship(
@@ -1883,7 +1888,6 @@ class LearningMaterial(Entry):
 
 
 class File(Schema):
-
     __permission_new__ = 99
     __permission_edit__ = 99
     __private__ = True
@@ -1900,7 +1904,6 @@ class File(Schema):
 
 
 class Notification(Schema):
-
     __permission_new__ = 99
     __permission_edit__ = 99
     __private__ = True
@@ -1926,7 +1929,6 @@ class Notification(Schema):
 
 
 class Comment(Schema):
-
     __permission_new__ = USER_ROLES.Contributor
     __permission_edit__ = USER_ROLES.Contributor
     __private__ = True
