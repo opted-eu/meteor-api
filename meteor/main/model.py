@@ -977,12 +977,8 @@ class Archive(Entry):
 class Dataset(Entry):
     """Results of text analysis; or static collections of full-text data"""
 
-    name = String(new=False, edit=False, hidden=True, overwrite=False)
-
-    title = String(
-        description="What is the title of the dataset?",
-        required=True,
-        directives=["@index(term)"],
+    name = String(
+        description="What is the name of the dataset?", required=True, overwrite=False
     )
 
     alternate_names = ListString(
